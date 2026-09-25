@@ -1,0 +1,30 @@
+[
+  {
+    "root": "C:\\NBSR-build\\native-bundle-memory-c5b53c66",
+    "index_sha256": "5b5b3c049423cef72e8acbf5bbd3e1d0ea6893c6bfd48fbd81743ea85b60d65d"
+  },
+  {
+    "root": "C:\\NBSR-build\\linux-current-c5b53c66",
+    "index_sha256": "6c8b49ce037c09aa1b085f2a55482c424bbbaa33898fa9a4d2b5455c6a767e16"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-bundle-memory-tests-20260925",
+    "index_sha256": "0ba9b3059cee174ab6634f86b366747a6dd8fd6e272c1457e2fb6c89ef0c0885"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-bundle-memory-cargo-cleanup-20260925",
+    "index_sha256": "bb007f017c32e41324a090ac94044542d719429e1a1aefbb4a4e7307b5544bf2"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-bundle-memory-compat-20260925",
+    "index_sha256": "c18ef67fd78d9f7e4ec244ca2e5aa115f4629bd531f41066541a5737c4831c88"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-bundle-identity-tests-20260925",
+    "index_sha256": "c80df980261c6d2b077f4a5d9d1ab54eec7027e1ce94c36c2c204014d193ccde"
+  },
+  {
+    "root": "C:\\NBSR-build\\native-bundle-memory-extra-cleanup-20260925",
+    "index_sha256": "91ba1c5ab2c1c5665647bdf0542273fadb5df6d6577bbcab1dcfce4521ea5426"
+  }
+]

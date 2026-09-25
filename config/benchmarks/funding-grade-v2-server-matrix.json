@@ -430,7 +430,7 @@
         "scripts/performance/linux_native_lifecycle_coordinator.py",
         "docs/benchmarks/EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md"
       ],
-      "scope": "prepared source, readiness/active/release/ACK/cooldown coordination and owned EOF cleanup; finite native 512/1024 namespace evidence, not sustainable admission",
+      "scope": "prepared source, readiness/active/release/ACK/cooldown coordination and owned EOF cleanup; finite native 512/1024 namespace evidence, not sustainable admission; optional private/PSS diagnostic observer: native16..512 three repeats pass,1024 idle-hold failure retained separately",
       "missing": "physical-host SSH validation, Go-to-Rust coverage and sustained multihost admission; separate native cycle coordinator covers bounded channel/stream axes"
     },
     "native_reference_gates": {

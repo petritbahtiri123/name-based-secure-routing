@@ -150,3 +150,5 @@ cores and a single NUMA node. Defaults are unchanged when omitted. Only the
 owned Rust child uses this selection; controller/observer placement is unchanged.
 The retained resource samples and pair gate verify actual affinity. Guest CPU
 IDs/topology are not proof of physical host core allocation.
+
+Optional diagnostic private memory (c5b53c66): add top-level `"memory_observer":true` to the coordinator config. Both endpoint commands and retained replay bind this boolean; default remains off and historical off evidence stays compatible. Sampling uses identity/lifetime-bound Linux smaps_rollup at most once per second, with the existing120-second controller. Use private/PSS samples wholly contained in active windows on both roles and destination report-gate cooldown. Source exits after ACK: source cooldown is NOT_MEASURED, never an inferred zero. Independent pair CLI requires `--memory-observer` for these artifacts. This opt-in observer has no neutrality qualification and its timings cannot support capacity claims. Bundle axes co-vary; no isolated bytes/connection/session/channel/stream claim.

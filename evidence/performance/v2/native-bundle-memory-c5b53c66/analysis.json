@@ -1,0 +1,1793 @@
+{
+  "classification": "PARTIAL_DIAGNOSTIC_MEMORY_SCALE_1024_FAILED",
+  "trials": 18,
+  "successful_connections": 3024,
+  "all_successful_trials_final_eleven_ownership_counters_zero": true,
+  "source_cooldown": "NOT_MEASURED: source exits after ACK",
+  "observer_neutrality": "NOT_ESTABLISHED",
+  "marginal_cost": "NOT_QUALIFIED: connection/session/channel/stream co-vary",
+  "derived_private_bytes_per_additional_bundle": {
+    "source_active": 412405.35607675917,
+    "destination_active": 312603.2921108742,
+    "destination_cooldown": 312282.973702914
+  },
+  "slope_scope": "DERIVED least-squares slope of measured cell medians;16..512 successful bundles only;includes transport/runtime/fixtures;no isolated resource or extrapolation claim",
+  "scope": "Docker/WSL namespaces; one advertised guest core per role; no physical/server/capacity claim",
+  "attempted_trials": 19,
+  "failures": [
+    {
+      "label": "n1024-r1",
+      "count": 1024,
+      "status": "FAILED_PARTIAL_IDLE_EXPIRY_OBSERVED",
+      "source_recorded_successes": 3,
+      "source_recorded_failures": 117,
+      "source_missing_terminal_outcomes": 904,
+      "diagnostics": {
+        "source": {
+          "close_reasons": {
+            "timed_out": 276
+          },
+          "timed_out_ready_to_release_ns_min": 11984048827,
+          "timed_out_ready_to_release_ns_max": 15483579284,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          }
+        },
+        "destination": {
+          "close_reasons": {
+            "timed_out": 554,
+            "other_closed": 5
+          },
+          "timed_out_ready_to_release_ns_min": 10006022208,
+          "timed_out_ready_to_release_ns_max": 15346280881,
+          "forced_cleanup": {
+            "exit_code": -9,
+            "group_killed": true,
+            "valid": false
+          }
+        }
+      },
+      "final_ownership": "NOT_MEASURED: cancelled after failure; owned processes killed and absence verified"
+    }
+  ],
+  "cells": {
+    "16": {
+      "repeats": 3,
+      "first_three_cv": {
+        "source_active": 0.0031719080840867395,
+        "destination_active": 0.010350156655160297,
+        "destination_cooldown": 0.0052552119365098186
+      },
+      "private": {
+        "source_active": {
+          "values": [
+            11702272.0,
+            11689984.0,
+            11759616.0
+          ],
+          "median_bytes": 11702272.0,
+          "cv": 0.0031719080840867395
+        },
+        "destination_active": {
+          "values": [
+            8869888.0,
+            9009152.0,
+            9046016.0
+          ],
+          "median_bytes": 9009152.0,
+          "cv": 0.010350156655160297
+        },
+        "destination_cooldown": {
+          "values": [
+            8951808.0,
+            9041920.0,
+            8972288.0
+          ],
+          "median_bytes": 8972288.0,
+          "cv": 0.0052552119365098186
+        }
+      }
+    },
+    "32": {
+      "repeats": 3,
+      "first_three_cv": {
+        "source_active": 0.009427535740476198,
+        "destination_active": 0.00728428624631637,
+        "destination_cooldown": 0.006850164580839377
+      },
+      "private": {
+        "source_active": {
+          "values": [
+            18227200.0,
+            18362368.0,
+            18571264.0
+          ],
+          "median_bytes": 18362368.0,
+          "cv": 0.009427535740476198
+        },
+        "destination_active": {
+          "values": [
+            14043136.0,
+            13989888.0,
+            13846528.0
+          ],
+          "median_bytes": 13989888.0,
+          "cv": 0.00728428624631637
+        },
+        "destination_cooldown": {
+          "values": [
+            14149632.0,
+            14051328.0,
+            13957120.0
+          ],
+          "median_bytes": 14051328.0,
+          "cv": 0.006850164580839377
+        }
+      }
+    },
+    "64": {
+      "repeats": 3,
+      "first_three_cv": {
+        "source_active": 0.0068840411969296345,
+        "destination_active": 0.005976203567419143,
+        "destination_cooldown": 0.007865463090736992
+      },
+      "private": {
+        "source_active": {
+          "values": [
+            31924224.0,
+            31494144.0,
+            31645696.0
+          ],
+          "median_bytes": 31645696.0,
+          "cv": 0.0068840411969296345
+        },
+        "destination_active": {
+          "values": [
+            23373824.0,
+            23443456.0,
+            23644160.0
+          ],
+          "median_bytes": 23443456.0,
+          "cv": 0.005976203567419143
+        },
+        "destination_cooldown": {
+          "values": [
+            23353344.0,
+            23461888.0,
+            23713792.0
+          ],
+          "median_bytes": 23461888.0,
+          "cv": 0.007865463090736992
+        }
+      }
+    },
+    "128": {
+      "repeats": 3,
+      "first_three_cv": {
+        "source_active": 0.009586684423021588,
+        "destination_active": 0.008637812911655133,
+        "destination_cooldown": 0.00858267667984481
+      },
+      "private": {
+        "source_active": {
+          "values": [
+            58421248.0,
+            58933248.0,
+            57815040.0
+          ],
+          "median_bytes": 58421248.0,
+          "cv": 0.009586684423021588
+        },
+        "destination_active": {
+          "values": [
+            43542528.0,
+            43051008.0,
+            43788288.0
+          ],
+          "median_bytes": 43542528.0,
+          "cv": 0.008637812911655133
+        },
+        "destination_cooldown": {
+          "values": [
+            43431936.0,
+            43075584.0,
+            43821056.0
+          ],
+          "median_bytes": 43431936.0,
+          "cv": 0.00858267667984481
+        }
+      }
+    },
+    "256": {
+      "repeats": 3,
+      "first_three_cv": {
+        "source_active": 0.008490181037054295,
+        "destination_active": 0.0024477044498786415,
+        "destination_cooldown": 0.0018896492953102907
+      },
+      "private": {
+        "source_active": {
+          "values": [
+            110231552.0,
+            111992832.0,
+            111706112.0
+          ],
+          "median_bytes": 111706112.0,
+          "cv": 0.008490181037054295
+        },
+        "destination_active": {
+          "values": [
+            83523584.0,
+            83675136.0,
+            83929088.0
+          ],
+          "median_bytes": 83675136.0,
+          "cv": 0.0024477044498786415
+        },
+        "destination_cooldown": {
+          "values": [
+            83570688.0,
+            83750912.0,
+            83886080.0
+          ],
+          "median_bytes": 83750912.0,
+          "cv": 0.0018896492953102907
+        }
+      }
+    },
+    "512": {
+      "repeats": 3,
+      "first_three_cv": {
+        "source_active": 0.010794089692108743,
+        "destination_active": 0.0015139272391896635,
+        "destination_cooldown": 0.0014504954143994642
+      },
+      "private": {
+        "source_active": {
+          "values": [
+            217591808.0,
+            213032960,
+            216123392.0
+          ],
+          "median_bytes": 216123392.0,
+          "cv": 0.010794089692108743
+        },
+        "destination_active": {
+          "values": [
+            163956736.0,
+            163508224,
+            163915776.0
+          ],
+          "median_bytes": 163915776.0,
+          "cv": 0.0015139272391896635
+        },
+        "destination_cooldown": {
+          "values": [
+            163729408.0,
+            163581952.0,
+            164046848.0
+          ],
+          "median_bytes": 163729408.0,
+          "cv": 0.0014504954143994642
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "label": "n16-r1",
+      "count": 16,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 16,
+        "source_index_sha256": "db2e1c2a069e27d9d4049d9fa9026566475156523a1cc49d8b1312eefc9fd9b7",
+        "destination_index_sha256": "5d6bf83684b53109c494c0718870d7ea6567e9cfe0c117cd96b91a6092c10881",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 11702272.0,
+              "pss_median_bytes": 12100608.0,
+              "rss_median_bytes": 13369344.0,
+              "memory_samples": 2,
+              "fd_min": 27,
+              "fd_max": 27,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 1788837
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 8869888.0,
+              "pss_median_bytes": 9272320.0,
+              "rss_median_bytes": 10616832.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 8951808.0,
+              "pss_median_bytes": 9576448.0,
+              "rss_median_bytes": 10747904.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 1740034
+        }
+      }
+    },
+    {
+      "label": "n16-r2",
+      "count": 16,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 16,
+        "source_index_sha256": "2310499ce26fe467cdcdbe125d90510ac434bd465c07e54b8ba5d036c4e9b628",
+        "destination_index_sha256": "f7526073e20aa4e2419897d709ed8d0f6b0f3768b597007db4636a024b3bbf23",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 11689984.0,
+              "pss_median_bytes": 12087296.0,
+              "rss_median_bytes": 13500416.0,
+              "memory_samples": 2,
+              "fd_min": 27,
+              "fd_max": 27,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 2398781
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 9009152.0,
+              "pss_median_bytes": 9369600.0,
+              "rss_median_bytes": 10747904.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 9041920.0,
+              "pss_median_bytes": 9631744.0,
+              "rss_median_bytes": 10747904.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 1284897
+        }
+      }
+    },
+    {
+      "label": "n16-r3",
+      "count": 16,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 16,
+        "source_index_sha256": "a7c22033f847d593d8efecee612f0c694adeb3e314086310203d4ecaa049e371",
+        "destination_index_sha256": "fdb0c5d8b6652ee7ccf8e566dd8bf4f6f01e2a602801491777b692477c514b26",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 11759616.0,
+              "pss_median_bytes": 12124160.0,
+              "rss_median_bytes": 13500416.0,
+              "memory_samples": 2,
+              "fd_min": 27,
+              "fd_max": 27,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 1609227
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 9046016.0,
+              "pss_median_bytes": 9433088.0,
+              "rss_median_bytes": 10747904.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 8972288.0,
+              "pss_median_bytes": 9594880.0,
+              "rss_median_bytes": 10747904.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 1039867
+        }
+      }
+    },
+    {
+      "label": "n32-r1",
+      "count": 32,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 32,
+        "source_index_sha256": "0fc8274742e376217a75c92b972cb631d1d4d80c375d8adcfce3806a3d694f5b",
+        "destination_index_sha256": "4569e97ae3af218f4bedabef085cd75d98cf907c2f9478471c7fb924af044abd",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 18227200.0,
+              "pss_median_bytes": 18603008.0,
+              "rss_median_bytes": 19922944.0,
+              "memory_samples": 2,
+              "fd_min": 43,
+              "fd_max": 43,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 3405483
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 14043136.0,
+              "pss_median_bytes": 14442496.0,
+              "rss_median_bytes": 15859712.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 14149632.0,
+              "pss_median_bytes": 14779392.0,
+              "rss_median_bytes": 15859712.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 3115567
+        }
+      }
+    },
+    {
+      "label": "n32-r2",
+      "count": 32,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 32,
+        "source_index_sha256": "9d7cbb92f093af5ca33e766abf8edf5984be3aa3eacd982875056ec69c354e8e",
+        "destination_index_sha256": "174c3dc418263e2e72cd5facd1bc2b22e0512125feca1cd73f8fe10daeaf9521",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 18362368.0,
+              "pss_median_bytes": 18726912.0,
+              "rss_median_bytes": 20054016.0,
+              "memory_samples": 2,
+              "fd_min": 43,
+              "fd_max": 43,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 2830300
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 13989888.0,
+              "pss_median_bytes": 14348288.0,
+              "rss_median_bytes": 15728640.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 14051328.0,
+              "pss_median_bytes": 14605312.0,
+              "rss_median_bytes": 15728640.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 1671518
+        }
+      }
+    },
+    {
+      "label": "n32-r3",
+      "count": 32,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 32,
+        "source_index_sha256": "f7e3bf577ec8168fdbb3397c6dba8723946dc464b185ad2c10f229aeda485864",
+        "destination_index_sha256": "f1c7945065b634f58ab769c34e729c35ba0b108928ac746c2600f94562f5c1e7",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 18571264.0,
+              "pss_median_bytes": 18945024.0,
+              "rss_median_bytes": 20316160.0,
+              "memory_samples": 2,
+              "fd_min": 43,
+              "fd_max": 43,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 2931422
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 13846528.0,
+              "pss_median_bytes": 14243840.0,
+              "rss_median_bytes": 15597568.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 13957120.0,
+              "pss_median_bytes": 14578688.0,
+              "rss_median_bytes": 15597568.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 1513514
+        }
+      }
+    },
+    {
+      "label": "n64-r1",
+      "count": 64,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 64,
+        "source_index_sha256": "b1cd51cb0d5239c4e34c4df968732bb9c6bc5145e49a63a8cd4f179921101467",
+        "destination_index_sha256": "4a2b3a7da73fa69b9cec61dd3b039b552093c31db17d81b0fa08fad0d3de67b5",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 31924224.0,
+              "pss_median_bytes": 32270336.0,
+              "rss_median_bytes": 33554432.0,
+              "memory_samples": 2,
+              "fd_min": 75,
+              "fd_max": 75,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 2202968
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 23373824.0,
+              "pss_median_bytes": 23719936.0,
+              "rss_median_bytes": 25034752.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 23353344.0,
+              "pss_median_bytes": 23940096.0,
+              "rss_median_bytes": 25165824.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 2119062
+        }
+      }
+    },
+    {
+      "label": "n64-r2",
+      "count": 64,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 64,
+        "source_index_sha256": "a2a421f8ae38b35397d1789c692e77bdda78929016dcdb20246beeee9373816b",
+        "destination_index_sha256": "3a48031dcadcd10c06ded3dfd171c39e9641e76ac45bf88d158b787335e8f238",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 31494144.0,
+              "pss_median_bytes": 31859712.0,
+              "rss_median_bytes": 33161216.0,
+              "memory_samples": 2,
+              "fd_min": 75,
+              "fd_max": 75,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 5673431
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 23443456.0,
+              "pss_median_bytes": 23809024.0,
+              "rss_median_bytes": 25165824.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 23461888.0,
+              "pss_median_bytes": 23976448.0,
+              "rss_median_bytes": 25165824.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 3050131
+        }
+      }
+    },
+    {
+      "label": "n64-r3",
+      "count": 64,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 64,
+        "source_index_sha256": "780f469b6115d187bd6f03d94141ac1ece104dec9495f3f5e7dd0fe14a716655",
+        "destination_index_sha256": "76bcaf500eb55931b539b1eb220dcb10366342093a5c40cf5a20ca138121f267",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 31645696.0,
+              "pss_median_bytes": 32008192.0,
+              "rss_median_bytes": 33423360.0,
+              "memory_samples": 2,
+              "fd_min": 75,
+              "fd_max": 75,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 5702713
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 23644160.0,
+              "pss_median_bytes": 24010752.0,
+              "rss_median_bytes": 25296896.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 23713792.0,
+              "pss_median_bytes": 24294400.0,
+              "rss_median_bytes": 25427968,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 2389473
+        }
+      }
+    },
+    {
+      "label": "n128-r1",
+      "count": 128,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 128,
+        "source_index_sha256": "c02f6f43d21fcdba6b1df41e4afaa757f9f1d55849c7f2901e79e539dc13090c",
+        "destination_index_sha256": "de9876b0c54a0954e116936ffd35e45fe8b841e834de0a86bbb84098901bb846",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 58421248.0,
+              "pss_median_bytes": 58808320.0,
+              "rss_median_bytes": 60162048.0,
+              "memory_samples": 2,
+              "fd_min": 139,
+              "fd_max": 139,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 3398650
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 43542528.0,
+              "pss_median_bytes": 43940864.0,
+              "rss_median_bytes": 45350912,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 43431936.0,
+              "pss_median_bytes": 44062720.0,
+              "rss_median_bytes": 45297664.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 1893739
+        }
+      }
+    },
+    {
+      "label": "n128-r2",
+      "count": 128,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 128,
+        "source_index_sha256": "3f7f22686666c7880db358a3413062817d9ce82ebb522cae972d3fa198b7495a",
+        "destination_index_sha256": "a6ccf137cc3112592263a2efc4684fc135f1c385c58c6aa72de6eabb0db40e43",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 58933248.0,
+              "pss_median_bytes": 59300864.0,
+              "rss_median_bytes": 60555264.0,
+              "memory_samples": 2,
+              "fd_min": 139,
+              "fd_max": 139,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 2780903
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 43051008.0,
+              "pss_median_bytes": 43423744.0,
+              "rss_median_bytes": 44695552,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 43075584.0,
+              "pss_median_bytes": 43678720.0,
+              "rss_median_bytes": 44826624.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 3244448
+        }
+      }
+    },
+    {
+      "label": "n128-r3",
+      "count": 128,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 128,
+        "source_index_sha256": "a9913d90e07f3bec2da4e730109c6ec01b28f2cacb4f124d7d94dc747207faf7",
+        "destination_index_sha256": "5d7fe2a951d4b286d21889931cc92b720761ed65c240617426e4587d07b475a2",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 57815040.0,
+              "pss_median_bytes": 58176512.0,
+              "rss_median_bytes": 59506688.0,
+              "memory_samples": 2,
+              "fd_min": 139,
+              "fd_max": 139,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 3672989
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 43788288.0,
+              "pss_median_bytes": 44162048.0,
+              "rss_median_bytes": 45481984.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 43821056.0,
+              "pss_median_bytes": 44443648.0,
+              "rss_median_bytes": 45481984.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 1427813
+        }
+      }
+    },
+    {
+      "label": "n256-r1",
+      "count": 256,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 256,
+        "source_index_sha256": "094256dcf419b74ee284cda2d4b43e13a586e73ba03f626c01c578c0a822cbfc",
+        "destination_index_sha256": "4a207c945d7d89f7a2df758f07d484c69cc7f26e6938065fd15dc5bcf85d3882",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 110231552.0,
+              "pss_median_bytes": 110596096.0,
+              "rss_median_bytes": 111935488.0,
+              "memory_samples": 2,
+              "fd_min": 267,
+              "fd_max": 267,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 4012101
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 83523584.0,
+              "pss_median_bytes": 83886080.0,
+              "rss_median_bytes": 85196800.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 83570688.0,
+              "pss_median_bytes": 84159488.0,
+              "rss_median_bytes": 85327872.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 4299623
+        }
+      }
+    },
+    {
+      "label": "n256-r2",
+      "count": 256,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 256,
+        "source_index_sha256": "0fd3ac89062cb44e726aa4e6ad61adf4f39b66a90f903d6f6ea8e79dcb22cd95",
+        "destination_index_sha256": "c39516c1a5139e395a17f912456a2afa7dfcc267741394eac5b67c573cb440be",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 111992832.0,
+              "pss_median_bytes": 112364544.0,
+              "rss_median_bytes": 113639424.0,
+              "memory_samples": 2,
+              "fd_min": 267,
+              "fd_max": 267,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 4107498
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 83675136.0,
+              "pss_median_bytes": 84046848.0,
+              "rss_median_bytes": 85327872.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 83750912.0,
+              "pss_median_bytes": 84314112.0,
+              "rss_median_bytes": 85458944.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 4939365
+        }
+      }
+    },
+    {
+      "label": "n256-r3",
+      "count": 256,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 256,
+        "source_index_sha256": "7e762905468055d1c96882d9a472084701d602e112a968f6ce1034b22cca3a20",
+        "destination_index_sha256": "23bf4fcfd495fc96667a9b3f143d845b2193c98629f71fd0c0ad8f7590a0cb26",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 111706112.0,
+              "pss_median_bytes": 112094208.0,
+              "rss_median_bytes": 113508352,
+              "memory_samples": 2,
+              "fd_min": 267,
+              "fd_max": 267,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 4516248
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 83929088.0,
+              "pss_median_bytes": 84298752.0,
+              "rss_median_bytes": 85590016,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 83886080.0,
+              "pss_median_bytes": 84418048.0,
+              "rss_median_bytes": 85590016.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 2597902
+        }
+      }
+    },
+    {
+      "label": "n512-r1",
+      "count": 512,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 512,
+        "source_index_sha256": "40d28f82e34afb6cddd3985c665b605ce69f6e082b93efa5135e08d236f00bae",
+        "destination_index_sha256": "d5899eb8146a1e33552254f01ddc90d3d968a5b4faf22f15bc5760764c176f2b",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 217591808.0,
+              "pss_median_bytes": 217947136.0,
+              "rss_median_bytes": 219283456.0,
+              "memory_samples": 2,
+              "fd_min": 523,
+              "fd_max": 523,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 5220458
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 163956736.0,
+              "pss_median_bytes": 164336640.0,
+              "rss_median_bytes": 165806080,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 163729408.0,
+              "pss_median_bytes": 164273152.0,
+              "rss_median_bytes": 165601280.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 28445766
+        }
+      }
+    },
+    {
+      "label": "n512-r2",
+      "count": 512,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 512,
+        "source_index_sha256": "230e13c1ee3c507f1e9fd1cf7a966e9e01ece69de9e090f20b4286700b44dcb2",
+        "destination_index_sha256": "ecad041e0a3cd0ec21262a2db7dd4fdb313b5f5871ac79c226002ac25aa8586d",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 213032960,
+              "pss_median_bytes": 213419008,
+              "rss_median_bytes": 214827008.0,
+              "memory_samples": 3,
+              "fd_min": 521,
+              "fd_max": 523,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 68086894
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 163508224,
+              "pss_median_bytes": 163865600,
+              "rss_median_bytes": 165150720,
+              "memory_samples": 3,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 163581952.0,
+              "pss_median_bytes": 164103680.0,
+              "rss_median_bytes": 165281792.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 15039580
+        }
+      }
+    },
+    {
+      "label": "n512-r3",
+      "count": 512,
+      "result": {
+        "status": "PASS_FUNCTIONAL_PEER_PAIR",
+        "source_sha": "c5b53c66a12ba5fa59a2d9d97ef724ec27d50928",
+        "successful_connections": 512,
+        "source_index_sha256": "a7f49fb1e45dad771edc4fd25f74bbcdba69964ff640614e55c69d7a889fe39f",
+        "destination_index_sha256": "a78acd4a0b385b324bfcd7a54fe0cf4a139a2d7223af7a0d5f92a031b2f5660f",
+        "source_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "destination_cleanup": {
+          "transport_sessions_current_live": 0,
+          "service_channels_current_live": 0,
+          "application_streams_current_live": 0,
+          "nbsr_tasks_current_live": 0,
+          "quic_connections_current_live": 0,
+          "quic_streams_current_live": 0,
+          "pending_routes_current_entries": 0,
+          "channel_registry_current_entries": 0,
+          "stream_registry_current_entries": 0,
+          "replay_state_current_entries": 0,
+          "audit_queue_current_entries": 0
+        },
+        "paired_active_hold": "NOT_VERIFIED_BY_THIS_GATE",
+        "sustainable_capacity": "NOT_ESTABLISHED",
+        "physical_hardware": "NOT_PROVEN",
+        "private_memory": "MEASURED_DIAGNOSTIC_ONLY_OBSERVER_NOT_QUALIFIED",
+        "scope": "Checksummed trusted benchmark artifacts; not signatures or remote attestation"
+      },
+      "resources": {
+        "source": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 216123392.0,
+              "pss_median_bytes": 216512512.0,
+              "rss_median_bytes": 217710592.0,
+              "memory_samples": 2,
+              "fd_min": 523,
+              "fd_max": 523,
+              "thread_min": 4,
+              "thread_max": 4
+            }
+          },
+          "max_memory_capture_ns": 33169464
+        },
+        "destination": {
+          "phases": {
+            "active": {
+              "private_median_bytes": 163915776.0,
+              "pss_median_bytes": 164294656.0,
+              "rss_median_bytes": 165543936,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            },
+            "cooldown": {
+              "private_median_bytes": 164046848.0,
+              "pss_median_bytes": 164516864.0,
+              "rss_median_bytes": 165806080.0,
+              "memory_samples": 2,
+              "fd_min": 8,
+              "fd_max": 8,
+              "thread_min": 2,
+              "thread_max": 2
+            }
+          },
+          "max_memory_capture_ns": 5698143
+        }
+      }
+    }
+  ]
+}
