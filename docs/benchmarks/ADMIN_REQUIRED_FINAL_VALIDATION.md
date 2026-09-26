@@ -1,5 +1,25 @@
 # Administrator-only final validation
 
+## September 26 update — current command preparation
+
+The same command/path below now points to a clean feature-branch checkout at
+`083c0182c2bdcfa030e3c0a6a239977f3cae0cf5`. The folder suffix `4eb62c09`
+is historical; the earlier source description below describes the previous
+failed attempts, not this new run. Release preparation rebuilds current source.
+Do not pool previous/current source results or label them matched pairs.
+
+The wrapper now uses `CPU.light` and runs xperf header validation after each
+captured cell. Unreadable traces, missing/ambiguous loss totals or nonzero lost
+events/buffers stop the campaign with all artifacts retained. Five off/on pairs,
+fixed workload, deadlines and the 5% observer-impact gate remain unchanged.
+CPU.light has no call-stack attribution: only supported CPU/scheduling analysis
+may follow. The 120-second synthetic light preflight exported successfully with
+zero lost events/buffers; matched benchmark observer qualification is NOT_RUN.
+Earlier verbose preflight lost 46,258 events; two full verbose attempts failed
+WPR stop with 0x80071069. Neither failure is discarded or claimed repaired.
+Focused regression tests (six), Ruff, PowerShell syntax and real zero-loss header
+validation pass. Actual elevated end-to-end execution remains user-run.
+
 Campaign ledger â€” **IN PROGRESS**, not a final validation or funding freeze.
 
 No additional Administrator command is currently required to analyze the retained Task 4l/4m captures. The user-supplied captures have been ingested; their raw artifacts and observer failures are preserved. Do not repeat them merely to obtain a favorable result.
