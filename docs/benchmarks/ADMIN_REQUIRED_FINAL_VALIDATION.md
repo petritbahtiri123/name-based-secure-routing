@@ -1,5 +1,23 @@
 # Administrator-only final validation
 
+## September 26 final attempt — do not repeat current WPR campaign
+
+Status: **PLATFORM_DIAGNOSTIC_LIMIT / INVALID_PARTIAL**. The updated
+`CPU.light` campaign at `083c0182` also failed its first captured-cell stop
+with `0x80071069`, profile `CPU.Light.File`. Retained root:
+`C:/NBSR-build/b5-direct-cpu-20260926-205215-2fbd44b2`.
+WPR subsequently reports not recording and no benchmark peer remains active.
+The standalone light preflight passing does not qualify capture during this
+benchmark. No sole cause, hardware ceiling or NBSR defect has been established.
+
+**The command below is historical and must not be repeatedly rerun.** No further
+user-run WPR command is pending. Preserve all verbose/light attempts, stop logs,
+binary/source metadata and checksum indexes. Missing ETL means causal profiling
+and matched observer qualification remain incomplete. Further elevated capture
+requires a genuinely new measured question and method, not another profile
+guess. Continue independent non-admin work; do not substitute these diagnostic
+cells for a qualified near-ceiling soak.
+
 ## September 26 update — current command preparation
 
 The same command/path below now points to a clean feature-branch checkout at
