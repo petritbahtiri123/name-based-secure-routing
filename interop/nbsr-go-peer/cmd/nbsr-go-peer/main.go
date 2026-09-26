@@ -188,16 +188,17 @@ func (value config) validate() error {
 }
 
 type result struct {
-	Status               string            `json:"status"`
-	Messages             []string          `json:"messages"`
-	CoreVersion          uint64            `json:"core_version"`
-	RouteOpenBodyVersion uint64            `json:"route_open_body_version"`
-	FederationProfile    string            `json:"federation_profile"`
-	PayloadSHA256        string            `json:"payload_sha256"`
-	BenchmarkSamples     int               `json:"benchmark_samples,omitempty"`
-	Samples              []sample          `json:"samples,omitempty"`
-	GoRuntime            *goRuntimeStats   `json:"go_runtime,omitempty"`
-	Rotation             *rotationEvidence `json:"rotation,omitempty"`
+	LifecycleCleanup     []lifecycleCleanup `json:"lifecycle_cleanup,omitempty"`
+	Status               string             `json:"status"`
+	Messages             []string           `json:"messages"`
+	CoreVersion          uint64             `json:"core_version"`
+	RouteOpenBodyVersion uint64             `json:"route_open_body_version"`
+	FederationProfile    string             `json:"federation_profile"`
+	PayloadSHA256        string             `json:"payload_sha256"`
+	BenchmarkSamples     int                `json:"benchmark_samples,omitempty"`
+	Samples              []sample           `json:"samples,omitempty"`
+	GoRuntime            *goRuntimeStats    `json:"go_runtime,omitempty"`
+	Rotation             *rotationEvidence  `json:"rotation,omitempty"`
 }
 
 type goRuntimeStats struct {
@@ -805,6 +806,7 @@ func run(ctx context.Context, configuration config) (result, error) {
 }
 
 func runLifecycle(ctx context.Context, configuration config) (result, error) {
+	cleanup := make([]lifecycleCleanup, 0, configuration.LifecycleConnections)
 	var processed atomic.Uint64
 	stopRuntimeSampler := func() error { return nil }
 	var err error
@@ -857,290 +859,306 @@ func runLifecycle(ctx context.Context, configuration config) (result, error) {
 				}
 			}
 		}
-		coldStarted := perfclock.Now()
-		handshakeStarted := perfclock.Now()
-		peer, dialErr := wirepeer.Dial(ctx, ready)
-		if dialErr != nil {
-			return result{}, dialErr
-		}
-		handshakeNS := perfclock.Since(handshakeStarted)
-		if configuration.LifecycleReportConnections {
-			if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.connected", configuration.LifecycleConnectionOffset+connectionOrdinal)), []byte("connected\n"), 0o600); err != nil {
-				return result{}, err
+		connectionErr := func() (resultErr error) {
+			coldStarted := perfclock.Now()
+			handshakeStarted := perfclock.Now()
+			peer, dialErr := wirepeer.Dial(ctx, ready)
+			if dialErr != nil {
+				return dialErr
 			}
-		}
-		helloStarted := perfclock.Now()
-		if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.ClientHello, RequestID: helloRequest, SessionID: sessionID, Sequence: 1, Body: clientBody}); err != nil {
-			return result{}, err
-		}
-		edge, err := peer.ReceiveEnvelope()
-		if err != nil {
-			return result{}, err
-		}
-		helloNS := perfclock.Since(helloStarted)
-		if edge.MessageType != core.EdgeHello || edge.SessionID != sessionID || edge.RequestID != helloRequest || edge.Body[1] != "source.edge" || edge.Body[2] != "destination.edge" || !bytes.Equal(edge.Body[3].([]byte), clientNonce[:]) || !bytes.Equal(edge.Body[4].([]byte), edgeNonce[:]) || !bytes.Equal(edge.Body[5].([]byte), sha256Bytes(sessionPublic)) {
-			return result{}, errors.New("EDGE_HELLO authority or correlation mismatch")
-		}
-		type concurrentMetric struct {
-			service, localStream, ordinal int
-			scenarioStarted               int64
-			sourceAdmissionNS, routeNS    int64
-			bindingNS, streamNS           int64
-		}
-		type concurrentResult struct {
-			ordinal, requestNS int
-			error              error
-		}
-		concurrentStart := make(chan struct{})
-		concurrentResults := make(chan concurrentResult, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
-		concurrentMetrics := make([]concurrentMetric, 0, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
-		for serviceIndex := 0; serviceIndex < configuration.LifecycleServices; serviceIndex++ {
-			scenarioStarted := perfclock.Now()
-			directory := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("%02d", serviceIndex))
-			nameRaw, err := mustRead(filepath.Join(directory, "name.txt"))
+			scope := newLifecycleScope(ctx, peer.Close)
+			defer func() {
+				resultErr = errors.Join(resultErr, scope.close())
+				cleanup = append(cleanup, lifecycleCleanup{configuration.LifecycleConnectionOffset + connectionOrdinal, scope.started.Load(), scope.live.Load(), scope.closeCalls.Load()})
+			}()
+			handshakeNS := perfclock.Since(handshakeStarted)
+			if configuration.LifecycleReportConnections {
+				if err := os.WriteFile(filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.connected", configuration.LifecycleConnectionOffset+connectionOrdinal)), []byte("connected\n"), 0o600); err != nil {
+					return err
+				}
+			}
+			helloStarted := perfclock.Now()
+			if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.ClientHello, RequestID: helloRequest, SessionID: sessionID, Sequence: 1, Body: clientBody}); err != nil {
+				return err
+			}
+			edge, err := peer.ReceiveEnvelope()
 			if err != nil {
-				return result{}, err
+				return err
 			}
-			serviceName := string(bytes.TrimSpace(nameRaw))
-			routeRequest, channelID, routeID := lifecycleIDs(serviceIndex)
-			firstStreamOrdinal := serviceIndex * configuration.LifecycleStreamsPerService
-			streamRequest := benchmarkStreamRequest(uint64(firstStreamOrdinal))
-			machine := state.NewSource(sessionID, helloRequest, routeRequest, streamRequest, channelID, routeID, serviceName, "tcp", 8443)
-			if err := machine.HelloSent(); err != nil {
-				return result{}, err
+			helloNS := perfclock.Since(helloStarted)
+			if edge.MessageType != core.EdgeHello || edge.SessionID != sessionID || edge.RequestID != helloRequest || edge.Body[1] != "source.edge" || edge.Body[2] != "destination.edge" || !bytes.Equal(edge.Body[3].([]byte), clientNonce[:]) || !bytes.Equal(edge.Body[4].([]byte), edgeNonce[:]) || !bytes.Equal(edge.Body[5].([]byte), sha256Bytes(sessionPublic)) {
+				return errors.New("EDGE_HELLO authority or correlation mismatch")
 			}
-			if err := machine.EdgeHelloAccepted(edge.SessionID, edge.RequestID); err != nil {
-				return result{}, err
+			type concurrentMetric struct {
+				service, localStream, ordinal int
+				scenarioStarted               int64
+				sourceAdmissionNS, routeNS    int64
+				bindingNS, streamNS           int64
 			}
-			bodyWire, err := mustRead(filepath.Join(directory, "route-open-body.cbor"))
-			if err != nil {
-				return result{}, err
+			type concurrentResult struct {
+				ordinal, requestNS int
+				error              error
 			}
-			decoded, err := cbor.DecodeExact(bodyWire, cbor.DefaultLimits())
-			if err != nil {
-				return result{}, err
-			}
-			routeBody := decoded.(map[uint64]any)
-			exactGrant := routeBody[2].([]byte)
-			grant, err := authority.VerifyRouteGrant(exactGrant, issuerPublic, []byte("nbsr-test-route-grant-key"), 1_893_456_000)
-			if err != nil {
-				return result{}, err
-			}
-			federationContext, err := mustRead(filepath.Join(directory, "federation-context.cbor"))
-			if err != nil {
-				return result{}, err
-			}
-			sourceAttestation, err := mustRead(filepath.Join(directory, "source.cose"))
-			if err != nil {
-				return result{}, err
-			}
-			sourceAdmissionStarted := perfclock.Now()
-			if err := authority.VerifySourceAdmission(sourceAttestation, ed25519.PublicKey(sourceAuthority), []byte("local-source"), authority.SourceAdmissionBinding{
-				SourceOperatorID: repeated32('S'), DestinationOperatorID: repeated32('D'), CanonicalName: serviceName, Transport: "tcp", Port: 8443,
-				RouteGrantDigest: grant.Digest, FederationContextDigest: sha256.Sum256(federationContext), OpenedAt: 1_893_456_000,
-			}); err != nil {
-				return result{}, fmt.Errorf("source federation admission: %w", err)
-			}
-			transcript, err := authority.BuildF75Transcript(sessionID, routeRequest, "destination.edge", routeBody, grant)
-			if err != nil || !ed25519.Verify(sessionPublic, transcript, routeBody[7].([]byte)) {
-				return result{}, errors.New("invalid F75 proof signature")
-			}
-			sourceAdmissionNS := perfclock.Since(sourceAdmissionStarted)
-			if err := machine.RouteSent(grant.ServiceID, grant.AllowedTransport, uint16(routeBody[5].(uint64))); err != nil {
-				return result{}, err
-			}
-			routeStarted := perfclock.Now()
-			routeSequence := 2 + serviceIndex*(1+configuration.LifecycleStreamsPerService)
-			if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.RouteOpen, RequestID: routeRequest, SessionID: sessionID, Sequence: uint64(routeSequence), Body: routeBody}); err != nil {
-				return result{}, err
-			}
-			routeAccepted, err := peer.ReceiveEnvelope()
-			if err != nil {
-				return result{}, err
-			}
-			routeNS := perfclock.Since(routeStarted)
-			if err := machine.RouteAccepted(routeAccepted.SessionID, routeAccepted.RequestID, bytes16(routeAccepted.Body[1]), bytes16(routeAccepted.Body[2])); err != nil {
-				return result{}, err
-			}
-			bindingStarted := perfclock.Now()
-			exporterContext, err := cbor.Encode([]any{"NBSR-SERVICE-CHANNEL-CONTEXT-v2", uint64(2), sessionID[:], "source.edge", "destination.edge", channelID[:], routeID[:], grant.Digest[:], grant.ServiceID, "tcp", uint64(8443), grant.PolicyHash[:], clientNonce[:], edgeNonce[:]})
-			if err != nil {
-				return result{}, err
-			}
-			if exporter, err := peer.ExportKeyingMaterial(exporterContext); err != nil || len(exporter) != 32 {
-				return result{}, errors.New("live WP4 exporter failed")
-			}
-			bindingNS := perfclock.Since(bindingStarted)
-			if configuration.LifecycleConcurrent {
+			concurrentStart := make(chan struct{})
+			concurrentResults := make(chan concurrentResult, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
+			concurrentMetrics := make([]concurrentMetric, 0, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
+			for serviceIndex := 0; serviceIndex < configuration.LifecycleServices; serviceIndex++ {
+				scenarioStarted := perfclock.Now()
+				directory := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("%02d", serviceIndex))
+				nameRaw, err := mustRead(filepath.Join(directory, "name.txt"))
+				if err != nil {
+					return err
+				}
+				serviceName := string(bytes.TrimSpace(nameRaw))
+				routeRequest, channelID, routeID := lifecycleIDs(serviceIndex)
+				firstStreamOrdinal := serviceIndex * configuration.LifecycleStreamsPerService
+				streamRequest := benchmarkStreamRequest(uint64(firstStreamOrdinal))
+				machine := state.NewSource(sessionID, helloRequest, routeRequest, streamRequest, channelID, routeID, serviceName, "tcp", 8443)
+				if err := machine.HelloSent(); err != nil {
+					return err
+				}
+				if err := machine.EdgeHelloAccepted(edge.SessionID, edge.RequestID); err != nil {
+					return err
+				}
+				bodyWire, err := mustRead(filepath.Join(directory, "route-open-body.cbor"))
+				if err != nil {
+					return err
+				}
+				decoded, err := cbor.DecodeExact(bodyWire, cbor.DefaultLimits())
+				if err != nil {
+					return err
+				}
+				routeBody := decoded.(map[uint64]any)
+				exactGrant := routeBody[2].([]byte)
+				grant, err := authority.VerifyRouteGrant(exactGrant, issuerPublic, []byte("nbsr-test-route-grant-key"), 1_893_456_000)
+				if err != nil {
+					return err
+				}
+				federationContext, err := mustRead(filepath.Join(directory, "federation-context.cbor"))
+				if err != nil {
+					return err
+				}
+				sourceAttestation, err := mustRead(filepath.Join(directory, "source.cose"))
+				if err != nil {
+					return err
+				}
+				sourceAdmissionStarted := perfclock.Now()
+				if err := authority.VerifySourceAdmission(sourceAttestation, ed25519.PublicKey(sourceAuthority), []byte("local-source"), authority.SourceAdmissionBinding{
+					SourceOperatorID: repeated32('S'), DestinationOperatorID: repeated32('D'), CanonicalName: serviceName, Transport: "tcp", Port: 8443,
+					RouteGrantDigest: grant.Digest, FederationContextDigest: sha256.Sum256(federationContext), OpenedAt: 1_893_456_000,
+				}); err != nil {
+					return fmt.Errorf("source federation admission: %w", err)
+				}
+				transcript, err := authority.BuildF75Transcript(sessionID, routeRequest, "destination.edge", routeBody, grant)
+				if err != nil || !ed25519.Verify(sessionPublic, transcript, routeBody[7].([]byte)) {
+					return errors.New("invalid F75 proof signature")
+				}
+				sourceAdmissionNS := perfclock.Since(sourceAdmissionStarted)
+				if err := machine.RouteSent(grant.ServiceID, grant.AllowedTransport, uint16(routeBody[5].(uint64))); err != nil {
+					return err
+				}
+				routeStarted := perfclock.Now()
+				routeSequence := 2 + serviceIndex*(1+configuration.LifecycleStreamsPerService)
+				if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.RouteOpen, RequestID: routeRequest, SessionID: sessionID, Sequence: uint64(routeSequence), Body: routeBody}); err != nil {
+					return err
+				}
+				routeAccepted, err := peer.ReceiveEnvelope()
+				if err != nil {
+					return err
+				}
+				routeNS := perfclock.Since(routeStarted)
+				if err := machine.RouteAccepted(routeAccepted.SessionID, routeAccepted.RequestID, bytes16(routeAccepted.Body[1]), bytes16(routeAccepted.Body[2])); err != nil {
+					return err
+				}
+				bindingStarted := perfclock.Now()
+				exporterContext, err := cbor.Encode([]any{"NBSR-SERVICE-CHANNEL-CONTEXT-v2", uint64(2), sessionID[:], "source.edge", "destination.edge", channelID[:], routeID[:], grant.Digest[:], grant.ServiceID, "tcp", uint64(8443), grant.PolicyHash[:], clientNonce[:], edgeNonce[:]})
+				if err != nil {
+					return err
+				}
+				if exporter, err := peer.ExportKeyingMaterial(exporterContext); err != nil || len(exporter) != 32 {
+					return errors.New("live WP4 exporter failed")
+				}
+				bindingNS := perfclock.Since(bindingStarted)
+				if configuration.LifecycleConcurrent {
+					for localStream := 0; localStream < configuration.LifecycleStreamsPerService; localStream++ {
+						streamOrdinal := firstStreamOrdinal + localStream
+						streamRequest = benchmarkStreamRequest(uint64(streamOrdinal))
+						if localStream > 0 {
+							if err := machine.NextStream(streamRequest); err != nil {
+								return err
+							}
+						}
+						application, err := peer.OpenApplication(ctx)
+						if err != nil {
+							return err
+						}
+						streamID := uint64(4 + 4*streamOrdinal)
+						if uint64(application.StreamID()) != streamID {
+							return errors.New("application stream ID mismatch")
+						}
+						streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
+						if err := machine.StreamSent(streamID); err != nil {
+							return err
+						}
+						streamStarted := perfclock.Now()
+						if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: uint64(routeSequence + 1 + localStream), Body: streamBody}); err != nil {
+							return err
+						}
+						streamAccepted, err := peer.ReceiveEnvelope()
+						if err != nil {
+							return err
+						}
+						streamNS := perfclock.Since(streamStarted)
+						if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil || !machine.PayloadAllowed() {
+							return errors.New("stream payload gate remained closed")
+						}
+						concurrentMetrics = append(concurrentMetrics, concurrentMetric{serviceIndex, localStream, streamOrdinal, scenarioStarted, sourceAdmissionNS, routeNS, bindingNS, streamNS})
+						ordinal := streamOrdinal
+						scope.start(concurrentStart, func() {
+							started := perfclock.Now()
+							if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
+								concurrentResults <- concurrentResult{ordinal: ordinal, error: err}
+								return
+							}
+							if err := application.Close(); err != nil {
+								concurrentResults <- concurrentResult{ordinal: ordinal, error: err}
+								return
+							}
+							echo := make([]byte, len(configuration.SafePayload))
+							if _, err := io.ReadFull(application, echo); err != nil || string(echo) != configuration.SafePayload {
+								concurrentResults <- concurrentResult{ordinal: ordinal, error: errors.New("concurrent application echo failed")}
+								return
+							}
+							concurrentResults <- concurrentResult{ordinal: ordinal, requestNS: int(perfclock.Since(started))}
+						})
+					}
+					continue
+				}
 				for localStream := 0; localStream < configuration.LifecycleStreamsPerService; localStream++ {
 					streamOrdinal := firstStreamOrdinal + localStream
 					streamRequest = benchmarkStreamRequest(uint64(streamOrdinal))
 					if localStream > 0 {
 						if err := machine.NextStream(streamRequest); err != nil {
-							return result{}, err
+							return err
 						}
 					}
 					application, err := peer.OpenApplication(ctx)
 					if err != nil {
-						return result{}, err
+						return err
 					}
 					streamID := uint64(4 + 4*streamOrdinal)
 					if uint64(application.StreamID()) != streamID {
-						return result{}, errors.New("application stream ID mismatch")
+						return errors.New("application stream ID mismatch")
 					}
 					streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
 					if err := machine.StreamSent(streamID); err != nil {
-						return result{}, err
+						return err
 					}
 					streamStarted := perfclock.Now()
 					if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: uint64(routeSequence + 1 + localStream), Body: streamBody}); err != nil {
-						return result{}, err
+						return err
 					}
 					streamAccepted, err := peer.ReceiveEnvelope()
 					if err != nil {
-						return result{}, err
+						return err
 					}
 					streamNS := perfclock.Since(streamStarted)
 					if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil || !machine.PayloadAllowed() {
-						return result{}, errors.New("stream payload gate remained closed")
+						return errors.New("stream payload gate remained closed")
 					}
-					concurrentMetrics = append(concurrentMetrics, concurrentMetric{serviceIndex, localStream, streamOrdinal, scenarioStarted, sourceAdmissionNS, routeNS, bindingNS, streamNS})
-					go func(ordinal int) {
-						<-concurrentStart
-						started := perfclock.Now()
-						if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
-							concurrentResults <- concurrentResult{ordinal: ordinal, error: err}
-							return
-						}
-						if err := application.Close(); err != nil {
-							concurrentResults <- concurrentResult{ordinal: ordinal, error: err}
-							return
-						}
-						echo := make([]byte, len(configuration.SafePayload))
-						if _, err := io.ReadFull(application, echo); err != nil || string(echo) != configuration.SafePayload {
-							concurrentResults <- concurrentResult{ordinal: ordinal, error: errors.New("concurrent application echo failed")}
-							return
-						}
-						concurrentResults <- concurrentResult{ordinal: ordinal, requestNS: int(perfclock.Since(started))}
-					}(streamOrdinal)
+					requestStarted := perfclock.Now()
+					if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
+						return err
+					}
+					if err := application.Close(); err != nil {
+						return err
+					}
+					echo := make([]byte, len(configuration.SafePayload))
+					if _, err := io.ReadFull(application, echo); err != nil {
+						return err
+					}
+					requestNS := perfclock.Since(requestStarted)
+					if string(echo) != configuration.SafePayload {
+						return errors.New("application payload echo mismatch")
+					}
+					totalNS := perfclock.Since(scenarioStarted)
+					if serviceIndex == 0 && localStream == 0 {
+						totalNS = perfclock.Since(coldStarted)
+					}
+					entry := sample{SampleID: len(observed), Success: true, StreamOpenRTTNS: streamNS, TTFABNS: totalNS, RequestLatencyNS: requestNS, TotalScenarioNS: totalNS, BytesTransmitted: len(echo), BytesReceived: len(echo)}
+					if localStream == 0 {
+						entry.SourceAdmissionNS, entry.RouteOpenRTTNS, entry.ChannelBindingNS = measured(sourceAdmissionNS), measured(routeNS), measured(bindingNS)
+					}
+					if serviceIndex == 0 && localStream == 0 {
+						entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
+					}
+					observed = append(observed, entry)
 				}
-				continue
 			}
-			for localStream := 0; localStream < configuration.LifecycleStreamsPerService; localStream++ {
-				streamOrdinal := firstStreamOrdinal + localStream
-				streamRequest = benchmarkStreamRequest(uint64(streamOrdinal))
-				if localStream > 0 {
-					if err := machine.NextStream(streamRequest); err != nil {
-						return result{}, err
+			if configuration.LifecycleConcurrent {
+				if configuration.LifecycleHoldForRelease {
+					ordinal := configuration.LifecycleConnectionOffset + connectionOrdinal
+					active := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.active", ordinal))
+					release := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.release", ordinal))
+					if err := os.WriteFile(active, []byte("active\n"), 0o600); err != nil {
+						return err
+					}
+					for {
+						if _, err := os.Stat(release); err == nil {
+							break
+						} else if !os.IsNotExist(err) {
+							return err
+						}
+						select {
+						case <-ctx.Done():
+							return ctx.Err()
+						case <-time.After(10 * time.Millisecond):
+						}
 					}
 				}
-				application, err := peer.OpenApplication(ctx)
-				if err != nil {
-					return result{}, err
-				}
-				streamID := uint64(4 + 4*streamOrdinal)
-				if uint64(application.StreamID()) != streamID {
-					return result{}, errors.New("application stream ID mismatch")
-				}
-				streamBody := map[uint64]any{0: uint64(1), 1: streamID, 2: channelID[:], 3: routeID[:], 4: grant.Digest[:], 5: "tcp", 6: uint64(8443)}
-				if err := machine.StreamSent(streamID); err != nil {
-					return result{}, err
-				}
-				streamStarted := perfclock.Now()
-				if err := peer.SendEnvelope(core.Envelope{ProtocolVersion: 2, MessageType: core.StreamOpen, RequestID: streamRequest, SessionID: sessionID, Sequence: uint64(routeSequence + 1 + localStream), Body: streamBody}); err != nil {
-					return result{}, err
-				}
-				streamAccepted, err := peer.ReceiveEnvelope()
-				if err != nil {
-					return result{}, err
-				}
-				streamNS := perfclock.Since(streamStarted)
-				if err := machine.StreamAccepted(streamAccepted.SessionID, streamAccepted.RequestID, streamAccepted.Body[1].(uint64), bytes16(streamAccepted.Body[2]), bytes16(streamAccepted.Body[3])); err != nil || !machine.PayloadAllowed() {
-					return result{}, errors.New("stream payload gate remained closed")
-				}
-				requestStarted := perfclock.Now()
-				if _, err := application.Write([]byte(configuration.SafePayload)); err != nil {
-					return result{}, err
-				}
-				if err := application.Close(); err != nil {
-					return result{}, err
-				}
-				echo := make([]byte, len(configuration.SafePayload))
-				if _, err := io.ReadFull(application, echo); err != nil {
-					return result{}, err
-				}
-				requestNS := perfclock.Since(requestStarted)
-				if string(echo) != configuration.SafePayload {
-					return result{}, errors.New("application payload echo mismatch")
-				}
-				totalNS := perfclock.Since(scenarioStarted)
-				if serviceIndex == 0 && localStream == 0 {
-					totalNS = perfclock.Since(coldStarted)
-				}
-				entry := sample{SampleID: len(observed), Success: true, StreamOpenRTTNS: streamNS, TTFABNS: totalNS, RequestLatencyNS: requestNS, TotalScenarioNS: totalNS, BytesTransmitted: len(echo), BytesReceived: len(echo)}
-				if localStream == 0 {
-					entry.SourceAdmissionNS, entry.RouteOpenRTTNS, entry.ChannelBindingNS = measured(sourceAdmissionNS), measured(routeNS), measured(bindingNS)
-				}
-				if serviceIndex == 0 && localStream == 0 {
-					entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
-				}
-				observed = append(observed, entry)
-			}
-		}
-		if configuration.LifecycleConcurrent {
-			if configuration.LifecycleHoldForRelease {
-				ordinal := configuration.LifecycleConnectionOffset + connectionOrdinal
-				active := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.active", ordinal))
-				release := filepath.Join(configuration.LifecycleAuthorityDir, fmt.Sprintf("connection-%d.release", ordinal))
-				if err := os.WriteFile(active, []byte("active\n"), 0o600); err != nil {
-					return result{}, err
-				}
-				for {
-					if _, err := os.Stat(release); err == nil {
-						break
-					} else if !os.IsNotExist(err) {
-						return result{}, err
-					}
+				close(concurrentStart)
+				requestLatencies := make([]int64, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
+				for range concurrentMetrics {
+					var completed concurrentResult
 					select {
+					case completed = <-concurrentResults:
 					case <-ctx.Done():
-						return result{}, ctx.Err()
-					case <-time.After(10 * time.Millisecond):
+						return ctx.Err()
 					}
+					if completed.error != nil {
+						return completed.error
+					}
+					requestLatencies[completed.ordinal] = int64(completed.requestNS)
+				}
+				for _, metric := range concurrentMetrics {
+					totalNS := perfclock.Since(metric.scenarioStarted)
+					if metric.service == 0 && metric.localStream == 0 {
+						totalNS = perfclock.Since(coldStarted)
+					}
+					entry := sample{SampleID: len(observed), Success: true, StreamOpenRTTNS: metric.streamNS, TTFABNS: totalNS, RequestLatencyNS: requestLatencies[metric.ordinal], TotalScenarioNS: totalNS, BytesTransmitted: len(configuration.SafePayload), BytesReceived: len(configuration.SafePayload)}
+					if metric.localStream == 0 {
+						entry.SourceAdmissionNS, entry.RouteOpenRTTNS, entry.ChannelBindingNS = measured(metric.sourceAdmissionNS), measured(metric.routeNS), measured(metric.bindingNS)
+					}
+					if metric.service == 0 && metric.localStream == 0 {
+						entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
+					}
+					observed = append(observed, entry)
+					processed.Add(1)
 				}
 			}
-			close(concurrentStart)
-			requestLatencies := make([]int64, configuration.LifecycleServices*configuration.LifecycleStreamsPerService)
-			for range concurrentMetrics {
-				completed := <-concurrentResults
-				if completed.error != nil {
-					return result{}, completed.error
-				}
-				requestLatencies[completed.ordinal] = int64(completed.requestNS)
+			if err := finishLifecycleConnection(ctx, configuration.LifecycleAuthorityDir, configuration.LifecycleConnectionOffset+connectionOrdinal, configuration.LifecycleWaitDestinationComplete, scope.closeTransport); err != nil {
+				return err
 			}
-			for _, metric := range concurrentMetrics {
-				totalNS := perfclock.Since(metric.scenarioStarted)
-				if metric.service == 0 && metric.localStream == 0 {
-					totalNS = perfclock.Since(coldStarted)
-				}
-				entry := sample{SampleID: len(observed), Success: true, StreamOpenRTTNS: metric.streamNS, TTFABNS: totalNS, RequestLatencyNS: requestLatencies[metric.ordinal], TotalScenarioNS: totalNS, BytesTransmitted: len(configuration.SafePayload), BytesReceived: len(configuration.SafePayload)}
-				if metric.localStream == 0 {
-					entry.SourceAdmissionNS, entry.RouteOpenRTTNS, entry.ChannelBindingNS = measured(metric.sourceAdmissionNS), measured(metric.routeNS), measured(metric.bindingNS)
-				}
-				if metric.service == 0 && metric.localStream == 0 {
-					entry.TransportHandshakeNS, entry.HelloRTTNS = measured(handshakeNS), measured(helloNS)
-				}
-				observed = append(observed, entry)
-				processed.Add(1)
-			}
-		}
-		if err := finishLifecycleConnection(ctx, configuration.LifecycleAuthorityDir, configuration.LifecycleConnectionOffset+connectionOrdinal, configuration.LifecycleWaitDestinationComplete, peer.Close); err != nil {
-			return result{}, err
+			return nil
+		}()
+		if connectionErr != nil {
+			return result{}, connectionErr
 		}
 	}
 	if err := stopRuntimeSampler(); err != nil {
 		return result{}, err
 	}
-	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", BenchmarkSamples: len(observed), Samples: observed}, nil
+	return result{Status: "PASS", Messages: []string{"CLIENT_HELLO", "EDGE_HELLO", "ROUTE_OPEN", "ROUTE_ACCEPT", "STREAM_OPEN", "STREAM_ACCEPT"}, CoreVersion: 2, RouteOpenBodyVersion: 2, FederationProfile: "nbsr-federation-dev-v1", BenchmarkSamples: len(observed), Samples: observed, LifecycleCleanup: cleanup}, nil
 }
 
 func sequence32(start byte) [32]byte {
