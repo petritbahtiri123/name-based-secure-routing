@@ -26,12 +26,18 @@ function Assert-NoWpr {
 }
 Assert-CleanSource
 Assert-NoWpr
+$wpr = (Get-Command wpr -ErrorAction Stop).Source
+$xperf = (Get-Command xperf -ErrorAction Stop).Source
 $root = Join-Path 'C:\NBSR-build' ('b5-direct-cpu-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
 if (Test-Path -LiteralPath $root) { throw 'Output already exists' }
 New-Item -ItemType Directory -Path $root | Out-Null
 $definition = [ordered]@{
     classification = 'DIAGNOSTIC_ONLY_OBSERVER_QUALIFICATION_PENDING'
     repository_sha = $sha
+    profile = 'CPU.light'
+    attribution_scope = 'CPU/scheduling events; no call-stack attribution; observer impact remains unqualified'
+    wpr_executable = $wpr
+    xperf_executable = $xperf
     capture_script_sha256 = (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()
     workload = 'Direct secure QUIC; one shared physical-core representative,32streams,1KiB,depth1'
     fixed_rate = @(5206274500000, 150044089)
@@ -62,7 +68,7 @@ try {
             $benchExit = $null
             try {
                 if ($arm -eq 'cpu') {
-                    & wpr -start CPU -filemode *> (Join-Path $root "$name-start.log")
+                    & $wpr -start CPU.light -filemode *> (Join-Path $root "$name-start.log")
                     if ($LASTEXITCODE -ne 0) { throw 'WPR CPU start failed; no benchmark launched for this cell' }
                     $recording = $true
                 }
@@ -70,11 +76,19 @@ try {
                 $benchExit = $LASTEXITCODE
             } finally {
                 if ($recording) {
-                    & wpr -stop (Join-Path $root "$name.etl") *> (Join-Path $root "$name-stop.log")
+                    & $wpr -stop (Join-Path $root "$name.etl") *> (Join-Path $root "$name-stop.log")
                     if ($LASTEXITCODE -ne 0) { throw 'Owned WPR stop failed; retain output and inspect recording state before any later capture' }
                 }
             }
             if ($benchExit -ne 0) { throw "Diagnostic cell failed: $name; no replacement" }
+            Assert-NoWpr
+            if ($arm -eq 'cpu') {
+                $header = Join-Path $root "$name-trace-header.txt"
+                & $xperf -i (Join-Path $root "$name.etl") -o $header -a tracestats *> (Join-Path $root "$name-trace-check.log")
+                if ($LASTEXITCODE -ne 0) { throw "Trace unreadable or lossy: $name; no replacement" }
+                & python -m scripts.performance.wpr_trace_quality $header *> (Join-Path $root "$name-trace-quality.log")
+                if ($LASTEXITCODE -ne 0) { throw "Trace loss check failed: $name; no replacement" }
+            }
             Assert-CleanSource
             Write-Host "$name complete"
         }
