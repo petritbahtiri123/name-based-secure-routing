@@ -1,0 +1,313 @@
+{
+  "before": {
+    "root": "C:\\NBSR-build\\go-b3-97e0ca06",
+    "attempts": 18,
+    "passed": 18,
+    "failed": 0,
+    "cycles": [
+      {
+        "name": "cycles-50-r1",
+        "process_private_bytes": {
+          "source": {
+            "first": 49291264,
+            "last": 54710272,
+            "minimum": 49291264,
+            "maximum": 54710272
+          },
+          "destination": {
+            "first": 1904640,
+            "last": 2248704,
+            "minimum": 1564672,
+            "maximum": 2248704
+          }
+        },
+        "runtime_first": {
+          "observed_at_ns": 1790357602020342400,
+          "processed_requests": 0,
+          "heap_alloc_bytes": 317336,
+          "heap_sys_bytes": 8257536,
+          "heap_idle_bytes": 7471104,
+          "heap_inuse_bytes": 786432,
+          "heap_released_bytes": 7471104,
+          "num_gc": 0,
+          "total_alloc_bytes": 317336,
+          "mallocs": 1286,
+          "frees": 34,
+          "total_gc_pause_ns": 0,
+          "goroutines": 2
+        },
+        "runtime_last": {
+          "observed_at_ns": 1790357807020137400,
+          "processed_requests": 392,
+          "heap_alloc_bytes": 1613544,
+          "heap_sys_bytes": 11108352,
+          "heap_idle_bytes": 8019968,
+          "heap_inuse_bytes": 3088384,
+          "heap_released_bytes": 6496256,
+          "num_gc": 8,
+          "total_alloc_bytes": 22974200,
+          "mallocs": 236717,
+          "frees": 223795,
+          "total_gc_pause_ns": 0,
+          "goroutines": 14
+        },
+        "runtime_min_goroutines": 2,
+        "runtime_max_goroutines": 14
+      },
+      {
+        "name": "cycles-50-r2",
+        "process_private_bytes": {
+          "source": {
+            "first": 48881664,
+            "last": 54525952,
+            "minimum": 48881664,
+            "maximum": 54984704
+          },
+          "destination": {
+            "first": 1765376,
+            "last": 2162688,
+            "minimum": 1523712,
+            "maximum": 2310144
+          }
+        },
+        "runtime_first": {
+          "observed_at_ns": 1790357810886887900,
+          "processed_requests": 0,
+          "heap_alloc_bytes": 317288,
+          "heap_sys_bytes": 4030464,
+          "heap_idle_bytes": 3104768,
+          "heap_inuse_bytes": 925696,
+          "heap_released_bytes": 3104768,
+          "num_gc": 0,
+          "total_alloc_bytes": 317288,
+          "mallocs": 1287,
+          "frees": 34,
+          "total_gc_pause_ns": 0,
+          "goroutines": 2
+        },
+        "runtime_last": {
+          "observed_at_ns": 1790358015886693800,
+          "processed_requests": 392,
+          "heap_alloc_bytes": 1657256,
+          "heap_sys_bytes": 7045120,
+          "heap_idle_bytes": 3899392,
+          "heap_inuse_bytes": 3145728,
+          "heap_released_bytes": 2490368,
+          "num_gc": 8,
+          "total_alloc_bytes": 22968632,
+          "mallocs": 236750,
+          "frees": 223435,
+          "total_gc_pause_ns": 1065700,
+          "goroutines": 14
+        },
+        "runtime_min_goroutines": 2,
+        "runtime_max_goroutines": 14
+      },
+      {
+        "name": "cycles-50-r3",
+        "process_private_bytes": {
+          "source": {
+            "first": 49262592,
+            "last": 54648832,
+            "minimum": 49262592,
+            "maximum": 54730752
+          },
+          "destination": {
+            "first": 1900544,
+            "last": 2138112,
+            "minimum": 1548288,
+            "maximum": 2138112
+          }
+        },
+        "runtime_first": {
+          "observed_at_ns": 1790358019847249200,
+          "processed_requests": 0,
+          "heap_alloc_bytes": 317080,
+          "heap_sys_bytes": 8257536,
+          "heap_idle_bytes": 7479296,
+          "heap_inuse_bytes": 778240,
+          "heap_released_bytes": 7479296,
+          "num_gc": 0,
+          "total_alloc_bytes": 317080,
+          "mallocs": 1285,
+          "frees": 34,
+          "total_gc_pause_ns": 0,
+          "goroutines": 2
+        },
+        "runtime_last": {
+          "observed_at_ns": 1790358224847064700,
+          "processed_requests": 392,
+          "heap_alloc_bytes": 1649616,
+          "heap_sys_bytes": 11108352,
+          "heap_idle_bytes": 7946240,
+          "heap_inuse_bytes": 3162112,
+          "heap_released_bytes": 6234112,
+          "num_gc": 8,
+          "total_alloc_bytes": 22918800,
+          "mallocs": 236311,
+          "frees": 223033,
+          "total_gc_pause_ns": 0,
+          "goroutines": 14
+        },
+        "runtime_min_goroutines": 2,
+        "runtime_max_goroutines": 14
+      }
+    ]
+  },
+  "after": {
+    "root": "C:\\NBSR-build\\go-scope-20260926",
+    "attempts": 18,
+    "passed": 18,
+    "failed": 0,
+    "cycles": [
+      {
+        "name": "cycles-50-r1",
+        "process_private_bytes": {
+          "source": {
+            "first": 49242112,
+            "last": 54423552,
+            "minimum": 49242112,
+            "maximum": 54423552
+          },
+          "destination": {
+            "first": 1986560,
+            "last": 2195456,
+            "minimum": 1638400,
+            "maximum": 2199552
+          }
+        },
+        "runtime_first": {
+          "observed_at_ns": 1790450188137623000,
+          "processed_requests": 0,
+          "heap_alloc_bytes": 321344,
+          "heap_sys_bytes": 4063232,
+          "heap_idle_bytes": 3268608,
+          "heap_inuse_bytes": 794624,
+          "heap_released_bytes": 3268608,
+          "num_gc": 0,
+          "total_alloc_bytes": 321344,
+          "mallocs": 1313,
+          "frees": 34,
+          "total_gc_pause_ns": 0,
+          "goroutines": 2
+        },
+        "runtime_last": {
+          "observed_at_ns": 1790450394137623000,
+          "processed_requests": 392,
+          "heap_alloc_bytes": 1163008,
+          "heap_sys_bytes": 11370496,
+          "heap_idle_bytes": 8503296,
+          "heap_inuse_bytes": 2867200,
+          "heap_released_bytes": 6201344,
+          "num_gc": 8,
+          "total_alloc_bytes": 22925472,
+          "mallocs": 236483,
+          "frees": 228009,
+          "total_gc_pause_ns": 0,
+          "goroutines": 14
+        },
+        "runtime_min_goroutines": 2,
+        "runtime_max_goroutines": 14
+      },
+      {
+        "name": "cycles-50-r2",
+        "process_private_bytes": {
+          "source": {
+            "first": 49414144,
+            "last": 54345728,
+            "minimum": 49414144,
+            "maximum": 54579200
+          },
+          "destination": {
+            "first": 1892352,
+            "last": 2158592,
+            "minimum": 1552384,
+            "maximum": 2187264
+          }
+        },
+        "runtime_first": {
+          "observed_at_ns": 1790450397671704100,
+          "processed_requests": 0,
+          "heap_alloc_bytes": 319656,
+          "heap_sys_bytes": 4063232,
+          "heap_idle_bytes": 3276800,
+          "heap_inuse_bytes": 786432,
+          "heap_released_bytes": 3276800,
+          "num_gc": 0,
+          "total_alloc_bytes": 319656,
+          "mallocs": 1295,
+          "frees": 34,
+          "total_gc_pause_ns": 0,
+          "goroutines": 2
+        },
+        "runtime_last": {
+          "observed_at_ns": 1790450602671704100,
+          "processed_requests": 392,
+          "heap_alloc_bytes": 1663264,
+          "heap_sys_bytes": 11272192,
+          "heap_idle_bytes": 8249344,
+          "heap_inuse_bytes": 3022848,
+          "heap_released_bytes": 6258688,
+          "num_gc": 8,
+          "total_alloc_bytes": 22958632,
+          "mallocs": 236820,
+          "frees": 223445,
+          "total_gc_pause_ns": 0,
+          "goroutines": 14
+        },
+        "runtime_min_goroutines": 2,
+        "runtime_max_goroutines": 14
+      },
+      {
+        "name": "cycles-50-r3",
+        "process_private_bytes": {
+          "source": {
+            "first": 49197056,
+            "last": 53948416,
+            "minimum": 49197056,
+            "maximum": 54206464
+          },
+          "destination": {
+            "first": 1892352,
+            "last": 2301952,
+            "minimum": 1564672,
+            "maximum": 2301952
+          }
+        },
+        "runtime_first": {
+          "observed_at_ns": 1790450606208080800,
+          "processed_requests": 0,
+          "heap_alloc_bytes": 320128,
+          "heap_sys_bytes": 8257536,
+          "heap_idle_bytes": 7462912,
+          "heap_inuse_bytes": 794624,
+          "heap_released_bytes": 7462912,
+          "num_gc": 0,
+          "total_alloc_bytes": 320128,
+          "mallocs": 1300,
+          "frees": 34,
+          "total_gc_pause_ns": 0,
+          "goroutines": 2
+        },
+        "runtime_last": {
+          "observed_at_ns": 1790450811208080800,
+          "processed_requests": 392,
+          "heap_alloc_bytes": 1240952,
+          "heap_sys_bytes": 11337728,
+          "heap_idle_bytes": 8396800,
+          "heap_inuse_bytes": 2940928,
+          "heap_released_bytes": 6758400,
+          "num_gc": 8,
+          "total_alloc_bytes": 22959360,
+          "mallocs": 236721,
+          "frees": 227622,
+          "total_gc_pause_ns": 552500,
+          "goroutines": 14
+        },
+        "runtime_min_goroutines": 2,
+        "runtime_max_goroutines": 14
+      }
+    ]
+  },
+  "scope": "Stage-bound Windows diagnostics, differing source commits and run times; no causal performance or full QUIC ownership claim. All successful source worker reports after change are joined/zero; memory cause not inferred from private bytes alone."
+}

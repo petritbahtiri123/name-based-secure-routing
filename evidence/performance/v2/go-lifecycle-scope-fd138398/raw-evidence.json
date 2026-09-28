@@ -1,0 +1,15 @@
+{
+  "roots": [
+    {
+      "path": "C:\\NBSR-build\\go-b3-97e0ca06",
+      "index_sha256": "b0246be4cd3547d89d368cfb77083102880c5aa6c82838a0ee5e0cef34e69ea6",
+      "indexed_files": 165
+    },
+    {
+      "path": "C:\\NBSR-build\\go-scope-20260926",
+      "index_sha256": "0ce724fb90a43b27145d46f2011f2cafd002d7cda6b35ba0dc414306adf1aeb3",
+      "indexed_files": 162
+    }
+  ],
+  "scope": "Raw bytes verified by analyze.py before packaging; no raw evidence deleted."
+}

@@ -1,0 +1,21 @@
+{
+  "source_sha": "fd138398549a579b50dd0693fc278d3998b0b3e0",
+  "red": {
+    "command": "go test ./cmd/nbsr-go-peer -run TestLifecycleScope -count=1",
+    "exit_code": 1,
+    "observed_error": "undefined: newLifecycleScope",
+    "provenance": "summary of tool output; not a retained raw compiler log"
+  },
+  "green": {
+    "focused_command": "go test ./cmd/nbsr-go-peer -run 'TestLifecycleScope|TestLifecycleCompletion' -count=1",
+    "focused_exit_code": 0,
+    "race_command": "go test -race ./... -count=1",
+    "race_exit_code": 0,
+    "race_log": "C:/NBSR-build/go-lifecycle-scope-race-20260926.txt",
+    "vet_command": "go vet ./...",
+    "vet_exit_code": 0,
+    "vet_log": "C:/NBSR-build/go-lifecycle-scope-vet-20260926.txt"
+  },
+  "review": "Independent focused review found no important defects. No tests or builds ran concurrently with resource cohort.",
+  "scope": "Independent Go benchmark lifecycle; frozen wire, authentication, authorization and successful destination-completion ordering unchanged. Not a production speed optimization."
+}

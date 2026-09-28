@@ -1,0 +1,58 @@
+[
+  {
+    "path": "direct",
+    "outstanding": 1,
+    "repeats": 3,
+    "median_gbps": 1.0767185667286587,
+    "cv": 0.010867385970389377,
+    "median_ops_per_second": 4107.355372347483,
+    "median_cpu_ns_per_op": 232984.69946685495,
+    "median_effective_cores": 0.9475436060161168,
+    "median_p50_ns": 1849400,
+    "median_p95_ns": 2421300,
+    "median_p99_ns": 3338600,
+    "valid": true
+  },
+  {
+    "path": "nbsr",
+    "outstanding": 1,
+    "repeats": 3,
+    "median_gbps": 1.0311671111488114,
+    "cv": 0.042935030602637404,
+    "median_ops_per_second": 3933.590359301801,
+    "median_cpu_ns_per_op": 239968.10270142552,
+    "median_effective_cores": 0.9561990393721966,
+    "median_p50_ns": 1929600,
+    "median_p95_ns": 3241400,
+    "median_p99_ns": 3981600,
+    "valid": true
+  },
+  {
+    "path": "direct",
+    "outstanding": 2,
+    "repeats": 3,
+    "median_gbps": 1.1113789437110135,
+    "cv": 0.004872915571231817,
+    "median_ops_per_second": 4239.574217647604,
+    "median_cpu_ns_per_op": 223088.99880726865,
+    "median_effective_cores": 0.9490673595201461,
+    "median_p50_ns": 3630800,
+    "median_p95_ns": 4422500,
+    "median_p99_ns": 5815200,
+    "valid": true
+  },
+  {
+    "path": "nbsr",
+    "outstanding": 2,
+    "repeats": 3,
+    "median_gbps": 1.1593788636731703,
+    "cv": 0.009241977645517355,
+    "median_ops_per_second": 4422.6793810774625,
+    "median_cpu_ns_per_op": 214781.48809658384,
+    "median_effective_cores": 0.9499096588418958,
+    "median_p50_ns": 3518200,
+    "median_p95_ns": 4607800,
+    "median_p99_ns": 5910800,
+    "valid": true
+  }
+]

@@ -1,0 +1,599 @@
+{
+  "scope": "Windows single-core 75% reference load. Window latency is sampled, not a pooled run percentile. Periodic ownership unqualified; no full B5 acceptance inferred. Failed-run counters cover observed progress only.",
+  "rows": [
+    {
+      "repeat": 1,
+      "record": {
+        "path": "nbsr",
+        "valid": true,
+        "classification": "ACCOUNTING_PASS",
+        "scope": "Windows loopback",
+        "final": {
+          "schema": "nbsr-b5-grouped-final-v1",
+          "groups": 1,
+          "payload_bytes": 16384,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 1,
+          "measurement_duration_ns": 3600000000000,
+          "drain_duration_ns": 469300,
+          "offered": 10620693,
+          "reserved": 10347756,
+          "issued": 10347756,
+          "completed": 10347756,
+          "missed": 272937,
+          "unreserved_current": 0,
+          "group_counters": [
+            {
+              "group_id": 0,
+              "offered": 10620693,
+              "reserved": 10347756,
+              "issued": 10347756,
+              "completed": 10347756,
+              "missed": 272937,
+              "unreserved_current": 0
+            }
+          ],
+          "max_outstanding_observed": 8,
+          "errors": 0,
+          "timeouts": 0,
+          "collector_overflow_count": 0,
+          "all_groups_joined": true,
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "evidence_valid": true
+        },
+        "achieved_offered_ratio": 0.9743013944570283,
+        "gbps": 0.7535004986795044,
+        "ownership_reports": [
+          {
+            "role": "destination",
+            "pid": 5152,
+            "file": "d0.cleanup.json",
+            "all_11_zero": true
+          },
+          {
+            "role": "source",
+            "pid": 22836,
+            "file": "source.cleanup.json",
+            "all_11_zero": true
+          }
+        ],
+        "continuous_ownership": {
+          "classification": "NOT_MEASURED"
+        },
+        "cleanup_scope": "11-counter reports and all process joins",
+        "internal_failure_thread_join": "NOT_MEASURED",
+        "affinity": [
+          {
+            "requested_mask": 1,
+            "observed_mask": 1,
+            "system_mask": 255,
+            "verified": true
+          },
+          {
+            "requested_mask": 1,
+            "observed_mask": 1,
+            "system_mask": 255,
+            "verified": true
+          }
+        ],
+        "qualification": {
+          "steady_windows": 119,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 153319334433600,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        }
+      },
+      "observed_steady_seconds": 3570.0182919,
+      "windows": 119,
+      "last_observed_progress": {
+        "schema": "nbsr-b5-grouped-progress-v1",
+        "event": "b5_grouped_progress",
+        "window_index": 119,
+        "phase": "steady",
+        "elapsed_ns": 3570018291900,
+        "interval_start_ns": 3540010622800,
+        "interval_end_ns": 3570018291900,
+        "issue_deadline_ns": 3600000000000,
+        "offered": 10532247,
+        "reserved": 10260705,
+        "issued": 10260705,
+        "completed": 10260705,
+        "missed": 271542,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 10532247,
+            "reserved": 10260705,
+            "issued": 10260705,
+            "completed": 10260705,
+            "missed": 271542,
+            "unreserved_current": 0
+          }
+        ],
+        "goodput_bytes_per_second": 91943164.75583903,
+        "sample_count": 1316,
+        "sample_stride": 64,
+        "sample_capacity": 2768,
+        "sample_overflow_count": 0,
+        "p50_latency_ns": 1633400,
+        "p95_latency_ns": 2754200,
+        "p99_latency_ns": 3510700,
+        "max_reservation_lateness_ns": 9999900,
+        "errors": 0,
+        "timeouts": 0,
+        "evidence_valid": true
+      },
+      "thirds": {
+        "goodput_bytes_per_second": {
+          "early_median": 94646651.40150702,
+          "late_median": 93889281.72533406,
+          "fractional_change": -0.008002075772972295
+        },
+        "p99_latency_ns": {
+          "early_median": 3534900,
+          "late_median": 3582500,
+          "fractional_change": 0.013465727460465704
+        }
+      },
+      "resource_diagnostics": {
+        "source": {
+          "private_bytes": {
+            "first": 3002368,
+            "last": 3067904,
+            "minimum": 2777088,
+            "maximum": 3219456
+          },
+          "working_set_bytes": {
+            "first": 12365824,
+            "last": 12566528,
+            "minimum": 12193792,
+            "maximum": 12677120
+          },
+          "thread_count": {
+            "first": 5,
+            "last": 3,
+            "minimum": 3,
+            "maximum": 5
+          },
+          "handle_count": {
+            "first": 92,
+            "last": 92,
+            "minimum": 91,
+            "maximum": 92
+          },
+          "median_cpu_percent_one_core": 33.473394129314656
+        },
+        "destination_0": {
+          "private_bytes": {
+            "first": 1998848,
+            "last": 2273280,
+            "minimum": 1859584,
+            "maximum": 2314240
+          },
+          "working_set_bytes": {
+            "first": 11026432,
+            "last": 11407360,
+            "minimum": 10969088,
+            "maximum": 11493376
+          },
+          "thread_count": {
+            "first": 3,
+            "last": 1,
+            "minimum": 1,
+            "maximum": 3
+          },
+          "handle_count": {
+            "first": 88,
+            "last": 88,
+            "minimum": 88,
+            "maximum": 88
+          },
+          "median_cpu_percent_one_core": 41.809400039276966
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "record": {
+        "path": "nbsr",
+        "valid": true,
+        "classification": "ACCOUNTING_PASS",
+        "scope": "Windows loopback",
+        "final": {
+          "schema": "nbsr-b5-grouped-final-v1",
+          "groups": 1,
+          "payload_bytes": 16384,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 1,
+          "measurement_duration_ns": 3600000000000,
+          "drain_duration_ns": 578400,
+          "offered": 10620693,
+          "reserved": 10365085,
+          "issued": 10365085,
+          "completed": 10365085,
+          "missed": 255608,
+          "unreserved_current": 0,
+          "group_counters": [
+            {
+              "group_id": 0,
+              "offered": 10620693,
+              "reserved": 10365085,
+              "issued": 10365085,
+              "completed": 10365085,
+              "missed": 255608,
+              "unreserved_current": 0
+            }
+          ],
+          "max_outstanding_observed": 8,
+          "errors": 0,
+          "timeouts": 0,
+          "collector_overflow_count": 0,
+          "all_groups_joined": true,
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "evidence_valid": true
+        },
+        "achieved_offered_ratio": 0.9759330205665487,
+        "gbps": 0.7547623349126293,
+        "ownership_reports": [
+          {
+            "role": "destination",
+            "pid": 21208,
+            "file": "d0.cleanup.json",
+            "all_11_zero": true
+          },
+          {
+            "role": "source",
+            "pid": 19064,
+            "file": "source.cleanup.json",
+            "all_11_zero": true
+          }
+        ],
+        "continuous_ownership": {
+          "classification": "NOT_MEASURED"
+        },
+        "cleanup_scope": "11-counter reports and all process joins",
+        "internal_failure_thread_join": "NOT_MEASURED",
+        "affinity": [
+          {
+            "requested_mask": 1,
+            "observed_mask": 1,
+            "system_mask": 255,
+            "verified": true
+          },
+          {
+            "requested_mask": 1,
+            "observed_mask": 1,
+            "system_mask": 255,
+            "verified": true
+          }
+        ],
+        "qualification": {
+          "steady_windows": 119,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 156922695755800,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        }
+      },
+      "observed_steady_seconds": 3570.027717,
+      "windows": 119,
+      "last_observed_progress": {
+        "schema": "nbsr-b5-grouped-progress-v1",
+        "event": "b5_grouped_progress",
+        "window_index": 119,
+        "phase": "steady",
+        "elapsed_ns": 3570027717000,
+        "interval_start_ns": 3540027816700,
+        "interval_end_ns": 3570027717000,
+        "issue_deadline_ns": 3600000000000,
+        "offered": 10532276,
+        "reserved": 10278109,
+        "issued": 10278109,
+        "completed": 10278109,
+        "missed": 254167,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 10532276,
+            "reserved": 10278109,
+            "issued": 10278109,
+            "completed": 10278109,
+            "missed": 254167,
+            "unreserved_current": 0
+          }
+        ],
+        "goodput_bytes_per_second": 95075575.70116325,
+        "sample_count": 1360,
+        "sample_stride": 64,
+        "sample_capacity": 2768,
+        "sample_overflow_count": 0,
+        "p50_latency_ns": 1814000,
+        "p95_latency_ns": 2646400,
+        "p99_latency_ns": 3096900,
+        "max_reservation_lateness_ns": 9999900,
+        "errors": 0,
+        "timeouts": 0,
+        "evidence_valid": true
+      },
+      "thirds": {
+        "goodput_bytes_per_second": {
+          "early_median": 94878052.74282826,
+          "late_median": 94966560.76418932,
+          "fractional_change": 0.0009328608545640105
+        },
+        "p99_latency_ns": {
+          "early_median": 3537900,
+          "late_median": 3269000,
+          "fractional_change": -0.07600554000961024
+        }
+      },
+      "resource_diagnostics": {
+        "source": {
+          "private_bytes": {
+            "first": 2818048,
+            "last": 3059712,
+            "minimum": 2727936,
+            "maximum": 3235840
+          },
+          "working_set_bytes": {
+            "first": 9703424,
+            "last": 10096640,
+            "minimum": 9662464,
+            "maximum": 10207232
+          },
+          "thread_count": {
+            "first": 5,
+            "last": 3,
+            "minimum": 3,
+            "maximum": 5
+          },
+          "handle_count": {
+            "first": 86,
+            "last": 86,
+            "minimum": 85,
+            "maximum": 86
+          },
+          "median_cpu_percent_one_core": 35.81714245201624
+        },
+        "destination_0": {
+          "private_bytes": {
+            "first": 1966080,
+            "last": 2310144,
+            "minimum": 1822720,
+            "maximum": 2310144
+          },
+          "working_set_bytes": {
+            "first": 8773632,
+            "last": 9142272,
+            "minimum": 8683520,
+            "maximum": 9273344
+          },
+          "thread_count": {
+            "first": 3,
+            "last": 1,
+            "minimum": 1,
+            "maximum": 3
+          },
+          "handle_count": {
+            "first": 82,
+            "last": 82,
+            "minimum": 82,
+            "maximum": 82
+          },
+          "median_cpu_percent_one_core": 42.07632982842136
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "record": {
+        "path": "nbsr",
+        "valid": true,
+        "classification": "ACCOUNTING_PASS",
+        "scope": "Windows loopback",
+        "final": {
+          "schema": "nbsr-b5-grouped-final-v1",
+          "groups": 1,
+          "payload_bytes": 16384,
+          "streams_per_group": 8,
+          "outstanding_per_stream": 1,
+          "measurement_duration_ns": 3600000000000,
+          "drain_duration_ns": 626700,
+          "offered": 10620693,
+          "reserved": 10426486,
+          "issued": 10426486,
+          "completed": 10426486,
+          "missed": 194207,
+          "unreserved_current": 0,
+          "group_counters": [
+            {
+              "group_id": 0,
+              "offered": 10620693,
+              "reserved": 10426486,
+              "issued": 10426486,
+              "completed": 10426486,
+              "missed": 194207,
+              "unreserved_current": 0
+            }
+          ],
+          "max_outstanding_observed": 8,
+          "errors": 0,
+          "timeouts": 0,
+          "collector_overflow_count": 0,
+          "all_groups_joined": true,
+          "source_cleanup": {
+            "status": "SEPARATE_REPORT_REQUIRED"
+          },
+          "evidence_valid": true
+        },
+        "achieved_offered_ratio": 0.9817142817328398,
+        "gbps": 0.7592334083812285,
+        "ownership_reports": [
+          {
+            "role": "destination",
+            "pid": 17648,
+            "file": "d0.cleanup.json",
+            "all_11_zero": true
+          },
+          {
+            "role": "source",
+            "pid": 12360,
+            "file": "source.cleanup.json",
+            "all_11_zero": true
+          }
+        ],
+        "continuous_ownership": {
+          "classification": "NOT_MEASURED"
+        },
+        "cleanup_scope": "11-counter reports and all process joins",
+        "internal_failure_thread_join": "NOT_MEASURED",
+        "affinity": [
+          {
+            "requested_mask": 1,
+            "observed_mask": 1,
+            "system_mask": 255,
+            "verified": true
+          },
+          {
+            "requested_mask": 1,
+            "observed_mask": 1,
+            "system_mask": 255,
+            "verified": true
+          }
+        ],
+        "qualification": {
+          "steady_windows": 119,
+          "latency_comparison_available": true,
+          "resource_series_available": true,
+          "resource_sample_clock": "monotonic_timestamp_ns",
+          "resource_memory_metric": "private_bytes",
+          "resource_phase_origin_monotonic_ns": 160526107886400,
+          "resource_phase_clock": "first-progress receive time minus elapsed; approximate, excludes earlier samples",
+          "thermal_and_power": "NOT_MEASURED"
+        }
+      },
+      "observed_steady_seconds": 3570.0073528,
+      "windows": 119,
+      "last_observed_progress": {
+        "schema": "nbsr-b5-grouped-progress-v1",
+        "event": "b5_grouped_progress",
+        "window_index": 119,
+        "phase": "steady",
+        "elapsed_ns": 3570007352800,
+        "interval_start_ns": 3540004926900,
+        "interval_end_ns": 3570007352800,
+        "issue_deadline_ns": 3600000000000,
+        "offered": 10532217,
+        "reserved": 10339741,
+        "issued": 10339741,
+        "completed": 10339741,
+        "missed": 192476,
+        "unreserved_current": 0,
+        "group_counters": [
+          {
+            "group_id": 0,
+            "offered": 10532217,
+            "reserved": 10339741,
+            "issued": 10339741,
+            "completed": 10339741,
+            "missed": 192476,
+            "unreserved_current": 0
+          }
+        ],
+        "goodput_bytes_per_second": 94983474.51963876,
+        "sample_count": 1359,
+        "sample_stride": 64,
+        "sample_capacity": 2768,
+        "sample_overflow_count": 0,
+        "p50_latency_ns": 1886700,
+        "p95_latency_ns": 2729500,
+        "p99_latency_ns": 3341200,
+        "max_reservation_lateness_ns": 9999900,
+        "errors": 0,
+        "timeouts": 0,
+        "evidence_valid": true
+      },
+      "thirds": {
+        "goodput_bytes_per_second": {
+          "early_median": 95080120.568142,
+          "late_median": 94896917.85867964,
+          "fractional_change": -0.0019268245387957794
+        },
+        "p99_latency_ns": {
+          "early_median": 3226000,
+          "late_median": 3310600,
+          "fractional_change": 0.02622442653440804
+        }
+      },
+      "resource_diagnostics": {
+        "source": {
+          "private_bytes": {
+            "first": 2793472,
+            "last": 2883584,
+            "minimum": 2740224,
+            "maximum": 3223552
+          },
+          "working_set_bytes": {
+            "first": 9682944,
+            "last": 9936896,
+            "minimum": 9629696,
+            "maximum": 10125312
+          },
+          "thread_count": {
+            "first": 5,
+            "last": 3,
+            "minimum": 3,
+            "maximum": 5
+          },
+          "handle_count": {
+            "first": 86,
+            "last": 86,
+            "minimum": 85,
+            "maximum": 86
+          },
+          "median_cpu_percent_one_core": 33.69629594630864
+        },
+        "destination_0": {
+          "private_bytes": {
+            "first": 2027520,
+            "last": 2203648,
+            "minimum": 1921024,
+            "maximum": 2248704
+          },
+          "working_set_bytes": {
+            "first": 8929280,
+            "last": 9187328,
+            "minimum": 8847360,
+            "maximum": 9256960
+          },
+          "thread_count": {
+            "first": 3,
+            "last": 1,
+            "minimum": 1,
+            "maximum": 3
+          },
+          "handle_count": {
+            "first": 82,
+            "last": 82,
+            "minimum": 82,
+            "maximum": 82
+          },
+          "median_cpu_percent_one_core": 39.5941581731309
+        }
+      }
+    }
+  ]
+}

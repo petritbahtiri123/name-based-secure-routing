@@ -1,0 +1,10 @@
+ok  	nbsr.local/interop/nbsr-go-peer/cmd/nbsr-go-peer	2.445s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/authority	1.837s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/cbor	1.784s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/core	1.768s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/perfclock	1.616s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/state	1.767s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/streamcredit	1.436s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/streamowner	1.447s
+ok  	nbsr.local/interop/nbsr-go-peer/internal/transport	1.678s
+ok  	nbsr.local/interop/nbsr-go-peer/wirepeer	2.010s

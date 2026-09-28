@@ -1,0 +1,27 @@
+[
+  {
+    "path": "C:\\NBSR-build\\go-scope-20260926",
+    "index_sha256": "0ce724fb90a43b27145d46f2011f2cafd002d7cda6b35ba0dc414306adf1aeb3",
+    "verified_files": 162
+  },
+  {
+    "path": "C:\\NBSR-build\\soak-reference-fd138398-20260926",
+    "index_sha256": "d0e66d3646dd2f201df8a2fa92dfae78ae472ec91b4b3b200ff3a0f2009c756e",
+    "verified_files": 75
+  },
+  {
+    "path": "C:\\NBSR-build\\soak-observer-fd138398-20260926",
+    "index_sha256": "4bd4d44e3de8396217bfd710b48f1cd530d788c8c21a2725cdea4ed074001aea",
+    "verified_files": 44
+  },
+  {
+    "path": "C:\\NBSR-build\\soak75-fd138398-20260926",
+    "index_sha256": "5171411a8f72723b43edb4288766820edd4408a3a5b48bbb4d4be1973b48afef",
+    "verified_files": 42
+  },
+  {
+    "path": "C:\\NBSR-build\\retained-compression-20260926",
+    "index_sha256": "6c85421d4aaf5e3d6ad06df4996daa800e441fcfe5623ff5605aa484c8f2e773",
+    "verified_files": 6
+  }
+]

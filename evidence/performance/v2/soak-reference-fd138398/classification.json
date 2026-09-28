@@ -1,0 +1,90 @@
+{
+  "direct": {
+    "schema": "nbsr-physical-core-ladder-classification-v1",
+    "cells": [
+      {
+        "outstanding_per_stream": 1,
+        "repeat_count": 3,
+        "classification": "STABLE",
+        "median_gbps": 1.0767185667286587,
+        "gbps_range": [
+          1.0601809096934558,
+          1.0826956641684216
+        ],
+        "repeat_cv": 0.010867385970389377,
+        "median_p99_ns": 3338600,
+        "p99_ratio_range": [
+          0.901126220571497,
+          1.0652369256574612
+        ],
+        "errors_timeouts_or_cleanup_failure": false
+      },
+      {
+        "outstanding_per_stream": 2,
+        "repeat_count": 3,
+        "classification": "DEGRADED",
+        "median_gbps": 1.1113789437110135,
+        "gbps_range": [
+          1.1113263939702658,
+          1.1207589914714646
+        ],
+        "repeat_cv": 0.004872915571231817,
+        "median_p99_ns": 5815200,
+        "p99_ratio_range": [
+          1.6134607320433714,
+          1.8099203258851015
+        ],
+        "errors_timeouts_or_cleanup_failure": false
+      }
+    ],
+    "reference_p99_ns": 3338600,
+    "strict_stable_gbps": 1.0767185667286587,
+    "observed_peak_diagnostic_gbps": 1.1207589914714646,
+    "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+    "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately."
+  },
+  "nbsr": {
+    "schema": "nbsr-physical-core-ladder-classification-v1",
+    "cells": [
+      {
+        "outstanding_per_stream": 1,
+        "repeat_count": 3,
+        "classification": "STABLE",
+        "median_gbps": 1.0311671111488114,
+        "gbps_range": [
+          0.9984302614708703,
+          1.086655373653225
+        ],
+        "repeat_cv": 0.042935030602637404,
+        "median_p99_ns": 3981600,
+        "p99_ratio_range": [
+          0.8868042997789833,
+          1.152752662246333
+        ],
+        "errors_timeouts_or_cleanup_failure": false
+      },
+      {
+        "outstanding_per_stream": 2,
+        "repeat_count": 3,
+        "classification": "DEGRADED",
+        "median_gbps": 1.1593788636731703,
+        "gbps_range": [
+          1.1441905513025699,
+          1.1648033868876537
+        ],
+        "repeat_cv": 0.009241977645517355,
+        "median_p99_ns": 5910800,
+        "p99_ratio_range": [
+          1.3389340968454893,
+          1.6228149487643158
+        ],
+        "errors_timeouts_or_cleanup_failure": false
+      }
+    ],
+    "reference_p99_ns": 3981600,
+    "strict_stable_gbps": 1.0311671111488114,
+    "observed_peak_diagnostic_gbps": 1.1648033868876537,
+    "scope": "One fixed-shape closed-loop depth ladder. Bounded in-flight work and clean drain are required; no external offered-rate claim.",
+    "hardware_ceiling": "NOT_CLASSIFIED; CPU/topology and other resource evidence must be assessed separately."
+  }
+}
