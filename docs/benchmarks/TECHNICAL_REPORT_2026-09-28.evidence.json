@@ -1,0 +1,240 @@
+{
+  "report_sha256": "fa0dd02a234e4897b967732496f9092bc9c3c6e94fd4841d739b1189ba6521bd",
+  "scope": "Canonical package bytes verified on 2026-09-28. Raw reference files pinned; external raw bytes were not rehashed for this documentation-only step. No benchmark rerun.",
+  "linked_documents": [
+    {
+      "path": "evidence/performance/v2/soak-reference-fd138398/summary.md",
+      "sha256": "28113dd344097bf433b67c22094fe8f42b5a19422e1e46bcd58c70935ccb1136"
+    },
+    {
+      "path": "evidence/performance/v2/soak-reference-fd138398/classification.json",
+      "sha256": "be89bb2c4a48e9695dc5641256eaa46e6a48e00223d92afe826c8c1bc3a89497"
+    },
+    {
+      "path": "evidence/performance/v2/soak-reference-fd138398/summary.md",
+      "sha256": "28113dd344097bf433b67c22094fe8f42b5a19422e1e46bcd58c70935ccb1136"
+    },
+    {
+      "path": "evidence/performance/v2/physical-core-multicore-53468db4/REPORT.md",
+      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4"
+    },
+    {
+      "path": "evidence/performance/v2/physical-core-multicore-53468db4/REPORT.md",
+      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4"
+    },
+    {
+      "path": "evidence/performance/v2/physical-core-multicore-53468db4/REPORT.md",
+      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4"
+    },
+    {
+      "path": "evidence/performance/v2/admission-fresh-1917b195/REPORT.md",
+      "sha256": "9902527d8fd304060efde152e2b2ab05d4cf1a301feca556e0a9c56ef0fddd9b"
+    },
+    {
+      "path": "evidence/performance/v2/admission-fresh-1917b195/REPORT.md",
+      "sha256": "9902527d8fd304060efde152e2b2ab05d4cf1a301feca556e0a9c56ef0fddd9b"
+    },
+    {
+      "path": "evidence/performance/v2/native-live2048-memory2-8e0b28a2/summary.md",
+      "sha256": "602d61cb43be7ea5449131b652814a6e9e908b1079e3ae6140e505835b5e2f6c"
+    },
+    {
+      "path": "evidence/performance/v2/native-live4096-530ecac9/summary.md",
+      "sha256": "8cadd5a67118145450074d1a22c153c5f53dac78def472d6b04afffb6f143853"
+    },
+    {
+      "path": "evidence/performance/v2/native-live2048-memory2-8e0b28a2/summary.md",
+      "sha256": "602d61cb43be7ea5449131b652814a6e9e908b1079e3ae6140e505835b5e2f6c"
+    },
+    {
+      "path": "evidence/performance/v2/go-lifecycle-scope-fd138398/summary.md",
+      "sha256": "7c267c92c330ad1e75e487acf06d9c4ce3f61ab4b52b251a29b829031b88af7d"
+    },
+    {
+      "path": "evidence/performance/v2/soak75-fd138398/summary.md",
+      "sha256": "93bd870fa73f1baa5ac82c2dbfc31e83545463ffbbdbed6563071174548ca17d"
+    },
+    {
+      "path": "evidence/performance/v2/native-phases-6b1095c5/summary.md",
+      "sha256": "559010e425cb6cb81d7e4a8deddc89b063b88d3383b57d88acb4289a98dc727f"
+    },
+    {
+      "path": "evidence/security/adversarial-refresh-bf53b8d4/summary.md",
+      "sha256": "6fd9620f525aa719dd17214a89489163f596c46c5a56d43c7f8cbf1920c01070"
+    },
+    {
+      "path": "evidence/security/isp-isolation-f831c9bb/REPORT.md",
+      "sha256": "bac3b0fb7c1273a018dab34f19299487e2e52a87ede5e312966119263402655d"
+    },
+    {
+      "path": "docs/benchmarks/FEDERATION_OUTREACH_BOUNDARY_2026-09-26.md",
+      "sha256": "8db1a04470f758d6b34dc882f381c485f462a20adef1ef5b01a55c66071d54f0"
+    },
+    {
+      "path": "docs/benchmarks/ENGINEERING_CHECKPOINT_2026-09-25.md",
+      "sha256": "eefa63d6a7eb1caa8f1a585d12128a9c7a1674cacc6464ea616caef05e93b63e"
+    },
+    {
+      "path": "evidence/performance/v2/b4b-task4m-217df28e/REPORT.md",
+      "sha256": "ad343986156ab85acbb77bd0b524a5df7785fba39ecdddbe81b7fb81500701ac"
+    },
+    {
+      "path": "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md",
+      "sha256": "f5892e28539be6bf523eb3f8aa614fe7c04488656d070774fbe02b6cd0dd0aca"
+    },
+    {
+      "path": "docs/benchmarks/ADMIN_REQUIRED_FINAL_VALIDATION.md",
+      "sha256": "75a6b77be748e4a3c45f1f2079f1427940682b6247da4fa4e7635365e98ac90a"
+    }
+  ],
+  "packages": [
+    {
+      "index": "evidence/performance/v2/soak-reference-fd138398/checksums.sha256",
+      "sha256": "885242770eee50ceff1b579e8b243302d8f7fbb6f582129820eb841e7e7fcea5",
+      "verified_files": 5,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/soak-reference-fd138398/raw-evidence.json",
+          "sha256": "8f7102d1b0b0c7d7c92bfde264ba52baf3c88c6e0029c715c8cf072af9e6b3d1"
+        }
+      ]
+    },
+    {
+      "index": "evidence/performance/v2/physical-core-multicore-53468db4/checksums.sha256",
+      "sha256": "ff1240e768937305eef5741d066a3cff10b80df893634ac91d4893c83dca0db7",
+      "verified_files": 12,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/physical-core-multicore-53468db4/2core-external-checksums.sha256",
+          "sha256": "7d44067eaa21b826f36aa91e4e63e517f27a82bc04ecda6de7fa572e15cb24aa"
+        },
+        {
+          "path": "evidence/performance/v2/physical-core-multicore-53468db4/4core-external-checksums.sha256",
+          "sha256": "c3cea7d81177c170ae67468a59f210b605c17714aa8af1f94d631c323fd230bc"
+        },
+        {
+          "path": "evidence/performance/v2/physical-core-multicore-53468db4/external-inputs.json",
+          "sha256": "4be83067cc979e1a987bc1e5e12740537434a13070be24e83abd4513f21fbfb9"
+        }
+      ]
+    },
+    {
+      "index": "evidence/performance/v2/admission-fresh-1917b195/checksums.sha256",
+      "sha256": "76ee101c6f85ca78b4fe1693743b89b250017e778d226470de7683dbc7541cfb",
+      "verified_files": 7,
+      "raw_reference_files": []
+    },
+    {
+      "index": "evidence/performance/v2/native-live2048-memory2-8e0b28a2/checksums.sha256",
+      "sha256": "ce943b5a465643ab21ca5cc03c794522fdab501dceaa393163b6b7b0854ef56f",
+      "verified_files": 5,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/native-live2048-memory2-8e0b28a2/raw-evidence.json",
+          "sha256": "fc93ea494cb6641b685c7803bd2f09f61a578b5f49213cec55f4abd43f741a6a"
+        }
+      ]
+    },
+    {
+      "index": "evidence/performance/v2/native-live4096-530ecac9/checksums.sha256",
+      "sha256": "4517c6aa9851569e034a319707123e16265b2813272c93b6e8b28703270d4bf8",
+      "verified_files": 5,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/native-live4096-530ecac9/raw-evidence.json",
+          "sha256": "c0cd0436c09418172319b10ea6d3e4bcec049038d8f3cb9acb76610ed7bb64c6"
+        }
+      ]
+    },
+    {
+      "index": "evidence/performance/v2/go-lifecycle-scope-fd138398/checksums.sha256",
+      "sha256": "4588600b15f5d3f6ee5639bbfc7180b445126ce422aea4c21435bd1b7f293621",
+      "verified_files": 8,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/go-lifecycle-scope-fd138398/raw-evidence.json",
+          "sha256": "d208642de7da8a9425e928a96a3e6c542450f1d37e9ab0b8112eb632172f486e"
+        }
+      ]
+    },
+    {
+      "index": "evidence/performance/v2/soak75-fd138398/checksums.sha256",
+      "sha256": "e2c651a2bec4ea7e6136d77f210da00b3db6ef604e4c62bafca948215d4de066",
+      "verified_files": 5,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/soak75-fd138398/raw-evidence.json",
+          "sha256": "25603e8d538fb01c53628695864c13b1c1c77a30cdfab4ca52cf76034ee131c0"
+        }
+      ]
+    },
+    {
+      "index": "evidence/performance/v2/native-phases-6b1095c5/checksums.sha256",
+      "sha256": "9fe732ef1a4399995fa0dd99bf885f3ce0f87250df144382087e83e5a9184cbf",
+      "verified_files": 11,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/native-phases-6b1095c5/raw-evidence.json",
+          "sha256": "d0e2525c97541b84f34700b7922491d1a700bd207f590b53ad4e768fcea614af"
+        }
+      ]
+    },
+    {
+      "index": "evidence/security/adversarial-refresh-bf53b8d4/checksums.sha256",
+      "sha256": "b408d09bf494ca82c88790dd29a4ad75a5ee4c01a2c19df3bce95041d424c014",
+      "verified_files": 5,
+      "raw_reference_files": [
+        {
+          "path": "evidence/security/adversarial-refresh-bf53b8d4/external-checksums.sha256",
+          "sha256": "3d1da43893be368a0fc32f022fa3427be1c6a9208b8b6d9d608048a06ad39288"
+        },
+        {
+          "path": "evidence/security/adversarial-refresh-bf53b8d4/external-inputs.json",
+          "sha256": "00b3082f998e3a94e6d71a66f84b8fc0c7f267b8a9c3f9098ce4528d34da1793"
+        }
+      ]
+    },
+    {
+      "index": "evidence/security/isp-isolation-f831c9bb/checksums.sha256",
+      "sha256": "94e7bb6236584060bd0659104e26f200917b81c66800cb7f017ff8f8a77b3fb4",
+      "verified_files": 31,
+      "raw_reference_files": [
+        {
+          "path": "evidence/security/isp-isolation-f831c9bb/external-inputs.json",
+          "sha256": "fd94f8cbd5cfbe424d001d7b713be8bb934e878bdfe795ff01a1bdcafecac8ec"
+        },
+        {
+          "path": "evidence/security/isp-isolation-f831c9bb/failed-predecessor-external-checksums.sha256",
+          "sha256": "4ca1394bdefa67e280e44de9f04d21b57a9a3296fd6c3ac41cb8c7c95f45fa61"
+        },
+        {
+          "path": "evidence/security/isp-isolation-f831c9bb/prepare-external-checksums.sha256",
+          "sha256": "935f23ea55bf53a2dd697dfe149737a711e7c483efc2031c5bc08f4f333aef8f"
+        },
+        {
+          "path": "evidence/security/isp-isolation-f831c9bb/repeat1-external-checksums.sha256",
+          "sha256": "1d4d64fde48d0183261be8ffa52b0846b46a2c1dadf59f07c859a62531325fcc"
+        },
+        {
+          "path": "evidence/security/isp-isolation-f831c9bb/repeat2-external-checksums.sha256",
+          "sha256": "9962f6c3141001763229c76f1207b0e1d766385b1a0c5870f5d91c80050978d2"
+        },
+        {
+          "path": "evidence/security/isp-isolation-f831c9bb/repeat3-external-checksums.sha256",
+          "sha256": "3ed09b3065df53df02963ccc7d3b304051b14d8e84727e89070f7fbb9f4f38c2"
+        }
+      ]
+    },
+    {
+      "index": "evidence/performance/v2/b4b-task4m-217df28e/checksums.sha256",
+      "sha256": "318d2e3872ef95e7c0d3a831d2b154439e0238693299fbd06a4b9b70662bfa28",
+      "verified_files": 3,
+      "raw_reference_files": [
+        {
+          "path": "evidence/performance/v2/b4b-task4m-217df28e/external-inputs.json",
+          "sha256": "c68d2685d1e366c71992796d77407d18295e1318a33219909dcb3a32b4342889"
+        }
+      ]
+    }
+  ]
+}
