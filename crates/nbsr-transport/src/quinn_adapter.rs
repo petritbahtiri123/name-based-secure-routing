@@ -144,7 +144,12 @@ impl TransportListener {
             .await
             .map_err(|_| TransportError::HandshakeTimeout)?
             .map_err(|_| TransportError::HandshakeFailed)?;
-        authenticate_connection(connection, self.endpoint.clone(), &self.policy)
+        authenticate_connection(
+            connection,
+            self.endpoint.clone(),
+            &self.policy,
+            EndpointOwnership::SharedListener,
+        )
     }
 
     pub async fn close(self) -> Result<(), TransportError> {
@@ -969,11 +974,23 @@ async fn connect_at(
         .await
         .map_err(|_| TransportError::HandshakeTimeout)?
         .map_err(|_| TransportError::HandshakeFailed)?;
-    authenticate_connection(connection, endpoint, &config.policy)
+    authenticate_connection(
+        connection,
+        endpoint,
+        &config.policy,
+        EndpointOwnership::Owned,
+    )
+}
+
+#[derive(Clone, Copy)]
+enum EndpointOwnership {
+    Owned,
+    SharedListener,
 }
 
 pub struct AuthenticatedConnection {
     endpoint: Endpoint,
+    endpoint_ownership: EndpointOwnership,
     connection: Connection,
     authenticated_peer: EdgeIdentity,
     authenticated_peer_role: EdgeRole,
@@ -1225,11 +1242,21 @@ impl AuthenticatedConnection {
         Ok(())
     }
 
+    /// Close this connection without closing unrelated listener connections.
+    ///
+    /// Outbound connections own their endpoint and wait for its bounded drain.
+    /// Accepted connections return after initiating local close; their listener
+    /// retains the endpoint while Quinn drains asynchronously. Use
+    /// `TransportListener::close` for bounded, endpoint-wide shutdown and drain.
+    /// Local close alone does not guarantee delivery to the peer application.
     pub async fn close(self) -> Result<(), TransportError> {
         self.connection.close(VarInt::from_u32(0), b"");
-        timeout(self.close_timeout, self.endpoint.wait_idle())
-            .await
-            .map_err(|_| TransportError::CloseTimeout)
+        match self.endpoint_ownership {
+            EndpointOwnership::Owned => timeout(self.close_timeout, self.endpoint.wait_idle())
+                .await
+                .map_err(|_| TransportError::CloseTimeout),
+            EndpointOwnership::SharedListener => Ok(()),
+        }
     }
 
     pub async fn open_control_stream(&self) -> Result<ControlStream, TransportError> {
@@ -1539,6 +1566,7 @@ fn authenticate_connection(
     connection: Connection,
     endpoint: Endpoint,
     policy: &PeerPolicy,
+    endpoint_ownership: EndpointOwnership,
 ) -> Result<AuthenticatedConnection, TransportError> {
     let handshake = connection
         .handshake_data()
@@ -1583,6 +1611,7 @@ fn authenticate_connection(
     crate::diagnostics::global().created(crate::diagnostics::DiagnosticOwner::QuicConnection);
     Ok(AuthenticatedConnection {
         endpoint,
+        endpoint_ownership,
         connection,
         authenticated_peer: policy.expected_peer().clone(),
         authenticated_peer_role: policy.expected_peer_role(),

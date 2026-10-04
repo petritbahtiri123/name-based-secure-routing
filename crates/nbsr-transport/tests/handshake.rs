@@ -349,3 +349,204 @@ async fn peer_refusal_during_setup_is_rejected() {
     endpoint.close(VarInt::from_u32(0), b"");
     endpoint.wait_idle().await;
 }
+
+// A loopback UDP gate forwards the first client's Initial but withholds server
+// replies. Observing a server reply establishes the stall before client two starts.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn two_accept_slots_allow_healthy_peer_while_first_handshake_stalls() {
+    use std::sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    };
+    let pki = support::TestPki::generate();
+    let listener = Arc::new(
+        TransportListener::bind(
+            build_server_config(destination_policy(), pki.destination_material()).unwrap(),
+            "127.0.0.1:0".parse().unwrap(),
+        )
+        .unwrap(),
+    );
+    let remote = listener.local_addr().unwrap();
+    let relay = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
+    relay
+        .set_read_timeout(Some(Duration::from_millis(50)))
+        .unwrap();
+    let relay_addr = relay.local_addr().unwrap();
+    let stop = Arc::new(AtomicBool::new(false));
+    let relay_stop = stop.clone();
+    let (ready_tx, ready_rx) = tokio::sync::oneshot::channel();
+    let relay_thread = std::thread::spawn(move || {
+        let mut ready = Some(ready_tx);
+        let mut buffer = [0; 65536];
+        while !relay_stop.load(Ordering::Acquire) {
+            match relay.recv_from(&mut buffer) {
+                Ok((_, from)) if from == remote => {
+                    if let Some(ready) = ready.take() {
+                        let _ = ready.send(());
+                    }
+                }
+                Ok((length, _)) => {
+                    relay.send_to(&buffer[..length], remote).unwrap();
+                }
+                Err(error)
+                    if matches!(
+                        error.kind(),
+                        std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+                    ) => {}
+                Err(error) => panic!("relay receive: {error}"),
+            }
+        }
+    });
+    struct RelayGuard(Arc<AtomicBool>, Option<std::thread::JoinHandle<()>>);
+    impl Drop for RelayGuard {
+        fn drop(&mut self) {
+            self.0.store(true, Ordering::Release);
+            if let Some(thread) = self.1.take() {
+                let _ = thread.join();
+            }
+        }
+    }
+    let relay_guard = RelayGuard(stop, Some(relay_thread));
+    let mut blocked_endpoint = Endpoint::client("127.0.0.1:0".parse().unwrap()).unwrap();
+    blocked_endpoint.set_default_client_config(pki.client_config_without_certificate(ALPN));
+    let blocked_connect = blocked_endpoint
+        .connect(relay_addr, "destination-edge.test")
+        .unwrap();
+    let first_listener = listener.clone();
+    let first = tokio::spawn(async move { first_listener.accept_one().await });
+    let result = tokio::time::timeout(Duration::from_secs(8), async {
+        ready_rx.await.expect("server emitted handshake response");
+        assert!(
+            !first.is_finished(),
+            "first handshake must still be pending"
+        );
+        let (destination, source) = tokio::time::timeout(Duration::from_secs(1), async {
+            tokio::join!(
+                listener.accept_one(),
+                connect(
+                    build_client_config(source_policy(), pki.source_material()).unwrap(),
+                    remote
+                )
+            )
+        })
+        .await
+        .expect("healthy connection must progress before the stalled two-second deadline");
+        let destination = destination.expect("healthy destination authentication");
+        let source = source.expect("healthy source authentication");
+        assert_eq!(
+            destination.authenticated_peer().as_str(),
+            "source-edge.test"
+        );
+        assert_eq!(
+            source.authenticated_peer().as_str(),
+            "destination-edge.test"
+        );
+        assert_eq!(destination.negotiated_alpn(), ALPN);
+        assert!(
+            !first.is_finished(),
+            "healthy peer completed while first still pending"
+        );
+        (source, destination)
+    })
+    .await;
+    // Connection close waits for the shared endpoint, so cancel and join the
+    // deliberately stalled acceptance before asking the healthy peer to drain.
+    first.abort();
+    match first.await {
+        Err(error) => assert!(error.is_cancelled()),
+        Ok(Err(TransportError::HandshakeTimeout)) => {}
+        _ => panic!("stalled unauthenticated peer must never be accepted"),
+    }
+    drop(blocked_connect);
+    blocked_endpoint.close(VarInt::from_u32(0), b"");
+    blocked_endpoint.wait_idle().await;
+    drop(relay_guard);
+    let (source, destination) = result.expect("bounded two-connection test");
+    source.close().await.expect("healthy source drained");
+    destination
+        .close()
+        .await
+        .expect("healthy destination drained");
+    let listener =
+        Arc::try_unwrap(listener).unwrap_or_else(|_| panic!("accept task retained listener"));
+    listener.close().await.expect("listener drained");
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn closing_accepted_connection_does_not_wait_for_active_sibling() {
+    let pki = support::TestPki::generate();
+    let listener = TransportListener::bind(
+        build_server_config(destination_policy(), pki.destination_material()).unwrap(),
+        "127.0.0.1:0".parse().unwrap(),
+    )
+    .unwrap();
+    let remote = listener.local_addr().unwrap();
+    let (destination_a, source_a) = tokio::join!(
+        listener.accept_one(),
+        connect(
+            build_client_config(source_policy(), pki.source_material()).unwrap(),
+            remote
+        )
+    );
+    let (destination_b, source_b) = tokio::join!(
+        listener.accept_one(),
+        connect(
+            build_client_config(source_policy(), pki.source_material()).unwrap(),
+            remote
+        )
+    );
+    let (destination_a, source_a) = (destination_a.unwrap(), source_a.unwrap());
+    let (destination_b, source_b) = (destination_b.unwrap(), source_b.unwrap());
+    assert_eq!(
+        destination_b.authenticated_peer().as_str(),
+        "source-edge.test"
+    );
+    assert_eq!(
+        source_b.authenticated_peer().as_str(),
+        "destination-edge.test"
+    );
+    let close_a = destination_a.close().await;
+    // Peer B must remain usable after A closes; do not merely check cached identity.
+    let fixture = std::fs::read(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../vectors/core-v0.2/artifacts/valid/envelopes/client-hello.cbor"),
+    )
+    .unwrap();
+    let envelope =
+        nbsr_transport::decode_control_envelope(&fixture, nbsr_transport::CoreV02Limits::default())
+            .unwrap();
+    let (received, sent) = tokio::time::timeout(Duration::from_secs(2), async {
+        tokio::join!(
+            async {
+                let mut stream = destination_b.accept_control_stream().await.unwrap();
+                stream
+                    .receive_envelope(nbsr_transport::CoreV02Limits::default())
+                    .await
+                    .unwrap()
+            },
+            async {
+                let mut stream = source_b.open_control_stream().await.unwrap();
+                stream.send_envelope(&envelope).await.unwrap()
+            }
+        )
+    })
+    .await
+    .expect("sibling B still exchanges authenticated control data");
+    assert_eq!(sent, ());
+    assert_eq!(
+        received.message_type(),
+        nbsr_transport::CoreV02MessageType::ClientHello
+    );
+    source_a.close().await.expect("owned endpoint A drained");
+    source_b.close().await.expect("owned endpoint B drained");
+    destination_b
+        .close()
+        .await
+        .expect("accepted connection B closed");
+    listener.close().await.expect("shared listener drained");
+    assert_eq!(
+        close_a,
+        Ok(()),
+        "closing A must not wait for unrelated active B"
+    );
+}

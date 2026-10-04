@@ -4,87 +4,112 @@
   "linked_documents": [
     {
       "path": "evidence/performance/v2/soak-reference-fd138398/summary.md",
-      "sha256": "28113dd344097bf433b67c22094fe8f42b5a19422e1e46bcd58c70935ccb1136"
+      "sha256": "28113dd344097bf433b67c22094fe8f42b5a19422e1e46bcd58c70935ccb1136",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/soak-reference-fd138398/classification.json",
-      "sha256": "be89bb2c4a48e9695dc5641256eaa46e6a48e00223d92afe826c8c1bc3a89497"
+      "sha256": "be89bb2c4a48e9695dc5641256eaa46e6a48e00223d92afe826c8c1bc3a89497",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/soak-reference-fd138398/summary.md",
-      "sha256": "28113dd344097bf433b67c22094fe8f42b5a19422e1e46bcd58c70935ccb1136"
+      "sha256": "28113dd344097bf433b67c22094fe8f42b5a19422e1e46bcd58c70935ccb1136",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/physical-core-multicore-53468db4/REPORT.md",
-      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4"
+      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/physical-core-multicore-53468db4/REPORT.md",
-      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4"
+      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/physical-core-multicore-53468db4/REPORT.md",
-      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4"
+      "sha256": "9bfb910bc3102fd4fc629e21265ddf16b5f1a3435c235e40ba8220a12dd128f4",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/admission-fresh-1917b195/REPORT.md",
-      "sha256": "9902527d8fd304060efde152e2b2ab05d4cf1a301feca556e0a9c56ef0fddd9b"
+      "sha256": "9902527d8fd304060efde152e2b2ab05d4cf1a301feca556e0a9c56ef0fddd9b",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/admission-fresh-1917b195/REPORT.md",
-      "sha256": "9902527d8fd304060efde152e2b2ab05d4cf1a301feca556e0a9c56ef0fddd9b"
+      "sha256": "9902527d8fd304060efde152e2b2ab05d4cf1a301feca556e0a9c56ef0fddd9b",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/native-live2048-memory2-8e0b28a2/summary.md",
-      "sha256": "602d61cb43be7ea5449131b652814a6e9e908b1079e3ae6140e505835b5e2f6c"
+      "sha256": "602d61cb43be7ea5449131b652814a6e9e908b1079e3ae6140e505835b5e2f6c",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/native-live4096-530ecac9/summary.md",
-      "sha256": "8cadd5a67118145450074d1a22c153c5f53dac78def472d6b04afffb6f143853"
+      "sha256": "8cadd5a67118145450074d1a22c153c5f53dac78def472d6b04afffb6f143853",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/native-live2048-memory2-8e0b28a2/summary.md",
-      "sha256": "602d61cb43be7ea5449131b652814a6e9e908b1079e3ae6140e505835b5e2f6c"
+      "sha256": "602d61cb43be7ea5449131b652814a6e9e908b1079e3ae6140e505835b5e2f6c",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/go-lifecycle-scope-fd138398/summary.md",
-      "sha256": "7c267c92c330ad1e75e487acf06d9c4ce3f61ab4b52b251a29b829031b88af7d"
+      "sha256": "7c267c92c330ad1e75e487acf06d9c4ce3f61ab4b52b251a29b829031b88af7d",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/soak75-fd138398/summary.md",
-      "sha256": "93bd870fa73f1baa5ac82c2dbfc31e83545463ffbbdbed6563071174548ca17d"
+      "sha256": "93bd870fa73f1baa5ac82c2dbfc31e83545463ffbbdbed6563071174548ca17d",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/performance/v2/native-phases-6b1095c5/summary.md",
-      "sha256": "559010e425cb6cb81d7e4a8deddc89b063b88d3383b57d88acb4289a98dc727f"
+      "sha256": "559010e425cb6cb81d7e4a8deddc89b063b88d3383b57d88acb4289a98dc727f",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/security/adversarial-refresh-bf53b8d4/summary.md",
-      "sha256": "6fd9620f525aa719dd17214a89489163f596c46c5a56d43c7f8cbf1920c01070"
+      "sha256": "6fd9620f525aa719dd17214a89489163f596c46c5a56d43c7f8cbf1920c01070",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "evidence/security/isp-isolation-f831c9bb/REPORT.md",
-      "sha256": "bac3b0fb7c1273a018dab34f19299487e2e52a87ede5e312966119263402655d"
+      "sha256": "bac3b0fb7c1273a018dab34f19299487e2e52a87ede5e312966119263402655d",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "docs/benchmarks/FEDERATION_OUTREACH_BOUNDARY_2026-09-26.md",
-      "sha256": "8db1a04470f758d6b34dc882f381c485f462a20adef1ef5b01a55c66071d54f0"
+      "sha256": "8db1a04470f758d6b34dc882f381c485f462a20adef1ef5b01a55c66071d54f0",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "docs/benchmarks/ENGINEERING_CHECKPOINT_2026-09-25.md",
-      "sha256": "eefa63d6a7eb1caa8f1a585d12128a9c7a1674cacc6464ea616caef05e93b63e"
+      "sha256": "fbc949d0287c40856ff257d03d25ccfa78e8103ad4ec78e52119d90f8b585b2d",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04.",
+      "historical_working_tree_sha256": "eefa63d6a7eb1caa8f1a585d12128a9c7a1674cacc6464ea616caef05e93b63e",
+      "historical_hash_basis": "Windows working-file bytes recorded 2026-09-28; line-ending-dependent."
     },
     {
       "path": "evidence/performance/v2/b4b-task4m-217df28e/REPORT.md",
-      "sha256": "ad343986156ab85acbb77bd0b524a5df7785fba39ecdddbe81b7fb81500701ac"
+      "sha256": "ad343986156ab85acbb77bd0b524a5df7785fba39ecdddbe81b7fb81500701ac",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "docs/benchmarks/EXTERNAL_LINUX_SERVER_VALIDATION.md",
-      "sha256": "f5892e28539be6bf523eb3f8aa614fe7c04488656d070774fbe02b6cd0dd0aca"
+      "sha256": "f5892e28539be6bf523eb3f8aa614fe7c04488656d070774fbe02b6cd0dd0aca",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04."
     },
     {
       "path": "docs/benchmarks/ADMIN_REQUIRED_FINAL_VALIDATION.md",
-      "sha256": "75a6b77be748e4a3c45f1f2079f1427940682b6247da4fa4e7635365e98ac90a"
+      "sha256": "a5fabc8e35c600f4a589e518364bc836d061fdb85361a285bf31549fd371db49",
+      "sha256_basis": "Committed Git blob bytes at 532e049d7e966cf4dfc8a64bee34e18e3a009b4d; corrected 2026-10-04.",
+      "historical_working_tree_sha256": "75a6b77be748e4a3c45f1f2079f1427940682b6247da4fa4e7635365e98ac90a",
+      "historical_hash_basis": "Windows working-file bytes recorded 2026-09-28; line-ending-dependent."
     }
   ],
   "packages": [
