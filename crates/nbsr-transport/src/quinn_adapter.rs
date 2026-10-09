@@ -160,9 +160,19 @@ impl TransportListener {
     }
 }
 
+#[derive(Clone, Copy, Eq, PartialEq)]
+enum ControlReceiveOperation {
+    Envelope([usize; 4]),
+    Refill(u8),
+}
+
 pub struct ControlStream {
     send: SendStream,
     receive: RecvStream,
+    receive_operation: Option<ControlReceiveOperation>,
+    receive_prefix: Vec<u8>,
+    receive_body: Vec<u8>,
+    receive_body_read: usize,
 }
 
 pub struct ApplicationStream {
@@ -667,9 +677,31 @@ impl ApplicationStream {
     /// Waits until the peer acknowledges every byte queued before the
     /// send-side FIN. Callers that close the whole QUIC connection immediately
     /// after a final response use this to avoid discarding that response.
+    /// Channel cancellation interrupts the wait with `ApplicationStreamRejected`.
+    /// Cancelling this future alone leaves the stream usable.
     pub async fn wait_for_send_ack(&self) -> Result<(), TransportError> {
-        let inner = self.shared.inner.lock().await;
-        match inner.send.stopped().await {
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        // Register before waiting for the mutex, so revocation cannot be lost
+        // between acquiring the lock, checking the flag, and polling stopped().
+        notified.as_mut().enable();
+        let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        let result = tokio::select! {
+            _ = &mut notified => {
+                reset_parts(&mut inner);
+                return Err(TransportError::ApplicationStreamRejected);
+            }
+            result = inner.send.stopped() => result,
+        };
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        match result {
             Ok(None) => Ok(()),
             Ok(Some(_)) | Err(_) => Err(TransportError::ApplicationStreamFailed),
         }
@@ -790,6 +822,59 @@ impl ApplicationStream {
 }
 
 impl ControlStream {
+    // Read progress belongs to the stream, not to a cancellable receive future.
+    // Each cancel-safe read is followed immediately by its synchronous state update.
+    async fn receive_frame(
+        &mut self,
+        operation: ControlReceiveOperation,
+        min: usize,
+        max: usize,
+        invalid_length: TransportError,
+    ) -> Result<Vec<u8>, TransportError> {
+        if self
+            .receive_operation
+            .is_some_and(|active| active != operation)
+        {
+            return Err(TransportError::ControlStreamFailed);
+        }
+        if self.receive_prefix.is_empty() {
+            let byte = self
+                .receive
+                .read_u8()
+                .await
+                .map_err(|_| TransportError::ControlStreamFailed)?;
+            self.receive_operation = Some(operation);
+            self.receive_prefix.push(byte);
+        }
+        let width = 1usize << (self.receive_prefix[0] >> 6);
+        while self.receive_prefix.len() < width {
+            let byte = self
+                .receive
+                .read_u8()
+                .await
+                .map_err(|_| TransportError::ControlStreamFailed)?;
+            self.receive_prefix.push(byte);
+        }
+        let length = decode_frame_length(&self.receive_prefix)?;
+        if length < min || length > max {
+            return Err(invalid_length);
+        }
+        self.receive_body.resize(length, 0);
+        while self.receive_body_read < length {
+            let count = self
+                .receive
+                .read(&mut self.receive_body[self.receive_body_read..])
+                .await
+                .map_err(|_| TransportError::ControlStreamFailed)?
+                .ok_or(TransportError::ControlStreamFailed)?;
+            self.receive_body_read += count;
+        }
+        self.receive_operation = None;
+        self.receive_prefix.clear();
+        self.receive_body_read = 0;
+        Ok(std::mem::take(&mut self.receive_body))
+    }
+
     pub async fn send_envelope(
         &mut self,
         envelope: &crate::CoreV02Envelope,
@@ -806,24 +891,29 @@ impl ControlStream {
             .map_err(|_| TransportError::ControlStreamFailed)
     }
 
+    /// Receive one envelope. Cancellation retains bounded partial-frame progress;
+    /// resume with the same receive method and all limits, or drop the control stream.
+    /// After the first consumed byte, a different method or limits returns
+    /// `ControlStreamFailed` without consuming progress; the original call may resume.
+    /// Framing/transport errors require abandoning the stream, not retrying from
+    /// a new frame boundary. Cancelling before any bytes leaves no pending operation.
     pub async fn receive_envelope(
         &mut self,
         limits: crate::CoreV02Limits,
     ) -> Result<crate::CoreV02Envelope, TransportError> {
-        let first = self
-            .receive
-            .read_u8()
-            .await
-            .map_err(|_| TransportError::ControlStreamFailed)?;
-        let length = decode_frame_length(first, &mut self.receive).await?;
-        if length == 0 || length > limits.max_frame_bytes || length > 65_536 {
-            return Err(TransportError::ControlFrameTooLarge);
-        }
-        let mut wire = vec![0; length];
-        self.receive
-            .read_exact(&mut wire)
-            .await
-            .map_err(|_| TransportError::ControlStreamFailed)?;
+        let wire = self
+            .receive_frame(
+                ControlReceiveOperation::Envelope([
+                    limits.max_frame_bytes,
+                    limits.max_depth,
+                    limits.max_map_pairs,
+                    limits.max_array_items,
+                ]),
+                1,
+                limits.max_frame_bytes.min(65_536),
+                TransportError::ControlFrameTooLarge,
+            )
+            .await?;
         crate::decode_control_envelope(&wire, limits).map_err(TransportError::ControlRejected)
     }
 
@@ -835,6 +925,10 @@ impl ControlStream {
             .await
     }
 
+    /// Receive one refill request. Cancellation retains partial-frame progress;
+    /// resume with this method, or drop the control stream. After bytes are consumed,
+    /// another receive method returns `ControlStreamFailed` without consuming progress.
+    /// The original method may resume; framing/transport errors require abandonment.
     pub async fn receive_stream_credit_refill_request(
         &mut self,
     ) -> Result<StreamCreditRefill, TransportError> {
@@ -850,6 +944,10 @@ impl ControlStream {
             .await
     }
 
+    /// Receive one refill grant. Cancellation retains partial-frame progress;
+    /// resume with this method, or drop the control stream. After bytes are consumed,
+    /// another receive method returns `ControlStreamFailed` without consuming progress.
+    /// The original method may resume; framing/transport errors require abandonment.
     pub async fn receive_stream_credit_refill_grant(
         &mut self,
     ) -> Result<StreamCreditRefill, TransportError> {
@@ -878,20 +976,14 @@ impl ControlStream {
         &mut self,
         expected_kind: u8,
     ) -> Result<StreamCreditRefill, TransportError> {
-        let first = self
-            .receive
-            .read_u8()
-            .await
-            .map_err(|_| TransportError::ControlStreamFailed)?;
-        let length = decode_frame_length(first, &mut self.receive).await?;
-        if length != STREAM_CREDIT_REFILL_FRAME_BYTES {
-            return Err(TransportError::ControlFrameInvalid);
-        }
-        let mut wire = [0_u8; STREAM_CREDIT_REFILL_FRAME_BYTES];
-        self.receive
-            .read_exact(&mut wire)
-            .await
-            .map_err(|_| TransportError::ControlStreamFailed)?;
+        let wire = self
+            .receive_frame(
+                ControlReceiveOperation::Refill(expected_kind),
+                STREAM_CREDIT_REFILL_FRAME_BYTES,
+                STREAM_CREDIT_REFILL_FRAME_BYTES,
+                TransportError::ControlFrameInvalid,
+            )
+            .await?;
         decode_stream_credit_refill_control(&wire, expected_kind)
     }
 }
@@ -910,20 +1002,13 @@ fn encode_frame_length(length: usize) -> Result<Vec<u8>, TransportError> {
     }
 }
 
-async fn decode_frame_length(first: u8, receive: &mut RecvStream) -> Result<usize, TransportError> {
-    let width = 1usize << (first >> 6);
-    let mut bytes = vec![first & 0x3f];
-    if width > 1 {
-        let mut rest = vec![0; width - 1];
-        receive
-            .read_exact(&mut rest)
-            .await
-            .map_err(|_| TransportError::ControlStreamFailed)?;
-        bytes.extend_from_slice(&rest);
-    }
-    let value = bytes
-        .into_iter()
-        .fold(0usize, |value, byte| (value << 8) | usize::from(byte));
+fn decode_frame_length(bytes: &[u8]) -> Result<usize, TransportError> {
+    let width = 1usize << (bytes[0] >> 6);
+    let value = bytes[1..]
+        .iter()
+        .fold(usize::from(bytes[0] & 0x3f), |value, byte| {
+            (value << 8) | usize::from(*byte)
+        });
     if (width == 1 && value > 63)
         || (width == 2 && !(64..=16_383).contains(&value))
         || (width == 4 && !(16_384..=1_073_741_823).contains(&value))
@@ -1313,7 +1398,14 @@ impl AuthenticatedConnection {
             .open_bi()
             .await
             .map_err(|_| TransportError::ControlStreamFailed)?;
-        Ok(ControlStream { send, receive })
+        Ok(ControlStream {
+            send,
+            receive,
+            receive_operation: None,
+            receive_prefix: Vec::new(),
+            receive_body: Vec::new(),
+            receive_body_read: 0,
+        })
     }
 
     /// Claim the connection's sole control stream and accept it.
@@ -1331,7 +1423,14 @@ impl AuthenticatedConnection {
             .accept_bi()
             .await
             .map_err(|_| TransportError::ControlStreamFailed)?;
-        Ok(ControlStream { send, receive })
+        Ok(ControlStream {
+            send,
+            receive,
+            receive_operation: None,
+            receive_prefix: Vec::new(),
+            receive_body: Vec::new(),
+            receive_body_read: 0,
+        })
     }
 
     fn claim_control_stream(&self) -> Result<(), TransportError> {
@@ -2078,3 +2177,7 @@ mod datagram_adapter_tests {
         listener.close().await.unwrap();
     }
 }
+
+#[cfg(test)]
+#[path = "control_read_tests.rs"]
+mod control_read_tests;

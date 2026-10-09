@@ -361,10 +361,17 @@ import (
     "os"
     "os/exec"
     "path/filepath"
+    "runtime"
     "strings"
     "time"
 )
 func main() {
+    debugFile, _ := os.OpenFile(__DIAGNOSTIC_PATH__, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+    debug := func(format string, args ...any) {
+        if debugFile != nil { _, _ = fmt.Fprintf(debugFile, time.Now().Format(time.RFC3339Nano)+" "+format+"\n", args...) }
+    }
+    actual, actualErr := os.Executable()
+    debug("entered argv0=%q actual=%q executable_error=%v", os.Args[0], actual, actualErr)
     if len(os.Args) == 2 && os.Args[1] == "descendant-child" {
         time.Sleep(3 * time.Second)
         return
@@ -379,11 +386,29 @@ func main() {
         _ = os.WriteFile(os.Args[0]+".started", []byte("started"), 0600)
         time.Sleep(30 * time.Second)
     case strings.Contains(name, "descendant"):
-        child := exec.Command(os.Args[0], "descendant-child")
+        debug("before_child_command")
+        childPath := os.Args[0]
+        // Windows executes a private verified copy; descendants must use that
+        // running image too, not reopen the original source namespace.
+        if runtime.GOOS == "windows" {
+            if actualErr != nil { debug("child_image_error=%v", actualErr); os.Exit(2) }
+            childPath = actual
+        }
+        child := exec.Command(childPath, "descendant-child")
+        debug("after_child_command path=%q error=%v", child.Path, child.Err)
         child.Stdout = os.Stdout
         child.Stderr = os.Stderr
-        if child.Start() == nil {
-            _ = os.WriteFile(os.Args[0]+".descendant-started", []byte("started"), 0600)
+        debug("before_child_start")
+        startErr := child.Start()
+        debug("child_start_error=%v", startErr)
+        if startErr == nil {
+            markerPath := os.Args[0]+".descendant-started"
+            markerTemp := markerPath+".tmp"
+            markerErr := os.WriteFile(markerTemp, []byte(fmt.Sprintf("%d\n%s\n", child.Process.Pid, childPath)), 0600)
+            if markerErr == nil {
+                markerErr = os.Rename(markerTemp, markerPath)
+            }
+            debug("marker_write_error=%v child_pid=%d", markerErr, child.Process.Pid)
         }
         time.Sleep(30 * time.Second)
     case strings.Contains(name, "oversize"):
@@ -392,7 +417,7 @@ func main() {
         _, _ = fmt.Fprintln(os.Stderr, "NBSR_DEMO_BACKEND_COMPLETE requests=1 status=ok")
     }
 }
-"#,
+"#.replace("__DIAGNOSTIC_PATH__", &format!("{:?}", root.join("lifecycle-debug.txt"))),
     )
     .unwrap();
     let output = root.join(&executable_name("helper"));
@@ -1728,6 +1753,34 @@ async fn timeout_kills_backend_process_tree_that_retains_stdio() {
 }
 
 #[cfg(windows)]
+fn observe_descendant(pid: u32) -> io::Result<std::os::windows::io::OwnedHandle> {
+    use std::os::windows::io::FromRawHandle;
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn OpenProcess(access: u32, inherit: i32, pid: u32) -> *mut std::ffi::c_void;
+    }
+    let handle = unsafe { OpenProcess(0x0010_0000, 0, pid) }; // SYNCHRONIZE only
+    if handle.is_null() {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(unsafe { std::os::windows::io::OwnedHandle::from_raw_handle(handle) })
+}
+
+#[cfg(windows)]
+fn descendant_is_running(handle: &std::os::windows::io::OwnedHandle) -> io::Result<bool> {
+    use std::os::windows::io::AsRawHandle;
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn WaitForSingleObject(handle: *mut std::ffi::c_void, milliseconds: u32) -> u32;
+    }
+    match unsafe { WaitForSingleObject(handle.as_raw_handle(), 0) } {
+        0x0000_0102 => Ok(true), // WAIT_TIMEOUT: the process has not exited
+        0 => Ok(false),
+        _ => Err(io::Error::last_os_error()),
+    }
+}
+
+#[cfg(windows)]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn cancellation_after_descendant_start_reaps_process_tree() {
     let root = TestRoot::new();
@@ -1751,30 +1804,66 @@ async fn cancellation_after_descendant_start_reaps_process_tree() {
         tokio::time::sleep(Duration::from_millis(5)).await;
     }
     let descendant_started = marker.exists();
+    let observation = (|| -> io::Result<_> {
+        let record = fs::read_to_string(&marker)?;
+        let mut lines = record.lines();
+        let invalid = || io::Error::new(io::ErrorKind::InvalidData, "invalid descendant marker");
+        let pid = lines
+            .next()
+            .ok_or_else(invalid)?
+            .parse::<u32>()
+            .map_err(|_| invalid())?;
+        let image = PathBuf::from(
+            lines
+                .next()
+                .filter(|line| !line.is_empty())
+                .ok_or_else(invalid)?,
+        );
+        let handle = observe_descendant(pid)?;
+        let was_running = descendant_is_running(&handle)?;
+        Ok((handle, image, was_running))
+    })();
+    // Always cancel and join before reporting marker or process-observation errors.
     task.abort();
-    assert!(task.await.unwrap_err().is_cancelled());
+    let cancellation = task.await;
+    assert!(cancellation.is_err_and(|error| error.is_cancelled()));
+    let (handle, image, was_running) =
+        observation.expect("observe complete started-descendant record");
+    let descendant = Some((handle, image));
     let cleanup_deadline = std::time::Instant::now() + Duration::from_millis(750);
     let mut removed = false;
     while std::time::Instant::now() < cleanup_deadline {
-        match fs::remove_file(&executable) {
-            Ok(()) => {
-                removed = true;
-                break;
-            }
-            Err(error)
-                if error.kind() == io::ErrorKind::PermissionDenied
-                    || error.raw_os_error() == Some(32) => {}
-            Err(error) => panic!("remove cancelled descendant: {error}"),
+        if descendant.as_ref().is_some_and(|(handle, image)| {
+            matches!(descendant_is_running(handle), Ok(false))
+                && !image.exists()
+                && image.parent().is_some_and(|directory| !directory.exists())
+        }) {
+            removed = true;
+            break;
         }
         tokio::time::sleep(Duration::from_millis(5)).await;
     }
     assert!(
         descendant_started,
-        "cancellation must exercise a started descendant"
+        "cancellation must exercise a started descendant; elapsed={:?}; diagnostics={}",
+        lifecycle_started.elapsed(),
+        fs::read_to_string(root.join("lifecycle-debug.txt"))
+            .unwrap_or_else(|e| format!("unavailable: {e}"))
+    );
+    assert!(
+        was_running,
+        "descendant must be alive when cancellation begins"
     );
     assert!(
         removed,
-        "stdio-retaining descendant image remained locked after cancellation"
+        "descendant cleanup failed: elapsed={:?}; state={:?}; diagnostics={}",
+        lifecycle_started.elapsed(),
+        descendant.as_ref().map(|(h, p)| (
+            descendant_is_running(h),
+            p.exists(),
+            p.parent().map(|d| d.exists())
+        )),
+        fs::read_to_string(root.join("lifecycle-debug.txt")).unwrap_or_default()
     );
     assert!(
         lifecycle_started.elapsed() < Duration::from_secs(3),
@@ -2054,4 +2143,45 @@ async fn main_connector_function_relays_positive_federated_credit() {
     source.close().await.unwrap();
     destination.close().await.unwrap();
     listener.close().await.unwrap();
+}
+
+#[cfg(windows)]
+#[test]
+fn windows_staged_cleanup_survives_a_transient_image_handle() {
+    use std::os::windows::fs::OpenOptionsExt;
+    let root = TestRoot::new();
+    let source = build_go_backend(&root, "transient-image-handle");
+    let map_path = write_map(&root, &source, "service.example", &sha256(&source));
+    let map = load_demo_backend_map(&map_path).unwrap();
+    let verified = open_verified_executable_for_test(&map).unwrap();
+    let staged = verified_executable_spawn_path_for_test(&verified).to_owned();
+    let directory = staged.parent().unwrap().to_owned();
+    let held = fs::OpenOptions::new()
+        .read(true)
+        .share_mode(0x0000_0001 | 0x0000_0002)
+        .open(&staged)
+        .unwrap();
+    assert!(
+        fs::remove_file(&staged).is_err(),
+        "fixture must prevent image deletion"
+    );
+    let releaser = std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(25));
+        drop(held);
+    });
+    let started = std::time::Instant::now();
+    drop(verified);
+    releaser.join().unwrap();
+    let cleaned = !staged.exists() && !directory.exists();
+    // Preserve the negative outcome while cleaning only this fixture's own files.
+    let _ = fs::remove_file(&staged);
+    let _ = fs::remove_dir(&directory);
+    assert!(
+        cleaned,
+        "staged cleanup must survive a transient sharing violation"
+    );
+    assert!(
+        started.elapsed() < Duration::from_millis(750),
+        "cleanup remains bounded"
+    );
 }

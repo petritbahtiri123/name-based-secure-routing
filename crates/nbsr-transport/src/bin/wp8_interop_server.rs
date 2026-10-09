@@ -154,12 +154,45 @@ struct WindowsStagedExecutable {
 }
 
 #[cfg(windows)]
+fn remove_staged_path_until(
+    path: &Path,
+    directory: bool,
+    deadline: std::time::Instant,
+) -> std::io::Result<()> {
+    loop {
+        let result = if directory {
+            fs::remove_dir(path)
+        } else {
+            fs::remove_file(path)
+        };
+        match result {
+            Ok(()) => return Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+            Err(error)
+                if matches!(error.raw_os_error(), Some(5 | 32 | 33 | 145))
+                    && std::time::Instant::now() < deadline =>
+            {
+                // A terminated image can briefly retain a Windows sharing lock.
+                std::thread::sleep(
+                    Duration::from_millis(5)
+                        .min(deadline.saturating_duration_since(std::time::Instant::now())),
+                );
+            }
+            Err(error) => return Err(error),
+        }
+    }
+}
+
+#[cfg(windows)]
 impl Drop for WindowsStagedExecutable {
     fn drop(&mut self) {
+        // Share one fixed budget across file and directory cleanup; never wait
+        // indefinitely on a persistent lock or change the private ACLs.
+        let deadline = std::time::Instant::now() + Duration::from_millis(100);
         self.guard.take();
-        let _ = fs::remove_file(&self.path);
+        let _ = remove_staged_path_until(&self.path, false, deadline);
         self.directory_guard.take();
-        let _ = fs::remove_dir(&self.directory);
+        let _ = remove_staged_path_until(&self.directory, true, deadline);
     }
 }
 

@@ -20,7 +20,7 @@ use crate::{
 use ed25519_dalek::SigningKey;
 
 #[path = "../tests/support/mod.rs"]
-mod support;
+pub(crate) mod support;
 
 const NOW: u64 = 1_893_456_000;
 

@@ -839,3 +839,54 @@ async fn ordered_live_refill_follows_exhaustion_and_synchronizes_bounded_epochs(
     destination.close().await.unwrap();
     listener.close().await.unwrap();
 }
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn revoked_channel_interrupts_pending_ack_wait() {
+    let (listener, source, destination) = connection_pair().await;
+    let controls = prime_control_stream(&source, &destination).await;
+    let (source_session, channel) = credited_session(&source);
+    let (destination_session, _) = credited_session(&destination);
+    let channel_id = channel.channel_id;
+    let (receiving, sending) = tokio::join!(
+        destination.accept_credited_session_stream(&destination_session, channel_id),
+        source.open_credited_session_stream(&source_session, channel_id),
+    );
+    let sending = sending.unwrap();
+    let receiving = receiving.unwrap();
+    // No FIN has been sent: polling once deterministically reaches the ACK wait.
+    let mut waiting = Box::pin(receiving.wait_for_send_ack());
+    let was_pending = std::future::poll_fn(|cx| {
+        std::task::Poll::Ready(std::future::Future::poll(waiting.as_mut(), cx).is_pending())
+    })
+    .await;
+    let revoke = route_revoke(&channel);
+    let revoked = destination_session
+        .update(|session| destination.accept_route_revoke(session, channel_id, &revoke));
+    // Keep both peers and streams alive; no connection close may wake this wait.
+    let outcome = tokio::time::timeout(Duration::from_millis(100), &mut waiting).await;
+    drop(waiting);
+    let already_revoked =
+        tokio::time::timeout(Duration::from_millis(100), receiving.wait_for_send_ack()).await;
+    drop(receiving);
+    drop(sending);
+    drop(controls);
+    tokio::time::timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .expect("bounded reproduction cleanup");
+    assert!(was_pending);
+    revoked.expect("channel revocation committed");
+    assert!(
+        matches!(outcome, Ok(Err(TransportError::ApplicationStreamRejected))),
+        "revocation must interrupt the pending ACK wait before connection close; got {outcome:?}"
+    );
+    assert!(matches!(
+        already_revoked,
+        Ok(Err(TransportError::ApplicationStreamRejected))
+    ));
+}
