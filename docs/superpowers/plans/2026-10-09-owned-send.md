@@ -55,11 +55,24 @@ OwnedSendOperation::drive(&mut self) -> async Result<(), TransportError>; abort(
 - [x] Complete final lint/format/whitespace checks (all passed).
 - [x] Record all current pass/fail counts; no commit or push.
 
-### Stage 3: echo and composite migration (not implemented)
+### Stage 3: echo response cleanup (approved local follow-up)
 
-Design phase-aware resume and rollback tests; keep response/request identity and
-bidirectional quota ownership. Never reread an existing echo response or resend a
-request after entering receive phase. Review before implementation.
+- [x] Read the current echo abandonment contract and reproduce clean 64/4096 EOF.
+- [x] Add zero-progress response cancellation/revocation and quota-failure regressions;
+  observe the missing terminal transitions before implementation.
+- [x] Arm the existing scoped guard after complete receive-state transfer, preserving
+  resumable reception and successful FIN/quota behavior.
+- [x] Add peer STOP_SENDING and empty-response controls; preserve original assertions.
+- [x] Independently review the exact production diff.
+- [x] Finish bounded library and relevant integration/demo checks.
+- [x] Finish final lint/format/whitespace checks (all passed).
+- [x] Record all run outcomes and limitations. No commit or push.
+
+### Later echo/composite resumption (not implemented)
+
+Design phase-aware resume and rollback tests separately; keep response/request
+identity and bidirectional quota ownership. Never reread an existing echo response
+or resend a request after entering receive phase. Review before implementation.
 
 ## Historical stage-1 completion evidence
 
@@ -79,3 +92,15 @@ tests and five new borrowed-send tests. Relevant integration: application_stream
 4, stream_credit_integration 11, drain 12, multi_stream 3, all passing. Full red/green
 attempt counts and review evidence are preserved in the spec. No echo/composite
 phase migration, caller rewrite, deadline extension, or publication occurred.
+
+
+## Echo guard follow-up outcome
+
+Original response-truncation reproduction now passes unchanged. Final library:
+100 passed / 0 failed / 1 existing ignored soak. Relevant integration: 30 passed;
+selected demo-backend controls: 3 passed. Earlier failing runs, including the
+corrected STOP_SENDING test-control assumption, remain recorded in the spec.
+Receive cancellation remains resumable; response cancellation after the completed
+request handoff is terminal, including zero response progress. No response-resume
+API, composite migration, or benchmark change is included. Publication of this
+verified four-file follow-up was subsequently approved on the same branch.

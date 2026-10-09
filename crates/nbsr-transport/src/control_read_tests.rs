@@ -1571,3 +1571,232 @@ async fn borrowed_send_zero_progress_revocation_then_drop_still_resets() {
         "revoked zero-progress send must reset rather than expose clean EOF: {outcome:?}"
     );
 }
+
+// Reproduction: exercise the documented terminal abandonment contract, not resume.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cancelled_partial_echo_abandonment_does_not_report_clean_truncated_eof() {
+    let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+    // The destination opens the request stream so the existing source-to-
+    // destination 64-byte window limits only the echo response direction.
+    let (mut request_send, mut response_receive) = destination.connection.open_bi().await.unwrap();
+    let payload = vec![0x5a; 4096];
+    request_send.write_all(&payload).await.unwrap();
+    request_send.finish().unwrap();
+    let (send, receive) = timeout(Duration::from_secs(2), source.connection.accept_bi())
+        .await
+        .unwrap()
+        .unwrap();
+    let mut application = application_stream(send, receive);
+    let quota = Arc::new(ChannelByteQuota::default());
+    *application.shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+    let mut echoing = Box::pin(application.echo_once());
+    let mut prefix = [0_u8; 1];
+    timeout(Duration::from_secs(2), async {
+        tokio::select! {
+            result = &mut echoing => panic!("echo completed before partial response checkpoint: {result:?}"),
+            result = response_receive.read_exact(&mut prefix) => result.unwrap(),
+        }
+    }).await.unwrap();
+    // Receiving a response proves read_live_payload consumed the complete request
+    // through FIN. Check both quota directions before cancelling the pending echo.
+    let retained_before_cancel = *quota.buffered.lock().unwrap();
+    let still_pending = std::future::poll_fn(|cx| {
+        std::task::Poll::Ready(std::future::Future::poll(echoing.as_mut(), cx).is_pending())
+    })
+    .await;
+    drop(echoing);
+    let retained_after_cancel = *quota.buffered.lock().unwrap();
+    drop(application); // Follow echo_once's documented abandon-stream instruction.
+    let outcome = timeout(Duration::from_secs(2), response_receive.read_to_end(8192)).await;
+    let description = match &outcome {
+        Ok(Ok(tail)) => format!(
+            "clean EOF after {} of {} response bytes",
+            1 + tail.len(),
+            payload.len()
+        ),
+        Ok(Err(error)) => format!("stream error: {error:?}"),
+        Err(error) => format!("deadline: {error:?}"),
+    };
+    // Normal echo on the same connection must retain FIN and bidirectional quota.
+    let (mut normal_request, mut normal_response) = destination.connection.open_bi().await.unwrap();
+    normal_request.write_all(b"complete").await.unwrap();
+    normal_request.finish().unwrap();
+    let (send, receive) = timeout(Duration::from_secs(2), source.connection.accept_bi())
+        .await
+        .unwrap()
+        .unwrap();
+    let mut normal = application_stream(send, receive);
+    *normal.shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+    let normal_result = timeout(Duration::from_secs(2), normal.echo_once()).await;
+    let normal_received = timeout(Duration::from_secs(2), normal_response.read_to_end(64)).await;
+    let retained_after_normal = *quota.buffered.lock().unwrap();
+    normal.release_buffered_payloads();
+    let retained_after_release = *quota.buffered.lock().unwrap();
+    drop(normal);
+    drop(normal_request);
+    drop(normal_response);
+    drop(request_send);
+    drop(response_receive);
+    timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .expect("bounded echo reproduction cleanup");
+    assert_eq!(prefix, [0x5a]);
+    assert!(
+        still_pending,
+        "echo must remain pending after proven partial response"
+    );
+    assert_eq!(retained_before_cancel, 8192);
+    assert_eq!(retained_after_cancel, 0);
+    assert_eq!(normal_result.unwrap().unwrap(), b"complete");
+    assert_eq!(normal_received.unwrap().unwrap(), b"complete");
+    assert_eq!(retained_after_normal, 16);
+    assert_eq!(retained_after_release, 0);
+    assert!(
+        matches!(outcome, Ok(Err(_))),
+        "abandoned incomplete echo must not report a successful response: {description}"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn echo_response_zero_progress_cancel_and_revocation_are_terminal() {
+    // 0: ordinary cancellation; 1: revoke then drop without repoll;
+    // 2: revoke then drive to error; 3: peer STOP_SENDING during response.
+    for terminal in 0..4 {
+        let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+        let (mut send, receive) = source.connection.open_bi().await.unwrap();
+        send.write_all(&[0xaa; 64]).await.unwrap();
+        let (mut request_send, mut response_receive) =
+            timeout(Duration::from_secs(2), destination.connection.accept_bi())
+                .await
+                .unwrap()
+                .unwrap();
+        request_send.write_all(b"request").await.unwrap();
+        request_send.finish().unwrap();
+        let mut application = application_stream(send, receive);
+        let shared = Arc::clone(&application.shared);
+        let quota = Arc::new(ChannelByteQuota::default());
+        *shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+        let mut echoing = Box::pin(application.echo_once());
+        timeout(Duration::from_secs(2), async {
+            loop {
+                assert!(
+                    std::future::poll_fn(|cx| std::task::Poll::Ready(
+                        std::future::Future::poll(echoing.as_mut(), cx).is_pending()
+                    ))
+                    .await
+                );
+                if shared.application_write_started.load(Ordering::Acquire) {
+                    break;
+                }
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        // The unread 64-byte fixture preface exhausts response credit. Reception
+        // is complete but none of the seven response bytes can have been accepted.
+        assert_eq!(*quota.buffered.lock().unwrap(), 14);
+        assert!(shared.inner.try_lock().is_err());
+        if terminal == 1 || terminal == 2 {
+            shared.force_reset();
+        }
+        if terminal == 2 {
+            assert_eq!(
+                timeout(Duration::from_secs(2), &mut echoing).await.unwrap(),
+                Err(TransportError::ApplicationStreamRejected)
+            );
+        }
+        if terminal == 3 {
+            response_receive.stop(VarInt::from_u32(1)).unwrap();
+            assert_eq!(
+                timeout(Duration::from_secs(2), &mut echoing).await.unwrap(),
+                Err(TransportError::ApplicationStreamFailed)
+            );
+        }
+        drop(echoing);
+        let cancelled = shared.cancelled.load(Ordering::Acquire);
+        let retained = *quota.buffered.lock().unwrap();
+        // A locally stopped receiver's later reads do not establish the sender's
+        // reset. For STOP_SENDING, assert the sender error/terminal/quota above.
+        let outcome = if terminal == 3 {
+            None
+        } else {
+            Some(timeout(Duration::from_secs(2), response_receive.read_to_end(128)).await)
+        };
+        drop(application);
+        drop(shared);
+        drop(request_send);
+        drop(response_receive);
+        timeout(Duration::from_secs(8), async {
+            let (a, b) = tokio::join!(source.close(), destination.close());
+            let c = listener.close().await;
+            a.unwrap();
+            b.unwrap();
+            c.unwrap();
+        })
+        .await
+        .unwrap();
+        assert!(
+            cancelled,
+            "completed request makes response cancellation terminal even before its first byte"
+        );
+        assert_eq!(retained, 0);
+        if let Some(outcome) = outcome {
+            assert!(
+                matches!(outcome, Ok(Err(_))),
+                "response phase must reset without dropping the stream owner: {outcome:?}"
+            );
+        }
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn echo_response_quota_failure_is_terminal_and_releases_request() {
+    let mut f = PayloadFixture::new().await;
+    let held = f
+        .quota
+        .reserve(MAX_BUFFERED_APPLICATION_BYTES_PER_CHANNEL - 7)
+        .unwrap();
+    f.sending.write_all(b"request").await.unwrap();
+    f.sending.finish().unwrap();
+    let result = timeout(Duration::from_secs(2), f.application.echo_once())
+        .await
+        .unwrap();
+    let cancelled = f.application.shared.cancelled.load(Ordering::Acquire);
+    let retained = f.buffered();
+    drop(held);
+    f.close().await;
+    assert_eq!(result, Err(TransportError::ApplicationPayloadTooLarge));
+    assert_eq!(retained, MAX_BUFFERED_APPLICATION_BYTES_PER_CHANNEL - 7);
+    assert!(
+        cancelled,
+        "failed response reservation must invalidate the consumed request"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn echo_response_empty_success_keeps_fin_and_ack() {
+    let mut f = PayloadFixture::new().await;
+    f.sending.finish().unwrap();
+    assert_eq!(f.application.echo_once().await.unwrap(), b"");
+    assert_eq!(
+        timeout(Duration::from_secs(2), f.peer_receive.read_to_end(64))
+            .await
+            .unwrap()
+            .unwrap(),
+        b""
+    );
+    timeout(Duration::from_secs(2), f.application.wait_for_send_ack())
+        .await
+        .unwrap()
+        .unwrap();
+    assert!(!f.application.shared.cancelled.load(Ordering::Acquire));
+    assert_eq!(f.buffered(), 0);
+    f.close().await;
+}

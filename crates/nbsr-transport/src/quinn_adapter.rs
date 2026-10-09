@@ -948,9 +948,17 @@ impl ApplicationStream {
 
     /// Echoes one payload. Cancellation during reception retains progress for
     /// another `echo_once` call; switching to `receive_payload` is rejected.
-    /// Cancellation after response transmission begins is not resumable: abandon
-    /// the stream, because the outbound write may already have sent a prefix.
+    /// Once the complete request leaves receive state, cancellation or response
+    /// failure resets only this stream, even before the first response byte. That
+    /// response phase is not resumable. Successful FIN preserves normal closure
+    /// and retains both quota directions until release, revocation, or stream Drop.
     pub async fn echo_once(&mut self) -> Result<Vec<u8>, TransportError> {
+        // Declare before inner so cancellation unlocks before terminal reset.
+        // Keep unarmed while read_live_payload retains resumable receive state.
+        let mut cancellation = BorrowedSendCancellation {
+            shared: &self.shared,
+            armed: false,
+        };
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);
         notified.as_mut().enable();
@@ -989,6 +997,12 @@ impl ApplicationStream {
                 return Err(TransportError::ApplicationPayloadTooLarge);
             }
         };
+        // The request and its reservations now live only in this future. There
+        // is no await between taking them and making response failure terminal.
+        cancellation.armed = true;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
+        }
         self.shared
             .application_write_started
             .store(true, Ordering::Release);
@@ -1005,6 +1019,9 @@ impl ApplicationStream {
                 result.map_err(|_| TransportError::ApplicationStreamFailed)?;
             }
         }
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
+        }
         inner
             .send
             .finish()
@@ -1019,6 +1036,7 @@ impl ApplicationStream {
             reset_parts(&mut inner);
             return Err(TransportError::ApplicationStreamRejected);
         }
+        cancellation.armed = false;
         Ok(payload)
     }
 }
