@@ -210,8 +210,36 @@ struct SharedApplicationStream {
     inner: AsyncMutex<ApplicationStreamParts>,
     notify: Notify,
     channel_quota: Mutex<Option<Arc<ChannelByteQuota>>>,
+    payload_receive: Mutex<PayloadReceiveState>,
     inbound_bytes: HeldChannelBytes,
     outbound_bytes: HeldChannelBytes,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum PayloadReceiveOperation {
+    Payload,
+    Echo,
+}
+
+#[derive(Default)]
+struct PayloadReceiveState {
+    operation: Option<PayloadReceiveOperation>,
+    payload: Vec<u8>,
+    reservations: Vec<ChannelByteReservation>,
+    failed: bool,
+}
+
+impl PayloadReceiveState {
+    fn accepts(&self, operation: PayloadReceiveOperation) -> bool {
+        self.operation.is_none_or(|active| active == operation)
+    }
+
+    fn discard(&mut self) {
+        *self = Self {
+            failed: true,
+            ..Self::default()
+        };
+    }
 }
 
 #[derive(Default)]
@@ -289,6 +317,12 @@ type TrackedChannelStreams = HashMap<u64, TrackedStream>;
 impl SharedApplicationStream {
     fn force_reset(&self) {
         self.cancelled.store(true, Ordering::Release);
+        // Independent of the async stream lock: revocation also releases a
+        // cancelled receive future's retained bytes without another API call.
+        self.payload_receive
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .discard();
         self.inbound_bytes.release();
         self.outbound_bytes.release();
         self.notify.notify_waiters();
@@ -410,6 +444,7 @@ fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStrea
             inner: AsyncMutex::new(ApplicationStreamParts { send, receive }),
             notify: Notify::new(),
             channel_quota: Mutex::new(None),
+            payload_receive: Mutex::new(PayloadReceiveState::default()),
             inbound_bytes: HeldChannelBytes::default(),
             outbound_bytes: HeldChannelBytes::default(),
         }),
@@ -499,25 +534,58 @@ fn reset_parts(parts: &mut ApplicationStreamParts) {
 async fn read_live_payload(
     receive: &mut RecvStream,
     quota: Option<Arc<ChannelByteQuota>>,
+    state: &Mutex<PayloadReceiveState>,
+    cancelled: &AtomicBool,
+    operation: PayloadReceiveOperation,
 ) -> Result<(Vec<u8>, Vec<ChannelByteReservation>), TransportError> {
-    let mut payload = Vec::new();
-    let mut reservations = Vec::new();
+    {
+        let state = state.lock().unwrap_or_else(|error| error.into_inner());
+        if state.failed || !state.accepts(operation) {
+            return Err(TransportError::ApplicationStreamFailed);
+        }
+    }
     let mut chunk = [0_u8; 16_384];
     loop {
-        let read = receive
-            .read(&mut chunk)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let Some(read) = read else { break };
-        if payload.len().saturating_add(read) > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
+        // Quinn read is cancel-safe. Commit progress synchronously after each
+        // read; never hold this short state lock across an await.
+        let read = receive.read(&mut chunk).await;
+        let mut state = state.lock().unwrap_or_else(|error| error.into_inner());
+        if cancelled.load(Ordering::Acquire) || state.failed {
+            state.discard();
+            return Err(TransportError::ApplicationStreamFailed);
+        }
+        let read = match read {
+            Ok(Some(read)) => read,
+            Ok(None) => {
+                state.operation = None;
+                return Ok((
+                    std::mem::take(&mut state.payload),
+                    std::mem::take(&mut state.reservations),
+                ));
+            }
+            Err(_) => {
+                state.discard();
+                return Err(TransportError::ApplicationStreamFailed);
+            }
+        };
+        if state.payload.len().saturating_add(read) > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
+            state.discard();
             return Err(TransportError::ApplicationPayloadTooLarge);
         }
         if let Some(quota) = quota.as_ref() {
-            reservations.push(quota.reserve(read)?);
+            match quota.reserve(read) {
+                Ok(reservation) => state.reservations.push(reservation),
+                Err(error) => {
+                    state.discard();
+                    return Err(error);
+                }
+            }
         }
-        payload.extend_from_slice(&chunk[..read]);
+        state.payload.extend_from_slice(&chunk[..read]);
+        if read != 0 {
+            state.operation = Some(operation);
+        }
     }
-    Ok((payload, reservations))
 }
 
 impl ApplicationStream {
@@ -611,6 +679,16 @@ impl ApplicationStream {
     #[cfg(feature = "benchmark-harness")]
     pub async fn benchmark_read_frame(&mut self) -> Result<Vec<u8>, TransportError> {
         let mut inner = self.shared.inner.lock().await;
+        {
+            let state = self
+                .shared
+                .payload_receive
+                .lock()
+                .unwrap_or_else(|error| error.into_inner());
+            if state.failed || state.operation.is_some() {
+                return Err(TransportError::ApplicationStreamFailed);
+            }
+        }
         let mut length = [0_u8; 4];
         inner
             .receive
@@ -707,13 +785,27 @@ impl ApplicationStream {
         }
     }
 
+    /// Reads through FIN, retaining partial bytes and their quota across caller cancellation.
+    /// Resume on this stream with the same receive operation. A different operation
+    /// returns `ApplicationStreamFailed` without discarding progress. Terminal read
+    /// errors discard progress and make further payload reads fail closed.
     pub async fn receive_payload(&mut self) -> Result<Vec<u8>, TransportError> {
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);
+        notified.as_mut().enable();
         let mut inner = self.shared.inner.lock().await;
         if self.shared.cancelled.load(Ordering::Acquire) {
             reset_parts(&mut inner);
             return Err(TransportError::ApplicationStreamRejected);
+        }
+        if !self
+            .shared
+            .payload_receive
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .accepts(PayloadReceiveOperation::Payload)
+        {
+            return Err(TransportError::ApplicationStreamFailed);
         }
         let quota = self
             .shared
@@ -726,7 +818,7 @@ impl ApplicationStream {
                 reset_parts(&mut inner);
                 Err(TransportError::ApplicationStreamRejected)
             }
-            result = read_live_payload(&mut inner.receive, quota) => {
+            result = read_live_payload(&mut inner.receive, quota, &self.shared.payload_receive, &self.shared.cancelled, PayloadReceiveOperation::Payload) => {
                 let (payload, reservations) = result.map_err(|error| match error {
                     TransportError::ApplicationStreamFailed => {
                         TransportError::ApplicationStreamRejected
@@ -734,6 +826,13 @@ impl ApplicationStream {
                     error => error,
                 })?;
                 self.shared.inbound_bytes.retain_all(reservations);
+                // If revocation released completed reservations before this handoff,
+                // release the just-transferred ownership too.
+                if self.shared.cancelled.load(Ordering::Acquire) {
+                    self.shared.inbound_bytes.release();
+                    reset_parts(&mut inner);
+                    return Err(TransportError::ApplicationStreamRejected);
+                }
                 Ok(payload)
             }
         }
@@ -754,6 +853,11 @@ impl ApplicationStream {
 
     async fn reject(self) -> Result<(), TransportError> {
         self.shared.cancelled.store(true, Ordering::Release);
+        self.shared
+            .payload_receive
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .discard();
         self.shared.notify.notify_waiters();
         let mut inner = self.shared.inner.lock().await;
         let code = VarInt::from_u32(1);
@@ -767,13 +871,27 @@ impl ApplicationStream {
             .map_err(|_| TransportError::ApplicationStreamFailed)
     }
 
+    /// Echoes one payload. Cancellation during reception retains progress for
+    /// another `echo_once` call; switching to `receive_payload` is rejected.
+    /// Cancellation after response transmission begins is not resumable: abandon
+    /// the stream, because the outbound write may already have sent a prefix.
     pub async fn echo_once(&mut self) -> Result<Vec<u8>, TransportError> {
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);
+        notified.as_mut().enable();
         let mut inner = self.shared.inner.lock().await;
         if self.shared.cancelled.load(Ordering::Acquire) {
             reset_parts(&mut inner);
             return Err(TransportError::ApplicationStreamRejected);
+        }
+        if !self
+            .shared
+            .payload_receive
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .accepts(PayloadReceiveOperation::Echo)
+        {
+            return Err(TransportError::ApplicationStreamFailed);
         }
         let quota = self
             .shared
@@ -786,7 +904,7 @@ impl ApplicationStream {
                 reset_parts(&mut inner);
                 return Err(TransportError::ApplicationStreamRejected);
             }
-            result = read_live_payload(&mut inner.receive, quota.clone()) => result,
+            result = read_live_payload(&mut inner.receive, quota.clone(), &self.shared.payload_receive, &self.shared.cancelled, PayloadReceiveOperation::Echo) => result,
         } {
             Ok(payload) => payload,
             Err(_) => {
@@ -816,6 +934,12 @@ impl ApplicationStream {
         self.shared.inbound_bytes.retain_all(inbound_reservations);
         if let Some(reservation) = outbound_reservation {
             self.shared.outbound_bytes.retain(reservation);
+        }
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            self.shared.inbound_bytes.release();
+            self.shared.outbound_bytes.release();
+            reset_parts(&mut inner);
+            return Err(TransportError::ApplicationStreamRejected);
         }
         Ok(payload)
     }
@@ -2120,7 +2244,14 @@ mod datagram_adapter_tests {
                 send.finish().unwrap();
             });
             let (_, mut receive) = destination.connection.accept_bi().await.unwrap();
-            let received = read_live_payload(&mut receive, Some(Arc::clone(&quota))).await;
+            let received = read_live_payload(
+                &mut receive,
+                Some(Arc::clone(&quota)),
+                &Mutex::new(PayloadReceiveState::default()),
+                &AtomicBool::new(false),
+                PayloadReceiveOperation::Payload,
+            )
+            .await;
             sender.await.unwrap();
             let (payload, reservations) = received.expect("one MiB returned");
             assert_eq!(payload.len(), 1_048_576);
@@ -2136,7 +2267,14 @@ mod datagram_adapter_tests {
             rejected_send.finish().unwrap();
         });
         let (_, mut rejected_receive) = destination.connection.accept_bi().await.unwrap();
-        let rejected = read_live_payload(&mut rejected_receive, Some(Arc::clone(&quota))).await;
+        let rejected = read_live_payload(
+            &mut rejected_receive,
+            Some(Arc::clone(&quota)),
+            &Mutex::new(PayloadReceiveState::default()),
+            &AtomicBool::new(false),
+            PayloadReceiveOperation::Payload,
+        )
+        .await;
         let _ = rejected_receive.stop(VarInt::from_u32(2));
         let _ = rejected_sender.await;
         assert!(matches!(
@@ -2154,7 +2292,14 @@ mod datagram_adapter_tests {
             released_send.finish().unwrap();
         });
         let (_, mut released_receive) = destination.connection.accept_bi().await.unwrap();
-        let released = read_live_payload(&mut released_receive, Some(Arc::clone(&quota))).await;
+        let released = read_live_payload(
+            &mut released_receive,
+            Some(Arc::clone(&quota)),
+            &Mutex::new(PayloadReceiveState::default()),
+            &AtomicBool::new(false),
+            PayloadReceiveOperation::Payload,
+        )
+        .await;
         released_sender.await.unwrap();
         assert_eq!(released.expect("quota released").0.len(), 1_048_576);
 
