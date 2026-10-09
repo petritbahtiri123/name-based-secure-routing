@@ -1298,6 +1298,14 @@ impl AuthenticatedConnection {
         }
     }
 
+    /// Claim the connection's sole control stream and open it.
+    ///
+    /// # Cancellation
+    /// The first poll permanently claims the control stream, even if the future
+    /// is subsequently cancelled or fails. Later open or accept calls fail closed.
+    /// Retain the original future to pause the operation; close the connection
+    /// when abandoning control-stream establishment. Dropping an unpolled future
+    /// does not claim the stream.
     pub async fn open_control_stream(&self) -> Result<ControlStream, TransportError> {
         self.claim_control_stream()?;
         let (send, receive) = self
@@ -1308,6 +1316,14 @@ impl AuthenticatedConnection {
         Ok(ControlStream { send, receive })
     }
 
+    /// Claim the connection's sole control stream and accept it.
+    ///
+    /// # Cancellation
+    /// The first poll permanently claims the control stream, even if the future
+    /// is subsequently cancelled or fails. Later open or accept calls fail closed.
+    /// Retain the original future to pause the operation; close the connection
+    /// when abandoning control-stream establishment. Dropping an unpolled future
+    /// does not claim the stream.
     pub async fn accept_control_stream(&self) -> Result<ControlStream, TransportError> {
         self.claim_control_stream()?;
         let (send, receive) = self
