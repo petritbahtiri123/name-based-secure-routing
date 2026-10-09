@@ -187,7 +187,7 @@ pub use federation::{
 pub use quinn_adapter::benchmark_connect_from;
 pub use quinn_adapter::{
     ApplicationStream, ApplicationStreamPermit, AuthenticatedConnection, ControlStream,
-    TransportListener, connect,
+    OwnedSendOperation, TransportListener, connect,
 };
 pub use resumption::{
     ResumeAdmissionReject, ResumeCorrelation, ResumeHandle, ResumePreflight, ResumeReject,

@@ -210,6 +210,8 @@ struct SharedApplicationStream {
     inner: AsyncMutex<ApplicationStreamParts>,
     notify: Notify,
     channel_quota: Mutex<Option<Arc<ChannelByteQuota>>>,
+    application_write_started: AtomicBool,
+    owned_send: Mutex<Weak<Mutex<owned_send::OwnedSendState>>>,
     payload_receive: Mutex<PayloadReceiveState>,
     inbound_bytes: HeldChannelBytes,
     outbound_bytes: HeldChannelBytes,
@@ -314,9 +316,32 @@ impl Drop for ChannelByteReservation {
 type TrackedStream = Weak<SharedApplicationStream>;
 type TrackedChannelStreams = HashMap<u64, TrackedStream>;
 
+// Created before the async stream-lock guard, so cancellation drops that lock
+// before resetting the stream. It owns no payload and never starts background work.
+struct BorrowedSendCancellation<'a> {
+    shared: &'a SharedApplicationStream,
+    armed: bool,
+}
+
+impl Drop for BorrowedSendCancellation<'_> {
+    fn drop(&mut self) {
+        if self.armed || self.shared.cancelled.load(Ordering::Acquire) {
+            self.shared.force_reset();
+        }
+    }
+}
+
 impl SharedApplicationStream {
     fn force_reset(&self) {
         self.cancelled.store(true, Ordering::Release);
+        if let Some(state) = self
+            .owned_send
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .upgrade()
+        {
+            state.lock().unwrap_or_else(|e| e.into_inner()).abort();
+        }
         // Independent of the async stream lock: revocation also releases a
         // cancelled receive future's retained bytes without another API call.
         self.payload_receive
@@ -444,6 +469,8 @@ fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStrea
             inner: AsyncMutex::new(ApplicationStreamParts { send, receive }),
             notify: Notify::new(),
             channel_quota: Mutex::new(None),
+            application_write_started: AtomicBool::new(false),
+            owned_send: Mutex::new(Weak::new()),
             payload_receive: Mutex::new(PayloadReceiveState::default()),
             inbound_bytes: HeldChannelBytes::default(),
             outbound_bytes: HeldChannelBytes::default(),
@@ -663,6 +690,9 @@ impl ApplicationStream {
         let length =
             u32::try_from(wire.len()).map_err(|_| TransportError::ApplicationPayloadTooLarge)?;
         let mut inner = self.shared.inner.lock().await;
+        self.shared
+            .application_write_started
+            .store(true, Ordering::Release);
         inner
             .send
             .write_all(&length.to_be_bytes())
@@ -708,9 +738,21 @@ impl ApplicationStream {
         Ok(wire)
     }
 
+    /// Sends a borrowed payload and finishes this send direction.
+    ///
+    /// Cancellation before any payload byte is accepted leaves the stream usable
+    /// and releases this call's reservation. Once any byte is accepted, cancelling
+    /// this future resets only this stream and rejects later payload operations;
+    /// the borrowed payload cannot be resumed. Use `begin_owned_send` when pause
+    /// and resume are intended. Successful completion preserves normal FIN and
+    /// retains quota until explicit release, revocation, or stream Drop. Success
+    /// means transport acceptance, not peer ACK or application processing.
     pub async fn send_payload(&mut self, payload: &[u8]) -> Result<(), TransportError> {
         if payload.len() > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
             return Err(TransportError::ApplicationPayloadTooLarge);
+        }
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
         }
         let quota = self
             .shared
@@ -722,26 +764,53 @@ impl ApplicationStream {
             .as_ref()
             .map(|quota| quota.reserve(payload.len()))
             .transpose()?;
+        let mut cancellation = BorrowedSendCancellation {
+            shared: &self.shared,
+            armed: false,
+        };
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);
+        // Register before acquiring the lock/checking cancellation, including
+        // a revocation between the flag check and polling the write.
+        notified.as_mut().enable();
         let mut inner = self.shared.inner.lock().await;
-        if self.shared.cancelled.load(Ordering::Acquire) {
-            reset_parts(&mut inner);
-            return Err(TransportError::ApplicationStreamRejected);
-        }
-        tokio::select! {
-            _ = &mut notified => {
-                reset_parts(&mut inner);
+        let mut offset = 0;
+        while offset < payload.len() {
+            if self.shared.cancelled.load(Ordering::Acquire) {
+                cancellation.armed = true;
                 return Err(TransportError::ApplicationStreamRejected);
             }
-            result = inner.send.write_all(payload) => {
-                result.map_err(|_| TransportError::ApplicationStreamFailed)?;
+            let written = tokio::select! {
+                _ = &mut notified => {
+                    cancellation.armed = true;
+                    return Err(TransportError::ApplicationStreamRejected);
+                }
+                result = inner.send.write(&payload[offset..]) => result,
+            };
+            match written {
+                Ok(count) if count != 0 => {
+                    // No await between accepted progress and arming cleanup.
+                    cancellation.armed = true;
+                    self.shared
+                        .application_write_started
+                        .store(true, Ordering::Release);
+                    offset += count;
+                }
+                _ => {
+                    cancellation.armed = true;
+                    return Err(TransportError::ApplicationStreamFailed);
+                }
             }
         }
         if self.shared.cancelled.load(Ordering::Acquire) {
-            reset_parts(&mut inner);
+            cancellation.armed = true;
             return Err(TransportError::ApplicationStreamRejected);
         }
+        // Empty payloads also finish, without a cancellable gap in this block.
+        cancellation.armed = true;
+        self.shared
+            .application_write_started
+            .store(true, Ordering::Release);
         inner
             .send
             .finish()
@@ -749,6 +818,12 @@ impl ApplicationStream {
         if let Some(reservation) = reservation {
             self.shared.outbound_bytes.retain(reservation);
         }
+        // Revocation can release outbound ownership before our transfer. A
+        // post-transfer check cleans up that ordering instead of resurrecting it.
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        cancellation.armed = false;
         Ok(())
     }
 
@@ -914,6 +989,9 @@ impl ApplicationStream {
                 return Err(TransportError::ApplicationPayloadTooLarge);
             }
         };
+        self.shared
+            .application_write_started
+            .store(true, Ordering::Release);
         let outbound_reservation = quota
             .as_ref()
             .map(|quota| quota.reserve(payload.len()))
@@ -2326,3 +2404,7 @@ mod datagram_adapter_tests {
 #[cfg(test)]
 #[path = "control_read_tests.rs"]
 mod control_read_tests;
+
+#[path = "owned_send.rs"]
+mod owned_send;
+pub use owned_send::OwnedSendOperation;

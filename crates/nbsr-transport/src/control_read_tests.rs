@@ -12,6 +12,16 @@ async fn connection_pair() -> (
     AuthenticatedConnection,
     AuthenticatedConnection,
 ) {
+    connection_pair_with_window(None).await
+}
+
+async fn connection_pair_with_window(
+    window: Option<u32>,
+) -> (
+    TransportListener,
+    AuthenticatedConnection,
+    AuthenticatedConnection,
+) {
     let pki = support::TestPki::generate();
     let destination_policy = PeerPolicy::new(
         EdgeRole::Destination,
@@ -29,19 +39,25 @@ async fn connection_pair() -> (
         Duration::from_secs(5),
     )
     .expect("source policy");
-    let listener = TransportListener::bind(
-        build_server_config(destination_policy, pki.destination_material()).expect("server config"),
-        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
-    )
-    .expect("listener");
+    let mut server =
+        build_server_config(destination_policy, pki.destination_material()).expect("server config");
+    let mut client =
+        build_client_config(source_policy, pki.source_material()).expect("client config");
+    if let Some(window) = window {
+        Arc::get_mut(&mut server.quinn.transport)
+            .expect("fresh test transport")
+            .stream_receive_window(VarInt::from_u32(window))
+            .receive_window(VarInt::from_u32(window));
+        let mut transport = quinn::TransportConfig::default();
+        transport.send_window(u64::from(window));
+        transport.max_idle_timeout(Some(Duration::from_secs(5).try_into().unwrap()));
+        client.quinn.transport_config(Arc::new(transport));
+    }
+    let listener =
+        TransportListener::bind(server, SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0))
+            .expect("listener");
     let remote = listener.local_addr().expect("address");
-    let (destination, source) = tokio::join!(
-        listener.accept_one(),
-        connect(
-            build_client_config(source_policy, pki.source_material()).expect("client config"),
-            remote,
-        )
-    );
+    let (destination, source) = tokio::join!(listener.accept_one(), connect(client, remote));
     let destination = destination.expect("destination connection");
     let source = source.expect("source connection");
     (listener, source, destination)
@@ -830,4 +846,728 @@ async fn payload_stream_drop_releases_unfinished_reservations() {
     let quota = Arc::clone(&f.quota);
     f.close().await;
     assert_eq!(*quota.buffered.lock().unwrap(), 0);
+}
+
+// Diagnostic only: cancellation must be distinguished from normal graceful completion.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cancelled_partial_send_abandonment_does_not_report_clean_truncated_eof() {
+    let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+    let mut application = source.open_application_stream().await.unwrap();
+    let payload = vec![0x5a; 4096];
+    let mut sending = Box::pin(application.send_payload(&payload));
+    let initially_pending = std::future::poll_fn(|cx| {
+        std::task::Poll::Ready(std::future::Future::poll(sending.as_mut(), cx).is_pending())
+    })
+    .await;
+    let (peer_send, mut peer_receive) =
+        timeout(Duration::from_secs(2), destination.connection.accept_bi())
+            .await
+            .unwrap()
+            .unwrap();
+    let mut observed_prefix = [0_u8; 1];
+    timeout(
+        Duration::from_secs(2),
+        peer_receive.read_exact(&mut observed_prefix),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    let still_pending = std::future::poll_fn(|cx| {
+        std::task::Poll::Ready(std::future::Future::poll(sending.as_mut(), cx).is_pending())
+    })
+    .await;
+    drop(sending);
+    drop(application); // Follow the documented abandon-stream contract.
+    let observed = timeout(
+        Duration::from_secs(2),
+        peer_receive.read_to_end(payload.len()),
+    )
+    .await;
+    let outcome = match &observed {
+        Ok(Ok(tail)) => format!(
+            "clean EOF after {} of {} bytes",
+            1 + tail.len(),
+            payload.len()
+        ),
+        Ok(Err(error)) => format!("stream error: {error:?}"),
+        Err(error) => format!("deadline: {error:?}"),
+    };
+    // Same authenticated connection: successful sends still finish gracefully.
+    let mut normal = source.open_application_stream().await.unwrap();
+    let sent = timeout(Duration::from_secs(2), normal.send_payload(b"complete")).await;
+    let (normal_peer_send, mut normal_peer_receive) =
+        timeout(Duration::from_secs(2), destination.connection.accept_bi())
+            .await
+            .unwrap()
+            .unwrap();
+    let normal_received =
+        timeout(Duration::from_secs(2), normal_peer_receive.read_to_end(64)).await;
+    drop(normal);
+    drop(normal_peer_send);
+    drop(normal_peer_receive);
+    drop(peer_send);
+    drop(peer_receive);
+    timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .expect("bounded partial-send reproduction cleanup");
+    assert!(
+        initially_pending && still_pending,
+        "write was pending both before and after proven peer delivery"
+    );
+    assert_eq!(
+        observed_prefix,
+        [0x5a],
+        "peer delivery proves nonzero send progress"
+    );
+    assert_eq!(sent.unwrap(), Ok(()));
+    assert_eq!(normal_received.unwrap().unwrap(), b"complete");
+    assert!(
+        matches!(observed, Ok(Err(_))),
+        "cancelled incomplete send must not become a successful payload: {outcome}"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_resume_delivers_exact_payload_and_retains_quota() {
+    let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+    let mut application = source.open_application_stream().await.unwrap();
+    let quota = Arc::new(ChannelByteQuota::default());
+    *application.shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+    let expected: Vec<u8> = (0..1024).map(|i| (i % 251) as u8).collect();
+    let mut operation = application.begin_owned_send(expected.clone()).unwrap();
+    assert_eq!(*quota.buffered.lock().unwrap(), expected.len());
+    let mut first = Box::pin(operation.drive());
+    assert!(
+        std::future::poll_fn(|cx| std::task::Poll::Ready(
+            std::future::Future::poll(first.as_mut(), cx).is_pending()
+        ))
+        .await
+    );
+    let (peer_send, mut peer_receive) =
+        timeout(Duration::from_secs(2), destination.connection.accept_bi())
+            .await
+            .unwrap()
+            .unwrap();
+    let mut delivered = vec![0; 64];
+    timeout(
+        Duration::from_secs(2),
+        peer_receive.read_exact(&mut delivered),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    drop(first);
+    for _ in 0..2 {
+        let mut progress = [0; 64];
+        let mut driving = Box::pin(operation.drive());
+        timeout(Duration::from_secs(2), async {
+            tokio::select! {
+                result = &mut driving => panic!("tiny-window send completed prematurely: {result:?}"),
+                result = peer_receive.read_exact(&mut progress) => { result.unwrap(); }
+            }
+        }).await.unwrap();
+        drop(driving);
+        delivered.extend_from_slice(&progress);
+        assert_eq!(*quota.buffered.lock().unwrap(), expected.len());
+    }
+    let mut tail = Vec::new();
+    let completion = timeout(Duration::from_secs(2), async {
+        tokio::join!(operation.drive(), async {
+            let mut chunk = [0; 64];
+            loop {
+                match peer_receive.read(&mut chunk).await {
+                    Ok(Some(count)) => tail.extend_from_slice(&chunk[..count]),
+                    Ok(None) => return Ok(()),
+                    Err(error) => return Err(error),
+                }
+            }
+        })
+    })
+    .await;
+    let (sent, received) = completion.unwrap_or_else(|error| {
+        panic!(
+            "{error:?}; delivered {} bytes after resume",
+            192 + tail.len()
+        )
+    });
+    sent.unwrap();
+    received.unwrap();
+    delivered.extend(tail);
+    operation.drive().await.unwrap();
+    drop(operation);
+    assert_eq!(delivered, expected);
+    assert_eq!(*quota.buffered.lock().unwrap(), expected.len());
+    assert!(matches!(
+        application.begin_owned_send(vec![1]),
+        Err(TransportError::ApplicationStreamFailed)
+    ));
+    application.release_buffered_payloads();
+    assert_eq!(*quota.buffered.lock().unwrap(), 0);
+    drop(application);
+    drop(peer_send);
+    drop(peer_receive);
+    timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_abort_drop_and_revocation_release_partial_send() {
+    for terminal in 0..3 {
+        let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+        let mut application = source.open_application_stream().await.unwrap();
+        let shared = Arc::clone(&application.shared);
+        let quota = Arc::new(ChannelByteQuota::default());
+        *shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+        let mut operation = application.begin_owned_send(vec![0x5a; 4096]).unwrap();
+        let mut driving = Box::pin(operation.drive());
+        assert!(
+            std::future::poll_fn(|cx| std::task::Poll::Ready(
+                std::future::Future::poll(driving.as_mut(), cx).is_pending()
+            ))
+            .await
+        );
+        let (peer_send, mut peer_receive) =
+            timeout(Duration::from_secs(2), destination.connection.accept_bi())
+                .await
+                .unwrap()
+                .unwrap();
+        let mut prefix = [0; 1];
+        timeout(Duration::from_secs(2), peer_receive.read_exact(&mut prefix))
+            .await
+            .unwrap()
+            .unwrap();
+        if terminal == 2 {
+            shared.force_reset();
+            assert_eq!(
+                *quota.buffered.lock().unwrap(),
+                0,
+                "revocation must release without repolling drive"
+            );
+        }
+        drop(driving);
+        if terminal == 0 {
+            operation.abort();
+        } else {
+            drop(operation);
+        }
+        assert_eq!(*quota.buffered.lock().unwrap(), 0);
+        let outcome = timeout(Duration::from_secs(2), peer_receive.read_to_end(8192)).await;
+        drop(application);
+        drop(shared);
+        drop(peer_send);
+        drop(peer_receive);
+        timeout(Duration::from_secs(8), async {
+            let (a, b) = tokio::join!(source.close(), destination.close());
+            let c = listener.close().await;
+            a.unwrap();
+            b.unwrap();
+            c.unwrap();
+        })
+        .await
+        .unwrap();
+        assert!(
+            matches!(outcome, Ok(Err(_))),
+            "unfinished owned send must reset: {outcome:?}"
+        );
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_begin_checks_bounds_and_preserves_unwritten_abort() {
+    let mut f = PayloadFixture::new().await;
+    assert!(matches!(
+        f.application
+            .begin_owned_send(vec![0; MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM + 1]),
+        Err(TransportError::ApplicationPayloadTooLarge)
+    ));
+    assert_eq!(f.buffered(), 0);
+    let held = f
+        .quota
+        .reserve(MAX_BUFFERED_APPLICATION_BYTES_PER_CHANNEL)
+        .unwrap();
+    assert!(matches!(
+        f.application.begin_owned_send(vec![1]),
+        Err(TransportError::ApplicationPayloadTooLarge)
+    ));
+    drop(held);
+    let operation = f
+        .application
+        .begin_owned_send(vec![1; MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM])
+        .unwrap();
+    assert_eq!(
+        *f.quota.buffered.lock().unwrap(),
+        MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM
+    );
+    operation.abort();
+    assert_eq!(f.buffered(), 0);
+    f.close().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_empty_completion_and_legacy_write_mismatch() {
+    for owned in [false, true] {
+        let mut f = PayloadFixture::new().await;
+        if owned {
+            let mut operation = f.application.begin_owned_send(Vec::new()).unwrap();
+            operation.drive().await.unwrap();
+            drop(operation);
+        } else {
+            f.application.send_payload(b"legacy").await.unwrap();
+        }
+        assert!(matches!(
+            f.application.begin_owned_send(vec![1]),
+            Err(TransportError::ApplicationStreamFailed)
+        ));
+        let received = timeout(Duration::from_secs(2), f.peer_receive.read_to_end(64))
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            received,
+            if owned {
+                b"".as_slice()
+            } else {
+                b"legacy".as_slice()
+            }
+        );
+        f.application.release_buffered_payloads();
+        f.close().await;
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_rejects_unfinished_receive_and_prior_echo_or_framing() {
+    for echo in [false, true] {
+        let mut f = PayloadFixture::new().await;
+        f.sending.write_all(b"prefix").await.unwrap();
+        cancel_payload_at(&mut f.application, &f.quota, 6, echo).await;
+        assert!(matches!(
+            f.application.begin_owned_send(vec![1]),
+            Err(TransportError::ApplicationStreamFailed)
+        ));
+        assert_eq!(f.buffered(), 6);
+        f.sending.finish().unwrap();
+        if echo {
+            assert_eq!(f.application.echo_once().await.unwrap(), b"prefix");
+            assert!(matches!(
+                f.application.begin_owned_send(vec![1]),
+                Err(TransportError::ApplicationStreamFailed)
+            ));
+        } else {
+            assert_eq!(f.application.receive_payload().await.unwrap(), b"prefix");
+            f.application.begin_owned_send(vec![1]).unwrap().abort();
+        }
+        f.application.release_buffered_payloads();
+        f.close().await;
+    }
+    #[cfg(feature = "benchmark-harness")]
+    {
+        let mut f = PayloadFixture::new().await;
+        f.application.benchmark_write_frame(b"frame").await.unwrap();
+        assert!(matches!(
+            f.application.begin_owned_send(vec![1]),
+            Err(TransportError::ApplicationStreamFailed)
+        ));
+        f.close().await;
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_peer_close_releases_paused_ownership() {
+    let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+    let mut application = source.open_application_stream().await.unwrap();
+    let quota = Arc::new(ChannelByteQuota::default());
+    *application.shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+    let mut operation = application.begin_owned_send(vec![0x5a; 4096]).unwrap();
+    let mut driving = Box::pin(operation.drive());
+    assert!(
+        std::future::poll_fn(|cx| std::task::Poll::Ready(
+            std::future::Future::poll(driving.as_mut(), cx).is_pending()
+        ))
+        .await
+    );
+    let (peer_send, mut peer_receive) =
+        timeout(Duration::from_secs(2), destination.connection.accept_bi())
+            .await
+            .unwrap()
+            .unwrap();
+    let mut prefix = [0; 1];
+    timeout(Duration::from_secs(2), peer_receive.read_exact(&mut prefix))
+        .await
+        .unwrap()
+        .unwrap();
+    drop(driving);
+    destination.connection.close(VarInt::from_u32(1), b"");
+    let outcome = timeout(Duration::from_secs(2), operation.drive()).await;
+    let remaining = *quota.buffered.lock().unwrap();
+    drop(operation);
+    drop(application);
+    drop(peer_send);
+    drop(peer_receive);
+    timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .unwrap();
+    assert!(matches!(outcome, Ok(Err(_))));
+    assert_eq!(remaining, 0);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_completion_racing_revocation_cannot_resurrect_quota() {
+    let mut f = PayloadFixture::new().await;
+    let shared = Arc::clone(&f.application.shared);
+    let quota = Arc::clone(&f.quota);
+    let terminal_shared = Arc::clone(&shared);
+    let terminal_quota = Arc::clone(&quota);
+    let (handle_tx, handle_rx) = std::sync::mpsc::channel();
+    let mut operation = f
+        .application
+        .begin_owned_send(b"complete".to_vec())
+        .unwrap();
+    operation.completion_hook = Some(Box::new(move || {
+        // FIN has been queued, but quota still belongs to the operation under
+        // its state lock. Force revocation to start at precisely this boundary.
+        let state = shared.owned_send.lock().unwrap().upgrade().unwrap();
+        let reset_shared = Arc::clone(&shared);
+        let handle = std::thread::spawn(move || reset_shared.force_reset());
+        handle_tx.send(handle).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(2);
+        while !shared.cancelled.load(Ordering::Acquire) {
+            assert!(
+                std::time::Instant::now() < deadline,
+                "revocation did not start"
+            );
+            std::thread::yield_now();
+        }
+        assert!(matches!(
+            state.try_lock(),
+            Err(std::sync::TryLockError::WouldBlock)
+        ));
+        assert_eq!(*quota.buffered.lock().unwrap(), 8);
+        assert!(
+            shared
+                .outbound_bytes
+                .reservations
+                .lock()
+                .unwrap()
+                .is_empty()
+        );
+    }));
+    assert_eq!(
+        operation.drive().await,
+        Err(TransportError::ApplicationStreamRejected)
+    );
+    handle_rx
+        .recv_timeout(Duration::from_secs(2))
+        .unwrap()
+        .join()
+        .unwrap();
+    assert_eq!(*terminal_quota.buffered.lock().unwrap(), 0);
+    assert!(
+        terminal_shared
+            .outbound_bytes
+            .reservations
+            .lock()
+            .unwrap()
+            .is_empty()
+    );
+    drop(operation);
+    assert_eq!(f.buffered(), 0);
+    assert!(
+        f.application
+            .shared
+            .outbound_bytes
+            .reservations
+            .lock()
+            .unwrap()
+            .is_empty()
+    );
+    f.application.shared.force_reset();
+    assert_eq!(f.buffered(), 0, "repeated terminal cleanup is idempotent");
+    f.close().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn owned_send_completed_fin_ack_and_terminal_quota_ownership() {
+    for revoke in [false, true] {
+        let mut f = PayloadFixture::new().await;
+        let mut operation = f
+            .application
+            .begin_owned_send(b"complete".to_vec())
+            .unwrap();
+        operation.drive().await.unwrap();
+        operation.drive().await.unwrap();
+        drop(operation);
+        assert_eq!(f.buffered(), 8);
+        assert_eq!(
+            f.application
+                .shared
+                .outbound_bytes
+                .reservations
+                .lock()
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(
+            timeout(Duration::from_secs(2), f.peer_receive.read_to_end(64))
+                .await
+                .unwrap()
+                .unwrap(),
+            b"complete"
+        );
+        timeout(Duration::from_secs(2), f.application.wait_for_send_ack())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            f.buffered(),
+            8,
+            "transport ACK does not release application-owned quota"
+        );
+        if revoke {
+            f.application.shared.force_reset();
+        } else {
+            f.application.release_buffered_payloads();
+        }
+        assert_eq!(f.buffered(), 0);
+        f.application.release_buffered_payloads();
+        assert_eq!(f.buffered(), 0);
+        f.close().await;
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn borrowed_send_cancel_before_progress_preserves_stream_and_quota() {
+    for poll in [false, true] {
+        let mut f = PayloadFixture::new().await;
+        let shared = Arc::clone(&f.application.shared);
+        // Hold the stream lock to make the polled case deterministically wait
+        // before any transport write; the unpolled case does not reserve at all.
+        let inner = shared.inner.lock().await;
+        let mut sending = Box::pin(f.application.send_payload(b"abandoned"));
+        if poll {
+            assert!(
+                std::future::poll_fn(|cx| std::task::Poll::Ready(
+                    std::future::Future::poll(sending.as_mut(), cx).is_pending()
+                ))
+                .await
+            );
+            assert_eq!(*f.quota.buffered.lock().unwrap(), 9);
+        }
+        drop(sending);
+        drop(inner);
+        assert_eq!(f.buffered(), 0);
+        assert!(!shared.cancelled.load(Ordering::Acquire));
+        assert!(!shared.application_write_started.load(Ordering::Acquire));
+        let mut operation = f
+            .application
+            .begin_owned_send(b"replacement".to_vec())
+            .unwrap();
+        operation.drive().await.unwrap();
+        drop(operation);
+        assert_eq!(
+            timeout(Duration::from_secs(2), f.peer_receive.read_to_end(64))
+                .await
+                .unwrap()
+                .unwrap(),
+            b"replacement"
+        );
+        f.application.release_buffered_payloads();
+        f.close().await;
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn borrowed_send_partial_cancellation_is_terminal_and_sibling_survives() {
+    let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+    let mut sibling = source.open_application_stream().await.unwrap();
+    sibling.send_payload(b"sibling").await.unwrap();
+    let (sibling_peer_send, mut sibling_peer_receive) =
+        timeout(Duration::from_secs(2), destination.connection.accept_bi())
+            .await
+            .unwrap()
+            .unwrap();
+    let mut application = source.open_application_stream().await.unwrap();
+    let quota = Arc::new(ChannelByteQuota::default());
+    *application.shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+    let shared = Arc::clone(&application.shared);
+    let payload = vec![0x5a; 4096];
+    let mut sending = Box::pin(application.send_payload(&payload));
+    assert!(
+        std::future::poll_fn(|cx| std::task::Poll::Ready(
+            std::future::Future::poll(sending.as_mut(), cx).is_pending()
+        ))
+        .await
+    );
+    let (peer_send, mut peer_receive) =
+        timeout(Duration::from_secs(2), destination.connection.accept_bi())
+            .await
+            .unwrap()
+            .unwrap();
+    let mut prefix = [0; 1];
+    timeout(Duration::from_secs(2), peer_receive.read_exact(&mut prefix))
+        .await
+        .unwrap()
+        .unwrap();
+    drop(sending);
+    assert!(
+        shared.cancelled.load(Ordering::Acquire),
+        "partial cancellation must mark terminal even if the stream object is retained"
+    );
+    assert_eq!(*quota.buffered.lock().unwrap(), 0);
+    assert_eq!(
+        application.send_payload(b"retry").await,
+        Err(TransportError::ApplicationStreamRejected)
+    );
+    assert!(matches!(
+        timeout(Duration::from_secs(2), peer_receive.read_to_end(8192)).await,
+        Ok(Err(_))
+    ));
+    assert_eq!(
+        timeout(Duration::from_secs(2), sibling_peer_receive.read_to_end(64))
+            .await
+            .unwrap()
+            .unwrap(),
+        b"sibling"
+    );
+    timeout(Duration::from_secs(2), sibling.wait_for_send_ack())
+        .await
+        .unwrap()
+        .unwrap();
+    drop(application);
+    drop(sibling);
+    drop(peer_send);
+    drop(peer_receive);
+    drop(sibling_peer_send);
+    drop(sibling_peer_receive);
+    timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .unwrap();
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn borrowed_send_revocation_while_waiting_for_lock_is_not_lost() {
+    let mut f = PayloadFixture::new().await;
+    let shared = Arc::clone(&f.application.shared);
+    let inner = shared.inner.lock().await;
+    let mut sending = Box::pin(f.application.send_payload(b"pending"));
+    assert!(
+        std::future::poll_fn(|cx| std::task::Poll::Ready(
+            std::future::Future::poll(sending.as_mut(), cx).is_pending()
+        ))
+        .await
+    );
+    shared.force_reset();
+    drop(inner);
+    assert_eq!(
+        timeout(Duration::from_secs(2), &mut sending).await.unwrap(),
+        Err(TransportError::ApplicationStreamRejected)
+    );
+    drop(sending);
+    assert_eq!(f.buffered(), 0);
+    assert_eq!(
+        f.application.send_payload(b"retry").await,
+        Err(TransportError::ApplicationStreamRejected)
+    );
+    f.close().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn borrowed_send_success_preserves_fin_ack_and_completed_quota() {
+    for payload in [b"".as_slice(), b"complete".as_slice()] {
+        let mut f = PayloadFixture::new().await;
+        f.application.send_payload(payload).await.unwrap();
+        assert!(!f.application.shared.cancelled.load(Ordering::Acquire));
+        assert_eq!(f.buffered(), payload.len());
+        assert_eq!(
+            timeout(Duration::from_secs(2), f.peer_receive.read_to_end(64))
+                .await
+                .unwrap()
+                .unwrap(),
+            payload
+        );
+        timeout(Duration::from_secs(2), f.application.wait_for_send_ack())
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(f.buffered(), payload.len());
+        f.application.release_buffered_payloads();
+        assert_eq!(f.buffered(), 0);
+        f.close().await;
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn borrowed_send_zero_progress_revocation_then_drop_still_resets() {
+    let (listener, source, destination) = connection_pair_with_window(Some(64)).await;
+    let (mut send, receive) = source.connection.open_bi().await.unwrap();
+    // Exhaust transport credit with fixture preface bytes, before constructing
+    // the application wrapper. Its first payload write must accept zero bytes.
+    send.write_all(&[0xaa; 64]).await.unwrap();
+    let (peer_send, mut peer_receive) =
+        timeout(Duration::from_secs(2), destination.connection.accept_bi())
+            .await
+            .unwrap()
+            .unwrap();
+    let mut application = application_stream(send, receive);
+    let shared = Arc::clone(&application.shared);
+    let quota = Arc::new(ChannelByteQuota::default());
+    *shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+    let mut sending = Box::pin(application.send_payload(b"blocked"));
+    assert!(
+        std::future::poll_fn(|cx| std::task::Poll::Ready(
+            std::future::Future::poll(sending.as_mut(), cx).is_pending()
+        ))
+        .await
+    );
+    assert!(!shared.application_write_started.load(Ordering::Acquire));
+    assert!(
+        shared.inner.try_lock().is_err(),
+        "pending write holds inner"
+    );
+    shared.force_reset();
+    drop(sending); // Deliberately never repoll the revocation notification.
+    assert_eq!(*quota.buffered.lock().unwrap(), 0);
+    drop(application);
+    let outcome = timeout(Duration::from_secs(2), peer_receive.read_to_end(128)).await;
+    drop(peer_send);
+    drop(peer_receive);
+    timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .unwrap();
+    assert!(
+        matches!(outcome, Ok(Err(_))),
+        "revoked zero-progress send must reset rather than expose clean EOF: {outcome:?}"
+    );
 }
