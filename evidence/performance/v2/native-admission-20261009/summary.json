@@ -1,0 +1,39 @@
+{
+  "public_zip": "evidence-public.zip",
+  "bytes": 1290582,
+  "sha256": "839e41500beeb7886bbbc78df85e6c205a2d97075564fff9410038070b553b66",
+  "entries": 152,
+  "uncompressed_bytes": 23628818,
+  "integrity_verified": true,
+  "originals_retained": true,
+  "base_commit": "6c75e4f152c0b5ca82d7ca6152feee379bfad095",
+  "patch_sha256": [
+    "d6bf520361271524ea2f2a8bc74431f8d09a7e6bb453f4943cc77480a1e153af",
+    "5fdd1a407ab77bf111ba7872ffb332badaca7782da98cdb09290082fb7f9d629"
+  ],
+  "outcomes": [
+    {
+      "run": "trial-4096-diagnostic-20261009T164953Z",
+      "outer_status": "STOPPED_OUTER_DEADLINE",
+      "endpoint_status": "INVALID_PARTIAL",
+      "active_each_endpoint": 3706,
+      "source_handshake_timeouts": 25,
+      "roundtrips": 0,
+      "cleanup_seconds": 99.303
+    },
+    {
+      "run": "trial-4096-admission-20261009T170801Z",
+      "outer_status": "STOPPED_OUTER_DEADLINE",
+      "endpoint_status": "PASS_FUNCTIONAL_ENDPOINT (both)",
+      "active_each_endpoint": 4096,
+      "source_unique_roundtrips": 4096,
+      "destination_samples": 4096,
+      "handshake_errors_logged": 0,
+      "close_errors_logged": 0,
+      "ownership_counters_zero_each_endpoint": 11,
+      "aggregate_coordinator_result": "NOT_COMPLETED_BEFORE_COLLECTION_CAP",
+      "cleanup_seconds": 98.996
+    }
+  ],
+  "other_outcomes": "Both 16-client paired trials and both Linux builds passed. Expected-red and passing test logs are included; failures are preserved."
+}
