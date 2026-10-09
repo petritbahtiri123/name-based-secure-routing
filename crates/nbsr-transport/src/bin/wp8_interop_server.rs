@@ -2653,9 +2653,9 @@ async fn run_lifecycle(
     let timeline = handshake_timeline::Region::open(connections as usize, 2);
     let mut sessions = tokio::task::JoinSet::new();
     // Memory holds keep connections alive while later clients are still offered.
-    // Default to one acceptance deadline in that explicit harness mode. A
-    // bounded B3-only diagnostic override still applies the existing rate gate
-    // before each accept; it never changes the transport's timeout values.
+    // Benchmark builds use two bounded admission slots so a stalled handshake
+    // cannot block every later client. Explicit overrides retain the rate gate
+    // before each accept; transport timeout values remain unchanged.
     let serial_accept = env::var_os("NBSR_PERF_LIFECYCLE_SERIAL_ACCEPT").is_some();
     #[cfg(feature = "benchmark-harness")]
     let accept_window = {
@@ -2673,9 +2673,7 @@ async fn run_lifecycle(
             requested.as_deref(),
         )
         .expect("valid B3 diagnostic accept window");
-        if requested.is_some() {
-            eprintln!("{{\"event\":\"lifecycle_accept_window\",\"armed\":{window}}}");
-        }
+        eprintln!("{{\"event\":\"lifecycle_accept_window\",\"armed\":{window}}}");
         window
     };
     #[cfg(not(feature = "benchmark-harness"))]

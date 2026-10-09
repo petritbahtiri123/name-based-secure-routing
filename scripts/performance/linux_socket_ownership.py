@@ -32,7 +32,7 @@ def snapshot(pid, start_ticks, binary, address, *, proc_root=Path('/proc')):
         namespace = identity()
         fds = {}
         for count, fd in enumerate((base / 'fd').iterdir()):
-            require(count < 8192, 'FD observation bound exceeded')
+            require(count < 16384, 'FD observation bound exceeded')
             target = os.readlink(fd)
             match = re.fullmatch(r'socket:\[([0-9]+)\]', target)
             if match:

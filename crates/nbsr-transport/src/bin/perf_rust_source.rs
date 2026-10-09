@@ -53,11 +53,16 @@ mod b5_support;
 mod batch_release;
 #[path = "benchmark_support/handshake_timeline.rs"]
 mod handshake_timeline;
+#[cfg(feature = "benchmark-harness")]
+#[path = "benchmark_support/lifecycle_client_limit.rs"]
+mod lifecycle_client_limit;
 #[path = "benchmark_support/lifecycle_completion.rs"]
 mod lifecycle_completion;
 #[cfg(feature = "benchmark-harness")]
 #[path = "benchmark_support/lifecycle_shards.rs"]
 mod lifecycle_shards;
+#[path = "benchmark_support/lifecycle_teardown.rs"]
+mod lifecycle_teardown;
 #[cfg(feature = "benchmark-harness")]
 #[path = "benchmark_support/post_close.rs"]
 mod post_close;
@@ -852,27 +857,23 @@ async fn run_lifecycle(
         drop(session);
         drop(control);
         let mut terminal = TerminalKind::Completed;
-        if hold_for_release {
-            drop(connection);
-        } else {
-            if let Err(error) = connection.close().await {
-                handshake_timeline::mark(
-                    if matches!(error, nbsr_transport::TransportError::CloseTimeout) {
-                        handshake_timeline::Event::TimedOut
-                    } else {
-                        handshake_timeline::Event::Failed
-                    },
-                );
-                terminal = if matches!(error, nbsr_transport::TransportError::CloseTimeout) {
-                    TerminalKind::TimedOut
+        if let Err(error) = lifecycle_teardown::finish(connection, hold_for_release).await {
+            handshake_timeline::mark(
+                if matches!(error, nbsr_transport::TransportError::CloseTimeout) {
+                    handshake_timeline::Event::TimedOut
                 } else {
-                    TerminalKind::Failed
-                };
-                println!(
-                    "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"phase\":\"close\",\"error\":\"{error:?}\",\"timed_out\":{}}}",
-                    matches!(error, nbsr_transport::TransportError::CloseTimeout)
-                );
-            }
+                    handshake_timeline::Event::Failed
+                },
+            );
+            terminal = if matches!(error, nbsr_transport::TransportError::CloseTimeout) {
+                TerminalKind::TimedOut
+            } else {
+                TerminalKind::Failed
+            };
+            println!(
+                "{{\"logical_client_id\":{logical_client_id},\"success\":false,\"phase\":\"close\",\"error\":\"{error:?}\",\"timed_out\":{}}}",
+                matches!(error, nbsr_transport::TransportError::CloseTimeout)
+            );
         }
         // close(self) has consumed/dropped the connection even on error.
         // This observation does not change the failed lifecycle outcome.
@@ -2102,8 +2103,10 @@ fn main() {
         let live_bundles = cfg!(feature = "benchmark-harness")
             && optional_argument("--b3-keep-alive-seconds").as_deref() == Some("1")
             && optional_argument("--hold-for-release").is_some();
-        let maximum_clients = if live_bundles { 4096 } else { 1024 };
-        assert!((1..=maximum_clients).contains(&logical_clients));
+        assert!(lifecycle_client_limit::valid_client_count(
+            logical_clients,
+            live_bundles
+        ));
         let timeline = handshake_timeline::Region::open(logical_clients, 1);
         let shards = lifecycle_shards::parse_shards(
             optional_argument("--lifecycle-source-shards").as_deref(),

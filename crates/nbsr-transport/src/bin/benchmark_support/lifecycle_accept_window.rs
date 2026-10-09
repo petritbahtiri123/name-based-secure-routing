@@ -1,11 +1,17 @@
-//! B3-only diagnostic acceptance concurrency. Never changes transport deadlines.
+//! Bounded B3 acceptance concurrency. Never changes transport deadlines.
 pub(crate) fn parse(
     serial: bool,
     connections: usize,
     requested: Option<&str>,
 ) -> Result<usize, &'static str> {
     let Some(requested) = requested else {
-        return Ok(if serial { 1 } else { connections });
+        // A stalled handshake must not occupy the only admission slot.
+        // The explicit one-slot override remains available for comparisons.
+        return Ok(if serial {
+            connections.min(2)
+        } else {
+            connections
+        });
     };
     if !serial || connections < 2 {
         return Err("accept window override requires concurrent B3 memory holds");
@@ -32,8 +38,10 @@ mod tests {
     }
 
     #[test]
-    fn omitted_override_keeps_existing_b3_and_b4_windows() {
-        assert_eq!(parse(true, 2048, None), Ok(1));
+    fn omitted_override_bounds_b3_to_two_without_changing_b4() {
+        assert_eq!(parse(true, 2048, None), Ok(2));
+        assert_eq!(parse(true, 1, None), Ok(1));
+        assert_eq!(parse(true, 2048, Some("1")), Ok(1));
         assert_eq!(parse(false, 512, None), Ok(512));
     }
 

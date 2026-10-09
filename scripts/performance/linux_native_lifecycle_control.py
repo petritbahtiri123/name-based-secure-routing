@@ -9,7 +9,7 @@ from scripts.performance.linux_loopback import write_json
 from scripts.performance.linux_native_cycle_limits import CYCLE_COUNTS
 
 BUNDLE_COUNTS = (16, 32, 64, 128, 256, 512, 1024)
-LIVE_BUNDLE_COUNTS = (*BUNDLE_COUNTS, 2048, 4096)
+LIVE_BUNDLE_COUNTS = (*BUNDLE_COUNTS, 2048, 4096, 6144, 8192)
 
 
 class LifecycleBarrier:

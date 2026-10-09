@@ -1026,7 +1026,13 @@ fn benchmark_close_reason_category(reason: Option<&quinn::ConnectionError>) -> &
     match reason {
         None => "not_closed",
         Some(quinn::ConnectionError::TimedOut) => "timed_out",
-        Some(_) => "other_closed",
+        Some(quinn::ConnectionError::ApplicationClosed(_)) => "application_closed",
+        Some(quinn::ConnectionError::ConnectionClosed(_)) => "connection_closed",
+        Some(quinn::ConnectionError::TransportError(_)) => "transport_error",
+        Some(quinn::ConnectionError::Reset) => "reset",
+        Some(quinn::ConnectionError::LocallyClosed) => "locally_closed",
+        Some(quinn::ConnectionError::VersionMismatch) => "version_mismatch",
+        Some(quinn::ConnectionError::CidsExhausted) => "cids_exhausted",
     }
 }
 
@@ -1036,6 +1042,39 @@ impl AuthenticatedConnection {
     #[must_use]
     pub fn benchmark_close_reason_category(&self) -> &'static str {
         benchmark_close_reason_category(self.connection.close_reason().as_ref())
+    }
+
+    /// Keep a benchmark source alive until its peer finishes and closes cleanly.
+    /// The lifecycle destination closes only after waiting for response ACKs.
+    /// This observes that benchmark contract; it is not a general delivery proof.
+    #[cfg(feature = "benchmark-harness")]
+    pub async fn benchmark_wait_for_peer_close(&self) -> Result<(), TransportError> {
+        match timeout(self.close_timeout, self.connection.closed()).await {
+            Ok(quinn::ConnectionError::ApplicationClosed(reason))
+                if reason.error_code == VarInt::from_u32(0) =>
+            {
+                Ok(())
+            }
+            Err(_) => {
+                eprintln!(
+                    "{{\"schema\":\"nbsr-benchmark-peer-close-v1\",\"close_reason\":\"wait_deadline\"}}"
+                );
+                Err(TransportError::CloseTimeout)
+            }
+            Ok(reason) => {
+                // Retain the cause before close() consumes the connection. Only
+                // fixed categories are logged; peer-supplied text is excluded.
+                eprintln!(
+                    "{{\"schema\":\"nbsr-benchmark-peer-close-v1\",\"close_reason\":\"{}\"}}",
+                    benchmark_close_reason_category(Some(&reason))
+                );
+                if matches!(reason, quinn::ConnectionError::TimedOut) {
+                    Err(TransportError::CloseTimeout)
+                } else {
+                    Err(TransportError::ApplicationStreamFailed)
+                }
+            }
+        }
     }
 
     pub fn authenticated_peer(&self) -> &EdgeIdentity {
@@ -1643,11 +1682,11 @@ mod benchmark_close_reason_tests {
         );
         assert_eq!(
             benchmark_close_reason_category(Some(&quinn::ConnectionError::LocallyClosed)),
-            "other_closed"
+            "locally_closed"
         );
         assert_eq!(
             benchmark_close_reason_category(Some(&quinn::ConnectionError::Reset)),
-            "other_closed"
+            "reset"
         );
     }
 }

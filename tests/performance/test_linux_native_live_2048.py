@@ -31,7 +31,7 @@ def test_control_barrier_accepts_bounded_live_count(tmp_path):
     assert EventLedger(2048).count == 2048
 
 
-@pytest.mark.parametrize('count', [True, 2049, 4097, 8192])
+@pytest.mark.parametrize('count', [True, 2049, 4097, 8193])
 def test_undeclared_count_remains_rejected(count):
     with pytest.raises(ValueError):
         fixture(count=count, bundle_mode='live-bundles')

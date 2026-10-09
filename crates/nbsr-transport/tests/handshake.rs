@@ -420,14 +420,22 @@ async fn two_accept_slots_allow_healthy_peer_while_first_handshake_stalls() {
             !first.is_finished(),
             "first handshake must still be pending"
         );
+        let healthy = connect(
+            build_client_config(source_policy(), pki.source_material()).unwrap(),
+            remote,
+        );
+        tokio::pin!(healthy);
+        // With only the stalled admission slot, the healthy handshake cannot
+        // progress. Keep the same future alive when opening the second slot.
+        assert!(
+            tokio::time::timeout(Duration::from_millis(150), &mut healthy)
+                .await
+                .is_err(),
+            "a serial accept leaves the healthy peer waiting"
+        );
+        assert!(!first.is_finished(), "the first admission is still stalled");
         let (destination, source) = tokio::time::timeout(Duration::from_secs(1), async {
-            tokio::join!(
-                listener.accept_one(),
-                connect(
-                    build_client_config(source_policy(), pki.source_material()).unwrap(),
-                    remote
-                )
-            )
+            tokio::join!(listener.accept_one(), &mut healthy)
         })
         .await
         .expect("healthy connection must progress before the stalled two-second deadline");
@@ -550,3 +558,325 @@ async fn closing_accepted_connection_does_not_wait_for_active_sibling() {
         "closing A must not wait for unrelated active B"
     );
 }
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn shared_listener_shutdown_disconnects_two_active_authenticated_peers() {
+    let pki = support::TestPki::generate();
+    let listener = TransportListener::bind(
+        build_server_config(destination_policy(), pki.destination_material()).unwrap(),
+        "127.0.0.1:0".parse().unwrap(),
+    )
+    .unwrap();
+    let remote = listener.local_addr().unwrap();
+    let fixture = std::fs::read(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../vectors/core-v0.2/artifacts/valid/envelopes/client-hello.cbor"),
+    )
+    .unwrap();
+    let envelope =
+        nbsr_transport::decode_control_envelope(&fixture, nbsr_transport::CoreV02Limits::default())
+            .unwrap();
+    let mut peers = Vec::new();
+    for _ in 0..2 {
+        let (destination, source) = tokio::join!(
+            listener.accept_one(),
+            connect(
+                build_client_config(source_policy(), pki.source_material()).unwrap(),
+                remote
+            )
+        );
+        let (destination, source) = (destination.unwrap(), source.unwrap());
+        assert_eq!(
+            destination.authenticated_peer().as_str(),
+            "source-edge.test"
+        );
+        assert_eq!(
+            source.authenticated_peer().as_str(),
+            "destination-edge.test"
+        );
+        let (source_stream, destination_stream) =
+            tokio::time::timeout(Duration::from_secs(2), async {
+                tokio::join!(
+                    async {
+                        let mut stream = source.open_control_stream().await.unwrap();
+                        stream.send_envelope(&envelope).await.unwrap();
+                        stream
+                    },
+                    async {
+                        let mut stream = destination.accept_control_stream().await.unwrap();
+                        let received = stream
+                            .receive_envelope(nbsr_transport::CoreV02Limits::default())
+                            .await
+                            .unwrap();
+                        assert_eq!(
+                            received.message_type(),
+                            nbsr_transport::CoreV02MessageType::ClientHello
+                        );
+                        stream
+                    }
+                )
+            })
+            .await
+            .expect("peer exchanges authenticated data before shutdown");
+        peers.push((source, destination, source_stream, destination_stream));
+    }
+    // Keep both connection pairs and stream halves alive during endpoint-wide drain.
+    let shutdown = listener.close().await;
+    let mut disconnected = Vec::new();
+    let mut cleanup = Vec::new();
+    for (source, destination, mut source_stream, destination_stream) in peers {
+        disconnected.push(
+            tokio::time::timeout(
+                Duration::from_secs(2),
+                source_stream.receive_envelope(nbsr_transport::CoreV02Limits::default()),
+            )
+            .await,
+        );
+        drop(source_stream);
+        drop(destination_stream);
+        cleanup.push(source.close().await);
+        cleanup.push(destination.close().await);
+    }
+    assert_eq!(
+        shutdown,
+        Ok(()),
+        "shared listener drains with both peers retained"
+    );
+    for result in disconnected {
+        assert!(
+            matches!(result, Ok(Err(TransportError::ControlStreamFailed))),
+            "peer must observe listener shutdown: {result:?}"
+        );
+    }
+    for result in cleanup {
+        assert_eq!(result, Ok(()), "connection cleanup drains");
+    }
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[path = "../src/bin/benchmark_support/lifecycle_teardown.rs"]
+mod lifecycle_teardown;
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn lifecycle_teardown_keeps_source_alive_for_delayed_response_ack() {
+    use std::sync::{
+        Arc,
+        atomic::{AtomicBool, AtomicUsize, Ordering},
+    };
+    let pki = support::TestPki::generate();
+    let endpoint = Endpoint::server(
+        pki.server_config_with_alpn(ALPN),
+        "127.0.0.1:0".parse().unwrap(),
+    )
+    .unwrap();
+    let remote = endpoint.local_addr().unwrap();
+    let relay = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
+    relay
+        .set_read_timeout(Some(Duration::from_millis(10)))
+        .unwrap();
+    let address = relay.local_addr().unwrap();
+    let blocked = Arc::new(AtomicBool::new(false));
+    let stopped = Arc::new(AtomicBool::new(false));
+    let discarded = Arc::new(AtomicUsize::new(0));
+    let (gate, stop, drops) = (blocked.clone(), stopped.clone(), discarded.clone());
+    let worker = std::thread::spawn(move || {
+        let mut client = None;
+        let mut bytes = [0; 65536];
+        while !stop.load(Ordering::SeqCst) {
+            match relay.recv_from(&mut bytes) {
+                Ok((size, sender)) if sender == remote => {
+                    if let Some(client) = client {
+                        relay.send_to(&bytes[..size], client).unwrap();
+                    }
+                }
+                Ok((size, sender)) => {
+                    client = Some(sender);
+                    if gate.load(Ordering::SeqCst) {
+                        drops.fetch_add(1, Ordering::SeqCst);
+                    } else {
+                        relay.send_to(&bytes[..size], remote).unwrap();
+                    }
+                }
+                Err(e)
+                    if matches!(
+                        e.kind(),
+                        std::io::ErrorKind::WouldBlock
+                            | std::io::ErrorKind::TimedOut
+                            | std::io::ErrorKind::ConnectionReset
+                            | std::io::ErrorKind::ConnectionRefused
+                    ) => {}
+                Err(e) => panic!("relay: {e}"),
+            }
+        }
+    });
+    struct RelayGuard(Arc<AtomicBool>, Option<std::thread::JoinHandle<()>>);
+    impl Drop for RelayGuard {
+        fn drop(&mut self) {
+            self.0.store(true, Ordering::SeqCst);
+            self.1.take().unwrap().join().unwrap();
+        }
+    }
+    let guard = RelayGuard(stopped, Some(worker));
+    let fixture = std::fs::read(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../vectors/core-v0.2/artifacts/valid/envelopes/client-hello.cbor"),
+    )
+    .unwrap();
+    let client_fixture = fixture.clone();
+    let (ready_tx, ready_rx) = tokio::sync::oneshot::channel();
+    let (finished_tx, mut finished_rx) = tokio::sync::oneshot::channel();
+    let client_config = build_client_config(source_policy(), pki.source_material()).unwrap();
+    let client_thread = std::thread::spawn(move || {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let result = runtime.block_on(async {
+            tokio::time::timeout(Duration::from_secs(4), async {
+                let source = connect(client_config, address).await.unwrap();
+                let envelope = nbsr_transport::decode_control_envelope(
+                    &client_fixture,
+                    nbsr_transport::CoreV02Limits::default(),
+                )
+                .unwrap();
+                let mut control = source.open_control_stream().await.unwrap();
+                control.send_envelope(&envelope).await.unwrap();
+                control
+                    .receive_envelope(nbsr_transport::CoreV02Limits::default())
+                    .await
+                    .unwrap();
+                // Read FIN, as the benchmark's receive_payload does.
+                assert!(matches!(
+                    control
+                        .receive_envelope(nbsr_transport::CoreV02Limits::default())
+                        .await,
+                    Err(TransportError::ControlStreamFailed)
+                ));
+                drop(control);
+                ready_tx.send(()).unwrap();
+                lifecycle_teardown::finish(source, true).await
+            })
+            .await
+            .expect("bounded source worker")
+        });
+        // Match lifecycle_shards: the runtime ends when its clients finish.
+        drop(runtime);
+        finished_tx.send(result).unwrap();
+    });
+    let server = endpoint.accept().await.unwrap().await.unwrap();
+    let gate = blocked.clone();
+    let destination = tokio::spawn(async move {
+        let (mut send, mut receive) = server.accept_bi().await.unwrap();
+        receive.read_chunk(65536, true).await.unwrap().unwrap();
+        // Lose initial client ACKs, then reopen the link. A live source can
+        // acknowledge retransmission; an already-dropped endpoint cannot.
+        gate.store(true, Ordering::SeqCst);
+        assert!((64..16384).contains(&fixture.len()));
+        send.write_all(&(0x4000 | fixture.len() as u16).to_be_bytes())
+            .await
+            .unwrap();
+        send.write_all(&fixture).await.unwrap();
+        send.finish().unwrap();
+        let ack = tokio::time::timeout(Duration::from_secs(1), send.stopped()).await;
+        server.close(VarInt::from_u32(0), b"");
+        ack
+    });
+    tokio::time::timeout(Duration::from_secs(2), ready_rx)
+        .await
+        .unwrap()
+        .unwrap();
+    let early = tokio::time::timeout(Duration::from_millis(100), &mut finished_rx).await;
+    let returned_before_ack = early.is_ok();
+    blocked.store(false, Ordering::SeqCst);
+    let finished = match early {
+        Ok(value) => value,
+        Err(_) => tokio::time::timeout(Duration::from_secs(3), finished_rx)
+            .await
+            .expect("bounded source finish"),
+    };
+    client_thread.join().unwrap();
+    let acknowledged = destination.await.unwrap();
+    endpoint.close(VarInt::from_u32(0), b"");
+    tokio::time::timeout(Duration::from_secs(2), endpoint.wait_idle())
+        .await
+        .unwrap();
+    drop(guard);
+    assert!(
+        discarded.load(Ordering::SeqCst) > 0,
+        "response ACK loss was exercised"
+    );
+    assert!(
+        matches!(acknowledged, Ok(Ok(None))),
+        "destination response must be acknowledged: {acknowledged:?}"
+    );
+    assert!(
+        !returned_before_ack,
+        "source completion must retain its endpoint until peer completion"
+    );
+    assert_eq!(finished.unwrap(), Ok(()));
+}
+
+#[cfg(feature = "benchmark-harness")]
+async fn benchmark_teardown_pair() -> (
+    Endpoint,
+    quinn::Connection,
+    nbsr_transport::AuthenticatedConnection,
+) {
+    let pki = support::TestPki::generate();
+    let endpoint = Endpoint::server(
+        pki.server_config_with_alpn(ALPN),
+        "127.0.0.1:0".parse().unwrap(),
+    )
+    .unwrap();
+    let (server, source) = tokio::join!(
+        async { endpoint.accept().await.unwrap().await.unwrap() },
+        connect(
+            build_client_config(source_policy(), pki.source_material()).unwrap(),
+            endpoint.local_addr().unwrap()
+        )
+    );
+    (endpoint, server, source.unwrap())
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn benchmark_teardown_rejects_abnormal_peer_close() {
+    let (endpoint, server, source) = benchmark_teardown_pair().await;
+    server.close(VarInt::from_u32(42), b"test failure");
+    assert_eq!(
+        source.benchmark_wait_for_peer_close().await,
+        Err(TransportError::ApplicationStreamFailed)
+    );
+    assert_eq!(
+        source.benchmark_close_reason_category(),
+        "application_closed"
+    );
+    let result = lifecycle_teardown::finish(source, true).await;
+    endpoint.close(VarInt::from_u32(0), b"");
+    tokio::time::timeout(Duration::from_secs(2), endpoint.wait_idle())
+        .await
+        .unwrap();
+    assert_eq!(result, Err(TransportError::ApplicationStreamFailed));
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn benchmark_teardown_requires_peer_completion_within_existing_close_bound() {
+    let (endpoint, server, source) = benchmark_teardown_pair().await;
+    let result = tokio::time::timeout(
+        Duration::from_secs(5),
+        lifecycle_teardown::finish(source, true),
+    )
+    .await;
+    server.close(VarInt::from_u32(0), b"");
+    endpoint.close(VarInt::from_u32(0), b"");
+    tokio::time::timeout(Duration::from_secs(2), endpoint.wait_idle())
+        .await
+        .unwrap();
+    assert_eq!(result.unwrap(), Err(TransportError::CloseTimeout));
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[path = "../src/bin/benchmark_support/lifecycle_accept_window.rs"]
+mod bounded_admission_policy;

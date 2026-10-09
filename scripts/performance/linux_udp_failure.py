@@ -24,7 +24,7 @@ def parse_udp(text, inodes, *, family):
         or remote is None
         or lines[0].split()[:3] != ["sl", "local_address", remote]
         or lines[0].split()[-1] != "drops"
-        or len(lines) > 8193
+        or len(lines) > 16385
     ):
         raise ValueError("unrecognized UDP table")
     result, seen = [], set()
@@ -101,7 +101,7 @@ def capture_owned_udp(processes, expected_starts, *, proc_root=Path("/proc")):
             initial = identity()
             inodes = set()
             for count, fd in enumerate((base / "fd").iterdir()):
-                if count >= 8192:
+                if count >= 16384:
                     raise ValueError("FD observation bound exceeded")
                 try:
                     target = os.readlink(fd)

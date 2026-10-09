@@ -26,7 +26,7 @@ def test_archive_count_bound_is_explicit_and_enforced(tmp_path):
     assert len(list((tmp_path/'accepted').iterdir()))==3
 
 
-@pytest.mark.parametrize('bound',[True,0,20001,None])
+@pytest.mark.parametrize('bound',[True,0,40001,None])
 def test_invalid_entry_bound_rejects(tmp_path,bound):
     p=archive(tmp_path,[('file','file',b'x')])
     with pytest.raises(ValueError):

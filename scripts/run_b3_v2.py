@@ -141,7 +141,7 @@ def execute(args, *, check_cancelled=not_cancelled):
                 "stream_residency": specs[0]["stream_residency"],
                 "destination_ready_snapshot_scope": "aggregate ownership across all live sessions; not per-connection",
                 "source_processes": 1, "source_runtime_shards": "2 for simultaneous bundles; 1 for sequential cycles",
-                "acceptance_scope": f"B3-only {specs[0].get('accept_window', 1)} armed accepts, concurrent held sessions; not the B4 admission-capacity workload",
+                "acceptance_scope": f"B3-only {specs[0].get('accept_window', min(2, specs[0]['sessions']))} armed accepts, concurrent held sessions; not the B4 admission-capacity workload",
                 "memory_scope": "private bytes/working set/handles/threads and ownership, not allocator heap attribution",
                 "live_resource_proof": "all named .active markers observed before active sampling and before any release"}
     metadata.update(peer_path=peer_path, ownership_scope='rust-all-11-current-fields' if peer_path == 'rust-rust' else 'historical-go-destination-8-fields; source process exit only')
@@ -169,6 +169,7 @@ def execute(args, *, check_cancelled=not_cancelled):
                    "crates/nbsr-transport/src/config.rs",
                    "crates/nbsr-transport/src/udp_socket.rs",
                    "crates/nbsr-transport/src/bin/perf_rust_source.rs",
+                   "crates/nbsr-transport/src/bin/benchmark_support/lifecycle_client_limit.rs",
                    "crates/nbsr-transport/src/bin/benchmark_support/allocator_snapshot.rs",
                    "scripts/performance/b3_allocator_snapshot.py",
                    "crates/nbsr-transport/src/bin/wp8_interop_server.rs",

@@ -1,9 +1,9 @@
 # B3 acceptance-window diagnostic
 
-Status: diagnostic control, not an adopted default or proven capacity improvement.
+Status: bounded two-slot benchmark default; no proven capacity improvement.
 
 The matched marker-monitor series at d76cc302 reduces source polling CPU but all
-ten 2048-bundle attempts still fail. B3 deliberately arms one `accept_one()` at
+ten 2048-bundle attempts still fail. That baseline armed one `accept_one()` at
 a time; that call waits for both an incoming connection and its TLS handshake.
 A delayed handshake therefore holds the sole acceptance slot. This is a concrete
 head-of-line mechanism, but its contribution to the observed failures is not yet
@@ -11,8 +11,9 @@ quantified. Destination drop snapshots alone do not provide that attribution.
 
 `scripts/run_b3_v2.py --accept-window N` adds an explicit B3 diagnostic override.
 Allowed values are1,2,4,8,16,32, no larger than the offered connection count, and
-only for paced simultaneous Rust bundle workloads. The default remains one
-armed accept. B4 keeps its existing window. Ambient overrides are rejected by
+only for paced simultaneous Rust bundle workloads. Benchmark builds now default
+to two armed accepts (one for a single offered connection); explicit window 1
+retains the serial comparison. B4 keeps its existing window. Ambient overrides are rejected by
 the runner so the workload manifest cannot silently omit a changed setting.
 The server records the actual selected window before acceptance starts.
 
@@ -34,6 +35,22 @@ focused GREEN tests, existing release-gate tests, release clippy/default build
 check, scoped Ruff/fmt/diff and one focused review. Source snapshots now include
 both new B3 helper modules; complete build archives remain authoritative.
 
+## Bounded admission behavior
+
+A controlled two-client regression in `crates/nbsr-transport/tests/handshake.rs`
+withholds the first peer's handshake replies. The healthy peer remains pending
+with one slot, then authenticates after a second slot opens while the first is
+still pending. The default-policy regression also covers explicit window 1,
+single-connection workloads and unchanged non-B3 selection. This supports avoiding
+one stalled handshake blocking every later admission, not a capacity claim.
+
+The two-slot worktree passed a 16-client paired lifecycle check with all eleven
+ownership counters zero at both endpoints. No 4096-client pass is established;
+the prior admission timeout and the earlier close/ACK failure remain separate
+investigations. The retained local record is
+`C:/Users/bajra/Documents/Codex/2026-10-04/task/admission-checkpoint-20261009.json`.
+The historical window-32 negative results below remain valid evidence.
+
 ## Matched result at c267837c (2026-09-14)
 
 All five counterbalanced pairs completed and were preserved. Window 1 passed
@@ -51,7 +68,8 @@ roles exited. One success does not establish repeatable 2048-bundle capacity.
 The 286 task failures correspond to `ControlStreamFailed` in source stderr,
 after the transport handshake while receiving the control envelope. Reduced
 handshake timeout counts therefore do not establish a reliability improvement.
-Keep the default window at 1. The serial acceptance mechanism is not proven to
+The recommendation at that checkpoint was to retain window 1. The serial
+acceptance mechanism was not proven to
 be the sole cause of the remaining limit, and window 32 is not promoted.
 
 Failure-only destination UDP drop counts range from 616 to 6251 for window 1

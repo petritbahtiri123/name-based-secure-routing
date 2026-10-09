@@ -37,7 +37,7 @@ def remote_command(target, argv):
 
 
 def extract_public_archive(archive, output, *, maximum_bytes=536870912, maximum_entries=10000):
-    require(type(maximum_entries) is int and 0 < maximum_entries <= 20000, "invalid archive entry bound")
+    require(type(maximum_entries) is int and 0 < maximum_entries <= 40000, "invalid archive entry bound")
     require(not output.exists() and not output.is_symlink(), 'fresh collection directory required')
     require(type(maximum_bytes) is int and 0 < maximum_bytes <= 536870912, 'invalid archive bound')
     seen, members, total = set(), [], 0

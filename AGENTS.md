@@ -75,6 +75,9 @@ read their effects and confirm they are within the task before running them.
 - Use a small controlled regression and a 16-client paired check before a justified
   larger run. Record every changed workload parameter and keep before/after tests
   otherwise identical. Explicit one-slot admission remains a comparison control.
+- For slow host evidence collection, the lifecycle coordinator has an opt-in
+  `--archive-collection` mode. See `docs/benchmarks/NATIVE_ARCHIVE_COLLECTION.md`;
+  keep full archive inventories and the original live/offline outcomes distinct.
 - Retain exact commit plus dirty-patch/source and binary hashes, commands, fixture
   identity, limits, result cardinality, failure markers and ownership counters.
   A base commit alone does not identify binaries built from uncommitted changes.
@@ -107,3 +110,12 @@ instructions, model settings, approval/sandbox/network permissions or credential
 as part of documentation upkeep. Codex loading behavior is described in the
 [official AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md/);
 other agents may need explicit loading and have different instruction precedence.
+
+## Large live-bundle harness checks
+
+For explicit 8192 live-bundle support, use the focused boundary tests documented
+in `docs/benchmarks/NATIVE_ARCHIVE_COLLECTION.md`. Increased parser/observer
+bounds are not permission to run a larger trial: independently verify current
+host and guest memory/commit headroom, sustained-pressure aborts, disk guards,
+and the authorized cleanup-inclusive runtime. Do not modify host/global network
+settings or infer an 8192 capacity result from harness regression success.
