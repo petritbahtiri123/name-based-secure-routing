@@ -15,7 +15,7 @@ async fn connection_pair() -> (
     connection_pair_with_window(None).await
 }
 
-async fn connection_pair_with_window(
+pub(super) async fn connection_pair_with_window(
     window: Option<u32>,
 ) -> (
     TransportListener,
@@ -1957,6 +1957,93 @@ async fn benchmark_frame_revocation_interrupts_pending_read_and_rejects_reuse() 
         matches!(result, Ok(Err(TransportError::ApplicationStreamRejected))),
         "revocation must wake pending benchmark frame read without more peer bytes: {result:?}"
     );
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn benchmark_frame_body_pending_revocation_resets_and_releases_ownership() {
+    let mut f = PayloadFixture::with_window(Some(64)).await;
+    let shared = Arc::clone(&f.application.shared);
+    let weak = Arc::downgrade(&shared);
+    let quota = Arc::clone(&f.quota);
+    // Complete length, one of eight body bytes, and no FIN. The rest is never sent.
+    f.sending.write_all(&[0, 0, 0, 8, b'x']).await.unwrap();
+    let mut reading = Box::pin(f.application.benchmark_read_frame());
+    let checkpoint = timeout(
+        Duration::from_secs(2),
+        std::future::poll_fn(|cx| match std::future::Future::poll(reading.as_mut(), cx) {
+            std::task::Poll::Ready(_) => std::task::Poll::Ready(false),
+            std::task::Poll::Pending => {
+                if shared
+                    .benchmark_body_length_checkpoint
+                    .load(Ordering::Acquire)
+                    == 8
+                {
+                    std::task::Poll::Ready(true)
+                } else {
+                    std::task::Poll::Pending
+                }
+            }
+        }),
+    )
+    .await;
+    let body_pending = matches!(checkpoint, Ok(true));
+    let held_lock = shared.inner.try_lock().is_err();
+    shared.force_reset();
+    // An unexpected Ready during checkpoint detection has already completed
+    // this future. Do not repoll it: preserve the cleanup path before failing.
+    let result = if body_pending {
+        Some(timeout(Duration::from_millis(250), &mut reading).await)
+    } else {
+        None
+    };
+    drop(reading);
+    let unlocked = shared.inner.try_lock().is_ok();
+    let mut byte = [0];
+    let peer_reset = timeout(Duration::from_secs(2), f.peer_receive.read(&mut byte)).await;
+    let reuse = timeout(
+        Duration::from_millis(250),
+        f.application.benchmark_read_frame(),
+    )
+    .await;
+    let retained = f.buffered();
+    let empty_receive = shared.payload_receive.lock().unwrap().payload.is_empty();
+    let empty_inbound = shared.inbound_bytes.reservations.lock().unwrap().is_empty();
+    let empty_outbound = shared
+        .outbound_bytes
+        .reservations
+        .lock()
+        .unwrap()
+        .is_empty();
+    drop(shared);
+    f.close().await;
+    assert!(
+        body_pending,
+        "must reach incomplete body I/O: {checkpoint:?}"
+    );
+    assert!(held_lock && unlocked);
+    assert!(matches!(
+        result,
+        Some(Ok(Err(TransportError::ApplicationStreamRejected)))
+    ));
+    assert!(
+        matches!(peer_reset, Ok(Err(quinn::ReadError::Reset(_)))),
+        "peer reset before connection cleanup: {peer_reset:?}"
+    );
+    assert!(matches!(
+        reuse,
+        Ok(Err(TransportError::ApplicationStreamRejected))
+    ));
+    assert_eq!(
+        retained, 0,
+        "benchmark body bytes create no payload reservation"
+    );
+    assert!(empty_receive && empty_inbound && empty_outbound);
+    assert!(
+        weak.upgrade().is_none(),
+        "no shared stream owner survives fixture cleanup"
+    );
+    assert_eq!(*quota.buffered.lock().unwrap(), 0);
 }
 
 #[cfg(feature = "benchmark-harness")]

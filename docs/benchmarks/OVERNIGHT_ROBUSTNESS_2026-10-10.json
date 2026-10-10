@@ -1,7 +1,7 @@
 {
   "baseline": "e245bc357379b44449bb22f53a1c6a1c723fc1cc",
-  "checkpoint_utc": "2026-10-10T07:45:08.2689012Z",
-  "status": "verified_local_commit_prepared_push_withheld",
+  "checkpoint_utc": "2026-10-10T10:57:34.8031725Z",
+  "status": "body_pending_coverage_complete_local_uncommitted",
   "runtime_behavior_changed": "benchmark-harness frame revocation only; default runtime behavior unchanged",
   "changed_files": [
     "crates/nbsr-transport/src/quinn_adapter.rs",
@@ -13,11 +13,11 @@
   "hashes": [
     {
       "path": "crates/nbsr-transport/src/quinn_adapter.rs",
-      "sha256": "c43d322d1eb247e10248ed23eb57ef9a696af2244b55a5e1ba2687d1149d9b0a"
+      "sha256": "535af60c2e0c9fdbf04d1cf44654bc1a33bb13a8bacdf1d6bef70588cc1a94c6"
     },
     {
       "path": "crates/nbsr-transport/src/control_read_tests.rs",
-      "sha256": "9b51a30c327f3e81a8791e9d97379cf0309c84c28d1da8f41eff7d68c3da581b"
+      "sha256": "d443f3c3f937b79e86a62ecfc1be682ba351ad124c98c2d200f5f09eb3dba6ae"
     },
     {
       "path": "crates/nbsr-transport/tests/stream_credit_integration.rs",
@@ -25,7 +25,7 @@
     },
     {
       "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
-      "sha256": "4a1ee615f4ed62d8003bc5d538d7087749160631e1df62e277b13303af403e67"
+      "sha256": "5fc6eb4b0ff40a9fda58b0d8f7ee626f3abde2a85494afa2b6e1a6959fe5a82a"
     }
   ],
   "runs": [
@@ -138,8 +138,8 @@
   "known_test_failures": [],
   "resources": {
     "start_free_disk_gib": 14.88,
-    "final_free_disk_gib": 14.4,
-    "final_free_ram_gib": 6.44,
+    "final_free_disk_gib": 14.3,
+    "final_free_ram_gib": 6.12,
     "max_build_jobs": 2,
     "work_cutoff_seconds_per_run": 95
   },
@@ -155,13 +155,13 @@
     "no new resume API",
     "ordinary benchmark-frame caller cancellation remains abandon/invalidate-repeat",
     "benchmark-feature fix only; no capacity or performance claim",
-    "no explicit body-phase checkpoint; full-frame notification verified by inspection",
     "pre-tracking stream waits require caller-owned deadlines; revocation alone does not wake them",
     "iteration3 exhausted-open-credit and partial-preface waits inspected only",
-    "iteration3 permit assertions do not directly measure quota entry counts"
+    "iteration3 permit assertions do not directly measure quota entry counts",
+    "body-pending checkpoint proves body await, not exact consumed body byte count or allocator accounting"
   ],
-  "publication": "local commit authorized; push withheld for fresh specific approval",
-  "proposed_next_step": "Create scoped DCO-signed-off local commit; do not push without fresh specific ruleset bypass approval",
+  "publication": "overnight commit 8e548588 published with explicit bypass approval; body-pending follow-up uncommitted",
+  "proposed_next_step": "review local coverage-only follow-up; no new runtime defect established",
   "iteration_1_checkpoint": {
     "utc": "2026-10-09T22:27:34Z",
     "runtime_behavior_changed": false,
@@ -418,5 +418,98 @@
       }
     ],
     "artifact_labels": "local-evidence and cached-target denote private retained artifacts, not committed paths"
+  },
+  "body_pending_followup": {
+    "runtime_behavior_changed": false,
+    "clippy": "all targets, warnings denied, passed 10.66s",
+    "changed_files": [
+      "crates/nbsr-transport/src/quinn_adapter.rs",
+      "crates/nbsr-transport/src/control_read_tests.rs",
+      "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json"
+    ],
+    "test": "quinn_adapter::control_read_tests::benchmark_frame_body_pending_revocation_resets_and_releases_ownership",
+    "baseline": "8e548588c6ff636bb7a29a8202adb9a37e5110c1",
+    "review": "independent aggregate_review: diagnostic repoll issue corrected and confirmed; no remaining blocker",
+    "runs": [
+      {
+        "failed": 0,
+        "seconds": 0.15,
+        "label": "frame-body-first",
+        "build_seconds": 10.83,
+        "passed": 1,
+        "ignored": 0
+      },
+      {
+        "failed": 0,
+        "seconds": 6.3,
+        "label": "frame-body-library",
+        "build_seconds": 0.25,
+        "scope": "before diagnostic-only review repair",
+        "passed": 106,
+        "ignored": 1
+      },
+      {
+        "failed": 0,
+        "seconds": 0.16,
+        "label": "frame-body-reviewed",
+        "build_seconds": 4.14,
+        "passed": 1,
+        "ignored": 0
+      }
+    ],
+    "cleanup": {
+      "background_work": false,
+      "utc": "2026-10-10T10:56:50.5705019Z",
+      "containers_created": 0,
+      "library_processes": 0
+    },
+    "commands": [
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --lib benchmark_frame_body_pending_revocation_resets_and_releases_ownership",
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --lib",
+      "cargo clippy --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --all-targets -- -D warnings"
+    ],
+    "evidence": [
+      {
+        "sha256": "136e9de797dee7a32a8790b742ccbfade9e84bef14831316eee65bbd00058663",
+        "path": "local-evidence/nbsr-frame-body-followup.patch"
+      },
+      {
+        "sha256": "8d514a686013d71910c2c8411313bc52b8b04da28221c496fe90834afdc526cc",
+        "path": "local-evidence/control-read-frame-body-first.stdout.log"
+      },
+      {
+        "sha256": "41de2051f3fae67b8f11eda08ec472c296f4b443fbb1321fd0758562f41ab216",
+        "path": "local-evidence/control-read-frame-body-first.stderr.log"
+      },
+      {
+        "sha256": "cf089a2115a2791e5f5590a1e7041321b750245a4dd7dec5759c28293b924b2c",
+        "path": "local-evidence/control-read-frame-body-library.stdout.log"
+      },
+      {
+        "sha256": "7cd7ec4222c0f546f8736f1346b7d361db0f667d3e0afdbabf2090149a818d94",
+        "path": "local-evidence/control-read-frame-body-library.stderr.log"
+      },
+      {
+        "sha256": "9fde56a63b8e5eb652623927a3172472e3db6643d6af27f6bdab7b559771103f",
+        "path": "local-evidence/control-read-frame-body-reviewed.stdout.log"
+      },
+      {
+        "sha256": "04cf25bd10bfc8b4fcebe2f9d5e49a7fb9dcdc9b025b25fc625e4be4b1b951ac",
+        "path": "local-evidence/control-read-frame-body-reviewed.stderr.log"
+      },
+      {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path": "local-evidence/control-read-frame-body-clippy.stdout.log"
+      },
+      {
+        "sha256": "7bcaaaa32e9e639d9f79a52702b0ea1d177b58e6f83f936976fd3d7fb50f6c1d",
+        "path": "local-evidence/control-read-frame-body-clippy.stderr.log"
+      },
+      {
+        "sha256": "35221942a50a1e4eca0fb0e2db85a6e0c6c1cbe530feea5f72cd23aee18b216e",
+        "path": "cached-target/debug/deps/nbsr_transport-e50f51b665ab68fb.exe"
+      }
+    ]
   }
 }

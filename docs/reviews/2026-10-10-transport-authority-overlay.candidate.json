@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "status": "CANDIDATE_NOT_AUTHORITY",
+  "candidate_id": "NBSR-TRANSPORT-LIFECYCLE-2026-10-10",
+  "source_commit": "f6400959e93f32f3eec32372c60773c115344583",
+  "reason": "Proposed additive recognition of the exact committed transport implementation after the historical demo ACK snapshot; activation requires explicit approval and a closed fail-closed validator. This candidate is not consumed by runtime or CI authority checks.",
+  "original_baseline": {
+    "path": "docs/protocol/registries/core-v0.2-baseline-lock.json",
+    "sha256": "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"
+  },
+  "parent_overlay": {
+    "path": "docs/protocol/registries/core-v0.2-demo-ack-overlay.json",
+    "sha256": "99fe7153f251c4d68d836596bb532cf7bb32eb55f41d6c69b6fc04b281167801"
+  },
+  "replacements": [
+    {
+      "path": "crates/nbsr-transport/src/lib.rs",
+      "length": 6817,
+      "sha256": "3db5a0a615e12d4d67ed0380f07e9ad9778bde98a8879817992a0df000f99e43"
+    },
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "length": 95337,
+      "sha256": "503ebf04ad6078be8e17df48a26c77cd5ac57e1de64b8059f6a8affb55c2bd85"
+    }
+  ]
+}

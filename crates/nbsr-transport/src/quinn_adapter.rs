@@ -215,6 +215,8 @@ struct SharedApplicationStream {
     payload_receive: Mutex<PayloadReceiveState>,
     inbound_bytes: HeldChannelBytes,
     outbound_bytes: HeldChannelBytes,
+    #[cfg(all(test, feature = "benchmark-harness"))]
+    benchmark_body_length_checkpoint: std::sync::atomic::AtomicUsize,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -474,6 +476,8 @@ fn application_stream(send: SendStream, receive: RecvStream) -> ApplicationStrea
             payload_receive: Mutex::new(PayloadReceiveState::default()),
             inbound_bytes: HeldChannelBytes::default(),
             outbound_bytes: HeldChannelBytes::default(),
+            #[cfg(all(test, feature = "benchmark-harness"))]
+            benchmark_body_length_checkpoint: std::sync::atomic::AtomicUsize::new(0),
         }),
     }
 }
@@ -762,6 +766,10 @@ impl ApplicationStream {
                     return Err(TransportError::ApplicationPayloadTooLarge);
                 }
                 let mut wire = vec![0_u8; length];
+                // A test can prove a Pending poll reached body I/O, rather than
+                // assuming the length arrived from elapsed time.
+                #[cfg(test)]
+                self.shared.benchmark_body_length_checkpoint.store(length, Ordering::Release);
                 inner.receive.read_exact(&mut wire).await
                     .map_err(|_| TransportError::ApplicationStreamFailed)?;
                 Ok(wire)

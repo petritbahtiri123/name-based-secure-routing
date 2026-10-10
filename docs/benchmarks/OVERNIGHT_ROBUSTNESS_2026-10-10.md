@@ -1,6 +1,6 @@
 # Overnight robustness work: October 9-10, 2026
 
-Latest checkpoint: publication preparation on October 10; local commit authorized, push pending approval. Baseline: `e245bc357379b44449bb22f53a1c6a1c723fc1cc`.
+Latest checkpoint: October 10 10:57 UTC; body-pending coverage follow-up is local and uncommitted. Baseline: `e245bc357379b44449bb22f53a1c6a1c723fc1cc`.
 Morning report target: October 10 09:00 Europe/Skopje (07:00 UTC); work cutoff
 06:30 UTC. This checkpoint is an early completed iteration, not work left running.
 All changes are local. No commit, push, bypass, downloads or system changes.
@@ -361,3 +361,54 @@ the branch rules endpoint and ruleset detail confirmed current protection. Direc
 update therefore requires a ruleset bypass actor; an unsigned local commit also
 requires bypass of the signature rule. No push, rule change, force push or bypass
 has been attempted. A fresh specific push approval remains necessary.
+
+## Post-publication follow-up: body-pending frame revocation
+
+Commit 8e548588c6ff636bb7a29a8202adb9a37e5110c1 was subsequently published to
+codex/nbsr-v3-wp0-wp1 using the specifically approved update/signature bypass.
+The exact remote SHA was verified; GitHub reported zero workflow runs, check runs
+and commit statuses for that SHA. This is absent CI, not passing CI. The following
+new work remains local, with no additional commit or push.
+
+Added benchmark_frame_body_pending_revocation_resets_and_releases_ownership.
+One authenticated loopback connection uses 64-byte windows and a single application
+stream. The peer sends a complete length of eight plus one body byte, without FIN
+or the remaining seven bytes. A cfg(test)-only atomic checkpoint is stored after
+length validation and body allocation, immediately before read_exact of the body.
+The same poll returning Pending with checkpoint eight proves body I/O is pending;
+timeouts bound failures rather than establish the phase. This does not assert that
+the first body byte was consumed. The checkpoint field is also benchmark-feature
+gated, and is absent from non-test builds. No public API or runtime behavior changed.
+
+After force_reset, the test observes ApplicationStreamRejected, released stream
+mutex, strict peer ReadError::Reset before connection cleanup, and rejected reuse.
+It checks zero payload quota and empty retained receive/completed reservation state.
+After dropping the fixture, its Weak shared-stream reference cannot upgrade and
+quota remains zero. Benchmark framing does not charge payload reservations; these
+checks do not claim allocator-wide accounting of the temporary eight-byte buffer.
+
+The FIRST run against existing revocation behavior passed: 1/0/0 in 0.15 s (build
+10.83 s). This is added regression coverage, not a new runtime fix. The library
+suite then passed 106/0/1 in 6.30 s (build 0.25 s), with only the same existing
+10-minute soak ignored. Independent review caught a test failure-path issue: an
+unexpected Ready at the checkpoint would be repolled before cleanup. The test now
+skips that repoll and reaches cleanup before asserting failure. Reviewer confirmed
+no remaining blocker. Final focused rerun passed 1/0/0 in 0.16 s (build 4.14 s).
+All-target Clippy with warnings denied passed in 10.66 s; formatting and whitespace
+checks passed. Broad library results precede only that diagnostic-path correction;
+no broad suite was needlessly repeated. No tests failed and no assertions were
+weakened. Integration, codec and doc suites were not repeated for test-only code.
+
+This closes the earlier body-pending inspection-only limitation. Pre-tracking
+admission wakeup and composite/echo resumability remain deferred; no new runtime
+defect or architecture decision was established. Ordinary frame cancellation still
+requires abandoning the stream/repeat.
+
+Changed locally: quinn_adapter.rs (test-only checkpoint), control_read_tests.rs
+(one regression), this report and its manifest. Raw logs are retained privately
+under control-read-frame-body-{first,library,reviewed,clippy} names. At 10:56:50 UTC,
+free disk was 14.30 GiB and RAM 6.12 GiB; zero matching library test processes,
+all supervised exits 0, no containers created and no background work. Offline
+cached dependencies, at most two jobs and unchanged 95-second guards were used.
+No new commit/push, settings change, dependency download or unrelated-file change.
+Root guidance remains applicable unchanged.
