@@ -841,6 +841,71 @@ async fn ordered_live_refill_follows_exhaustion_and_synchronizes_bounded_epochs(
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn revocation_during_untracked_accept_wait_rejects_when_peer_progresses() {
+    let (listener, source, destination) = connection_pair().await;
+    let controls = prime_control_stream(&source, &destination).await;
+    let (source_session, channel) = credited_session(&source);
+    let (destination_session, _) = credited_session(&destination);
+    let channel_id = channel.channel_id;
+    let mut accepting =
+        Box::pin(destination.accept_credited_session_stream(&destination_session, channel_id));
+    let initially_pending = std::future::poll_fn(|cx| {
+        std::task::Poll::Ready(std::future::Future::poll(accepting.as_mut(), cx).is_pending())
+    })
+    .await;
+    let revoke = route_revoke(&channel);
+    let revoked = destination_session
+        .update(|session| destination.accept_route_revoke(session, channel_id, &revoke));
+    // No QUIC stream exists yet. This is an untracked transport wait, not an
+    // admitted stream whose revocation notification can wake an I/O operation.
+    let pending_after_revoke = std::future::poll_fn(|cx| {
+        std::task::Poll::Ready(std::future::Future::poll(accepting.as_mut(), cx).is_pending())
+    })
+    .await;
+    let outcome = tokio::time::timeout(Duration::from_secs(1), async {
+        tokio::join!(
+            &mut accepting,
+            source.open_credited_session_stream(&source_session, channel_id),
+        )
+    })
+    .await;
+    drop(accepting);
+    let source_live =
+        source_session.inspect(|session| session.application_stream_permit(channel_id, 4).is_ok());
+    let destination_live = destination_session
+        .inspect(|session| session.application_stream_permit(channel_id, 4).is_ok());
+    drop(controls);
+    tokio::time::timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .expect("bounded characterization cleanup");
+    assert!(initially_pending);
+    revoked.expect("revocation committed without an application stream");
+    assert!(
+        pending_after_revoke,
+        "untracked accept still needs peer progress"
+    );
+    let (accepted, opened) = outcome.expect("peer progress resolves admission");
+    assert_eq!(
+        accepted.err(),
+        Some(TransportError::ApplicationStreamRejected)
+    );
+    assert_eq!(
+        opened.err(),
+        Some(TransportError::ApplicationStreamRejected)
+    );
+    assert!(
+        !source_live && !destination_live,
+        "no live admission survives rejection"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn revoked_channel_interrupts_pending_ack_wait() {
     let (listener, source, destination) = connection_pair().await;
     let controls = prime_control_stream(&source, &destination).await;

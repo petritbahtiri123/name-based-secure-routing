@@ -553,7 +553,11 @@ struct PayloadFixture {
 
 impl PayloadFixture {
     async fn new() -> Self {
-        let (listener, source, destination) = connection_pair().await;
+        Self::with_window(None).await
+    }
+
+    async fn with_window(window: Option<u32>) -> Self {
+        let (listener, source, destination) = connection_pair_with_window(window).await;
         let (mut send, receive) = source.connection.open_bi().await.unwrap();
         send.write_all(b"a").await.unwrap();
         let (sending, mut peer_receive) =
@@ -1799,4 +1803,314 @@ async fn echo_response_empty_success_keeps_fin_and_ack() {
     assert!(!f.application.shared.cancelled.load(Ordering::Acquire));
     assert_eq!(f.buffered(), 0);
     f.close().await;
+}
+
+// Characterization: whole-composite restart is documented as unsupported.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn composite_response_cancellation_retry_and_receive_only_characterization() {
+    let (listener, source, destination) = connection_pair().await;
+    let quota = Arc::new(ChannelByteQuota::default());
+    // Retry the composite, resume only reception, then complete normally on a
+    // fresh sibling: all three exchanges share one authenticated connection.
+    for mode in 0..3 {
+        let mut application = source.open_application_stream().await.unwrap();
+        let shared = Arc::clone(&application.shared);
+        *shared.channel_quota.lock().unwrap() = Some(Arc::clone(&quota));
+        let mut exchange = Box::pin(application.send_and_receive(b"request"));
+        assert!(
+            std::future::poll_fn(|cx| std::task::Poll::Ready(
+                std::future::Future::poll(exchange.as_mut(), cx).is_pending()
+            ))
+            .await
+        );
+        let (mut response_send, mut request_receive) =
+            timeout(Duration::from_secs(2), destination.connection.accept_bi())
+                .await
+                .unwrap()
+                .unwrap();
+        assert_eq!(
+            timeout(Duration::from_secs(2), request_receive.read_to_end(64))
+                .await
+                .unwrap()
+                .unwrap(),
+            b"request"
+        );
+        // Request FIN is observed before any cancellation; six response bytes
+        // are then retained without response FIN, so the exact phase is known.
+        response_send.write_all(b"prefix").await.unwrap();
+        timeout(Duration::from_secs(2), async {
+            loop {
+                assert!(
+                    std::future::poll_fn(|cx| std::task::Poll::Ready(
+                        std::future::Future::poll(exchange.as_mut(), cx).is_pending()
+                    ))
+                    .await
+                );
+                if *quota.buffered.lock().unwrap() == 13 {
+                    break;
+                }
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        assert_eq!(shared.payload_receive.lock().unwrap().payload, b"prefix");
+        if mode == 2 {
+            response_send.write_all(b"-suffix").await.unwrap();
+            response_send.finish().unwrap();
+            assert_eq!(
+                timeout(Duration::from_secs(2), &mut exchange)
+                    .await
+                    .unwrap()
+                    .unwrap(),
+                b"prefix-suffix"
+            );
+            drop(exchange);
+            assert_eq!(*quota.buffered.lock().unwrap(), 20);
+            assert!(!shared.cancelled.load(Ordering::Acquire));
+        } else {
+            drop(exchange);
+            assert_eq!(
+                *quota.buffered.lock().unwrap(),
+                13,
+                "cancelling receive wait retains completed request and response prefix"
+            );
+            assert!(!shared.cancelled.load(Ordering::Acquire));
+            if mode == 0 {
+                assert_eq!(
+                    timeout(
+                        Duration::from_secs(2),
+                        application.send_and_receive(b"request")
+                    )
+                    .await
+                    .unwrap(),
+                    Err(TransportError::ApplicationStreamFailed)
+                );
+                assert!(shared.cancelled.load(Ordering::Acquire));
+                assert!(shared.payload_receive.lock().unwrap().payload.is_empty());
+                assert_eq!(*quota.buffered.lock().unwrap(), 0);
+                assert_eq!(
+                    application.receive_payload().await,
+                    Err(TransportError::ApplicationStreamRejected)
+                );
+                // FIN already ended this direction. No duplicate request bytes
+                // may appear; either the finished read or reset is acceptable.
+                if let Ok(tail) = timeout(Duration::from_secs(2), request_receive.read_to_end(64))
+                    .await
+                    .unwrap()
+                {
+                    assert!(tail.is_empty(), "retry delivered duplicate request bytes");
+                }
+            } else {
+                response_send.write_all(b"-suffix").await.unwrap();
+                response_send.finish().unwrap();
+                assert_eq!(
+                    timeout(Duration::from_secs(2), application.receive_payload())
+                        .await
+                        .unwrap()
+                        .unwrap(),
+                    b"prefix-suffix"
+                );
+                assert_eq!(*quota.buffered.lock().unwrap(), 20);
+                assert!(!shared.cancelled.load(Ordering::Acquire));
+            }
+        }
+        application.release_buffered_payloads();
+        assert_eq!(*quota.buffered.lock().unwrap(), 0);
+        drop(application);
+        drop(shared);
+        drop(response_send);
+        drop(request_receive);
+    }
+    timeout(Duration::from_secs(8), async {
+        let (a, b) = tokio::join!(source.close(), destination.close());
+        let c = listener.close().await;
+        a.unwrap();
+        b.unwrap();
+        c.unwrap();
+    })
+    .await
+    .expect("bounded composite characterization cleanup");
+    assert_eq!(*quota.buffered.lock().unwrap(), 0);
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn benchmark_frame_revocation_interrupts_pending_read_and_rejects_reuse() {
+    let mut f = PayloadFixture::with_window(Some(64)).await;
+    let shared = Arc::clone(&f.application.shared);
+    f.sending.write_all(&[0, 0]).await.unwrap();
+    let mut reading = Box::pin(f.application.benchmark_read_frame());
+    assert!(
+        std::future::poll_fn(|cx| std::task::Poll::Ready(
+            std::future::Future::poll(reading.as_mut(), cx).is_pending()
+        ))
+        .await
+    );
+    shared.force_reset();
+    let result = timeout(Duration::from_millis(250), &mut reading).await;
+    drop(reading);
+    let cancelled = shared.cancelled.load(Ordering::Acquire);
+    f.close().await;
+    assert!(cancelled);
+    assert!(
+        matches!(result, Ok(Err(TransportError::ApplicationStreamRejected))),
+        "revocation must wake pending benchmark frame read without more peer bytes: {result:?}"
+    );
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn benchmark_frame_revocation_interrupts_pending_write() {
+    let mut f = PayloadFixture::with_window(Some(64)).await;
+    let shared = Arc::clone(&f.application.shared);
+    let wire = vec![0x5a; 4096];
+    let mut writing = Box::pin(f.application.benchmark_write_frame(&wire));
+    assert!(
+        std::future::poll_fn(|cx| std::task::Poll::Ready(
+            std::future::Future::poll(writing.as_mut(), cx).is_pending()
+        ))
+        .await
+    );
+    let mut prefix = [0; 4];
+    timeout(
+        Duration::from_secs(2),
+        f.peer_receive.read_exact(&mut prefix),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert_eq!(u32::from_be_bytes(prefix), 4096);
+    shared.force_reset();
+    let result = timeout(Duration::from_millis(250), &mut writing).await;
+    drop(writing);
+    f.close().await;
+    assert!(
+        matches!(result, Ok(Err(TransportError::ApplicationStreamRejected))),
+        "revocation must wake a blocked frame write without peer credit: {result:?}"
+    );
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn benchmark_frame_normal_reuse_and_revoked_buffered_data() {
+    let mut f = PayloadFixture::with_window(Some(64)).await;
+    for wire in [b"first".as_slice(), b"".as_slice(), b"last".as_slice()] {
+        f.sending
+            .write_all(&(wire.len() as u32).to_be_bytes())
+            .await
+            .unwrap();
+        f.sending.write_all(wire).await.unwrap();
+        assert_eq!(
+            timeout(Duration::from_secs(2), f.application.benchmark_read_frame())
+                .await
+                .unwrap()
+                .unwrap(),
+            wire
+        );
+        f.application.benchmark_write_frame(wire).await.unwrap();
+        let mut length = [0; 4];
+        timeout(
+            Duration::from_secs(2),
+            f.peer_receive.read_exact(&mut length),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        let mut received = vec![0; u32::from_be_bytes(length) as usize];
+        timeout(
+            Duration::from_secs(2),
+            f.peer_receive.read_exact(&mut received),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(received, wire);
+        assert!(!f.application.shared.cancelled.load(Ordering::Acquire));
+    }
+    f.sending
+        .write_all(&[0, 0, 0, 3, b'e', b'n', b'd'])
+        .await
+        .unwrap();
+    f.application.shared.force_reset();
+    let read = timeout(
+        Duration::from_millis(250),
+        f.application.benchmark_read_frame(),
+    )
+    .await;
+    let write = timeout(
+        Duration::from_millis(250),
+        f.application.benchmark_write_frame(b"late"),
+    )
+    .await;
+    assert_eq!(
+        f.buffered(),
+        0,
+        "benchmark framing creates no payload reservations"
+    );
+    f.close().await;
+    assert!(matches!(
+        read,
+        Ok(Err(TransportError::ApplicationStreamRejected))
+    ));
+    assert!(matches!(
+        write,
+        Ok(Err(TransportError::ApplicationStreamRejected))
+    ));
+}
+
+#[cfg(feature = "benchmark-harness")]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn benchmark_frame_revocation_then_future_drop_completes_reset() {
+    for writing in [false, true] {
+        let mut f = PayloadFixture::with_window(Some(64)).await;
+        let shared = Arc::clone(&f.application.shared);
+        if !writing {
+            f.sending.write_all(&[0, 0]).await.unwrap();
+        }
+        let wire = vec![0x5a; 4096];
+        let mut operation = Box::pin(async {
+            if writing {
+                f.application.benchmark_write_frame(&wire).await
+            } else {
+                f.application.benchmark_read_frame().await.map(|_| ())
+            }
+        });
+        assert!(
+            std::future::poll_fn(|cx| std::task::Poll::Ready(
+                std::future::Future::poll(operation.as_mut(), cx).is_pending()
+            ))
+            .await
+        );
+        assert!(shared.inner.try_lock().is_err());
+        shared.force_reset();
+        drop(operation); // Do not repoll revocation; keep stream owner alive.
+        let peer = timeout(Duration::from_secs(2), f.peer_receive.read_to_end(8192)).await;
+        let read = timeout(
+            Duration::from_millis(250),
+            f.application.benchmark_read_frame(),
+        )
+        .await;
+        let write = timeout(
+            Duration::from_millis(250),
+            f.application.benchmark_write_frame(b"late"),
+        )
+        .await;
+        let retained = f.buffered();
+        drop(shared);
+        f.close().await;
+        assert!(
+            matches!(peer, Ok(Err(_))),
+            "revoked frame future Drop must finish stream reset: {peer:?}"
+        );
+        assert!(matches!(
+            read,
+            Ok(Err(TransportError::ApplicationStreamRejected))
+        ));
+        assert!(matches!(
+            write,
+            Ok(Err(TransportError::ApplicationStreamRejected))
+        ));
+        assert_eq!(retained, 0);
+    }
 }

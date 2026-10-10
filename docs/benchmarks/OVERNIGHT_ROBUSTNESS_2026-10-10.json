@@ -1,0 +1,422 @@
+{
+  "baseline": "e245bc357379b44449bb22f53a1c6a1c723fc1cc",
+  "checkpoint_utc": "2026-10-10T07:45:08.2689012Z",
+  "status": "verified_local_commit_prepared_push_withheld",
+  "runtime_behavior_changed": "benchmark-harness frame revocation only; default runtime behavior unchanged",
+  "changed_files": [
+    "crates/nbsr-transport/src/quinn_adapter.rs",
+    "crates/nbsr-transport/src/control_read_tests.rs",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+    "crates/nbsr-transport/tests/stream_credit_integration.rs"
+  ],
+  "hashes": [
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "sha256": "c43d322d1eb247e10248ed23eb57ef9a696af2244b55a5e1ba2687d1149d9b0a"
+    },
+    {
+      "path": "crates/nbsr-transport/src/control_read_tests.rs",
+      "sha256": "9b51a30c327f3e81a8791e9d97379cf0309c84c28d1da8f41eff7d68c3da581b"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/stream_credit_integration.rs",
+      "sha256": "1329f62da0a869b9f6797c87eb3474a5fe7854fb30094d09b1b48b0c9d09e0a3"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "sha256": "4a1ee615f4ed62d8003bc5d538d7087749160631e1df62e277b13303af403e67"
+    }
+  ],
+  "runs": [
+    {
+      "label": "composite-response-characterization",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.16
+    },
+    {
+      "label": "overnight-composite-library",
+      "passed": 101,
+      "failed": 0,
+      "ignored": 1,
+      "seconds": 6.05
+    },
+    {
+      "label": "overnight-composite-doc",
+      "passed": 16,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 1.03
+    },
+    {
+      "label": "overnight-frame-revoke-red",
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "seconds": 0.41
+    },
+    {
+      "label": "overnight-frame-tiny-red",
+      "passed": 0,
+      "failed": 3,
+      "ignored": 0,
+      "seconds": 0.57
+    },
+    {
+      "label": "overnight-frame-green",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.29
+    },
+    {
+      "label": "overnight-frame-library",
+      "passed": 105,
+      "failed": 0,
+      "ignored": 1,
+      "seconds": 6.28
+    },
+    {
+      "label": "overnight-frame-codec",
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.03
+    },
+    {
+      "ignored": 0,
+      "failed": 0,
+      "passed": 1,
+      "build_seconds": 3.73,
+      "label": "overnight-untracked-accept",
+      "seconds": 0.18
+    },
+    {
+      "ignored": 0,
+      "failed": 0,
+      "passed": 12,
+      "build_seconds": 25.49,
+      "label": "overnight-admission-suite",
+      "seconds": 1.59
+    },
+    {
+      "seconds": 6.25,
+      "passed": 105,
+      "ignored": 1,
+      "failed": 0,
+      "build_seconds": 6.01,
+      "label": "overnight-final-library"
+    },
+    {
+      "seconds": 1.05,
+      "passed": 16,
+      "ignored": 0,
+      "failed": 0,
+      "build_seconds": 0.27,
+      "label": "overnight-final-doc"
+    },
+    {
+      "build_seconds": 4.84,
+      "failed": 0,
+      "label": "overnight-publication-library",
+      "seconds": 6.43,
+      "passed": 105,
+      "ignored": 1
+    },
+    {
+      "build_seconds": 1.39,
+      "failed": 0,
+      "label": "overnight-publication-credit",
+      "seconds": 1.27,
+      "passed": 12,
+      "ignored": 0
+    }
+  ],
+  "review": "iteration1 precision correction confirmed; iteration2 no blocker; iteration3 independent read-only scoped review no blocker; coverage/counter limits recorded; iteration4 independent static ownership review no concrete gap; fresh aggregate_review against baseline: no correctness/security blocker; Europe/Skopje report label corrected",
+  "known_test_failures": [],
+  "resources": {
+    "start_free_disk_gib": 14.88,
+    "final_free_disk_gib": 14.4,
+    "final_free_ram_gib": 6.44,
+    "max_build_jobs": 2,
+    "work_cutoff_seconds_per_run": 95
+  },
+  "cleanup": {
+    "owned_library_test_processes_remaining": 0,
+    "test_containers_created": 0,
+    "background_work_running": false,
+    "owned_codec_test_processes_remaining": 0,
+    "owned_stream_credit_test_processes_remaining": 0
+  },
+  "limitations": [
+    "composite restart unsupported",
+    "no new resume API",
+    "ordinary benchmark-frame caller cancellation remains abandon/invalidate-repeat",
+    "benchmark-feature fix only; no capacity or performance claim",
+    "no explicit body-phase checkpoint; full-frame notification verified by inspection",
+    "pre-tracking stream waits require caller-owned deadlines; revocation alone does not wake them",
+    "iteration3 exhausted-open-credit and partial-preface waits inspected only",
+    "iteration3 permit assertions do not directly measure quota entry counts"
+  ],
+  "publication": "local commit authorized; push withheld for fresh specific approval",
+  "proposed_next_step": "Create scoped DCO-signed-off local commit; do not push without fresh specific ruleset bypass approval",
+  "iteration_1_checkpoint": {
+    "utc": "2026-10-09T22:27:34Z",
+    "runtime_behavior_changed": false,
+    "review": "final corrected wording confirmed; no remaining blocker",
+    "resources": {
+      "start_free_disk_gib": 14.88,
+      "final_free_disk_gib": 14.84,
+      "final_free_ram_gib": 6.87,
+      "max_build_jobs": 2,
+      "work_cutoff_seconds_per_run": 95
+    }
+  },
+  "checks": {
+    "default_feature_library_check": "passed,5.10s",
+    "all_target_clippy_warnings_denied": "passed,8.60s",
+    "format": "passed",
+    "diff_whitespace": "passed",
+    "final_all_target_clippy_warnings_denied": "passed,7.61s",
+    "final_format": "passed",
+    "final_diff_whitespace": "passed",
+    "publication_clippy": "passed,1.17s"
+  },
+  "historical_failed_attempts": [
+    "overnight-frame-revoke-red:pending read timed out",
+    "overnight-frame-tiny-red:read/write timed out and revoked read rejection assertion failed"
+  ],
+  "iteration_2_checkpoint": {
+    "utc": "2026-10-09T22:35:32.1335829Z",
+    "review": "iteration1 precision correction confirmed; iteration2 no blocker; optional body-pending test noted",
+    "resources": {
+      "start_free_disk_gib": 14.88,
+      "final_free_disk_gib": 14.83,
+      "final_free_ram_gib": 6.79,
+      "max_build_jobs": 2,
+      "work_cutoff_seconds_per_run": 95
+    }
+  },
+  "iteration_3": {
+    "diagnosis": "confirmed delayed wakeup before tracking, rejection after peer progress; no stale admission demonstrated",
+    "review": "independent agent admission_review: no blocker; no builds run by reviewer",
+    "failures": [],
+    "evidence": [
+      {
+        "path": "local-evidence/nbsr-overnight-iteration3.patch",
+        "sha256": "5766c2554b5ea6ba290d05dba340450eaa0084e5de505901738532ae5ed13911"
+      },
+      {
+        "path": "local-evidence/nbsr-overnight-admission-check.ps1",
+        "sha256": "baae4a9069a4b9f2c99e53acc33d96219fab5034f001e90c0a90185756eccb16"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-untracked-accept.stdout.log",
+        "sha256": "bf8863631674a9120dbb1122d44514dfd562acc841d65655116aecb8429a555b"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-untracked-accept.stderr.log",
+        "sha256": "450d72baec595bd4ac895698f60eae306e94b5e95f77915a2f49cd6da9b22794"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-admission-suite.stdout.log",
+        "sha256": "d7d6a0ffaa29147aed5897221681bc170e9422a68b3772fcfe9c8139eea0e9df"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-admission-suite.stderr.log",
+        "sha256": "43115123a20b15cd289d7105bec1be0187e5ccd8cdfd54d7aa8c1f3bac3b5514"
+      },
+      {
+        "path": "cached-target/debug/deps/stream_credit_integration-b9d8a6ae873e1653.exe",
+        "sha256": "21761ffb4d2cb11c0c0c92a0888da5b51008d93da55b3b4db7ed4b3f6c846671"
+      }
+    ],
+    "fixture": "existing authenticated loopback PKI and vectors/core-v0.2 credited sessions; one application stream",
+    "cleanup": "supervised cargo exited 0 twice; observed 0 matching stream_credit test processes; no containers created",
+    "runtime_behavior_changed": false,
+    "cargo_target_dir": "cached-target",
+    "commands": [
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --test stream_credit_integration revocation_during_untracked_accept_wait_rejects_when_peer_progresses",
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --test stream_credit_integration",
+      "cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml --check",
+      "git diff --check"
+    ]
+  },
+  "iteration_3_checkpoint": {
+    "resources": {
+      "start_free_disk_gib": 14.88,
+      "final_free_disk_gib": 14.81,
+      "final_free_ram_gib": 6.04,
+      "max_build_jobs": 2,
+      "work_cutoff_seconds_per_run": 95
+    },
+    "status": "iteration_3_complete_no_background_work",
+    "utc": "2026-10-09T22:46:54.6301582Z"
+  },
+  "iteration_4": {
+    "tests_run": 0,
+    "resources": {
+      "ram_not_remeasured": true,
+      "last_free_ram_gib": 6.04,
+      "observed_utc": "2026-10-09T22:49:23.9779664Z",
+      "free_disk_gib": 14.81,
+      "last_ram_read_utc": "2026-10-09T22:46:01.7987894Z"
+    },
+    "diagnosis": "No concrete new retained-quota leak, stale operation, or accidental reuse gap established in scoped ownership review",
+    "failures": [],
+    "review": "Independent admission_review agent found no new blocker and confirmed cleanup observation limits",
+    "source_paths": [
+      "crates/nbsr-transport/src/owned_send.rs",
+      "crates/nbsr-transport/src/quinn_adapter.rs",
+      "crates/nbsr-transport/src/control_read_tests.rs"
+    ],
+    "cleanup": {
+      "processes_created": 0,
+      "background_work_running": false,
+      "matching_library_processes": 0,
+      "matching_credit_processes": 0,
+      "containers_created": 0
+    },
+    "owned_send_sha256": "3547ec1b8df30e0104f1e6208ed83351d2de33c64259a2fdfb01dce7cfab1818",
+    "coverage_inspected": [
+      "payload_reset_discards_partial_state_and_fails_closed",
+      "payload_stream_drop_releases_unfinished_reservations",
+      "payload_revocation_releases_idle_and_pending_cancelled_receive",
+      "owned_send_abort_drop_and_revocation_release_partial_send",
+      "owned_send_peer_close_releases_paused_ownership",
+      "owned_send_completion_racing_revocation_cannot_resurrect_quota",
+      "owned_send_completed_fin_ack_and_terminal_quota_ownership"
+    ],
+    "limits": [
+      "No new dynamic reproduction or test execution",
+      "Peer close test requires drive repoll; no eager paused remote-error cleanup claim",
+      "Connection close and initiating drain do not themselves sweep retained application ownership",
+      "Read failure does not establish universal opposite-direction send prohibition"
+    ],
+    "builds_run": 0,
+    "validation": "Static source/contract review and comparison to existing tests only",
+    "code_or_tests_changed": false,
+    "runtime_behavior_changed": false
+  },
+  "final_handoff": {
+    "report_timezone": "Europe/Skopje",
+    "conclusion": "no further justified low-risk patch identified",
+    "report_target_utc": "2026-10-10T07:00:00Z",
+    "commands": [
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --lib",
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --doc",
+      "cargo clippy --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --all-targets -- -D warnings",
+      "cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml --check",
+      "git diff --check"
+    ],
+    "cleanup": "All final runner exit codes 0; matching library/credit/codec process counts 0; no containers created; no background work",
+    "publication": "none",
+    "evidence": [
+      {
+        "path": "local-evidence/nbsr-overnight-final.patch",
+        "sha256": "5766c2554b5ea6ba290d05dba340450eaa0084e5de505901738532ae5ed13911"
+      },
+      {
+        "path": "cached-target/debug/deps/nbsr_transport-e50f51b665ab68fb.exe",
+        "sha256": "ae1f832920a69fc5c2227af5b33171bfae21a997675e838c84cc9b9f107bf453"
+      },
+      {
+        "path": "cached-target/debug/deps/stream_credit_integration-b9d8a6ae873e1653.exe",
+        "sha256": "21761ffb4d2cb11c0c0c92a0888da5b51008d93da55b3b4db7ed4b3f6c846671"
+      },
+      {
+        "path": "cached-target/debug/deps/p2a_benchmark-5ecf2e7e7df746f7.exe",
+        "sha256": "f50ba51a4c92ef941c7115de26b95abde24e1fd63bb043485324a7284ff24e98"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-library.stdout.log",
+        "sha256": "55123bde0964865965ce0c84b517f47789bebdb3891aa9b8401db2b1439fd1f6"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-library.stderr.log",
+        "sha256": "f5cda86eda2c42a3b1e0480e993b38dc1e35187acfd9dd746b1dd6b083323d00"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-doc.stdout.log",
+        "sha256": "b256facc4204da9cbe3fb213fc486676fe33e955330eac1256f7e0148d8931d8"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-doc.stderr.log",
+        "sha256": "d0b32caab31320b79dc4d0356d14a2f6005377849a328263ccc032550d5bb12c"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-clippy.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-clippy.stderr.log",
+        "sha256": "810f5d89f1fb8cb3fdd1a72721b770b80e13ee5537eb498dba5116053325e029"
+      }
+    ],
+    "ignored_reason": "existing P1F evidence-only ten-minute bounded-memory soak",
+    "review": "Fresh independent aggregate review: no blocker; minor timezone label corrected",
+    "resources_observed_utc": "2026-10-09T22:52:55.833122Z",
+    "checks_not_repeated": [
+      "iteration3 integration already covers identical final executable code",
+      "iteration2 frame codec and default-feature check cover unchanged runtime"
+    ],
+    "ignored_test": "channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand",
+    "manifest_checksum_path": "local-evidence/nbsr-overnight-final-manifest.sha256"
+  },
+  "publication_preparation": {
+    "staged_git_blobs": {
+      "crates/nbsr-transport/src/control_read_tests.rs": "7e8e2ee9e4ba2af0604d738a3a1bd87a5d8267fc",
+      "crates/nbsr-transport/tests/stream_credit_integration.rs": "0bb3f89706ff6bbbe061714f468b67610ccde8b5",
+      "crates/nbsr-transport/src/quinn_adapter.rs": "621275770f05247d64dbe8b3b9481894ed4af01b"
+    },
+    "review": "Code hashes unchanged from independent aggregate review; private absolute paths removed from report/manifest; no raw secrets found in scoped content",
+    "remote_ruleset": {
+      "id": 22457059,
+      "remote_head": "e245bc357379b44449bb22f53a1c6a1c723fc1cc",
+      "enforcement": "active",
+      "all_refs": true,
+      "restricts_updates": true,
+      "rules_changed": false,
+      "push_attempted": false,
+      "legacy_protection_endpoint": "404; ruleset protection independently confirmed",
+      "name": "protect nbsr",
+      "requires_signatures": true
+    },
+    "hash_basis": "SHA256 tested working-tree bytes; Git blob IDs identify staged newline-normalized source",
+    "cleanup": {
+      "containers_created": 0,
+      "observed_utc": "2026-10-10T07:44:05.6791879Z",
+      "library": 0,
+      "credit": 0
+    },
+    "logs": [
+      {
+        "sha256": "35f89b181548a9bbb21816d89c58c4c201cbeb10e4fbe3a5dec3cb0a9b0ad765",
+        "path": "local-evidence/control-read-overnight-publication-library.stdout.log"
+      },
+      {
+        "sha256": "96a37b86123ac651086f940d7d6e496b64ed3020092c61eb2da94d8b37241f98",
+        "path": "local-evidence/control-read-overnight-publication-library.stderr.log"
+      },
+      {
+        "sha256": "3920a80346ddc40e564274e0bbe707d2c8ff662abcde35750267df8c0ee32b0b",
+        "path": "local-evidence/control-read-overnight-publication-credit.stdout.log"
+      },
+      {
+        "sha256": "0d89dddea2ac2eb5bf21d69a63f930523ccdc6ba0172d07bcf3a4cc311937918",
+        "path": "local-evidence/control-read-overnight-publication-credit.stderr.log"
+      },
+      {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path": "local-evidence/control-read-overnight-publication-clippy.stdout.log"
+      },
+      {
+        "sha256": "1f6e5b099ee1be7e5e3d7ea3fb77ee37fc650b9917dfa96d7c65be7b13778b70",
+        "path": "local-evidence/control-read-overnight-publication-clippy.stderr.log"
+      }
+    ],
+    "artifact_labels": "local-evidence and cached-target denote private retained artifacts, not committed paths"
+  }
+}

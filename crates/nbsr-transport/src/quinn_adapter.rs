@@ -685,30 +685,62 @@ impl ApplicationStream {
 
     /// P2A benchmark framing over an already admitted Application Stream.
     /// This is deliberately unavailable in normal production builds.
+    /// Channel revocation interrupts blocked I/O and rejects further frames.
+    /// Caller cancellation is not resumable: abandon this stream and invalidate
+    /// the benchmark repeat, since part of the length/body may have been written.
     #[cfg(feature = "benchmark-harness")]
     pub async fn benchmark_write_frame(&mut self, wire: &[u8]) -> Result<(), TransportError> {
         let length =
             u32::try_from(wire.len()).map_err(|_| TransportError::ApplicationPayloadTooLarge)?;
+        // Ordinary cancellation retains the existing benchmark abandonment
+        // contract. Revocation must finish reset after this future unlocks inner,
+        // including when the caller drops it without repolling the notification.
+        let _revocation_cleanup = BorrowedSendCancellation {
+            shared: &self.shared,
+            armed: false,
+        };
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        notified.as_mut().enable();
         let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
+        }
         self.shared
             .application_write_started
             .store(true, Ordering::Release);
-        inner
-            .send
-            .write_all(&length.to_be_bytes())
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        inner
-            .send
-            .write_all(wire)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)
+        let result = tokio::select! {
+            _ = &mut notified => Err(TransportError::ApplicationStreamRejected),
+            result = async {
+                inner.send.write_all(&length.to_be_bytes()).await
+                    .map_err(|_| TransportError::ApplicationStreamFailed)?;
+                inner.send.write_all(wire).await
+                    .map_err(|_| TransportError::ApplicationStreamFailed)
+            } => result,
+        };
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
+        }
+        result
     }
 
     /// Reads one P2A benchmark frame without closing or replacing the stream.
+    /// Channel revocation interrupts blocked I/O and rejects further frames.
+    /// Caller cancellation is not resumable: abandon this stream and invalidate
+    /// the benchmark repeat, since a partial length/body may have been consumed.
     #[cfg(feature = "benchmark-harness")]
     pub async fn benchmark_read_frame(&mut self) -> Result<Vec<u8>, TransportError> {
+        let _revocation_cleanup = BorrowedSendCancellation {
+            shared: &self.shared,
+            armed: false,
+        };
+        let notified = self.shared.notify.notified();
+        tokio::pin!(notified);
+        notified.as_mut().enable();
         let mut inner = self.shared.inner.lock().await;
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
+        }
         {
             let state = self
                 .shared
@@ -719,23 +751,26 @@ impl ApplicationStream {
                 return Err(TransportError::ApplicationStreamFailed);
             }
         }
-        let mut length = [0_u8; 4];
-        inner
-            .receive
-            .read_exact(&mut length)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        let length = u32::from_be_bytes(length) as usize;
-        if length > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
-            return Err(TransportError::ApplicationPayloadTooLarge);
+        let result = tokio::select! {
+            _ = &mut notified => Err(TransportError::ApplicationStreamRejected),
+            result = async {
+                let mut length = [0_u8; 4];
+                inner.receive.read_exact(&mut length).await
+                    .map_err(|_| TransportError::ApplicationStreamFailed)?;
+                let length = u32::from_be_bytes(length) as usize;
+                if length > MAX_BUFFERED_APPLICATION_BYTES_PER_STREAM {
+                    return Err(TransportError::ApplicationPayloadTooLarge);
+                }
+                let mut wire = vec![0_u8; length];
+                inner.receive.read_exact(&mut wire).await
+                    .map_err(|_| TransportError::ApplicationStreamFailed)?;
+                Ok(wire)
+            } => result,
+        };
+        if self.shared.cancelled.load(Ordering::Acquire) {
+            return Err(TransportError::ApplicationStreamRejected);
         }
-        let mut wire = vec![0_u8; length];
-        inner
-            .receive
-            .read_exact(&mut wire)
-            .await
-            .map_err(|_| TransportError::ApplicationStreamFailed)?;
-        Ok(wire)
+        result
     }
 
     /// Sends a borrowed payload and finishes this send direction.
@@ -921,6 +956,27 @@ impl ApplicationStream {
         self.shared.outbound_bytes.release();
     }
 
+    /// Performs one request/response exchange: send the request through FIN, then
+    /// receive the response through FIN. This method is not a resumable operation.
+    ///
+    /// Cancellation follows the phase that is active: before any request byte is
+    /// accepted, the stream remains reusable; during a partially accepted request,
+    /// [`Self::send_payload`] resets the stream. During response reception,
+    /// [`Self::receive_payload`] retains partial response bytes and quota.
+    ///
+    /// Do not restart this whole method after request FIN. A retry that reaches
+    /// the finished send direction fails and resets the stream, discarding any
+    /// retained response; preflight rejection is not a supported resume path. It does
+    /// not retransmit the request on that finished send direction. If sending is
+    /// known to have completed, resume only [`Self::receive_payload`]. Callers that
+    /// need that phase certainty should await send and receive separately, keeping
+    /// their original absolute deadline; use [`Self::begin_owned_send`] when the
+    /// send itself must support pause/resume. A timeout of this composite alone
+    /// does not tell the caller which phase was active.
+    ///
+    /// Successful request and response reservations remain charged until explicit
+    /// [`Self::release_buffered_payloads`], revocation, or stream Drop. Completion
+    /// is not an application-level processing acknowledgment.
     pub async fn send_and_receive(&mut self, payload: &[u8]) -> Result<Vec<u8>, TransportError> {
         self.send_payload(payload).await?;
         self.receive_payload().await
@@ -1669,6 +1725,16 @@ impl AuthenticatedConnection {
         Ok(application_stream(send, receive))
     }
 
+    /// Opens a credited stream and waits for the peer's same-stream acceptance.
+    ///
+    /// Apply a caller-owned deadline to the entire operation. Before Quinn grants
+    /// a stream, this waits for transport credit without a tracked stream to
+    /// receive channel-revocation notifications. Channel authority is checked
+    /// again when allocating the credit after that wait.
+    ///
+    /// Dropping the future releases any ordinary live admission it allocated;
+    /// consumed credit and replay history remain consumed. A new attempt uses a
+    /// new stream, not a restart of the abandoned admission.
     pub async fn open_credited_session_stream(
         &self,
         session: &SharedControlSession,
@@ -1722,6 +1788,14 @@ impl AuthenticatedConnection {
         Ok(stream)
     }
 
+    /// Accepts and validates a credited stream before returning it to the caller.
+    ///
+    /// Apply a caller-owned deadline to the entire operation. Waiting for an
+    /// incoming stream or its complete preface precedes stream tracking, so
+    /// channel revocation alone does not wake those waits. Once the peer makes
+    /// progress, admission rechecks channel authority and fails closed.
+    /// Dropping the future abandons this attempt and releases any ordinary live
+    /// admission it allocated; consumed credit and replay history are retained.
     pub async fn accept_credited_session_stream(
         &self,
         session: &SharedControlSession,
