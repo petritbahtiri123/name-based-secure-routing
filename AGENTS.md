@@ -113,6 +113,18 @@ other agents may need explicit loading and have different instruction precedence
 
 ## Project CI
 
+The isolated `nbsr/connector_control_model.py` is a synchronous mock-only design
+model, not a transport or authority implementation. Its focused checks are
+`python -m pytest -q -p no:cacheprovider tests/test_connector_control_model.py tests/protocol/test_states.py tests/federation/test_revocation.py`.
+Fake verifier/clock/transport results do not establish cryptographic proof,
+wire interoperability, asynchronous cancellation, durable identity or deployment
+readiness. Preserve the frozen state map and keep model policy choices distinct
+from approved protocol semantics.
+Active-work tests explicitly choose whether the registration lease caps the
+simulated request; neither fixture choice settles the real lifetime policy.
+Typed enforcement accepts the exact federation enum, never a numeric cast from
+Core revocation modes. Failed cleanup must retain visible ownership.
+
 `docs/CI.md` defines the bounded GitHub-hosted profiles in `scripts/ci/check.py`
 and the manual extended workflow. Hosted dependency installation does not
 authorize local downloads or override the laptop limits above. Run only the

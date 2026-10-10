@@ -1,0 +1,51 @@
+FFF.                                                                     [100%]
+================================== FAILURES ===================================
+___________ test_renewal_returns_fresh_ticket_capped_by_permission ____________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_renewal_returns_fresh_ticket_capped_by_permission(rig):
+        _, model, clock, _, _ = rig
+        attempt, ticket = ready(rig)
+        clock.now = 15
+        renewed = model.renew(attempt, ticket)
+>       assert renewed.expires == 23
+               ^^^^^^^^^^^^^^^
+E       AttributeError: 'bool' object has no attribute 'expires'
+
+tests\test_connector_control_model.py:293: AttributeError
+_________ test_duplicate_same_transport_does_not_close_current_owner __________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_duplicate_same_transport_does_not_close_current_owner(rig):
+        _, model, _, _, binding = rig
+        attempt, _ = ready(rig)
+        assert model.begin(attempt.transport, binding) is None
+>       assert model.select() is attempt
+E       AssertionError: assert None is Attempt(transport=<test_connector_control_model.Transport object at 0x000002419E5A2FD0>, binding=Binding(connector='co...tor', issuer='issuer', generation=3, role='register'), session=<object object at 0x000002419AA821F0>, phase='terminal')
+E        +  where None = select()
+E        +    where select = <nbsr.connector_control_model.Model object at 0x000002419E6D1BD0>.select
+
+tests\test_connector_control_model.py:306: AssertionError
+____________________ test_stop_backoff_begins_at_stop_time ____________________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_stop_backoff_begins_at_stop_time(rig):
+        _, model, clock, _, binding = rig
+        attempt, _ = ready(rig)
+        clock.now = 14
+        model.stop(attempt)
+>       assert model.begin(Transport(), binding) is None
+E       AssertionError: assert Attempt(transport=<test_connector_control_model.Transport object at 0x000002419E5DDA70>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x000002419AA81F10>, phase='connecting') is None
+E        +  where Attempt(transport=<test_connector_control_model.Transport object at 0x000002419E5DDA70>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x000002419AA81F10>, phase='connecting') = begin(<test_connector_control_model.Transport object at 0x000002419E5DDA70>, Binding(connector='connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+E        +    where begin = <nbsr.connector_control_model.Model object at 0x000002419E6D2FD0>.begin
+E        +    and   <test_connector_control_model.Transport object at 0x000002419E5DDA70> = Transport()
+
+tests\test_connector_control_model.py:315: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_connector_control_model.py::test_renewal_returns_fresh_ticket_capped_by_permission
+FAILED tests/test_connector_control_model.py::test_duplicate_same_transport_does_not_close_current_owner
+FAILED tests/test_connector_control_model.py::test_stop_backoff_begins_at_stop_time
+3 failed, 1 passed, 42 deselected in 0.82s

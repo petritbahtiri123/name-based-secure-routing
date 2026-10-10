@@ -1,0 +1,22 @@
+{
+  "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+  "label": "connector-model-cleanup-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_control_model.py",
+    "-k",
+    "close_failure"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.01,
+  "disk_start": 12382916608,
+  "disk_end": 12382912512,
+  "ram_end": 4661006336,
+  "direct_child_reaped": true
+}

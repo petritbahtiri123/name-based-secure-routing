@@ -1,0 +1,56 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+______ test_close_failure_retains_visible_owner_and_blocks_retry[raise] _______
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+failure = 'raise'
+
+    @pytest.mark.parametrize("failure", ["raise", "stay_open"])
+    def test_close_failure_retains_visible_owner_and_blocks_retry(rig, failure):
+        _, model, clock, _, binding = rig
+        attempt, _ = ready(rig)
+        def failed_close():
+            if failure == "raise":
+                raise RuntimeError("fake close failed")
+        attempt.transport.close = failed_close
+>       model.stop(attempt)
+
+tests\test_connector_control_model.py:343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+nbsr\connector_control_model.py:198: in stop
+    attempt.transport.close()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def failed_close():
+        if failure == "raise":
+>           raise RuntimeError("fake close failed")
+E           RuntimeError: fake close failed
+
+tests\test_connector_control_model.py:341: RuntimeError
+____ test_close_failure_retains_visible_owner_and_blocks_retry[stay_open] _____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+failure = 'stay_open'
+
+    @pytest.mark.parametrize("failure", ["raise", "stay_open"])
+    def test_close_failure_retains_visible_owner_and_blocks_retry(rig, failure):
+        _, model, clock, _, binding = rig
+        attempt, _ = ready(rig)
+        def failed_close():
+            if failure == "raise":
+                raise RuntimeError("fake close failed")
+        attempt.transport.close = failed_close
+        model.stop(attempt)
+>       assert model.health() == {"ready": False, "owned": 1}
+E       AssertionError: assert {'owned': 0, 'ready': False} == {'owned': 1, 'ready': False}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'owned': 0} != {'owned': 1}
+E         Use -v to get more diff
+
+tests\test_connector_control_model.py:344: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_connector_control_model.py::test_close_failure_retains_visible_owner_and_blocks_retry[raise]
+FAILED tests/test_connector_control_model.py::test_close_failure_retains_visible_owner_and_blocks_retry[stay_open]
+2 failed, 46 deselected in 0.79s

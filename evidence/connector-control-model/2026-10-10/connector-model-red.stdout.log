@@ -1,0 +1,18 @@
+E
+=================================== ERRORS ====================================
+____________ ERROR at setup of test_c01_two_exchanges_same_session ____________
+
+    @pytest.fixture
+    def api():
+>       assert importlib.util.find_spec("nbsr.connector_control_model") is not None, "mock control model is missing"
+E       AssertionError: mock control model is missing
+E       assert None is not None
+E        +  where None = <function find_spec at 0x000001F6B16645C0>('nbsr.connector_control_model')
+E        +    where <function find_spec at 0x000001F6B16645C0> = <module 'importlib.util' (frozen)>.find_spec
+E        +      where <module 'importlib.util' (frozen)> = importlib.util
+
+tests\test_connector_control_model.py:12: AssertionError
+=========================== short test summary info ===========================
+ERROR tests/test_connector_control_model.py::test_c01_two_exchanges_same_session
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+1 error in 0.76s

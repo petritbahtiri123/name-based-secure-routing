@@ -1,0 +1,176 @@
+FFFFFFF                                                                  [100%]
+================================== FAILURES ===================================
+_ test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[lease_expiry-1] _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <EnforcementMode.DENY_NEW_USE: 1>, event = 'lease_expiry'
+
+    @pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
+    @pytest.mark.parametrize("event", ["lease_expiry", "work_expiry", "disconnect"])
+    def test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect(rig, mode, event):
+        _, model, clock, _, binding = rig
+        if event == "work_expiry":
+            attempt, _, _ = active(rig, deadline=18)
+        else:
+            attempt, _ = ready(rig)
+        clock.now = 18
+        if event == "disconnect":
+            attempt.transport.closed = True
+        model.enforce(attempt, mode)
+        clock.now = 20
+>       assert model.begin(Transport(), binding) is None
+E       AssertionError: assert Attempt(transport=<test_connector_control_model.Transport object at 0x00000195838A3250>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA2670>, phase='connecting') is None
+E        +  where Attempt(transport=<test_connector_control_model.Transport object at 0x00000195838A3250>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA2670>, phase='connecting') = begin(<test_connector_control_model.Transport object at 0x00000195838A3250>, Binding(connector='connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+E        +    where begin = <nbsr.connector_control_model.Model object at 0x0000019583A26660>.begin
+E        +    and   <test_connector_control_model.Transport object at 0x00000195838A3250> = Transport()
+
+tests\test_connector_control_model.py:536: AssertionError
+_ test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[lease_expiry-4] _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <EnforcementMode.TERMINATE_ACTIVE_USE: 4>, event = 'lease_expiry'
+
+    @pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
+    @pytest.mark.parametrize("event", ["lease_expiry", "work_expiry", "disconnect"])
+    def test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect(rig, mode, event):
+        _, model, clock, _, binding = rig
+        if event == "work_expiry":
+            attempt, _, _ = active(rig, deadline=18)
+        else:
+            attempt, _ = ready(rig)
+        clock.now = 18
+        if event == "disconnect":
+            attempt.transport.closed = True
+        model.enforce(attempt, mode)
+        clock.now = 20
+>       assert model.begin(Transport(), binding) is None
+E       AssertionError: assert Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583AC8E90>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA23D0>, phase='connecting') is None
+E        +  where Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583AC8E90>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA23D0>, phase='connecting') = begin(<test_connector_control_model.Transport object at 0x0000019583AC8E90>, Binding(connector='connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+E        +    where begin = <nbsr.connector_control_model.Model object at 0x0000019583AD20D0>.begin
+E        +    and   <test_connector_control_model.Transport object at 0x0000019583AC8E90> = Transport()
+
+tests\test_connector_control_model.py:536: AssertionError
+_ test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[work_expiry-1] _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <EnforcementMode.DENY_NEW_USE: 1>, event = 'work_expiry'
+
+    @pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
+    @pytest.mark.parametrize("event", ["lease_expiry", "work_expiry", "disconnect"])
+    def test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect(rig, mode, event):
+        _, model, clock, _, binding = rig
+        if event == "work_expiry":
+            attempt, _, _ = active(rig, deadline=18)
+        else:
+            attempt, _ = ready(rig)
+        clock.now = 18
+        if event == "disconnect":
+            attempt.transport.closed = True
+        model.enforce(attempt, mode)
+        clock.now = 20
+>       assert model.begin(Transport(), binding) is None
+E       AssertionError: assert Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583AB84D0>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA23C0>, phase='connecting') is None
+E        +  where Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583AB84D0>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA23C0>, phase='connecting') = begin(<test_connector_control_model.Transport object at 0x0000019583AB84D0>, Binding(connector='connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+E        +    where begin = <nbsr.connector_control_model.Model object at 0x0000019583AD34D0>.begin
+E        +    and   <test_connector_control_model.Transport object at 0x0000019583AB84D0> = Transport()
+
+tests\test_connector_control_model.py:536: AssertionError
+_ test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[work_expiry-4] _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <EnforcementMode.TERMINATE_ACTIVE_USE: 4>, event = 'work_expiry'
+
+    @pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
+    @pytest.mark.parametrize("event", ["lease_expiry", "work_expiry", "disconnect"])
+    def test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect(rig, mode, event):
+        _, model, clock, _, binding = rig
+        if event == "work_expiry":
+            attempt, _, _ = active(rig, deadline=18)
+        else:
+            attempt, _ = ready(rig)
+        clock.now = 18
+        if event == "disconnect":
+            attempt.transport.closed = True
+        model.enforce(attempt, mode)
+        clock.now = 20
+>       assert model.begin(Transport(), binding) is None
+E       AssertionError: assert Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583B34E20>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA2560>, phase='connecting') is None
+E        +  where Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583B34E20>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA2560>, phase='connecting') = begin(<test_connector_control_model.Transport object at 0x0000019583B34E20>, Binding(connector='connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+E        +    where begin = <nbsr.connector_control_model.Model object at 0x0000019583ACA190>.begin
+E        +    and   <test_connector_control_model.Transport object at 0x0000019583B34E20> = Transport()
+
+tests\test_connector_control_model.py:536: AssertionError
+_ test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[disconnect-1] _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <EnforcementMode.DENY_NEW_USE: 1>, event = 'disconnect'
+
+    @pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
+    @pytest.mark.parametrize("event", ["lease_expiry", "work_expiry", "disconnect"])
+    def test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect(rig, mode, event):
+        _, model, clock, _, binding = rig
+        if event == "work_expiry":
+            attempt, _, _ = active(rig, deadline=18)
+        else:
+            attempt, _ = ready(rig)
+        clock.now = 18
+        if event == "disconnect":
+            attempt.transport.closed = True
+        model.enforce(attempt, mode)
+        clock.now = 20
+>       assert model.begin(Transport(), binding) is None
+E       AssertionError: assert Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583B6F250>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA21B0>, phase='connecting') is None
+E        +  where Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583B6F250>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA21B0>, phase='connecting') = begin(<test_connector_control_model.Transport object at 0x0000019583B6F250>, Binding(connector='connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+E        +    where begin = <nbsr.connector_control_model.Model object at 0x0000019583ACAEA0>.begin
+E        +    and   <test_connector_control_model.Transport object at 0x0000019583B6F250> = Transport()
+
+tests\test_connector_control_model.py:536: AssertionError
+_ test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[disconnect-4] _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <EnforcementMode.TERMINATE_ACTIVE_USE: 4>, event = 'disconnect'
+
+    @pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
+    @pytest.mark.parametrize("event", ["lease_expiry", "work_expiry", "disconnect"])
+    def test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect(rig, mode, event):
+        _, model, clock, _, binding = rig
+        if event == "work_expiry":
+            attempt, _, _ = active(rig, deadline=18)
+        else:
+            attempt, _ = ready(rig)
+        clock.now = 18
+        if event == "disconnect":
+            attempt.transport.closed = True
+        model.enforce(attempt, mode)
+        clock.now = 20
+>       assert model.begin(Transport(), binding) is None
+E       AssertionError: assert Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583AC45F0>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA27D0>, phase='connecting') is None
+E        +  where Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583AC45F0>, binding=Binding(connector='co...r', issuer='issuer', generation=3, role='register'), session=<object object at 0x00000195FFDA27D0>, phase='connecting') = begin(<test_connector_control_model.Transport object at 0x0000019583AC45F0>, Binding(connector='connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+E        +    where begin = <nbsr.connector_control_model.Model object at 0x0000019583ABA570>.begin
+E        +    and   <test_connector_control_model.Transport object at 0x0000019583AC45F0> = Transport()
+
+tests\test_connector_control_model.py:536: AssertionError
+_____ test_renewal_at_lease_boundary_preserves_independently_bounded_work _____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_renewal_at_lease_boundary_preserves_independently_bounded_work(rig):
+        _, model, clock, _, _ = rig
+        attempt, ticket, work = active(rig)
+        samples = iter((17, 18))
+        model.clock = lambda: next(samples, 18)
+        assert model.renew(attempt, ticket) is None
+>       assert not work.cancelled and not attempt.transport.closed
+E       AssertionError: assert (not True)
+E        +  where True = ActiveWork(owner=Attempt(transport=<test_connector_control_model.Transport object at 0x0000019583AE0830>, binding=Bind...ster'), session=<object object at 0x00000195FFDA27E0>, phase='terminal'), deadline=25, cancelled=True, completed=False).cancelled
+
+tests\test_connector_control_model.py:545: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_connector_control_model.py::test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[lease_expiry-1]
+FAILED tests/test_connector_control_model.py::test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[lease_expiry-4]
+FAILED tests/test_connector_control_model.py::test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[work_expiry-1]
+FAILED tests/test_connector_control_model.py::test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[work_expiry-4]
+FAILED tests/test_connector_control_model.py::test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[disconnect-1]
+FAILED tests/test_connector_control_model.py::test_revoke_current_owner_at_cleanup_boundary_still_blocks_reconnect[disconnect-4]
+FAILED tests/test_connector_control_model.py::test_renewal_at_lease_boundary_preserves_independently_bounded_work
+7 failed, 65 deselected in 1.17s

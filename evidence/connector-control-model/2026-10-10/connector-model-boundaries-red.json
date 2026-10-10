@@ -1,0 +1,22 @@
+{
+  "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+  "label": "connector-model-boundaries-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_control_model.py",
+    "-k",
+    "renewal_returns or duplicate_same or stop_backoff or successful_reconnect"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.02,
+  "disk_start": 12383514624,
+  "disk_end": 12383510528,
+  "ram_end": 4631134208,
+  "direct_child_reaped": true
+}

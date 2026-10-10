@@ -1,0 +1,357 @@
+{
+  "base": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+  "selected_files": [
+    "AGENTS.md",
+    "nbsr/connector_control_model.py",
+    "tests/test_connector_control_model.py",
+    "docs/protocol/connector-outbound-profile.md",
+    "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+    "docs/reviews/2026-10-10-connector-control-model.md",
+    "docs/reviews/2026-10-10-connector-control-model.json",
+    "docs/reviews/2026-10-10-connector-active-work.md",
+    "docs/reviews/2026-10-10-connector-active-work.json",
+    "docs/reviews/2026-10-10-connector-publication-gate.md",
+    "evidence/connector-control-model/2026-10-10/connector-model-red.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-red.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-red.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-red-corrected.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-red-corrected.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-red-corrected.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-green.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-green.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-green.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-boundaries-red.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-boundaries-red.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-boundaries-red.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-cleanup-red.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-cleanup-red.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-cleanup-red.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-boundaries-green.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-boundaries-green.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-boundaries-green.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-renewal-red.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-renewal-red.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-renewal-red.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-final.json",
+    "evidence/connector-control-model/2026-10-10/connector-model-final.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-model-final.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-red.json",
+    "evidence/connector-control-model/2026-10-10/connector-active-red.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-red.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-finish-red.json",
+    "evidence/connector-control-model/2026-10-10/connector-active-finish-red.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-finish-red.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-green.json",
+    "evidence/connector-control-model/2026-10-10/connector-active-green.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-green.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.json",
+    "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-final.json",
+    "evidence/connector-control-model/2026-10-10/connector-active-final.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-active-final.stderr.log",
+    "evidence/connector-control-model/2026-10-10/connector-publication-check.json",
+    "evidence/connector-control-model/2026-10-10/connector-publication-check.stdout.log",
+    "evidence/connector-control-model/2026-10-10/connector-publication-check.stderr.log",
+    "evidence/connector-control-model/2026-10-10/active-final-connector_control_model.py.snapshot",
+    "evidence/connector-control-model/2026-10-10/active-final-test_connector_control_model.py.snapshot",
+    "docs/reviews/2026-10-10-connector-publication-gate.json"
+  ],
+  "prestage_worktree_hashes": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 12115,
+      "sha256": "b84a24e898430c583e34dfa696030885ad9868ffcb6ba2a04b5e9ece9ad888a8"
+    },
+    {
+      "path": "nbsr/connector_control_model.py",
+      "bytes": 11208,
+      "sha256": "38070d769e0996b63a63db0600d7a36a27242bc35c38ef7a3b91e74fc84b23b5"
+    },
+    {
+      "path": "tests/test_connector_control_model.py",
+      "bytes": 18317,
+      "sha256": "2ae820660631c7b2ea52fc8753e549f46c617e596815a02278bcf1c296d2b3ed"
+    },
+    {
+      "path": "docs/protocol/connector-outbound-profile.md",
+      "bytes": 44288,
+      "sha256": "b9e314522d63ecd5ee9e7a2da799ab0b44e365dd4888f63261987c1da928c257"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 47982,
+      "sha256": "3111b55157a12e79bcff604f278880a25253f05e0bf7a9cf2e6273f684ef3136"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-control-model.md",
+      "bytes": 4772,
+      "sha256": "3fc3348f7e06989a10103ca73065b7a279163bba6046d14cc80361cc5363ca7c"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-control-model.json",
+      "bytes": 12587,
+      "sha256": "6acd16bd7baf586b379220b34d9e98c8aac4c5f229c4b61757a1da72d8476285"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-active-work.md",
+      "bytes": 3827,
+      "sha256": "5bcf4040299f6feffd607de9daaad9333c0907290707043b6358b8c573070192"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-active-work.json",
+      "bytes": 9492,
+      "sha256": "f44a83f8118cce74d28532ee5291fe1e968f1d05dcf76eb66d2c90ce4cd1d2a4"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-publication-gate.md",
+      "bytes": 2475,
+      "sha256": "c17c745d5e0342cfdffe00bdcea95d43ec768926a0dcd9220309394a91044e39"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-red.json",
+      "bytes": 441,
+      "sha256": "8cc4dd6b8268ed920399d3c9560a2c777395575871eacf4ff88ff0d1e707e386"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-red.stdout.log",
+      "bytes": 1019,
+      "sha256": "02b5ebcc6919209628dfec6afe44888f7bc4dfbde8874acadba575b2d85d19e9"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-red-corrected.json",
+      "bytes": 451,
+      "sha256": "59a43ecc98ebdbd2e032dcf26ca1d7265adb3b839eba79f6249d89fa6d327fd7"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-red-corrected.stdout.log",
+      "bytes": 1019,
+      "sha256": "3181a30e8994326993b5f6f2b48aa17be17ffd8b5c0d3abfc8c488a26f3c6784"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-red-corrected.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-green.json",
+      "bytes": 432,
+      "sha256": "3ef4a24f32bfad00198069d13a1f74548f1d70b844c4bf5592d01609951b87bc"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-green.stdout.log",
+      "bytes": 101,
+      "sha256": "e270e8a58f0aad4d947f21eb340e4936b853ae091603fb0d7f461ef8ed3cce2c"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-boundaries-red.json",
+      "bytes": 534,
+      "sha256": "fdb04a58067101d98c4b37ed7e5bd0678ac1f72495e409642e162e366ef54638"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-boundaries-red.stdout.log",
+      "bytes": 3991,
+      "sha256": "f4acb24681e6c6d91c0544c30af0bf003d32e6e13433398190c866effac5952a"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-boundaries-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-cleanup-red.json",
+      "bytes": 471,
+      "sha256": "075a847620b257522ce2ce8eb6a9a591c621acf79fbdefc11e4dcecc5414fc27"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-cleanup-red.stdout.log",
+      "bytes": 2946,
+      "sha256": "8f60dd5bee7380d2233ec34a531a2e746804f77ef0ff3c4adce5c58cba3095e7"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-cleanup-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-boundaries-green.json",
+      "bytes": 481,
+      "sha256": "9807f772f415a5921989e99ccd1b2b679d37f3f29cd72c77f6e545ee985ae9ba"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-boundaries-green.stdout.log",
+      "bytes": 101,
+      "sha256": "083f5e90f8667632e229e11864dfa5b8abc04f13520bdc695a3c1b4c1948f888"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-boundaries-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-renewal-red.json",
+      "bytes": 477,
+      "sha256": "b3e1c0a5556ba484edb17af89c041d3058bd21f1968117685156d16ef26dc2cc"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-renewal-red.stdout.log",
+      "bytes": 2184,
+      "sha256": "151890186df4c9994f7707de64f64945852044bc71a46af52910bf1f7d14ec14"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-renewal-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-final.json",
+      "bytes": 470,
+      "sha256": "041575413b5309840dc7b2278b2e48c572f80ea2d806cee751dc4a7fb29675b3"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-final.stdout.log",
+      "bytes": 101,
+      "sha256": "57cacdeb9560c53ca902326720e85d235c740c056c5a3ad7c250255cefbbe6b3"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-model-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-red.json",
+      "bytes": 531,
+      "sha256": "3d07e83dc4eb256a8f64f7612f8cbdd7c87640f1755d0f5761bf8f919c57600d"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-red.stdout.log",
+      "bytes": 23358,
+      "sha256": "ef1d9b4adf2423145cdcce04e32a50ecc2bb4abc4915371090da9490541e7d33"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-finish-red.json",
+      "bytes": 471,
+      "sha256": "9bc343a1951e317c49eedeb5a98dc301ade1547b4c2663b8bc48c29b5ecb0889"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-finish-red.stdout.log",
+      "bytes": 1755,
+      "sha256": "d717a0820b6a2861ec6c394372025093ae52691135e35b7777aec8baf7c8b89c"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-finish-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-green.json",
+      "bytes": 515,
+      "sha256": "ade96919be13c30302d0e4416cce9733fa26a16f7a7a94775f1fa63626d39241"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-green.stdout.log",
+      "bytes": 183,
+      "sha256": "75fd953cf5fb9985fb02273066d5401a7c7332e8f59f45815af19792986ec18a"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.json",
+      "bytes": 503,
+      "sha256": "5942870a8706a19e4fbba9dde9aa8a679fa57e12533bc328edd4ca8b5acf73b9"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.stdout.log",
+      "bytes": 15077,
+      "sha256": "6bc8e7e0de297f15ad0c60d80b3592108081e38ef945ea506287286b7c0daba6"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-final.json",
+      "bytes": 515,
+      "sha256": "a28eb728edabf2554a8ddc3ee5bb9b922368a7a9582bdd5019092e34d92670b9"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-final.stdout.log",
+      "bytes": 183,
+      "sha256": "6162f180c7fa0c20a54dc03746bbfff17908798dbd3e54c350cd4153a868bcf7"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-publication-check.json",
+      "bytes": 520,
+      "sha256": "790d484ae2c1ccecf41407bf4407177329acdf8a72a9c80e8a35e963b36c78d2"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-publication-check.stdout.log",
+      "bytes": 183,
+      "sha256": "525c2d8ce668f6d52f9a1b021243a158f4c9139decd167951bdf50d41e496d93"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-publication-check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/active-final-connector_control_model.py.snapshot",
+      "bytes": 11208,
+      "sha256": "38070d769e0996b63a63db0600d7a36a27242bc35c38ef7a3b91e74fc84b23b5"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/active-final-test_connector_control_model.py.snapshot",
+      "bytes": 18317,
+      "sha256": "2ae820660631c7b2ea52fc8753e549f46c617e596815a02278bcf1c296d2b3ed"
+    }
+  ],
+  "results": {
+    "passed": 109,
+    "skipped": 0,
+    "ruff_check": "pass",
+    "ruff_format": "pass",
+    "diff_check_non_logs": "pass",
+    "diff_check_full": "raw historical pytest logs contain trailing whitespace; preserved unchanged"
+  },
+  "review": "independent final docs review no blocking findings; reported control character replaced with ASCII arrow",
+  "cleanup": {
+    "direct_child_reaped": true,
+    "visible_python_processes": 0,
+    "containers_created": 0
+  },
+  "excluded": [
+    "mixed overnight checkpoints",
+    "paused-peer source and reports",
+    "unrelated untracked files"
+  ],
+  "publication": "local commit preparation only; push/bypass awaits exact approval",
+  "limitations": [
+    "mock only",
+    "Permission.expires separation pending",
+    "stage1 partial;0/10 completed"
+  ]
+}

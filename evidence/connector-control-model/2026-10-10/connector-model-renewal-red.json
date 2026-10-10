@@ -1,0 +1,22 @@
+{
+  "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+  "label": "connector-model-renewal-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_control_model.py",
+    "-k",
+    "cannot_cross_expiry"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.01,
+  "disk_start": 12379783168,
+  "disk_end": 12379770880,
+  "ram_end": 4610129920,
+  "direct_child_reaped": true
+}

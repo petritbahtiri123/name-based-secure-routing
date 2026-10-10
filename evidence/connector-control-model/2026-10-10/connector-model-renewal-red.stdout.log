@@ -1,0 +1,20 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+___________ test_renewal_cannot_cross_expiry_between_clock_samples ____________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_renewal_cannot_cross_expiry_between_clock_samples(rig):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+        samples = iter((17, 18))
+        model.clock = lambda: next(samples, 18)
+>       assert model.renew(attempt, ticket) is None
+E       AssertionError: assert Acceptance(owner=Attempt(transport=<test_connector_control_model.Transport object at 0x000001E27E696510>, binding=Bind...ssion=<object object at 0x000001E27AA921E0>, phase='ready'), session=<object object at 0x000001E27AA921E0>, expires=26) is None
+E        +  where Acceptance(owner=Attempt(transport=<test_connector_control_model.Transport object at 0x000001E27E696510>, binding=Bind...ssion=<object object at 0x000001E27AA921E0>, phase='ready'), session=<object object at 0x000001E27AA921E0>, expires=26) = renew(Attempt(transport=<test_connector_control_model.Transport object at 0x000001E27E696510>, binding=Binding(connector='co...erator', issuer='issuer', generation=3, role='register'), session=<object object at 0x000001E27AA921E0>, phase='ready'), Acceptance(owner=Attempt(transport=<test_connector_control_model.Transport object at 0x000001E27E696510>, binding=Bind...ssion=<object object at 0x000001E27AA921E0>, phase='ready'), session=<object object at 0x000001E27AA921E0>, expires=18))
+E        +    where renew = <nbsr.connector_control_model.Model object at 0x000001E27E6963C0>.renew
+
+tests\test_connector_control_model.py:369: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_connector_control_model.py::test_renewal_cannot_cross_expiry_between_clock_samples
+1 failed, 48 deselected in 0.83s

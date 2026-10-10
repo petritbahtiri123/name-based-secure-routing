@@ -1,0 +1,372 @@
+FFFFFFFFFFFFFFF                                                          [100%]
+================================== FAILURES ===================================
+__________ test_deny_blocks_new_use_but_keeps_authorized_active_work __________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_deny_blocks_new_use_but_keeps_authorized_active_work(rig):
+        _, model, clock, _, binding = rig
+>       attempt, ticket, work = active(rig)
+                                ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:388: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA12660>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+____ test_active_deadline_policy_is_explicit_and_never_extended[False-25] _____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+lease_bounds_active = False, expected = 25
+
+    @pytest.mark.parametrize("lease_bounds_active,expected", [(False, 25), (True, 18)])
+    def test_active_deadline_policy_is_explicit_and_never_extended(rig, lease_bounds_active, expected):
+        _, model, clock, _, _ = rig
+>       attempt, ticket, work = active(rig, lease_bounds_active=lease_bounds_active)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_connector_control_model.py:411: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA2E0D0>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+_____ test_active_deadline_policy_is_explicit_and_never_extended[True-18] _____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+lease_bounds_active = True, expected = 18
+
+    @pytest.mark.parametrize("lease_bounds_active,expected", [(False, 25), (True, 18)])
+    def test_active_deadline_policy_is_explicit_and_never_extended(rig, lease_bounds_active, expected):
+        _, model, clock, _, _ = rig
+>       attempt, ticket, work = active(rig, lease_bounds_active=lease_bounds_active)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_connector_control_model.py:411: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA2F250>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+____________ test_active_deadline_is_capped_by_existing_permission ____________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_active_deadline_is_capped_by_existing_permission(rig):
+        _, model, clock, _, _ = rig
+>       attempt, _, work = active(rig, deadline=50)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_connector_control_model.py:427: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DAC6060>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+____ test_terminate_cancels_work_but_releases_only_confirmed_cleanup[none] ____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+failure = 'none'
+
+    @pytest.mark.parametrize("failure", ["none", "raise", "stay_open"])
+    def test_terminate_cancels_work_but_releases_only_confirmed_cleanup(rig, failure):
+        _, model, clock, _, binding = rig
+>       attempt, ticket, work = active(rig)
+                                ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:438: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DAC6EA0>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+___ test_terminate_cancels_work_but_releases_only_confirmed_cleanup[raise] ____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+failure = 'raise'
+
+    @pytest.mark.parametrize("failure", ["none", "raise", "stay_open"])
+    def test_terminate_cancels_work_but_releases_only_confirmed_cleanup(rig, failure):
+        _, model, clock, _, binding = rig
+>       attempt, ticket, work = active(rig)
+                                ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:438: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DBC69F0>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+_ test_terminate_cancels_work_but_releases_only_confirmed_cleanup[stay_open] __
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+failure = 'stay_open'
+
+    @pytest.mark.parametrize("failure", ["none", "raise", "stay_open"])
+    def test_terminate_cancels_work_but_releases_only_confirmed_cleanup(rig, failure):
+        _, model, clock, _, binding = rig
+>       attempt, ticket, work = active(rig)
+                                ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:438: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DAF97B0>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+______________ test_repeat_deny_then_terminate_never_downgrades _______________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_repeat_deny_then_terminate_never_downgrades(rig):
+        _, model, _, _, _ = rig
+>       attempt, _, work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:462: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DAFA470>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+______________ test_stale_work_and_revoke_cannot_touch_successor ______________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_stale_work_and_revoke_cannot_touch_successor(rig):
+        _, model, clock, _, _ = rig
+>       old, _, old_work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:473: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA97350>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+_____ test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[1] ______
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = 1
+
+    @pytest.mark.parametrize("mode", [1, 2, RevocationMode.TERMINATE_ACTIVE_USE, EnforcementMode.REAUTHENTICATE])
+    def test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes(rig, mode):
+        _, model, _, _, _ = rig
+>       attempt, _, work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:498: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA95B50>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+____ test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[2_0] _____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = 2
+
+    @pytest.mark.parametrize("mode", [1, 2, RevocationMode.TERMINATE_ACTIVE_USE, EnforcementMode.REAUTHENTICATE])
+    def test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes(rig, mode):
+        _, model, _, _, _ = rig
+>       attempt, _, work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:498: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA29F40>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+____ test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[2_1] _____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <RevocationMode.TERMINATE_ACTIVE_USE: 2>
+
+    @pytest.mark.parametrize("mode", [1, 2, RevocationMode.TERMINATE_ACTIVE_USE, EnforcementMode.REAUTHENTICATE])
+    def test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes(rig, mode):
+        _, model, _, _, _ = rig
+>       attempt, _, work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:498: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DF176B0>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+____ test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[2_2] _____
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+mode = <EnforcementMode.REAUTHENTICATE: 2>
+
+    @pytest.mark.parametrize("mode", [1, 2, RevocationMode.TERMINATE_ACTIVE_USE, EnforcementMode.REAUTHENTICATE])
+    def test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes(rig, mode):
+        _, model, _, _, _ = rig
+>       attempt, _, work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:498: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA70E50>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+__________________ test_one_active_slot_and_early_completion __________________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_one_active_slot_and_early_completion(rig):
+        _, model, _, _, _ = rig
+>       attempt, _, work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:506: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DA73AF0>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+_______________ test_deny_without_active_work_closes_and_halts ________________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_deny_without_active_work_closes_and_halts(rig):
+        _, model, clock, _, binding = rig
+        attempt, _ = ready(rig)
+>       assert hasattr(model, "enforce"), "typed enforcement is missing"
+E       AssertionError: typed enforcement is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x0000019E2DBFA0D0>, 'enforce')
+
+tests\test_connector_control_model.py:516: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_connector_control_model.py::test_deny_blocks_new_use_but_keeps_authorized_active_work
+FAILED tests/test_connector_control_model.py::test_active_deadline_policy_is_explicit_and_never_extended[False-25]
+FAILED tests/test_connector_control_model.py::test_active_deadline_policy_is_explicit_and_never_extended[True-18]
+FAILED tests/test_connector_control_model.py::test_active_deadline_is_capped_by_existing_permission
+FAILED tests/test_connector_control_model.py::test_terminate_cancels_work_but_releases_only_confirmed_cleanup[none]
+FAILED tests/test_connector_control_model.py::test_terminate_cancels_work_but_releases_only_confirmed_cleanup[raise]
+FAILED tests/test_connector_control_model.py::test_terminate_cancels_work_but_releases_only_confirmed_cleanup[stay_open]
+FAILED tests/test_connector_control_model.py::test_repeat_deny_then_terminate_never_downgrades
+FAILED tests/test_connector_control_model.py::test_stale_work_and_revoke_cannot_touch_successor
+FAILED tests/test_connector_control_model.py::test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[1]
+FAILED tests/test_connector_control_model.py::test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[2_0]
+FAILED tests/test_connector_control_model.py::test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[2_1]
+FAILED tests/test_connector_control_model.py::test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes[2_2]
+FAILED tests/test_connector_control_model.py::test_one_active_slot_and_early_completion
+FAILED tests/test_connector_control_model.py::test_deny_without_active_work_closes_and_halts
+15 failed, 50 deselected in 1.53s

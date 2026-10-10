@@ -1,0 +1,275 @@
+{
+  "base": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "scope": "user-approved one simulated active request, typed deny/terminate; no real authority or I/O",
+  "uncommitted": true,
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 12115,
+      "sha256": "b84a24e898430c583e34dfa696030885ad9868ffcb6ba2a04b5e9ece9ad888a8"
+    },
+    {
+      "path": "nbsr/connector_control_model.py",
+      "bytes": 11208,
+      "sha256": "38070d769e0996b63a63db0600d7a36a27242bc35c38ef7a3b91e74fc84b23b5"
+    },
+    {
+      "path": "tests/test_connector_control_model.py",
+      "bytes": 18317,
+      "sha256": "2ae820660631c7b2ea52fc8753e549f46c617e596815a02278bcf1c296d2b3ed"
+    },
+    {
+      "path": "docs/protocol/connector-outbound-profile.md",
+      "bytes": 36893,
+      "sha256": "ccc4dc09cb1d0d24907656c382c8c45eac28af13bee610692e847e370ee8be7f"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 46915,
+      "sha256": "015ffa73f3ca291338c66581102a316d9834d9f2e5128cbdfa8cd7de655ddfc1"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-active-work.md",
+      "bytes": 3827,
+      "sha256": "5bcf4040299f6feffd607de9daaad9333c0907290707043b6358b8c573070192"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "bytes": 35162,
+      "sha256": "0a0342a558c19340beba944142ff39546c8c9dfa1c0592f36a90e57c00735f79"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+      "bytes": 30782,
+      "sha256": "e40ee0dd1f419e6a08ff04e007963ad7bc40cc2a6fab9c3e77b0342452144e29"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-red.json",
+      "bytes": 531,
+      "sha256": "3d07e83dc4eb256a8f64f7612f8cbdd7c87640f1755d0f5761bf8f919c57600d"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-red.stdout.log",
+      "bytes": 23358,
+      "sha256": "ef1d9b4adf2423145cdcce04e32a50ecc2bb4abc4915371090da9490541e7d33"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-finish-red.json",
+      "bytes": 471,
+      "sha256": "9bc343a1951e317c49eedeb5a98dc301ade1547b4c2663b8bc48c29b5ecb0889"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-finish-red.stdout.log",
+      "bytes": 1755,
+      "sha256": "d717a0820b6a2861ec6c394372025093ae52691135e35b7777aec8baf7c8b89c"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-finish-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-green.json",
+      "bytes": 515,
+      "sha256": "ade96919be13c30302d0e4416cce9733fa26a16f7a7a94775f1fa63626d39241"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-green.stdout.log",
+      "bytes": 183,
+      "sha256": "75fd953cf5fb9985fb02273066d5401a7c7332e8f59f45815af19792986ec18a"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.json",
+      "bytes": 503,
+      "sha256": "5942870a8706a19e4fbba9dde9aa8a679fa57e12533bc328edd4ca8b5acf73b9"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.stdout.log",
+      "bytes": 15077,
+      "sha256": "6bc8e7e0de297f15ad0c60d80b3592108081e38ef945ea506287286b7c0daba6"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-boundaries-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-final.json",
+      "bytes": 515,
+      "sha256": "a28eb728edabf2554a8ddc3ee5bb9b922368a7a9582bdd5019092e34d92670b9"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-final.stdout.log",
+      "bytes": 183,
+      "sha256": "6162f180c7fa0c20a54dc03746bbfff17908798dbd3e54c350cd4153a868bcf7"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-active-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/active-final-connector_control_model.py.snapshot",
+      "bytes": 11208,
+      "sha256": "38070d769e0996b63a63db0600d7a36a27242bc35c38ef7a3b91e74fc84b23b5"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/active-final-test_connector_control_model.py.snapshot",
+      "bytes": 18317,
+      "sha256": "2ae820660631c7b2ea52fc8753e549f46c617e596815a02278bcf1c296d2b3ed"
+    }
+  ],
+  "runs": [
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "connector-active-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "-k",
+        "deny or active_deadline or terminate or stale_work or enforcement or active_slot"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.82,
+      "disk_start": 12350468096,
+      "disk_end": 12350423040,
+      "ram_end": 4992634880,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "connector-active-finish-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "-k",
+        "finish_denied"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 12350418944,
+      "disk_end": 12350414848,
+      "ram_end": 4991533056,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "connector-active-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "tests/protocol/test_states.py",
+        "tests/federation/test_revocation.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 12348764160,
+      "disk_end": 12348764160,
+      "ram_end": 5061943296,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "connector-active-boundaries-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "-k",
+        "cleanup_boundary or independently_bounded"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.42,
+      "disk_start": 12348702720,
+      "disk_end": 12348686336,
+      "ram_end": 5048111104,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "connector-active-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "tests/protocol/test_states.py",
+        "tests/federation/test_revocation.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 12348686336,
+      "disk_end": 12348686336,
+      "ram_end": 5052891136,
+      "direct_child_reaped": true
+    }
+  ],
+  "final_counts": {
+    "model_passed": 72,
+    "frozen_state_passed": 13,
+    "federation_revocation_passed": 24,
+    "skipped": 0
+  },
+  "static_checks": {
+    "ruff_check": "pass",
+    "ruff_format": "pass after initial format correction",
+    "git_diff_check": "pass with CRLF warnings"
+  },
+  "review": {
+    "agent": "/root/connector_model_review",
+    "resolved_findings": 2,
+    "outcome": "no blocking findings; inspection only"
+  },
+  "cleanup": {
+    "all_supervised_direct_children_reaped": true,
+    "visible_python_processes": 0,
+    "containers_created": 0
+  },
+  "assumptions": [
+    "lease_bounds_active explicitly supplied per fake admission; both choices tested",
+    "verifier None retains legacy immediate cancellation",
+    "already-verified fake enforcement events, no signed target/scope/effective-time decoder",
+    "revocation latch applies only inside this model instance; no durable tombstones"
+  ],
+  "status": "mock extension complete; stage1 partial;0/10 package milestones complete"
+}

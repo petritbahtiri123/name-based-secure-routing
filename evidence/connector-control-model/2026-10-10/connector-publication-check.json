@@ -1,0 +1,22 @@
+{
+  "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+  "label": "connector-publication-check",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_control_model.py",
+    "tests/protocol/test_states.py",
+    "tests/federation/test_revocation.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.21,
+  "disk_start": 12326539264,
+  "disk_end": 12326543360,
+  "ram_end": 4577853440,
+  "direct_child_reaped": true
+}

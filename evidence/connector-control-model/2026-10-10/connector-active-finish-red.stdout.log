@@ -1,0 +1,28 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________ test_finish_denied_work_releases_owner_without_reconnect ___________
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def test_finish_denied_work_releases_owner_without_reconnect(rig):
+        _, model, clock, _, binding = rig
+>       attempt, _, work = active(rig)
+                           ^^^^^^^^^^^
+
+tests\test_connector_control_model.py:486: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+rig = (<module 'nbsr.connector_control_model' from 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\connector_control_mod...connector', service='service', gateway='gateway', operator='operator', issuer='issuer', generation=3, role='register'))
+
+    def active(rig, *, deadline=25, lease_bounds_active=False):
+        _, model, _, _, _ = rig
+        attempt, ticket = ready(rig)
+>       assert hasattr(model, "admit_work"), "active-work model is missing"
+E       AssertionError: active-work model is missing
+E       assert False
+E        +  where False = hasattr(<nbsr.connector_control_model.Model object at 0x000002364CB6A660>, 'admit_work')
+
+tests\test_connector_control_model.py:380: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_connector_control_model.py::test_finish_denied_work_releases_owner_without_reconnect
+1 failed, 64 deselected in 1.04s
