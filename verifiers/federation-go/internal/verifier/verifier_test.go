@@ -95,3 +95,30 @@ func TestStaticAndSignedVectors(t *testing.T) {
 		t.Fatalf("state %d divergences: %v", n, d)
 	}
 }
+
+func TestBothVersionPackages(t *testing.T) {
+	root := filepath.Clean(filepath.Join("..", "..", "..", ".."))
+	for _, version := range []string{"federation-v0.1-development-v1", "federation-v0.1-development-v2"} {
+		dir := version
+		if strings.HasSuffix(version, "-v1") {
+			dir = "federation-v0.1"
+		}
+		got, err := VerifyAllVersion(filepath.Join(root, "vectors", dir), root, version)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.Static != 35 || got.Signed != 12 || got.Threshold != 89 || got.Capability != 12 || got.Precedence != 11 || got.State != 43 || len(got.Divergences) != 0 {
+			t.Fatalf("%s: %+v", version, got)
+		}
+	}
+}
+
+func TestResultPurposesCannotReplaceFederationSigners(t *testing.T) {
+	record, requirement, kid, payload, state := validSigner(t)
+	for _, purpose := range []uint64{15, 16} {
+		record.KeyPurpose = purpose
+		if _, reason := validateSigner(record, requirement, "KeyAuthorizationRecord", kid, 1900000000, state, payload); reason != "ERR_KEY_PURPOSE" {
+			t.Fatalf("purpose %d got %s", purpose, reason)
+		}
+	}
+}

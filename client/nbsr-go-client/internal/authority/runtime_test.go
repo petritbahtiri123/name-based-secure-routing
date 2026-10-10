@@ -72,7 +72,7 @@ func TestClientRuntimeRequiresFreshnessBeforeReadyAndAfterRestart(t *testing.T) 
 }
 
 func TestClientRuntimeRealHTTP2EnrollmentFreshnessAcquireRenewAndRestart(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	device := copyDeviceIdentity(fixture.request.Device)
 	device.CredentialGeneration = fixture.requestSigner.KeyRef().Generation
 	fixture.request.Device = device

@@ -29,3 +29,21 @@ This proves independent Node conformance against the deterministic Federation
 v0.1 Development Profile package. It does not prove Go clean-room conformance,
 Rust transport integration, live two-operator federation, production
 governance, or production threshold key custody.
+
+## Explicit authority package versions
+
+Default CLI and API verification remains immutable `federation-v0.1-development-v1`
+with manifest pin `1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35`.
+The original development registry is verified from its archived snapshot, never
+silently replaced by the current registry. Select the approved v2 explicitly:
+
+```text
+node src/verifier.js --version federation-v0.1-development-v2 ../../vectors/federation-v0.1-development-v2
+```
+
+`verifyPackage(path, version)` and `loadAuthorities(path, version)` require the
+same explicit v2 selection. The latter always authenticates the manifest; it
+accepts no caller-provided lock map. V2 manifest pin is
+`06511cfffacc2ced7f350d54edab86cd214e369f140ab45f32139ed94a556532`.
+Purpose 15 (outer ACP results) and 16 (enrollment results) remain distinct and
+cannot replace federation signing purposes. Recognition is not runtime conformance.

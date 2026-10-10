@@ -52,6 +52,7 @@ def command_groups(profile: str) -> list[Command]:
                 Command("ci-lint", (py, "-m", "ruff", "check", "--no-cache", "scripts/ci", "tests/ci")),
                 Command("repository-privacy", (py, "scripts/verify_wp8_repository_safety.py", "privacy", ".")),
                 Command("core-vectors", (py, "scripts/generate_core_v02_vectors.py", "--check", "vectors/core-v0.2")),
+                Command("federation-v2-vectors", (py, "scripts/generate_federation_v01_vectors.py", "--version", "federation-v0.1-development-v2", "--check", "vectors/federation-v0.1-development-v2")),
                 Command("exporter-vectors", (py, "scripts/generate_wp4_exporter_vectors.py", "--check"))]
     if profile == "rust":
         return [Command("rust-format", ("cargo", "fmt", "--manifest-path", "crates/nbsr-transport/Cargo.toml", "--check")),
@@ -71,12 +72,14 @@ def command_groups(profile: str) -> list[Command]:
     if profile == "go":
         return [Command(f"go-{index}-{kind}", ("go", kind, "-mod=readonly", "-p=2",
                                                *(("-timeout=90s", "-parallel=2", "./...") if kind == "test" else ("./...",))), module)
-                for index, module in enumerate(GO_MODULES) for kind in ("test", "vet")]
+                for index, module in enumerate(GO_MODULES) for kind in ("test", "vet")] + [
+                    Command("go-federation-v2", ("go", "run", "-mod=readonly", "-p=2", "./cmd/verify", "--version", "federation-v0.1-development-v2", "../../vectors/federation-v0.1-development-v2"), "verifiers/federation-go")]
     if profile == "node":
         return [Command("node-core-tests", ("node", "--test", "test/verifier.test.mjs"), "tools/core-v02-node-verifier"),
                 Command("node-core-vectors", ("node", "verify.mjs", "../../vectors/core-v0.2"), "tools/core-v02-node-verifier"),
                 Command("node-federation-tests", ("node", "--test", *(str(p.relative_to(ROOT / "verifiers/federation-node")) for p in sorted((ROOT / "verifiers/federation-node/test").glob("*.test.js")))), "verifiers/federation-node"),
                 Command("node-federation-vectors", ("node", "src/verifier.js", "../../vectors/federation-v0.1"), "verifiers/federation-node"),
+                Command("node-federation-v2", ("node", "src/verifier.js", "--version", "federation-v0.1-development-v2", "../../vectors/federation-v0.1-development-v2"), "verifiers/federation-node"),
                 Command("node-exporter", ("node", "scripts/verify_wp4_exporter_vectors.mjs", "vectors/core-v0.2/wp4-exporter"))]
     raise ValueError(f"unknown profile: {profile}")
 

@@ -1,0 +1,399 @@
+{
+  "base_commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+  "status": "local uncommitted fixture correction; no publication",
+  "hosted_run": 38054824820,
+  "federation_trace": [
+    {
+      "path": "vectors/federation-v0.1/manifest.json",
+      "old_sha256": "1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35",
+      "new_sha256": "2ab8286179221e06c2c24843f6a1015f24247c6a1de9d8cb81f20e5fe88aa497",
+      "old_length": 3512,
+      "new_length": 3512,
+      "changes": [
+        {
+          "path": "/artifacts/1/sha256",
+          "before": "a204152ab0f402342e2030c76d4bd77669781ec78b7fe8c5783afb8e72ba4351",
+          "after": "e859993d1fa8cb627208191e829d3b078a3fa6759b19d241d739e3346ed65bca"
+        }
+      ]
+    },
+    {
+      "path": "vectors/federation-v0.1/authority-locks.json",
+      "old_sha256": "a204152ab0f402342e2030c76d4bd77669781ec78b7fe8c5783afb8e72ba4351",
+      "new_sha256": "e859993d1fa8cb627208191e829d3b078a3fa6759b19d241d739e3346ed65bca",
+      "old_length": 1618,
+      "new_length": 1618,
+      "changes": [
+        {
+          "path": "/authorities/2/length",
+          "before": 78624,
+          "after": 78881
+        },
+        {
+          "path": "/authorities/2/sha256",
+          "before": "29311cb8e952e328eef7c69fb4776a85504ff4af5edf7c55faad53194d60dc7e",
+          "after": "ed880f236a2b4b5e11e281e58c540534e1cd27f7c752d3990291cf1be55c80d0"
+        }
+      ]
+    },
+    {
+      "path": "docs/protocol/registries/federation-v0.1-development.json",
+      "old_sha256": "29311cb8e952e328eef7c69fb4776a85504ff4af5edf7c55faad53194d60dc7e",
+      "new_sha256": "ed880f236a2b4b5e11e281e58c540534e1cd27f7c752d3990291cf1be55c80d0",
+      "old_length": 78624,
+      "new_length": 78881,
+      "changes": [
+        {
+          "path": "/registries/key_purposes",
+          "before": [
+            {
+              "name": "IDENTITY_ROOT",
+              "value": 1,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "RECOVERY",
+              "value": 2,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "REGISTRY_SIGNING",
+              "value": 3,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "KEY_AUTHORIZATION",
+              "value": 4,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "NAME_OWNERSHIP",
+              "value": 5,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "DELEGATION",
+              "value": 6,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "TRUST_BUNDLE",
+              "value": 7,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "TRANSPARENCY_LOG",
+              "value": 8,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "WITNESS",
+              "value": 9,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "ENDPOINT_DISCOVERY",
+              "value": 10,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "FEDERATION_AUTHORIZATION",
+              "value": 11,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "REVOCATION",
+              "value": 12,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "GOVERNANCE",
+              "value": 13,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "FEDERATION_TRANSPORT",
+              "value": 14,
+              "status": "approved-development-profile"
+            }
+          ],
+          "after": [
+            {
+              "name": "IDENTITY_ROOT",
+              "value": 1,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "RECOVERY",
+              "value": 2,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "REGISTRY_SIGNING",
+              "value": 3,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "KEY_AUTHORIZATION",
+              "value": 4,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "NAME_OWNERSHIP",
+              "value": 5,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "DELEGATION",
+              "value": 6,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "TRUST_BUNDLE",
+              "value": 7,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "TRANSPARENCY_LOG",
+              "value": 8,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "WITNESS",
+              "value": 9,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "ENDPOINT_DISCOVERY",
+              "value": 10,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "FEDERATION_AUTHORIZATION",
+              "value": 11,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "REVOCATION",
+              "value": 12,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "GOVERNANCE",
+              "value": 13,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "FEDERATION_TRANSPORT",
+              "value": 14,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "ACP_RESULT_SIGNING",
+              "value": 15,
+              "status": "approved-development-profile"
+            },
+            {
+              "name": "ENROLLMENT_RESULT_SIGNING",
+              "value": 16,
+              "status": "approved-development-profile"
+            }
+          ]
+        },
+        {
+          "path": "/reserved_ranges/key_purposes/0/0",
+          "before": 15,
+          "after": 17
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "go-storage-short-path",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/authority",
+        "-run",
+        "^TestIdempotencyStorageShortPathBoundary$",
+        "-count=1",
+        "-v"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 4.82,
+      "disk_start": 12746338304,
+      "disk_end": 12736466944,
+      "ram_end": 6194384896,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-short-path.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-short-path.stdout.log",
+          "sha256": "e86a2478ec01e98bf021dc4bcda0a06317f0ea531bad26104662916f112a93af"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "go-storage-short-temp-red",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/authority",
+        "-run",
+        "^TestIdempotencyStorageShortPathBoundary$",
+        "-count=1",
+        "-v"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 4.82,
+      "disk_start": 12736253952,
+      "disk_end": 12726398976,
+      "ram_end": 6170984448,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-short-temp-red.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-short-temp-red.stdout.log",
+          "sha256": "a949ae1b3a8c9c1d6158d2c68c42f75bc26d1c179908d8ca53e2802d6f970ec1"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "go-storage-short-temp-green",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/authority",
+        "-run",
+        "^TestIdempotencyStorageShortPathBoundary$",
+        "-count=1",
+        "-v"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.03,
+      "disk_start": 12725391360,
+      "disk_end": 12715487232,
+      "ram_end": 6238793728,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-short-temp-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-short-temp-green.stdout.log",
+          "sha256": "5f95a5c91b4704392964597d40134879030f09ae2599e3f260bd4367d3b3616f"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "go-storage-authority-green",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/authority",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 17.28,
+      "disk_start": 12715429888,
+      "disk_end": 12714856448,
+      "ram_end": 6523101184,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-authority-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-storage-authority-green.stdout.log",
+          "sha256": "76554cbd99f546913d888f94f807a9390099e8fab06ff9e70f9661335d387b76"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "go-federation-pin-confirm",
+      "argv": [
+        "go",
+        "-C",
+        "verifiers/federation-go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/packageverify",
+        "-run",
+        "^TestCheckedInPackage$",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 1.61,
+      "disk_start": 12714864640,
+      "disk_end": 12714295296,
+      "ram_end": 6442835968,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-federation-pin-confirm.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\go-federation-pin-confirm.stdout.log",
+          "sha256": "098e8b8f4ed7f303c01c3c999998e1732fad8f4337e650296d802c98c39a5793"
+        }
+      ]
+    }
+  ],
+  "source_hashes": {
+    "client/nbsr-go-client/internal/authority/idempotency_store_test.go": "79c60ca1d725cd01422cbf3253af4fd459c19e84066545479a8de742620b5cd8",
+    "client/nbsr-go-client/internal/authority/runtime_test.go": "f0d19aff0872337a341f32eaf449c3c510bd8fae7804270335f27810bfb1d6df",
+    "client/nbsr-go-client/internal/authority/source_operator_runtime_test.go": "037075278f1003b4f1259f07615c0d9f372964e9ccd515f53706e88e473a25ba",
+    "client/nbsr-go-client/internal/authority/idempotency_path_windows_test.go": "bbeadbf91862b69e2fe1ba55c9be827826e8cd6663cc00639a2dc723f5c79d5b"
+  },
+  "review": "full_delta_review: no blockers; no tests run by reviewer; hosted root unconfirmed",
+  "windows_conclusion": "Local short-name TEMP/TMP reproduction proves fixture path rejection before successful OS create/lock. Hosted equivalence unconfirmed; no hosted raw path or Win32 error was logged.",
+  "authority_decision": "Choose preservation of original immutable development-v1 package plus separately versioned expanded authority package, or explicitly approve replacement compatibility policy. No trust-root update performed.",
+  "cleanup": "All five supervised direct children reaped. Initial sandbox probe cleanup PermissionError retained; subsequent exact-path check found directory absent. No containers started."
+}

@@ -1,0 +1,61 @@
+{
+  "sha": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+  "run": 38054824820,
+  "url": "https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/38054824820",
+  "status": "completed",
+  "conclusion": "failure",
+  "updated_at": "2026-10-10T13:16:50Z",
+  "jobs": [
+    {
+      "name": "node-policy",
+      "id": 114221014684,
+      "conclusion": "success",
+      "completed_at": "2026-10-10T13:13:22Z"
+    },
+    {
+      "name": "go (ubuntu-24.04)",
+      "id": 114221014829,
+      "conclusion": "failure",
+      "completed_at": "2026-10-10T13:13:46Z"
+    },
+    {
+      "name": "rust (ubuntu-24.04)",
+      "id": 114221014844,
+      "conclusion": "success",
+      "completed_at": "2026-10-10T13:14:18Z"
+    },
+    {
+      "name": "go (windows-2025)",
+      "id": 114221014848,
+      "conclusion": "failure",
+      "completed_at": "2026-10-10T13:14:15Z"
+    },
+    {
+      "name": "python (ubuntu-24.04)",
+      "id": 114221014871,
+      "conclusion": "success",
+      "completed_at": "2026-10-10T13:13:48Z"
+    },
+    {
+      "name": "rust (windows-2025)",
+      "id": 114221014910,
+      "conclusion": "success",
+      "completed_at": "2026-10-10T13:16:49Z"
+    },
+    {
+      "name": "python (windows-2025)",
+      "id": 114221014936,
+      "conclusion": "success",
+      "completed_at": "2026-10-10T13:14:00Z"
+    }
+  ],
+  "passed": 5,
+  "failed": 2,
+  "running": 0,
+  "diagnosis": {
+    "go_linux": "Known authority/package-version blocker; see FEDERATION_PACKAGE_AUTHORITY_BLOCK.md. No pin change authorized.",
+    "go_windows": "Idempotency/runtime constructor ErrStoragePathRejected (24); exact underlying path/OS cause absent from logs, unresolved. Enrollment ACL failures no longer appear."
+  },
+  "changes": "Evidence only; no further production/test fixes, commits or pushes",
+  "ack": "deferred"
+}

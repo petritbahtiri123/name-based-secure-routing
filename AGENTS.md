@@ -140,6 +140,10 @@ Cross-platform fixture checks must preserve semantic rejection without relying
 on filesystem-specific diagnostics. Windows enrollment tests provision exact
 protected ACLs only on their own temporary directories; preserve the production
 writer allowlist and reject unexpected explicit grants instead of trusting them.
+Storage tests resolve only freshly created test-owned temporary roots before
+constructing paths, because Windows short-name temp paths can fail the production
+alias check. Keep caller-supplied alias rejection and record hosted confirmation
+separately from a local short-path reproduction.
 
 ## Large live-bundle harness checks
 
@@ -149,3 +153,14 @@ bounds are not permission to run a larger trial: independently verify current
 host and guest memory/commit headroom, sustained-pressure aborts, disk guards,
 and the authorized cleanup-inclusive runtime. Do not modify host/global network
 settings or infer an 8192 capacity result from harness regression success.
+
+
+## Federation package version checks
+
+The default immutable federation development-v1 package retains its original
+manifest pin and uses the pinned archive under `docs/protocol/registries/archive/`.
+Development-v2 requires explicit `--version federation-v0.1-development-v2` and
+`vectors/federation-v0.1-development-v2` selection. Never replace one version's
+pin or resolve missing archived authority through current-registry fallback.
+Check both versions; preserve exact purpose separation and negative selection,
+authority-drift and alias cases. CI command profiles include explicit v2 checks.

@@ -1,0 +1,586 @@
+{
+  "base_commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+  "authorization": "User explicitly approved exact v2 local implementation, testing and scoped local commit; no push/bypass/ACK",
+  "v1_manifest_sha256": "1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35",
+  "v2_manifest_sha256": "06511cfffacc2ced7f350d54edab86cd214e369f140ab45f32139ed94a556532",
+  "original_v1_source_commit": "7af982239dc8fbc67ae142037f192458c797f4d4",
+  "expanded_registry_source_commit": "af15649678540d57770fd08ad09934a43c1f9241",
+  "data_verification": "all nine v1 files exact historical blobs; six v2 semantic files exact v1; seven unaffected upstream pins retained; live registry unchanged",
+  "source_sha256": {
+    "client/nbsr-go-client/internal/authority/idempotency_path_windows_test.go": "bbeadbf91862b69e2fe1ba55c9be827826e8cd6663cc00639a2dc723f5c79d5b",
+    "client/nbsr-go-client/internal/authority/idempotency_store_test.go": "79c60ca1d725cd01422cbf3253af4fd459c19e84066545479a8de742620b5cd8",
+    "client/nbsr-go-client/internal/authority/runtime_test.go": "f0d19aff0872337a341f32eaf449c3c510bd8fae7804270335f27810bfb1d6df",
+    "client/nbsr-go-client/internal/authority/source_operator_runtime_test.go": "037075278f1003b4f1259f07615c0d9f372964e9ccd515f53706e88e473a25ba",
+    "docs/protocol/registries/archive/federation-v0.1-development-v1.json": "29311cb8e952e328eef7c69fb4776a85504ff4af5edf7c55faad53194d60dc7e",
+    "scripts/ci/check.py": "35852f12e2c2c940d119a8c48706658e798751f52fd7865c4f11cc75a6b14897",
+    "scripts/federation_v01_vectors/package.py": "586c73dd397d7184c37862e7cb9414bc34f1c46fb9ff261076c6f4a22a774444",
+    "scripts/generate_federation_v01_vectors.py": "f4e44ac3079eb389a49ee0ea48f5f081489eab4a41ce180821b98432025e66bf",
+    "tests/ci/test_ci.py": "5494eacc7e71b5b6a446d436f47cb90c5e12792dd787006dbcf854dad17fa831",
+    "tests/federation/test_vectors.py": "ea85f8c62b99fea43cf8ce16deba2d6c1280f483d342ea6e087bab369d9cb28b",
+    "vectors/federation-v0.1-development-v2/README.md": "e69de62e137a8d99391299fc16b76bb4f4f6c30b6a44f374341821e895b7b43a",
+    "vectors/federation-v0.1-development-v2/authority-locks.json": "f622e81aee7b13773c5c55473844b8ae8b713b19b2b91e04775f5b803d7a07c6",
+    "vectors/federation-v0.1-development-v2/capability-vectors.json": "365cd6deb480b1c8cb7c3ce6449ba7d94e4ff73dad08ad3463d89e282988268c",
+    "vectors/federation-v0.1-development-v2/error-precedence.json": "aee6ed808bb9c2c6b18268ac158e6b6d5dedf015c9ab233b4eba02b7180acb73",
+    "vectors/federation-v0.1-development-v2/manifest.json": "06511cfffacc2ced7f350d54edab86cd214e369f140ab45f32139ed94a556532",
+    "vectors/federation-v0.1-development-v2/signed-vectors.json": "5de292601052fd716d339bd418a0fa5d401852a176d8f4a49fb94e0bca2ed816",
+    "vectors/federation-v0.1-development-v2/stateful-scenarios.json": "d35a3b28b8cae335b90666e5b824a014bb26f16c8f30aa3305ba453a54afffb1",
+    "vectors/federation-v0.1-development-v2/static-vectors.json": "b30e3d5ed856433034d47dd69ff3c169f4e87da973ea9780f34894ee08ea205e",
+    "vectors/federation-v0.1-development-v2/threshold-vectors.json": "f3776e7ef68ce584d3c2519fa38067737d190fc91679e7f7e55c79c8352afd24",
+    "vectors/federation-v0.1/authority-locks.json": "a204152ab0f402342e2030c76d4bd77669781ec78b7fe8c5783afb8e72ba4351",
+    "vectors/federation-v0.1/manifest.json": "1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35",
+    "verifiers/federation-go/README.md": "4458ba15bdced3d47c96b8f83842349e98a0f0f366ebd17fb2cc9d3566bea949",
+    "verifiers/federation-go/cmd/verify/main.go": "21511443cad8c807ea474b99aafa061b3098459f870f3259b51a8852ae7dd986",
+    "verifiers/federation-go/internal/packageverify/package.go": "277561a889622a116dc2c3fc5e7a7ad975a9493ea3e4bd576efd84462a318be7",
+    "verifiers/federation-go/internal/packageverify/package_test.go": "e1d055e9dc9e7c81acb0bee5556c2c61462e7ce23cc4591cafc8218034fc7520",
+    "verifiers/federation-go/internal/schema/schema_test.go": "7adfd0824aec65d41d4b8b4e41ed944492728a1f4c821f24d79e1acbd368df6f",
+    "verifiers/federation-go/internal/verifier/verifier.go": "c70da14b66adc0b77738e7f7502d79c147c5e71ddce7cb3127994854441cc752",
+    "verifiers/federation-go/internal/verifier/verifier_test.go": "009b25bbc4dd3bd04b61d0b6abd016c7a46aeeb16957d69617a9c173792dddc5",
+    "verifiers/federation-node/README.md": "7a223148c0c83d985f10ea589232db50d0ec09ef285a6c4a73e59c1bf162511a",
+    "verifiers/federation-node/src/manifest.js": "338a12f9d80ce7709aa398a7c6a94fd624d4cc98e751f4aa50018939eb12997f",
+    "verifiers/federation-node/src/registry.js": "5fe9fa6012d652b17d65f56d42d8600d9185b987bd53acfbfc56a9264fa8d11d",
+    "verifiers/federation-node/src/verifier.js": "890b0ad60646554b0747d64de922d5aa49ac5e06833fa87178d4fc69bb2ce900",
+    "verifiers/federation-node/test/full.test.js": "509a2e5f792de6f9444bafb013b98223902f44180aa9d3e200ca44ca5dd5f312",
+    "verifiers/federation-node/test/manifest.test.js": "81e457800ef9bd501582eff12f87f65a458e6c50d4e105b59718a8758ce6ffea"
+  },
+  "runs": [
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-cli-matrix",
+      "argv": [
+        "python",
+        "C:/Users/bajra/AppData/Local/Temp/nbsr-federation-version-cli-check.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.82,
+      "disk_start": 12594593792,
+      "disk_end": 12591153152,
+      "ram_end": 5406244864,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-cli-matrix.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-cli-matrix.stdout.log",
+          "sha256": "ab59888bcba62ec505e6cb7c8fa8401603a599f720518da7a4d26745d210e846"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-client-full",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./...",
+        "-count=1",
+        "-json"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 63.28,
+      "disk_start": 12595515392,
+      "disk_end": 12596113408,
+      "ram_end": 5392654336,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-client-full.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-client-full.stdout.log",
+          "sha256": "f2bcd40741abcfa16f9e86fbc3f315c515bfb2b53ef305d9f4966e937f53dfda"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-go-boundary-final",
+      "argv": [
+        "go",
+        "-C",
+        "verifiers/federation-go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/packageverify",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.41,
+      "disk_start": 12595879936,
+      "disk_end": 12594941952,
+      "ram_end": 5427126272,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-boundary-final.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-boundary-final.stdout.log",
+          "sha256": "ebd55dfbf5e017c2215d6268497782d60c4d29f69ac3b057f5ff797ba244d05a"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-go-full",
+      "argv": [
+        "go",
+        "-C",
+        "verifiers/federation-go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./...",
+        "-count=1",
+        "-json"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 10.24,
+      "disk_start": 11042353152,
+      "disk_end": 11178479616,
+      "ram_end": 6017486848,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-full.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-full.stdout.log",
+          "sha256": "00fe221eb23a6d20290e015fd70b2b5caf1381c8cbc248aca546cc7013e8ec24"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-go-green",
+      "argv": [
+        "go",
+        "-C",
+        "verifiers/federation-go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/packageverify",
+        "./internal/schema",
+        "./internal/verifier",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 4.02,
+      "disk_start": 12706394112,
+      "disk_end": 12702617600,
+      "ram_end": 6134583296,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-green.stdout.log",
+          "sha256": "1c65031020765d326a35162347b001037e981c58e9d139a93338b6b18dc5bd78"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-go-red",
+      "argv": [
+        "go",
+        "-C",
+        "verifiers/federation-go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/packageverify",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 0.61,
+      "disk_start": 12706627584,
+      "disk_end": 12706611200,
+      "ram_end": 6161543168,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-red.stderr.log",
+          "sha256": "afd38fd8713831054432d20dc18b02158db77d1f22f057fe22e180eda8505443"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-red.stdout.log",
+          "sha256": "4270fa57157a99aedf8966f73214760e850bae8ab6d2ad391e38b6b9369b1f26"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-go-vet",
+      "argv": [
+        "go",
+        "-C",
+        "verifiers/federation-go",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "./..."
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 4.62,
+      "disk_start": 12590850048,
+      "disk_end": 12590731264,
+      "ram_end": 5271388160,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-vet.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-go-vet.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-node-boundaries",
+      "argv": [
+        "node",
+        "--test",
+        "verifiers/federation-node/test/full.test.js",
+        "verifiers/federation-node/test/manifest.test.js"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.62,
+      "disk_start": 12712148992,
+      "disk_end": 12712140800,
+      "ram_end": 6192947200,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-boundaries.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-boundaries.stdout.log",
+          "sha256": "e4802af154d73577d66de29364f906601ac2423c52ec22c234d9d3c560a36341"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-node-final",
+      "argv": [
+        "node",
+        "--test",
+        "verifiers/federation-node/test/cose.test.js",
+        "verifiers/federation-node/test/full.test.js",
+        "verifiers/federation-node/test/json.test.js",
+        "verifiers/federation-node/test/manifest.test.js",
+        "verifiers/federation-node/test/mutations.test.js",
+        "verifiers/federation-node/test/oracle-independence.test.js",
+        "verifiers/federation-node/test/primitives.test.js"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.82,
+      "disk_start": 12589629440,
+      "disk_end": 12588990464,
+      "ram_end": 5237055488,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-final.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-final.stdout.log",
+          "sha256": "ee42764530fcb2e9855859287ef3319138168148f6f28dbc20867e01fb5c44ab"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-node-full",
+      "argv": [
+        "node",
+        "--test",
+        "verifiers/federation-node/test/cose.test.js",
+        "verifiers/federation-node/test/full.test.js",
+        "verifiers/federation-node/test/json.test.js",
+        "verifiers/federation-node/test/manifest.test.js",
+        "verifiers/federation-node/test/mutations.test.js",
+        "verifiers/federation-node/test/oracle-independence.test.js",
+        "verifiers/federation-node/test/primitives.test.js"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.64,
+      "disk_start": 11107586048,
+      "disk_end": 11123298304,
+      "ram_end": 6109569024,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-full.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-full.stdout.log",
+          "sha256": "636b78762f30d9a7d1435b1b6478ed11a093459e123abd4e98b4e163923c7bdd"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-node-green",
+      "argv": [
+        "node",
+        "--test",
+        "verifiers/federation-node/test/full.test.js",
+        "verifiers/federation-node/test/manifest.test.js"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.81,
+      "disk_start": 12712906752,
+      "disk_end": 12712906752,
+      "ram_end": 6155673600,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-green.stdout.log",
+          "sha256": "747be7ff7bdcf4f160c76963bd4bbfde7580b5d8990e196220a0aedddbbf930f"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-node-red",
+      "argv": [
+        "node",
+        "--test",
+        "verifiers/federation-node/test/full.test.js"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12712898560,
+      "disk_end": 12712894464,
+      "ram_end": 6115078144,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-red.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-red.stdout.log",
+          "sha256": "af2441a31fdc9739c230e1efe044219a627faceb21648f55aa345f3c8c3e99bf"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-node-review-green",
+      "argv": [
+        "node",
+        "--test",
+        "verifiers/federation-node/test/full.test.js",
+        "verifiers/federation-node/test/manifest.test.js",
+        "verifiers/federation-node/test/oracle-independence.test.js"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.61,
+      "disk_start": 12596051968,
+      "disk_end": 12596047872,
+      "ram_end": 5422108672,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-review-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-node-review-green.stdout.log",
+          "sha256": "c65264350e3c585c19c5b35074e7aab9962f21786a8811ddbbda6f48a2254a87"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-python-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_vectors.py",
+        "-k",
+        "explicit_package_versions"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 12706058240,
+      "disk_end": 12707794944,
+      "ram_end": 6144749568,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-python-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-python-green.stdout.log",
+          "sha256": "3c98f1269aa62dc823b8920278810f054c2b74e0cfe0dbe61b6b17e0eb72f436"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-python-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_vectors.py",
+        "-k",
+        "explicit_package_versions"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 12704866304,
+      "disk_end": 12705751040,
+      "ram_end": 6141394944,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-python-red.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-python-red.stdout.log",
+          "sha256": "cd14d40a5e913349dd9ce35b4648d07dc718a3a1f1166e8b39d46c6986a16aa0"
+        }
+      ]
+    },
+    {
+      "commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+      "label": "fed-version-python-suite",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_vectors.py",
+        "tests/ci/test_ci.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 6.83,
+      "disk_start": 12712128512,
+      "disk_end": 12707422208,
+      "ram_end": 6195060736,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-python-suite.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\fed-version-python-suite.stdout.log",
+          "sha256": "cb5b839c43d2745414e8e3ed9e8c330b905e4c8dfcdc68a6eabf26766d98ee97"
+        }
+      ]
+    }
+  ],
+  "go_counts": {
+    "fed-version-go-full": {
+      "passed_tests_and_subtests": 87,
+      "passed_top_level_tests_and_fuzz_seed_groups": 30,
+      "passed_packages": 11,
+      "packages_without_tests": [
+        "nbsr.example/federation-verifier/cmd/verify",
+        "nbsr.example/federation-verifier/internal/threshold"
+      ],
+      "skipped_tests": [],
+      "failures": 0
+    },
+    "fed-version-client-full": {
+      "passed_tests_and_subtests": 909,
+      "passed_top_level_tests_and_fuzz_seed_groups": 479,
+      "passed_packages": 10,
+      "packages_without_tests": [
+        "nbsr.local/client/nbsr-go-client/internal/adapter"
+      ],
+      "skipped_tests": [],
+      "failures": 0
+    }
+  },
+  "other_results": {
+    "python_vectors_and_ci": "41 passed, 5.67s; supervisor6.83s",
+    "node_final": "29 passed,0 skipped,0 failed; supervisor1.82s",
+    "cli_matrix": "3 explicit-v2 positives,3 default-v1 negatives PASS; supervisor3.82s",
+    "ruff": "PASS",
+    "gofmt": "PASS",
+    "workflow_contract": "PASS; not hosted validation",
+    "git_diff_check": "PASS",
+    "staged_byte_verification": "All44 paths match tested working files modulo text EOL normalization; v1/v2/archive hashes exact",
+    "staged_diff_check": "Initial check found one trailing blank line in hosted-result prose; removed before final check"
+  },
+  "independent_review": {
+    "reviewer": "full_delta_review",
+    "initial_finding": "Node loadAuthorities accepted unverified caller-supplied map/fallback",
+    "resolution": "removed supplied-map API; loader always authenticates manifest and returns same snapshot; regression passed",
+    "final": "no remaining blockers; reviewer independently verified pins/data, ran no builds/tests"
+  },
+  "limits": [
+    "Windows laptop only; native Linux and hosted rerun not performed",
+    "Python3.14.6 local check does not establish full supported matrix",
+    "Windows hosted short-path equivalence still requires next authorized hosted run",
+    "No live federation, runtime authority, deployment or ACK change"
+  ],
+  "cleanup": "All supervised children reaped; no test/build processes in final named-process snapshot; no containers started",
+  "publication": "not authorized; local only"
+}

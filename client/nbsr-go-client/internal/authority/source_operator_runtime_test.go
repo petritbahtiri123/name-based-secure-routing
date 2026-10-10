@@ -21,7 +21,7 @@ import (
 )
 
 func TestSourceOperatorRuntimeServesAuthorityAndInitialEnrollmentOverTLS13HTTP2(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	server := newHTTP2TLSServer(t, fixture.runtime.ServeHTTP)
 	server.StartTLS()
 	defer server.Close()
@@ -103,7 +103,7 @@ func TestSourceOperatorRuntimeServesAuthorityAndInitialEnrollmentOverTLS13HTTP2(
 }
 
 func TestSourceOperatorRuntimeRejectsMalformedAuthenticationAndUnsignedBypassBeforeDecision(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	otherSigner, _, _ := mustEnrollmentSigner(t, identity.PurposeDeviceACPRequest, 0x95, 4)
 	otherRequest := validACPRequest(otherSigner.KeyRef())
 	otherSigned, err := SignACPAcquireRequest(context.Background(), otherRequest, otherSigner, fixture.now.Load())
@@ -154,7 +154,7 @@ func TestSourceOperatorRuntimeRejectsMalformedAuthenticationAndUnsignedBypassBef
 }
 
 func TestSourceOperatorRuntimeAuthenticatesBeforeSignedVersionProfileAndBindingFailures(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 
 	versionFields := mustDecodeMap(t, fixture.signed.Payload())
 	versionFields[0] = uint64(2)
@@ -227,7 +227,7 @@ func TestSourceOperatorRuntimeAuthenticatesBeforeSignedVersionProfileAndBindingF
 
 func TestSourceOperatorRuntimeSignsExpiryWhenEvaluationCompletesAtDeadline(t *testing.T) {
 	var fixture *sourceOperatorRuntimeFixture
-	fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(_ context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+	fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(_ context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 		fixture.now.Store(request.DeadlineUnix())
 		return testSuccessACPDecision(request), nil
 	})
@@ -256,7 +256,7 @@ func TestSourceOperatorRuntimeSignsExpiryWhenEvaluationCompletesAtDeadline(t *te
 
 func TestSourceOperatorRuntimeRefreshesDeadlineAfterDurableAdmissionBeforeDecision(t *testing.T) {
 	t.Run("authority", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 		delayed := newDelayingIdempotencyStore(fixture.store)
 		runtime := newRuntimeWithStore(t, fixture, delayed)
 		response := make(chan *httptest.ResponseRecorder, 1)
@@ -271,7 +271,7 @@ func TestSourceOperatorRuntimeRefreshesDeadlineAfterDurableAdmissionBeforeDecisi
 	})
 
 	t.Run("enrollment", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 		request := fixture.enrollmentRequest()
 		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
 		if err != nil {
@@ -294,7 +294,7 @@ func TestSourceOperatorRuntimeRefreshesDeadlineAfterDurableAdmissionBeforeDecisi
 func TestSourceOperatorRuntimeUsesFreshRemainingDecisionContext(t *testing.T) {
 	t.Run("authority", func(t *testing.T) {
 		remaining := make(chan time.Duration, 1)
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 			deadline, ok := ctx.Deadline()
 			if !ok {
 				remaining <- 0
@@ -318,7 +318,7 @@ func TestSourceOperatorRuntimeUsesFreshRemainingDecisionContext(t *testing.T) {
 	})
 
 	t.Run("enrollment", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 		request := fixture.enrollmentRequest()
 		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
 		if err != nil {
@@ -352,7 +352,7 @@ func TestSourceOperatorRuntimeUsesFreshRemainingDecisionContext(t *testing.T) {
 func TestSourceOperatorRuntimePreservesInfrastructureErrorAtCompletionDeadline(t *testing.T) {
 	t.Run("authority", func(t *testing.T) {
 		var fixture *sourceOperatorRuntimeFixture
-		fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(context.Context, VerifiedACPRequest) (ACPDecision, error) {
+		fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(context.Context, VerifiedACPRequest) (ACPDecision, error) {
 			fixture.now.Store(fixture.signed.DeadlineUnix())
 			return ACPDecision{}, errors.New("authority storage unavailable")
 		})
@@ -368,7 +368,7 @@ func TestSourceOperatorRuntimePreservesInfrastructureErrorAtCompletionDeadline(t
 	})
 
 	t.Run("enrollment", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 		request := fixture.enrollmentRequest()
 		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
 		if err != nil {
@@ -393,7 +393,7 @@ func TestSourceOperatorRuntimePreservesInfrastructureErrorAtCompletionDeadline(t
 func TestSourceOperatorRuntimeKeepsCompletionClockFailureUnsigned(t *testing.T) {
 	t.Run("authority", func(t *testing.T) {
 		var fixture *sourceOperatorRuntimeFixture
-		fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(_ context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+		fixture = newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(_ context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 			fixture.now.Store(0)
 			return testSuccessACPDecision(request), nil
 		})
@@ -407,7 +407,7 @@ func TestSourceOperatorRuntimeKeepsCompletionClockFailureUnsigned(t *testing.T) 
 	})
 
 	t.Run("enrollment", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 		request := fixture.enrollmentRequest()
 		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
 		if err != nil {
@@ -429,7 +429,7 @@ func TestSourceOperatorRuntimeKeepsCompletionClockFailureUnsigned(t *testing.T) 
 
 func TestSourceOperatorRuntimeDoesNotReturnTerminalWhenDurableCompletionFails(t *testing.T) {
 	t.Run("authority", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 		runtime := newRuntimeWithStore(t, fixture, &failingCompleteIdempotencyStore{inner: fixture.store})
 		for attempt := 0; attempt < 2; attempt++ {
 			response := performRuntimeRequest(runtime, "/acp/authority", fixture.signed.Body(), nil)
@@ -443,7 +443,7 @@ func TestSourceOperatorRuntimeDoesNotReturnTerminalWhenDurableCompletionFails(t 
 	})
 
 	t.Run("enrollment", func(t *testing.T) {
-		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+		fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 		request := fixture.enrollmentRequest()
 		wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
 		if err != nil {
@@ -463,7 +463,7 @@ func TestSourceOperatorRuntimeDoesNotReturnTerminalWhenDurableCompletionFails(t 
 }
 
 func TestSourceOperatorRuntimeDurablyReplaysExpiredAuthorityAndConflicts(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "idempotency.cbor")
+	path := filepath.Join(idempotencyTestRoot(t), "idempotency.cbor")
 	fixture := newSourceOperatorRuntimeFixture(t, path, nil)
 	conflictingRequest := cloneACPRequest(fixture.request)
 	conflictingRequest.DeadlineUnix--
@@ -497,7 +497,7 @@ func TestSourceOperatorRuntimeDurablyReplaysExpiredAuthorityAndConflicts(t *test
 }
 
 func TestSourceOperatorRuntimeDurablyReplaysExpiredEnrollmentAndConflicts(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "idempotency.cbor")
+	path := filepath.Join(idempotencyTestRoot(t), "idempotency.cbor")
 	fixture := newSourceOperatorRuntimeFixture(t, path, nil)
 	request := fixture.enrollmentRequest()
 	wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
@@ -540,7 +540,7 @@ func TestSourceOperatorRuntimeReturnsSignedPolicyStalenessAndExpiryDecisions(t *
 		ACPOperationAcquire: ACPResultStatusPolicyDenied, ACPOperationRenew: ACPResultStatusStaleGeneration,
 		ACPOperationFreshness: ACPResultStatusStaleFreshness,
 	}
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(_ context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(_ context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 		return ACPDecision{Status: statuses[request.Operation()], AuthorityGeneration: request.AuthorityGeneration()}, nil
 	})
 
@@ -584,7 +584,7 @@ func TestSourceOperatorRuntimeReturnsSignedPolicyStalenessAndExpiryDecisions(t *
 }
 
 func TestSourceOperatorRuntimeAuthorizesBootstrapBeforeEnrollmentAndRejectsReenrollment(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	enrollmentRequest := fixture.enrollmentRequest()
 	wire, err := SignEnrollmentRequest(context.Background(), enrollmentRequest, fixture.requestSigner)
 	if err != nil {
@@ -634,7 +634,7 @@ func TestSourceOperatorRuntimeAuthorizesBootstrapBeforeEnrollmentAndRejectsReenr
 }
 
 func TestSourceOperatorRuntimeDoesNotReplayEnrollmentAcrossBootstrapSubjects(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	request := fixture.enrollmentRequest()
 	wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
 	if err != nil {
@@ -655,7 +655,7 @@ func TestSourceOperatorRuntimeDoesNotReplayEnrollmentAcrossBootstrapSubjects(t *
 }
 
 func TestSourceOperatorRuntimeReplaysAndPersistsExactEnrollmentTerminal(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "idempotency.cbor")
+	path := filepath.Join(idempotencyTestRoot(t), "idempotency.cbor")
 	fixture := newSourceOperatorRuntimeFixture(t, path, nil)
 	request := fixture.enrollmentRequest()
 	wire, err := SignEnrollmentRequest(context.Background(), request, fixture.requestSigner)
@@ -713,7 +713,7 @@ func TestSourceOperatorRuntimeReplaysAndPersistsExactEnrollmentTerminal(t *testi
 }
 
 func TestSourceOperatorRuntimeReplaysExactSignedBytesConflictsAndRestarts(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "idempotency.cbor")
+	path := filepath.Join(idempotencyTestRoot(t), "idempotency.cbor")
 	fixture := newSourceOperatorRuntimeFixture(t, path, nil)
 	first := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
 	second := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
@@ -756,7 +756,7 @@ func TestSourceOperatorRuntimeCollapsesFourDuplicateWaitersAndBoundsTheFifth(t *
 	started := make(chan struct{})
 	release := make(chan struct{})
 	var startOnce sync.Once
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 		startOnce.Do(func() { close(started) })
 		select {
 		case <-release:
@@ -808,7 +808,7 @@ func TestSourceOperatorRuntimeCollapsesFourDuplicateWaitersAndBoundsTheFifth(t *
 func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedAtSixteenOperationCapacity(t *testing.T) {
 	started := make(chan struct{}, 16)
 	release := make(chan struct{})
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 		started <- struct{}{}
 		select {
 		case <-release:
@@ -898,7 +898,7 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedAtSixteenOperationCa
 }
 
 func TestSourceOperatorRuntimeNeverCreatesSeventeenthAuthenticatedLifecycleOrUnsignedOverload(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	fixture.acpSigner.started = make(chan struct{}, 20)
 	fixture.acpSigner.release = make(chan struct{})
 	var releaseOnce sync.Once
@@ -977,7 +977,7 @@ func TestSourceOperatorRuntimeNeverCreatesSeventeenthAuthenticatedLifecycleOrUns
 func TestSourceOperatorRuntimeCapacityWaitHonorsCancellationWithoutLeakingState(t *testing.T) {
 	started := make(chan struct{}, 16)
 	release := make(chan struct{})
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 		started <- struct{}{}
 		select {
 		case <-release:
@@ -1045,7 +1045,7 @@ func TestSourceOperatorRuntimeCapacityWaitHonorsCancellationWithoutLeakingState(
 }
 
 func TestSourceOperatorRuntimeCapacityQueuePreservesFourDuplicateWaitersAndExactReplay(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	fixture.acpSigner.started = make(chan struct{}, 20)
 	fixture.acpSigner.release = make(chan struct{})
 	var releaseOnce sync.Once
@@ -1114,7 +1114,7 @@ func TestSourceOperatorRuntimeCapacityQueuePreservesFourDuplicateWaitersAndExact
 }
 
 func TestSourceOperatorRuntimeRetainsExactReservationUntilPendingHandoff(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	scope := sourceOperatorActorScope{
 		namespace: "authority", deviceID: fixture.request.Device.ID,
 		generation: fixture.request.Device.CredentialGeneration, profile: fixture.runtime.profile,
@@ -1180,7 +1180,7 @@ func TestSourceOperatorRuntimeRetainsExactReservationUntilPendingHandoff(t *test
 func TestSourceOperatorRuntimeExpiresOverloadThatFinishesAtTheRequestDeadline(t *testing.T) {
 	started := make(chan struct{}, 16)
 	release := make(chan struct{})
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 		started <- struct{}{}
 		select {
 		case <-release:
@@ -1232,7 +1232,7 @@ func TestSourceOperatorRuntimeExpiresOverloadThatFinishesAtTheRequestDeadline(t 
 func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedForZeroCursorFreshnessAtCapacity(t *testing.T) {
 	started := make(chan struct{}, 16)
 	release := make(chan struct{})
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(ctx context.Context, request VerifiedACPRequest) (ACPDecision, error) {
 		started <- struct{}{}
 		select {
 		case <-release:
@@ -1285,7 +1285,7 @@ func TestSourceOperatorRuntimeReturnsSignedResourceExhaustedForZeroCursorFreshne
 }
 
 func TestSourceOperatorRuntimeConflictSigningDoesNotShadowExactReplay(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	first := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
 	if first.Code != http.StatusOK {
 		t.Fatalf("initial status = %d", first.Code)
@@ -1324,7 +1324,7 @@ func TestSourceOperatorRuntimeConflictSigningDoesNotShadowExactReplay(t *testing
 func TestSourceOperatorRuntimeBoundsConcurrentEnrollmentRequests(t *testing.T) {
 	started := make(chan struct{}, 17)
 	release := make(chan struct{})
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	fixture.enrollment.decide = func(ctx context.Context, _ BootstrapAuthorization, _ VerifiedEnrollmentRequest) (EnrollmentDecision, error) {
 		started <- struct{}{}
 		select {
@@ -1375,7 +1375,7 @@ func TestSourceOperatorRuntimeBoundsConcurrentEnrollmentRequests(t *testing.T) {
 }
 
 func TestSourceOperatorRuntimeKeepsInfrastructureAndTransportErrorsUnsignedAndFenced(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), func(context.Context, VerifiedACPRequest) (ACPDecision, error) {
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), func(context.Context, VerifiedACPRequest) (ACPDecision, error) {
 		return ACPDecision{}, errors.New("authority database unavailable")
 	})
 	first := performRuntimeRequest(fixture.runtime, "/acp/authority", fixture.signed.Body(), nil)
@@ -1405,7 +1405,7 @@ func TestSourceOperatorRuntimeKeepsInfrastructureAndTransportErrorsUnsignedAndFe
 func TestSourceOperatorRuntimeTimesOutSlowRequestBodies(t *testing.T) {
 	for _, path := range []string{"/acp/authority", "/acp/enroll"} {
 		t.Run(path, func(t *testing.T) {
-			fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+			fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 			body := newCloseAwareBlockingBody(250 * time.Millisecond)
 			request := httptest.NewRequest(http.MethodPost, "https://source.operator"+path, nil)
 			request.Proto = "HTTP/2.0"
@@ -1431,7 +1431,7 @@ func TestSourceOperatorRuntimeTimesOutSlowRequestBodies(t *testing.T) {
 }
 
 func TestSourceOperatorRuntimePinsServerTLSAndRefusesExtraEndpointsOrReplicaMisconfiguration(t *testing.T) {
-	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(t.TempDir(), "idempotency.cbor"), nil)
+	fixture := newSourceOperatorRuntimeFixture(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), nil)
 	server, err := NewSourceOperatorHTTPServer("127.0.0.1:0", fixture.runtime, &tls.Config{Certificates: []tls.Certificate{{}}})
 	if err != nil {
 		t.Fatal(err)
@@ -1480,7 +1480,7 @@ func TestSourceOperatorRuntimePinsServerTLSAndRefusesExtraEndpointsOrReplicaMisc
 		}
 	}
 
-	store := newTestFileIdempotencyStore(t, filepath.Join(t.TempDir(), "multi.cbor"), 8, 2<<20)
+	store := newTestFileIdempotencyStore(t, filepath.Join(idempotencyTestRoot(t), "multi.cbor"), 8, 2<<20)
 	config := fixture.config(store)
 	config.ReplicaCount = 2
 	if _, err := NewSourceOperatorRuntime(config); !errors.Is(err, ErrInvalidLimits) {
@@ -1564,7 +1564,7 @@ func (fixture *sourceOperatorRuntimeFixture) config(store TransactionalIdempoten
 
 func (fixture *sourceOperatorRuntimeFixture) runtimeWithResolver(t *testing.T, resolver ACPRequestKeyResolver) *SourceOperatorRuntime {
 	t.Helper()
-	store := newTestFileIdempotencyStore(t, filepath.Join(t.TempDir(), "idempotency.cbor"), 32, 8<<20)
+	store := newTestFileIdempotencyStore(t, filepath.Join(idempotencyTestRoot(t), "idempotency.cbor"), 32, 8<<20)
 	config := fixture.config(store)
 	config.RequestKeys = resolver
 	runtime, err := NewSourceOperatorRuntime(config)

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"nbsr.example/federation-verifier/internal/cbor"
+	"nbsr.example/federation-verifier/internal/packageverify"
 )
 
 func TestEveryAcceptedStaticFieldSatisfiesRegistrySchema(t *testing.T) {
@@ -124,4 +125,28 @@ func loadRegistry(t *testing.T) Registry {
 		t.Fatal(e)
 	}
 	return r
+}
+
+func TestVersionSelectedPurposes(t *testing.T) {
+	root := filepath.Clean(filepath.Join("..", "..", "..", ".."))
+	for _, version := range []string{packageverify.Version1, packageverify.Version2} {
+		dir := "federation-v0.1"
+		if version == packageverify.Version2 {
+			dir = version
+		}
+		_, _, authority, err := packageverify.VerifyWithAuthorities(filepath.Join(root, "vectors", dir), root, version)
+		if err != nil {
+			t.Fatal(err)
+		}
+		r, err := Load(authority["docs/protocol/registries/federation-v0.1-schema-proposal.json"], authority["docs/protocol/registries/federation-v0.1-development.json"])
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, purpose := range []uint64{15, 16, 17, 255} {
+			want := version == packageverify.Version2 && purpose < 17
+			if r.Enums["key_purposes"][purpose] != want {
+				t.Fatalf("%s purpose %d", version, purpose)
+			}
+		}
+	}
 }

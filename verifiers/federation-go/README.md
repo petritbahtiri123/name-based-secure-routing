@@ -34,3 +34,20 @@ deterministic Federation v0.1 Development Profile. It does not prove Rust
 transport integration, real wire exchange between operators, real DNS/HTTPS
 discovery, live federation deployment, production governance/key custody, or
 Internet-scale performance.
+
+## Explicit authority package versions
+
+The default remains immutable `federation-v0.1-development-v1`, manifest SHA-256
+`1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35`.
+Its registry comes from the exact pinned v1 archive; no current-registry fallback exists.
+Explicitly select v2 with:
+
+```text
+go run ./cmd/verify --version federation-v0.1-development-v2 ../../vectors/federation-v0.1-development-v2
+```
+
+V2 pins manifest `06511cfffacc2ced7f350d54edab86cd214e369f140ab45f32139ed94a556532`.
+`VerifyAll` stays v1; `VerifyAllVersion` requires caller selection. Both consume
+already authenticated authority bytes. V2 recognizes approved purposes 15 (outer
+ACP results) and 16 (enrollment results); neither substitutes for federation
+signers. This does not establish end-to-end ACP/enrollment or live conformance.

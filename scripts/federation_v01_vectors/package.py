@@ -18,6 +18,15 @@ from nbsr.federation.state import FederationEvent, FederationState, StaticRecove
 ROOT = Path(__file__).parents[2]
 FIXED_TIME = 1_900_000_000
 PACKAGE_VERSION = "federation-v0.1-development-v1"
+PACKAGE_VERSION_V2 = "federation-v0.1-development-v2"
+DEVELOPMENT_PATH = "docs/protocol/registries/federation-v0.1-development.json"
+ARCHIVED_DEVELOPMENT_PATH = "docs/protocol/registries/archive/federation-v0.1-development-v1.json"
+
+
+def _check_version(version: str) -> None:
+    if version not in (PACKAGE_VERSION, PACKAGE_VERSION_V2):
+        raise ValueError("unsupported package version")
+
 PROFILE = "federation-v0.1-development"
 KEY = Ed25519PrivateKey.from_private_bytes(bytes.fromhex("1f" * 32))
 OBJECTS = (
@@ -249,15 +258,24 @@ def _static_vectors() -> dict[str, object]:
     }
 
 
-def _authority_locks() -> dict[str, object]:
+def _authority_locks(version: str = PACKAGE_VERSION) -> dict[str, object]:
+    _check_version(version)
     authorities = []
     for path, length, digest in AUTHORITY_LOCKS:
-        raw = (ROOT / path).read_bytes()
+        source = path
+        if version == PACKAGE_VERSION and path == DEVELOPMENT_PATH:
+            source = ARCHIVED_DEVELOPMENT_PATH
+            length, digest = 78624, "29311cb8e952e328eef7c69fb4776a85504ff4af5edf7c55faad53194d60dc7e"
+        authority = ROOT / source
+        if authority.resolve() != authority.absolute() or not authority.is_file():
+            raise ValueError(f"unsafe upstream authority: {source}")
+        raw = authority.read_bytes()
         if len(raw) != length or _sha(raw) != digest:
             raise ValueError(f"immutable upstream authority drift: {path}")
         authorities.append({"length": length, "path": path, "sha256": digest})
     return {
-        "accepted_baseline_commit": "0849b986d065105441e116dce15294250a323926",
+        "accepted_baseline_commit": ("0849b986d065105441e116dce15294250a323926" if version == PACKAGE_VERSION
+                                     else "af15649678540d57770fd08ad09934a43c1f9241"),
         "authorities": authorities,
         "authority": "WP8 Task 7 immutable upstream authority locks",
         "core_v02_artifact_count": 110,
@@ -763,10 +781,13 @@ def _readme() -> bytes:
     ).encode("ascii")
 
 
-def build_package() -> dict[str, bytes]:
+def build_package(*, version: str = PACKAGE_VERSION) -> dict[str, bytes]:
+    _check_version(version)
     artifacts = {
-        "README.md": _readme(),
-        "authority-locks.json": _json(_authority_locks()),
+        "README.md": (_readme() if version == PACKAGE_VERSION else _readme().replace(
+            b"--check vectors/federation-v0.1",
+            b"--version federation-v0.1-development-v2 --check vectors/federation-v0.1-development-v2")),
+        "authority-locks.json": _json(_authority_locks(version)),
         "capability-vectors.json": _json(_capability_vectors()),
         "error-precedence.json": _json(_precedence()),
         "signed-vectors.json": _json(_signed_vectors()),
@@ -810,13 +831,14 @@ def build_package() -> dict[str, bytes]:
         "authority": "WP8 Task 7 deterministic Federation v0.1 conformance package",
         "format_version": 1,
         "package": "federation-v0.1",
-        "package_version": PACKAGE_VERSION,
+        "package_version": version,
     }
     artifacts["manifest.json"] = _json(manifest)
     return artifacts
 
 
-def validate_manifest(manifest: dict[str, object], package: Path) -> None:
+def validate_manifest(manifest: dict[str, object], package: Path, *, version: str = PACKAGE_VERSION) -> None:
+    _check_version(version)
     top_fields = {"artifacts", "authority", "format_version", "package", "package_version"}
     entry_fields = {
         "class",
@@ -838,7 +860,7 @@ def validate_manifest(manifest: dict[str, object], package: Path) -> None:
         not isinstance(manifest, dict)
         or set(manifest) != top_fields
         or manifest.get("format_version") != 1
-        or manifest.get("package_version") != PACKAGE_VERSION
+        or manifest.get("package_version") != version
     ):
         raise ValueError("unsupported package version")
     if manifest.get("package") != "federation-v0.1" or not isinstance(manifest.get("authority"), str):
@@ -923,8 +945,8 @@ def validate_manifest(manifest: dict[str, object], package: Path) -> None:
         visit(node)
 
 
-def verify_package(path: Path) -> list[str]:
-    expected = build_package()
+def verify_package(path: Path, *, version: str = PACKAGE_VERSION) -> list[str]:
+    expected = build_package(version=version)
     if path.is_symlink() or not path.is_dir():
         return [f"package directory missing: {path}"]
     actual_paths = {item.relative_to(path).as_posix() for item in path.rglob("*") if item.is_file()}
@@ -943,17 +965,18 @@ def verify_package(path: Path) -> list[str]:
             errors.append(f"artifact mismatch: {name}")
     try:
         manifest = json.loads((path / "manifest.json").read_bytes())
-        validate_manifest(manifest, path)
+        validate_manifest(manifest, path, version=version)
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         errors.append(f"manifest invalid: {exc}")
     return errors
 
 
-def write_package(path: Path) -> None:
+def write_package(path: Path, *, version: str = PACKAGE_VERSION) -> None:
+    _check_version(version)
     if path.is_symlink():
         raise ValueError("package directory must not be a symlink")
     path.mkdir(parents=True, exist_ok=True)
-    expected = build_package()
+    expected = build_package(version=version)
     for existing in path.rglob("*"):
         if existing.is_symlink():
             raise ValueError(f"refusing package symlink: {existing.name}")

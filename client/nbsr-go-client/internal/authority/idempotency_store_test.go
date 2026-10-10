@@ -11,7 +11,7 @@ import (
 )
 
 func TestFileIdempotencyStoreReplaysExactTerminalBytesAndRejectsConflict(t *testing.T) {
-	store := newTestFileIdempotencyStore(t, filepath.Join(t.TempDir(), "acp-idempotency.cbor"), 8, 2<<20)
+	store := newTestFileIdempotencyStore(t, filepath.Join(idempotencyTestRoot(t), "acp-idempotency.cbor"), 8, 2<<20)
 	request := testIdempotencyRequest(10, 20, 128*1024)
 
 	claim, err := store.Begin(context.Background(), request)
@@ -54,7 +54,7 @@ func TestFileIdempotencyStoreReplaysExactTerminalBytesAndRejectsConflict(t *test
 }
 
 func TestFileIdempotencyStorePersistsTerminalAndPendingFenceAcrossRestart(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "acp-idempotency.cbor")
+	path := filepath.Join(idempotencyTestRoot(t), "acp-idempotency.cbor")
 	store := newTestFileIdempotencyStore(t, path, 8, 2<<20)
 	terminalRequest := testIdempotencyRequest(10, 20, 128*1024)
 	pendingRequest := testIdempotencyRequest(11, 20, 128*1024)
@@ -90,7 +90,7 @@ func TestFileIdempotencyStorePersistsTerminalAndPendingFenceAcrossRestart(t *tes
 }
 
 func TestFileIdempotencyStoreExpiresWithinConfiguredGraceAndReclaimsBounds(t *testing.T) {
-	store := newTestFileIdempotencyStore(t, filepath.Join(t.TempDir(), "acp-idempotency.cbor"), 1, 256*1024)
+	store := newTestFileIdempotencyStore(t, filepath.Join(idempotencyTestRoot(t), "acp-idempotency.cbor"), 1, 256*1024)
 	first := testIdempotencyRequest(10, 20, 128*1024)
 	if claim, err := store.Begin(context.Background(), first); err != nil || claim.Status != IdempotencyOwner {
 		t.Fatalf("first begin = (%v, %v)", claim.Status, err)
@@ -123,7 +123,7 @@ func TestFileIdempotencyStoreExpiresWithinConfiguredGraceAndReclaimsBounds(t *te
 }
 
 func TestFileIdempotencyStoreReservesTerminalBytesBeforeEvaluation(t *testing.T) {
-	store := newTestFileIdempotencyStore(t, filepath.Join(t.TempDir(), "acp-idempotency.cbor"), 4, 1024)
+	store := newTestFileIdempotencyStore(t, filepath.Join(idempotencyTestRoot(t), "acp-idempotency.cbor"), 4, 1024)
 	tooLarge := testIdempotencyRequest(10, 20, 2048)
 	if _, err := store.Begin(context.Background(), tooLarge); !errors.Is(err, ErrCacheCapacity) {
 		t.Fatalf("reservation error = %v, want ErrCacheCapacity", err)
@@ -140,7 +140,7 @@ func TestFileIdempotencyStoreReservesTerminalBytesBeforeEvaluation(t *testing.T)
 }
 
 func TestFileIdempotencyStoreFailsClosedForReplicaAndLockMisconfiguration(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "acp-idempotency.cbor")
+	path := filepath.Join(idempotencyTestRoot(t), "acp-idempotency.cbor")
 	base := FileIdempotencyStoreConfig{
 		Path: path, DeploymentMode: IdempotencyDeploymentSingleNode, ReplicaCount: 1,
 		MaxEntries: 8, MaxBytes: 2 << 20, CleanupGraceSeconds: 60,
@@ -170,7 +170,7 @@ func TestFileIdempotencyStoreFailsClosedForReplicaAndLockMisconfiguration(t *tes
 }
 
 func TestFileIdempotencyStoreFailsClosedOnCorruptRestartState(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "acp-idempotency.cbor")
+	path := filepath.Join(idempotencyTestRoot(t), "acp-idempotency.cbor")
 	store := newTestFileIdempotencyStore(t, path, 8, 2<<20)
 	if err := store.Close(); err != nil {
 		t.Fatal(err)
@@ -205,7 +205,7 @@ func TestFileIdempotencyStoreSweepsExpiredRecordsWhileIdleAndOnOpen(t *testing.T
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			path := filepath.Join(t.TempDir(), "acp-idempotency.cbor")
+			path := filepath.Join(idempotencyTestRoot(t), "acp-idempotency.cbor")
 			config := testFileIdempotencyStoreConfig(path, 8, 2<<20)
 			config.CleanupGraceSeconds = 1
 			config.NowUnix = func() uint64 { return uint64(time.Now().Unix()) }
@@ -286,11 +286,26 @@ func testIdempotencyRequest(now, deadline uint64, maximum uint64) IdempotencyReq
 	}
 }
 
+func idempotencyTestRoot(t *testing.T) string {
+	t.Helper()
+	// Canonicalize only the fresh, test-owned directory. Production continues
+	// rejecting aliases and caller-supplied paths are never rewritten here.
+	root := t.TempDir()
+	resolved, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		t.Fatalf("resolve owned storage fixture %q: %v", root, err)
+	}
+	t.Logf("owned storage fixture: supplied=%q resolved=%q", root, resolved)
+	return resolved
+}
+
 func newTestFileIdempotencyStore(t *testing.T, path string, entries int, maximum uint64) *FileIdempotencyStore {
 	t.Helper()
 	store, err := NewFileIdempotencyStore(testFileIdempotencyStoreConfig(path, entries, maximum))
 	if err != nil {
-		t.Fatal(err)
+		parent := filepath.Dir(path)
+		resolved, resolveErr := filepath.EvalSymlinks(parent)
+		t.Fatalf("store %q: %v; parent=%q resolved=%q resolve_error=%v", path, err, parent, resolved, resolveErr)
 	}
 	t.Cleanup(func() { _ = store.Close() })
 	return store

@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/hex"
+	"flag"
 	"fmt"
 	"nbsr.example/federation-verifier/internal/identity"
+	"nbsr.example/federation-verifier/internal/packageverify"
 	"nbsr.example/federation-verifier/internal/verifier"
 	"os"
 	"path/filepath"
@@ -11,16 +13,21 @@ import (
 )
 
 func main() {
+	version := flag.String("version", packageverify.Version1, "explicit package authority version")
+	flag.Parse()
+	if flag.NArg() > 1 {
+		fail(fmt.Errorf("expected one package path"))
+	}
 	pkg := "../../vectors/federation-v0.1"
-	if len(os.Args) > 1 {
-		pkg = os.Args[1]
+	if flag.NArg() == 1 {
+		pkg = flag.Arg(0)
 	}
 	abs, e := filepath.Abs(pkg)
 	if e != nil {
 		fail(e)
 	}
 	repo := filepath.Clean(filepath.Join(abs, "..", ".."))
-	s, e := verifier.VerifyAll(abs, repo)
+	s, e := verifier.VerifyAllVersion(abs, repo, *version)
 	if e != nil {
 		for _, d := range s.Divergences {
 			fmt.Fprintln(os.Stderr, d)

@@ -462,3 +462,9 @@ full affected Windows authority package pass; 17 CI regressions pass. Independen
 review found no blocker. Production validation/authority pins are unchanged.
 Native Linux and hosted rerun remain unverified. Local commit is authorized;
 publication still requires fresh approval. No ACK work was started.
+
+The subsequently authorized publication of 2251ea95 was verified on origin. Hosted run 38054824820 is terminal: five passed, two Go jobs failed, none running. See docs/reviews/2026-10-10-hosted-ci-2251ea95.md and JSON. Linux exposes the previously documented federation authority/version blocker; Windows idempotency constructor rejection remains unresolved because logs omit the underlying path/OS cause. No gate, pin, production source or test was changed in this diagnosis. Further publication requires fresh authorization; ACK work remains deferred.
+
+Targeted Go follow-up: exact federation registry/lock/manifest delta is recorded in docs/reviews/2026-10-10-go-hosted-diagnosis.md and JSON. A Windows short-temp-path fixture failure was reproduced RED and corrected GREEN without production changes; the affected authority package passes locally. Hosted equivalence remains unconfirmed. Independent review found no blocker. All changes remain local and uncommitted; authority policy and ACK remain deferred.
+
+Approved federation version split is implemented and independently reviewed: exact immutable v1 preserved, separately pinned v2 requires explicit selection, archived authority has no fallback, purposes 15/16 remain distinct. Python/CI41, finalNode29, Go verifier87 and Go client909 test/subtest events passed; CLI opt-in/denial matrix, vet, formatting, lint and workflow contracts passed. See docs/reviews/2026-10-10-federation-version-implementation.json for commands, hashes, negative attempts and limits. Scoped local commit is authorized; publication is not. No ACK source changes.

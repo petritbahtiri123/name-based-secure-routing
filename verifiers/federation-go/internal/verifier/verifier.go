@@ -6,8 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"nbsr.example/federation-verifier/internal/capability"
@@ -34,19 +32,16 @@ type Summary struct {
 }
 
 func VerifyAll(pkg, repo string) (Summary, error) {
-	m, files, e := packageverify.Verify(pkg, repo)
+	return VerifyAllVersion(pkg, repo, packageverify.Version1)
+}
+
+func VerifyAllVersion(pkg, repo, version string) (Summary, error) {
+	m, files, authorities, e := packageverify.VerifyWithAuthorities(pkg, repo, version)
 	if e != nil {
 		return Summary{}, e
 	}
-	read := func(p string) ([]byte, error) { return os.ReadFile(filepath.Join(repo, filepath.FromSlash(p))) }
-	sr, e := read("docs/protocol/registries/federation-v0.1-schema-proposal.json")
-	if e != nil {
-		return Summary{}, e
-	}
-	dr, e := read("docs/protocol/registries/federation-v0.1-development.json")
-	if e != nil {
-		return Summary{}, e
-	}
+	sr := authorities["docs/protocol/registries/federation-v0.1-schema-proposal.json"]
+	dr := authorities["docs/protocol/registries/federation-v0.1-development.json"]
 	reg, e := schema.Load(sr, dr)
 	if e != nil {
 		return Summary{}, e

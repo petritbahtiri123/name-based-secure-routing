@@ -143,3 +143,11 @@ def test_security_contract_rejects_unsafe_workflow_mutations(mutation):
         next(s for s in steps if s.get("uses", "").startswith("actions/upload-artifact@"))["with"]["path"] = "**/*"
     with pytest.raises(ValueError):
         validate_workflow(workflow)
+
+
+def test_federation_v2_commands_opt_in_explicitly():
+    for profile, name in (("python-protocol", "federation-v2-vectors"), ("go", "go-federation-v2"), ("node", "node-federation-v2")):
+        command = next(cmd for cmd in command_groups(profile) if cmd.name == name)
+        index = command.argv.index("--version")
+        assert command.argv[index + 1] == "federation-v0.1-development-v2"
+        assert command.argv[-1].endswith("vectors/federation-v0.1-development-v2")

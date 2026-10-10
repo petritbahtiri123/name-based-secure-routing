@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readdir } from "node:fs/promises";
+import { readdir, realpath } from "node:fs/promises";
 import path from "node:path";
 import { parseStrictJson } from "./strict-json.js";
 import { readStableRegular } from "./safe-file.js";
@@ -34,13 +34,22 @@ function assertAcyclic(artifacts) {
   for (const id of graph.keys()) visit(id);
 }
 
-export async function verifyManifest(packageDir) {
+export const VERSION1 = "federation-v0.1-development-v1";
+export const VERSION2 = "federation-v0.1-development-v2";
+export function selectedAuthority(version) {
+  if (version === VERSION1) return {digest:"1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35", baseline:"0849b986d065105441e116dce15294250a323926", development:"docs/protocol/registries/archive/federation-v0.1-development-v1.json"};
+  if (version === VERSION2) return {digest:"06511cfffacc2ced7f350d54edab86cd214e369f140ab45f32139ed94a556532", baseline:"af15649678540d57770fd08ad09934a43c1f9241", development:"docs/protocol/registries/federation-v0.1-development.json"};
+  throw new Error("unsupported package version");
+}
+export async function verifyManifest(packageDir, version=VERSION1) {
+  const selected=selectedAuthority(version);
+  if(await realpath(packageDir)!==path.resolve(packageDir))throw new Error("unsafe package alias");
   const raw = await readStableRegular(path.join(packageDir,"manifest.json"),{maxBytes:MANIFEST_LIMIT,label:"manifest"});
   let manifest;
   try { manifest = parseStrictJson(raw,{maxBytes:262_144,maxDepth:16}); } catch(error) { throw new Error(`malformed manifest JSON: ${error.message}`); }
   exactFields(manifest, TOP_FIELDS, "manifest");
   if (manifest.format_version !== 1) throw new Error("unsupported manifest format version");
-  if (manifest.package !== "federation-v0.1" || manifest.package_version !== "federation-v0.1-development-v1") throw new Error("unexpected package/profile version");
+  if (manifest.package !== "federation-v0.1" || manifest.package_version !== version) throw new Error("unexpected package/profile version");
   if (!Array.isArray(manifest.artifacts) || manifest.artifacts.length === 0) throw new Error("manifest artifacts must be non-empty");
 
   const ids = new Set();
@@ -72,5 +81,6 @@ export async function verifyManifest(packageDir) {
     if (!/^[0-9a-f]{64}$/.test(artifact.sha256) || digest !== artifact.sha256) throw new Error(`manifest digest mismatch: ${artifact.path}`);
     files.set(artifact.path,bytes);
   }
+  if(createHash("sha256").update(raw).digest("hex")!==selected.digest)throw new Error("untrusted manifest digest");
   const result={artifacts:manifest.artifacts.length,package:manifest.package,packageVersion:manifest.package_version};Object.defineProperty(result,"files",{value:files});return result;
 }

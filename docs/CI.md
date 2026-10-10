@@ -170,3 +170,21 @@ The subsequent local portability patch is documented in
 filesystem diagnostics, uses the existing platform-specific Go fixture hierarchy,
 and replaces the complete ACL only on test-owned enrollment directories. It does
 not relax production ACL validation. Native Linux and hosted rerun remain required.
+
+Run 38054824820 at 2251ea95 subsequently passed Python/Rust on both platforms and
+Node/policy; both Go jobs failed. The Linux federation trust-anchor mismatch is
+an authority/version decision, not a pin to refresh for CI. The local Windows
+storage fixture follow-up canonicalizes only newly created test-owned roots and
+retains production alias rejection. Its short-name regression and authority
+package pass locally; the hosted path cause and fix remain unconfirmed. See
+`docs/reviews/2026-10-10-go-hosted-diagnosis.md` for exact boundaries and evidence.
+
+
+The approved local federation version split restores original v1 package bytes
+and retains its default selection and independent pin. CI explicitly checks the
+separate v2 through Python, Go and Node commands; their default invocation rejects
+v2. Both version suites remain required. V1 reads its exact archived development
+registry; v2 uses the already approved current registry. See
+`docs/reviews/2026-10-10-federation-version-approval-scope.md` and its implementation
+JSON for pins, exact verification and limits. Local success does not establish a
+hosted pass; no publication or workflow security changes are part of this change.

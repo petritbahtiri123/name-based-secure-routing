@@ -14,6 +14,11 @@ import (
 )
 
 const MaxPackageFile = 1 << 20
+const Version1 = "federation-v0.1-development-v1"
+const Version2 = "federation-v0.1-development-v2"
+const developmentPath = "docs/protocol/registries/federation-v0.1-development.json"
+const archivedDevelopmentPath = "docs/protocol/registries/archive/federation-v0.1-development-v1.json"
+const manifestV2SHA256 = "06511cfffacc2ced7f350d54edab86cd214e369f140ab45f32139ed94a556532"
 const manifestSHA256 = "1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35"
 
 var authorityPaths = []string{"docs/protocol/core-v0.1-wire.md", "docs/protocol/registries/core-v0.2-baseline-lock.json", "docs/protocol/registries/federation-v0.1-development.json", "docs/protocol/registries/federation-v0.1-schema-proposal.json", "vectors/federation-v0.1-schema-proposal/literal-fixtures.json", "tests/federation/fixtures/task6-state-scenarios.json", "docs/protocol/registries/federation-v0.1-threshold-container-proposal.json", "vectors/federation-v0.1-threshold-container/literal-fixtures.json"}
@@ -107,18 +112,41 @@ func ReadRegular(path string, max int64) ([]byte, error) {
 	return b, nil
 }
 func Verify(pkg, repo string) (Manifest, map[string][]byte, error) {
+	return verify(pkg, repo, Version1, nil)
+}
+
+// VerifyWithAuthorities returns the same authority bytes authenticated by the
+// selected manifest. Consumers must not reread unverified registry files.
+func VerifyWithAuthorities(pkg, repo, version string) (Manifest, map[string][]byte, map[string][]byte, error) {
+	authorities := make(map[string][]byte)
+	m, files, err := verify(pkg, repo, version, authorities)
+	if err != nil {
+		return m, nil, nil, err
+	}
+	return m, files, authorities, nil
+}
+
+func verify(pkg, repo, version string, authorities map[string][]byte) (Manifest, map[string][]byte, error) {
+	digest, baseline := manifestSHA256, "0849b986d065105441e116dce15294250a323926"
+	switch version {
+	case Version1:
+	case Version2:
+		digest, baseline = manifestV2SHA256, "af15649678540d57770fd08ad09934a43c1f9241"
+	default:
+		return Manifest{}, nil, fmt.Errorf("unsupported package version")
+	}
 	raw, e := ReadRegular(filepath.Join(pkg, "manifest.json"), MaxPackageFile)
 	if e != nil {
 		return Manifest{}, nil, e
 	}
-	if sum(raw) != manifestSHA256 {
+	if sum(raw) != digest {
 		return Manifest{}, nil, fmt.Errorf("untrusted manifest digest")
 	}
 	var m Manifest
 	if e = strictjson.Decode(raw, &m); e != nil {
 		return m, nil, e
 	}
-	if m.FormatVersion != 1 || m.Package != "federation-v0.1" || m.PackageVersion != "federation-v0.1-development-v1" {
+	if m.FormatVersion != 1 || m.Package != "federation-v0.1" || m.PackageVersion != version {
 		return m, nil, fmt.Errorf("manifest version/profile")
 	}
 	if m.Authority != "WP8 Task 7 deterministic Federation v0.1 conformance package" || len(m.Artifacts) != 8 {
@@ -223,7 +251,7 @@ func Verify(pkg, repo string) (Manifest, map[string][]byte, error) {
 	if e = strictjson.Decode(files["authority-locks.json"], &l); e != nil {
 		return m, nil, e
 	}
-	if l.Authority != "WP8 Task 7 immutable upstream authority locks" || l.AcceptedBaselineCommit != "0849b986d065105441e116dce15294250a323926" || len(l.Authorities) != 8 || l.FormatVersion != 1 || l.CoreV02ArtifactCount != 110 || l.FederationObjectCount != 18 || l.SchemaLiteralCount != 28 || l.Task6ScenarioCount != 4 || l.ThresholdEvidenceCapability != 6 || l.ThresholdLiteralCount != 89 {
+	if l.Authority != "WP8 Task 7 immutable upstream authority locks" || l.AcceptedBaselineCommit != baseline || len(l.Authorities) != 8 || l.FormatVersion != 1 || l.CoreV02ArtifactCount != 110 || l.FederationObjectCount != 18 || l.SchemaLiteralCount != 28 || l.Task6ScenarioCount != 4 || l.ThresholdEvidenceCapability != 6 || l.ThresholdLiteralCount != 89 {
 		return m, nil, fmt.Errorf("authority lock constants")
 	}
 	for i, a := range l.Authorities {
@@ -233,12 +261,19 @@ func Verify(pkg, repo string) (Manifest, map[string][]byte, error) {
 		if !safeRel(a.Path) || a.Length < 0 || a.Length > MaxPackageFile {
 			return m, nil, fmt.Errorf("authority path")
 		}
-		b, e := ReadRegular(filepath.Join(repo, filepath.FromSlash(a.Path)), MaxPackageFile)
+		source := a.Path
+		if version == Version1 && a.Path == developmentPath {
+			source = archivedDevelopmentPath
+		}
+		b, e := ReadRegular(filepath.Join(repo, filepath.FromSlash(source)), MaxPackageFile)
 		if e != nil {
 			return m, nil, e
 		}
 		if int64(len(b)) != a.Length || sum(b) != a.SHA256 {
 			return m, nil, fmt.Errorf("authority drift %s", a.Path)
+		}
+		if authorities != nil {
+			authorities[a.Path] = b
 		}
 	}
 	return m, files, nil

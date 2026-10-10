@@ -28,6 +28,47 @@ def load(name: str) -> dict[str, object]:
     return json.loads((PACKAGE / name).read_bytes())
 
 
+def test_explicit_package_versions_preserve_v1_and_separate_v2(tmp_path: Path) -> None:
+    from scripts.federation_v01_vectors.package import build_package, verify_package, write_package
+
+    v1, v2 = "federation-v0.1-development-v1", "federation-v0.1-development-v2"
+    old, new = build_package(), build_package(version=v2)
+    assert hashlib.sha256(old["manifest.json"]).hexdigest() == "1ff9591b925e926e757bb57ab8f3cd1620b6ff9d41149df92ad5672ff810ab35"
+    assert new == build_package(version=v2)
+    assert json.loads(new["manifest.json"])["package_version"] == v2
+    assert json.loads(new["authority-locks.json"])["accepted_baseline_commit"] == "af15649678540d57770fd08ad09934a43c1f9241"
+    for name in ARTIFACTS - {"README.md", "authority-locks.json"}:
+        assert old[name] == new[name]
+    write_package(tmp_path, version=v2)
+    before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+    assert verify_package(tmp_path, version=v2) == []
+    assert verify_package(tmp_path, version=v1)
+    assert before == {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+    with pytest.raises(ValueError, match="unsupported package version"):
+        build_package(version="unknown")
+
+
+@pytest.mark.parametrize("mutation", ["missing", "changed", "wrong-version"])
+def test_v1_archive_is_mandatory_and_pinned(tmp_path, monkeypatch, mutation):
+    from scripts.federation_v01_vectors import package
+
+    for name, _, _ in package.AUTHORITY_LOCKS:
+        target = package.ARCHIVED_DEVELOPMENT_PATH if name == package.DEVELOPMENT_PATH else name
+        destination = tmp_path / target
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / target).read_bytes())
+    archive = tmp_path / package.ARCHIVED_DEVELOPMENT_PATH
+    if mutation == "missing":
+        archive.unlink()
+    elif mutation == "changed":
+        archive.write_bytes(archive.read_bytes() + b" ")
+    else:
+        archive.write_bytes((ROOT / package.DEVELOPMENT_PATH).read_bytes())
+    monkeypatch.setattr(package, "ROOT", tmp_path)
+    with pytest.raises((OSError, ValueError)):
+        package._authority_locks()
+
+
 def test_generator_builds_twice_identically_and_check_is_non_mutating(tmp_path: Path) -> None:
     first, second = tmp_path / "first", tmp_path / "second"
     for target in (first, second):
@@ -228,7 +269,9 @@ def test_schema_literals_and_upstream_authorities_are_independently_locked() -> 
     assert locks["threshold_evidence_capability"] == 6
     assert locks["federation_object_count"] == 18
     for item in locks["authorities"]:
-        data = (ROOT / item["path"]).read_bytes()
+        source = ("docs/protocol/registries/archive/federation-v0.1-development-v1.json"
+                  if item["path"] == "docs/protocol/registries/federation-v0.1-development.json" else item["path"])
+        data = (ROOT / source).read_bytes()
         assert item["length"] == len(data)
         assert item["sha256"] == hashlib.sha256(data).hexdigest()
 
