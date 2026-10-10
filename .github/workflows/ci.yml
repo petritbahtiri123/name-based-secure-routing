@@ -31,6 +31,10 @@
           }
         },
         {
+          "name": "Set runner-local cache paths",
+          "run": "\"PIP_CACHE_DIR=$env:RUNNER_TEMP/pip-cache\" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
+        },
+        {
           "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
           "with": {
             "python-version": "3.13.14"
@@ -95,9 +99,6 @@
             "windows-2025"
           ]
         }
-      },
-      "env": {
-        "PIP_CACHE_DIR": "${{ runner.temp }}/pip-cache"
       }
     },
     "rust": {
@@ -115,6 +116,10 @@
             "persist-credentials": false,
             "fetch-depth": 0
           }
+        },
+        {
+          "name": "Set runner-local cache paths",
+          "run": "\"CARGO_TARGET_DIR=$env:RUNNER_TEMP/nbsr-target\" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
         },
         {
           "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
@@ -175,8 +180,7 @@
         }
       },
       "env": {
-        "RUSTUP_TOOLCHAIN": "1.97.1",
-        "CARGO_TARGET_DIR": "${{ runner.temp }}/nbsr-target"
+        "RUSTUP_TOOLCHAIN": "1.97.1"
       }
     },
     "go": {
@@ -194,6 +198,10 @@
             "persist-credentials": false,
             "fetch-depth": 0
           }
+        },
+        {
+          "name": "Set runner-local cache paths",
+          "run": "\"GOMODCACHE=$env:RUNNER_TEMP/gomod\" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
         },
         {
           "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
@@ -258,9 +266,6 @@
             "windows-2025"
           ]
         }
-      },
-      "env": {
-        "GOMODCACHE": "${{ runner.temp }}/gomod"
       }
     },
     "node-policy": {

@@ -435,3 +435,12 @@ retained. Independent review verified all six blobs and approved scoped local
 commit readiness. No sparse settings or working-tree evidence were changed.
 The user subsequently authorized preparing the scoped authority commit locally;
 publication remains paused. Full-suite and hosted CI success are not claimed.
+
+Later explicit authorization published the four-commit range through `d4ca54eb`
+with the existing update/signature bypass; exact remote SHA was verified. Both
+hosted workflow records ended in validation failure before creating jobs because
+`runner.temp` was unavailable in job-level environment expressions. See
+`docs/reviews/2026-10-10-hosted-ci-d4ca54eb.md` and JSON for links and exact results.
+A scoped local correction passed 16 CI regressions after a retained sandbox
+process-cleanup failure and justified retry. It remains uncommitted/unpublished;
+another publication requires approval. No ACK source changes were started.

@@ -107,6 +107,17 @@ def test_checked_in_workflows_have_security_contract():
         validate_workflow(json.loads(path.read_text(encoding="utf-8")))
 
 
+@pytest.mark.parametrize("filename,job_id", [
+    ("ci.yml", "python"), ("ci.yml", "rust"), ("ci.yml", "go"),
+    ("extended.yml", "extended"),
+])
+def test_job_environment_rejects_runner_context(filename, job_id):
+    workflow = json.loads((Path(".github/workflows") / filename).read_text())
+    workflow["jobs"][job_id].setdefault("env", {})["CACHE"] = "${{ runner.temp }}/cache"
+    with pytest.raises(ValueError, match="runner context"):
+        validate_workflow(workflow)
+
+
 @pytest.mark.parametrize("mutation", ["permissions", "action", "credentials", "cache", "artifact"])
 def test_security_contract_rejects_unsafe_workflow_mutations(mutation):
     workflow = json.loads(Path(".github/workflows/ci.yml").read_text(encoding="utf-8"))

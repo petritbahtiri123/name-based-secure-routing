@@ -1,0 +1,141 @@
+{
+  "published_sha": "d4ca54eb438df3a9f5ff1c7259059382bdf50ba0",
+  "remote_verified": true,
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "authorized_bypass_used": [
+    "protected-ref update",
+    "verified-signature requirement for four approved commits"
+  ],
+  "force_push": false,
+  "rules_changed": false,
+  "hosted_runs": [
+    {
+      "id": 38052988121,
+      "workflow": "ci.yml",
+      "status": "completed",
+      "conclusion": "failure",
+      "jobs": 0,
+      "invalid_runner_context_lines": [
+        100,
+        179,
+        263
+      ]
+    },
+    {
+      "id": 38052988879,
+      "workflow": "extended.yml",
+      "status": "completed",
+      "conclusion": "failure",
+      "jobs": 0,
+      "invalid_runner_context_lines": [
+        84
+      ]
+    }
+  ],
+  "local_runs": {
+    "hosted-context-red": {
+      "commit": "d4ca54eb438df3a9f5ff1c7259059382bdf50ba0",
+      "label": "hosted-context-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci/test_ci.py",
+        "-k",
+        "job_environment_rejects_runner_context"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 12845674496,
+      "disk_end": 12845670400,
+      "ram_end": 6073180160,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "4b2a9413941e41e6599d65979f507071ca17269b702d7979c6f9e1b543a09a67",
+        "text": "FFFF                                                                     [100%]\r\n================================== FAILURES ===================================\r\n_________ test_job_environment_rejects_runner_context[ci.yml-python] __________\r\n\r\nfilename = 'ci.yml', job_id = 'python'\r\n\r\n    @pytest.mark.parametrize(\"filename,job_id\", [\r\n        (\"ci.yml\", \"python\"), (\"ci.yml\", \"rust\"), (\"ci.yml\", \"go\"),\r\n        (\"extended.yml\", \"extended\"),\r\n    ])\r\n    def test_job_environment_rejects_runner_context(filename, job_id):\r\n        workflow = json.loads((Path(\".github/workflows\") / filename).read_text())\r\n        workflow[\"jobs\"][job_id].setdefault(\"env\", {})[\"CACHE\"] = \"${{ runner.temp }}/cache\"\r\n>       with pytest.raises(ValueError, match=\"runner context\"):\r\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nE       Failed: DID NOT RAISE <class 'ValueError'>\r\n\r\ntests\\ci\\test_ci.py:117: Failed\r\n__________ test_job_environment_rejects_runner_context[ci.yml-rust] ___________\r\n\r\nfilename = 'ci.yml', job_id = 'rust'\r\n\r\n    @pytest.mark.parametrize(\"filename,job_id\", [\r\n        (\"ci.yml\", \"python\"), (\"ci.yml\", \"rust\"), (\"ci.yml\", \"go\"),\r\n        (\"extended.yml\", \"extended\"),\r\n    ])\r\n    def test_job_environment_rejects_runner_context(filename, job_id):\r\n        workflow = json.loads((Path(\".github/workflows\") / filename).read_text())\r\n        workflow[\"jobs\"][job_id].setdefault(\"env\", {})[\"CACHE\"] = \"${{ runner.temp }}/cache\"\r\n>       with pytest.raises(ValueError, match=\"runner context\"):\r\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nE       Failed: DID NOT RAISE <class 'ValueError'>\r\n\r\ntests\\ci\\test_ci.py:117: Failed\r\n___________ test_job_environment_rejects_runner_context[ci.yml-go] ____________\r\n\r\nfilename = 'ci.yml', job_id = 'go'\r\n\r\n    @pytest.mark.parametrize(\"filename,job_id\", [\r\n        (\"ci.yml\", \"python\"), (\"ci.yml\", \"rust\"), (\"ci.yml\", \"go\"),\r\n        (\"extended.yml\", \"extended\"),\r\n    ])\r\n    def test_job_environment_rejects_runner_context(filename, job_id):\r\n        workflow = json.loads((Path(\".github/workflows\") / filename).read_text())\r\n        workflow[\"jobs\"][job_id].setdefault(\"env\", {})[\"CACHE\"] = \"${{ runner.temp }}/cache\"\r\n>       with pytest.raises(ValueError, match=\"runner context\"):\r\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nE       Failed: DID NOT RAISE <class 'ValueError'>\r\n\r\ntests\\ci\\test_ci.py:117: Failed\r\n_____ test_job_environment_rejects_runner_context[extended.yml-extended] ______\r\n\r\nfilename = 'extended.yml', job_id = 'extended'\r\n\r\n    @pytest.mark.parametrize(\"filename,job_id\", [\r\n        (\"ci.yml\", \"python\"), (\"ci.yml\", \"rust\"), (\"ci.yml\", \"go\"),\r\n        (\"extended.yml\", \"extended\"),\r\n    ])\r\n    def test_job_environment_rejects_runner_context(filename, job_id):\r\n        workflow = json.loads((Path(\".github/workflows\") / filename).read_text())\r\n        workflow[\"jobs\"][job_id].setdefault(\"env\", {})[\"CACHE\"] = \"${{ runner.temp }}/cache\"\r\n>       with pytest.raises(ValueError, match=\"runner context\"):\r\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nE       Failed: DID NOT RAISE <class 'ValueError'>\r\n\r\ntests\\ci\\test_ci.py:117: Failed\r\n=========================== short test summary info ===========================\r\nFAILED tests/ci/test_ci.py::test_job_environment_rejects_runner_context[ci.yml-python]\r\nFAILED tests/ci/test_ci.py::test_job_environment_rejects_runner_context[ci.yml-rust]\r\nFAILED tests/ci/test_ci.py::test_job_environment_rejects_runner_context[ci.yml-go]\r\nFAILED tests/ci/test_ci.py::test_job_environment_rejects_runner_context[extended.yml-extended]\r\n4 failed, 12 deselected in 0.78s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "hosted-context-green": {
+      "commit": "d4ca54eb438df3a9f5ff1c7259059382bdf50ba0",
+      "label": "hosted-context-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-hosted-context-pytest",
+        "tests/ci/test_ci.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 4.02,
+      "disk_start": 12845666304,
+      "disk_end": 12845662208,
+      "ram_end": 6068686848,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "408787048302601b7d87f95d887f68711d0394a103fbd6b6760833061a5cdee3",
+        "text": "..F.............                                                         [100%]\r\n================================== FAILURES ===================================\r\n________________ test_timeout_is_failure_and_reaps_descendant _________________\r\n\r\ntmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/nbsr-hosted-context-pytest/test_timeout_is_failure_and_re0')\r\n\r\n    def test_timeout_is_failure_and_reaps_descendant(tmp_path):\r\n        pid_file = tmp_path / \"child.pid\"\r\n        script = (\r\n            \"import subprocess,sys,time; from pathlib import Path; \"\r\n            \"child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(60)']); \"\r\n            \"Path(sys.argv[1]).write_text(str(child.pid)); time.sleep(60)\"\r\n        )\r\n        result = run_command(\"timeout\", [sys.executable, \"-c\", script, str(pid_file)], Path.cwd(), 2)\r\n        assert result[\"timed_out\"]\r\n>       assert result[\"exit_code\"] == 124\r\nE       assert 125 == 124\r\n\r\ntests\\ci\\test_ci.py:37: AssertionError\r\n=========================== short test summary info ===========================\r\nFAILED tests/ci/test_ci.py::test_timeout_is_failure_and_reaps_descendant - as...\r\n1 failed, 15 passed in 2.95s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "hosted-context-permitted": {
+      "commit": "d4ca54eb438df3a9f5ff1c7259059382bdf50ba0",
+      "label": "hosted-context-permitted",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-hosted-context-permitted",
+        "tests/ci/test_ci.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.62,
+      "disk_start": 12840767488,
+      "disk_end": 12840771584,
+      "ram_end": 5985742848,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "b3cc254b5d5af7ec50a23c2d07df6522b9521e2693a38bad6cddbca544f83767",
+        "text": "................                                                         [100%]\r\n16 passed in 2.61s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    }
+  },
+  "prepared_fix": "uncommitted, unpublished; separate publication approval required",
+  "files": {
+    ".github/workflows/ci.yml": "b514912cc9f185a5630fbb4b66cc3bda103716f083c70803bc49961dbc5610b3",
+    ".github/workflows/extended.yml": "7c6d091f7be65ec8feb64748fc3f0f12e24c8742e8c9fb41f62a18d2bbea63bb",
+    "scripts/ci/check.py": "21895c65489c17f598f9ea21fa73a84dd2639e4fcf0d16be53ea312312490c2c",
+    "tests/ci/test_ci.py": "8b5dacf9dc564ca0c39f615be309f093dedc8dd5ae356e81ed041f32c1a9a2c6",
+    "docs/CI.md": "07c5bb5ad845226a60701bc96a86fbf2d5939276faa98b7965a46caf5943cde3",
+    "AGENTS.md": "7564176ea70d28e57bc70cbfe4eb839682a281d400036a285c17a6d29e159721"
+  },
+  "review": "Independent scoped review found no blocker; no reviewer test execution.",
+  "initializer_smoke": "4 exact workflow snippets passed; path with spaces",
+  "limits": [
+    "No hosted job started",
+    "Local checks do not prove hosted acceptance",
+    "ACK source changes deferred"
+  ]
+}

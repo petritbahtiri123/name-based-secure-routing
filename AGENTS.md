@@ -133,6 +133,9 @@ source gate; selected-source acceptance is not whole-crate or production proof.
 For missing committed evidence in sparse checkouts, inspect skip-worktree flags
 and exact Git blobs first. Validate a temporary materialization without restoring
 excluded files over user work; retain the original missing-input outcome.
+Initialize runner-dependent CI environment paths in execution steps; the GitHub
+`runner` context is unavailable in job-level `env`. Local contract checks do not
+replace hosted workflow validation.
 
 ## Large live-bundle harness checks
 

@@ -526,5 +526,12 @@
       "temporary_exact_blob_test_passed": 3,
       "original_failures_preserved": true
     }
+  },
+  "hosted_ci_checkpoint": {
+    "published_sha": "d4ca54eb438df3a9f5ff1c7259059382bdf50ba0",
+    "report": "docs/reviews/2026-10-10-hosted-ci-d4ca54eb.md",
+    "hosted": "2 terminal workflow validation failures; zero jobs",
+    "local_fix": "uncommitted and unpublished; 16 CI tests passed after sandbox cleanup retry",
+    "ack": "deferred"
   }
 }

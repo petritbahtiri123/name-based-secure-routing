@@ -31,6 +31,10 @@
           }
         },
         {
+          "name": "Set runner-local cache paths",
+          "run": "\"CARGO_TARGET_DIR=$env:RUNNER_TEMP/nbsr-target\" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
+        },
+        {
           "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
           "with": {
             "python-version": "3.13.14"
@@ -81,7 +85,6 @@
       ],
       "env": {
         "RUSTUP_TOOLCHAIN": "1.97.1",
-        "CARGO_TARGET_DIR": "${{ runner.temp }}/nbsr-target",
         "PROFILE": "${{ inputs.suite }}"
       }
     }

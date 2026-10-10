@@ -119,6 +119,10 @@ def validate_workflow(workflow: dict) -> None:
     if not workflow.get("concurrency", {}).get("cancel-in-progress"):
         raise ValueError("missing superseded-run cancellation")
     for job in workflow.get("jobs", {}).values():
+        # GitHub resolves job env before a runner exists; step env/run may use it.
+        if any(re.search(r"\$\{\{[^}]*\brunner\s*[.\[]", str(value))
+               for value in job.get("env", {}).values()):
+            raise ValueError("runner context is unavailable in job environment")
         if not 1 <= job.get("timeout-minutes", 0) <= 30:
             raise ValueError("missing bounded job timeout")
         if "permissions" in job or "environment" in job:

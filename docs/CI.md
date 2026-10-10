@@ -150,3 +150,9 @@ before diagnosing missing packaging. Validate exact committed test/evidence byte
 in a temporary materialization when appropriate; preserve the original missing-
 input result and do not overwrite user deletions or weaken tests. This scoped
 check is not a claim that the incomplete working checkout passes the full suite.
+
+Runner-dependent paths must be initialized at step execution time, for example
+through `RUNNER_TEMP` and `GITHUB_ENV`; GitHub does not expose the `runner` context
+in job-level `env`. Local contract validation catches this known error but is not
+a full hosted schema check. The first published run failed before job creation;
+see `docs/reviews/2026-10-10-hosted-ci-d4ca54eb.md` for the preserved result.
