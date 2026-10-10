@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 import subprocess
 from pathlib import Path
 
@@ -15,6 +16,7 @@ F75 = "docs/protocol/registries/core-v0.2-f75-overlay.json"
 P1P2 = "docs/protocol/registries/core-v0.2-p1p2-overlay.json"
 ACK = "docs/protocol/registries/core-v0.2-demo-ack-overlay.json"
 REPLACEMENT = "crates/nbsr-transport/src/quinn_adapter.rs"
+ACK_AUTHORITY_COMMIT = "94a1e4a2da528534ce9e2c62bc9d7a6335bd81ab"
 
 
 def _head_blob(relative: str) -> bytes:
@@ -26,16 +28,12 @@ def _head_blob(relative: str) -> bytes:
     ).stdout
 
 
-def _candidate_blob(relative: str) -> bytes:
-    object_id = subprocess.run(
-        ["git", "hash-object", "--path", relative, relative],
-        cwd=ROOT,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
+@lru_cache(maxsize=110)
+def _approved_blob(relative: str) -> bytes:
+    # Historical ACK behavior remains pinned; the main baseline test separately
+    # validates current candidate bytes through the latest approved layer.
     return subprocess.run(
-        ["git", "cat-file", "blob", object_id],
+        ["git", "cat-file", "blob", f"{ACK_AUTHORITY_COMMIT}:{relative}"],
         cwd=ROOT,
         check=True,
         capture_output=True,
@@ -56,7 +54,7 @@ def _copy_authority(root: Path) -> Path:
     _write(root, P1P2, _head_blob(P1P2))
     _write(root, ACK, (ROOT / ACK).read_bytes())
     for relative in lock["artifacts"]:
-        _write(root, relative, _candidate_blob(relative))
+        _write(root, relative, _approved_blob(relative))
     return root / ACK
 
 

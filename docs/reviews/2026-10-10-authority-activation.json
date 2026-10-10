@@ -1,0 +1,459 @@
+{
+  "source_commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+  "base_commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+  "state": "UNCOMMITTED_LOCAL_ACTIVATION",
+  "publication": "PAUSED",
+  "runs": {
+    "authority-red": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_transport_lifecycle_overlay.py"
+      ],
+      "exit_code": 2,
+      "abort": null,
+      "elapsed_seconds": 2.22,
+      "disk_start": 13024727040,
+      "disk_end": 13024727040,
+      "ram_end": 6009565184,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "9e071f98b2970b92acb140e18e2d3ae500c8ebfe056bf2a64961a4a67b0da474",
+        "text": "\r\n=================================== ERRORS ====================================\r\n____ ERROR collecting tests/federation/test_transport_lifecycle_overlay.py ____\r\nImportError while importing test module 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\tests\\federation\\test_transport_lifecycle_overlay.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\importlib\\__init__.py:88: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\ntests\\federation\\test_transport_lifecycle_overlay.py:13: in <module>\r\n    from nbsr.federation.profile import CoreBaselineError, assert_transport_lifecycle_core_overlay\r\nE   ImportError: cannot import name 'assert_transport_lifecycle_core_overlay' from 'nbsr.federation.profile' (C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\nbsr\\federation\\profile.py)\r\n=========================== short test summary info ===========================\r\nERROR tests/federation/test_transport_lifecycle_overlay.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\r\n1 error in 1.02s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-green": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-green",
+        "tests/federation/test_transport_lifecycle_overlay.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 10.24,
+      "disk_start": 13024382976,
+      "disk_end": 12983152640,
+      "ram_end": 6062223360,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "f821b2b2149bb0779a162fe1068d5e5e71e51af5ed4772f5986b384a682bb68e",
+        "text": ".........................................                                [100%]\r\n41 passed in 9.13s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-historical": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-historical",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-historical",
+        "tests/federation/test_transport_lifecycle_overlay.py",
+        "tests/federation/test_demo_ack_core_overlay.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 21.07,
+      "disk_start": 12983017472,
+      "disk_end": 12925472768,
+      "ram_end": 5902757888,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "b9d7727d4f0ea55c3ab1b4ff4a8913e95767ca1bf9a1713f7e1b00ab68a9095c",
+        "text": "...........................................................              [100%]\r\n59 passed in 19.79s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-current": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-current",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-current",
+        "tests/federation/test_baseline_immutability.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 49.98,
+      "disk_start": 12925505536,
+      "disk_end": 12920573952,
+      "ram_end": 5440139264,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "8c11e0cdbd445da60346472ef98991ea7b3f84c8145953b6d65738e3b2138c15",
+        "text": "F...                                                                     [100%]\r\n================================== FAILURES ===================================\r\n_________ test_core_v02_baseline_accepts_exact_110_artifact_inventory _________\r\n\r\ntmp_path = WindowsPath('C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-current/test_core_v02_baseline_accepts0')\r\n\r\n    def test_core_v02_baseline_accepts_exact_110_artifact_inventory(tmp_path: Path) -> None:\r\n        _copy_locked_baseline(tmp_path)\r\n        assert assert_core_baseline_lock_authority(tmp_path) is None\r\n>       assert assert_transport_lifecycle_core_overlay(tmp_path) is None\r\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n\r\ntests\\federation\\test_baseline_immutability.py:75: \r\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\r\n\r\nroot = WindowsPath('C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-current/test_core_v02_baseline_accepts0')\r\n\r\n    def assert_transport_lifecycle_core_overlay(root: Path) -> None:\r\n        \"\"\"Validate the approved lifecycle snapshot and its five explicit dependencies.\r\n    \r\n        This is selected-source authority, not whole-crate or production certification.\r\n        Historical validators remain bound to their original source inventories.\r\n        \"\"\"\r\n        root = root.resolve()\r\n        raw, overlay = _read_json_authority(root / _TRANSPORT_LIFECYCLE_PATH, \"transport lifecycle authority\")\r\n        if hashlib.sha256(raw).hexdigest() != _TRANSPORT_LIFECYCLE_SHA256:\r\n            raise CoreBaselineError(\"modified transport lifecycle authority digest\")\r\n        if set(overlay) != {\r\n            \"format_version\", \"authority_id\", \"status\", \"source_commit\", \"original_baseline\",\r\n            \"parent_overlay\", \"replacements\", \"supplemental_dependencies\",\r\n        }:\r\n            raise CoreBaselineError(\"invalid transport lifecycle authority schema\")\r\n        if (\r\n            type(overlay[\"format_version\"]) is not int or overlay[\"format_version\"] != 1\r\n            or overlay[\"authority_id\"] != \"NBSR-TRANSPORT-LIFECYCLE-2026-10-10\"\r\n            or overlay[\"status\"] != \"ACTIVE_AUTHORITY\"\r\n            or overlay[\"source_commit\"] != _TRANSPORT_LIFECYCLE_SOURCE\r\n            or overlay[\"original_baseline\"] != {\r\n                \"path\": \"docs/protocol/registries/core-v0.2-baseline-lock.json\",\r\n                \"sha256\": FederationProfile.core_v02_baseline_lock_sha256,\r\n            }\r\n            or overlay[\"parent_overlay\"] != {\r\n                \"path\": _DEMO_ACK_OVERLAY_PATH, \"sha256\": _DEMO_ACK_OVERLAY_SHA256,\r\n            }\r\n        ):\r\n            raise CoreBaselineError(\"invalid transport lifecycle authority chain\")\r\n        replacements = _closed_replacements(\r\n            root, overlay[\"replacements\"], _TRANSPORT_LIFECYCLE_REPLACEMENTS, \"transport lifecycle\",\r\n        )\r\n        dependencies = _closed_replacements(\r\n            root, overlay[\"supplemental_dependencies\"], _TRANSPORT_LIFECYCLE_DEPENDENCIES,\r\n            \"transport lifecycle dependency\",\r\n        )\r\n        # Reuse every historical ancestor and legacy-inventory check. Only this\r\n        # pinned, closed authority may supersede the two approved legacy entries.\r\n        _assert_demo_ack_core_overlay(root, replacements)\r\n        for relative, expected in dependencies.items():\r\n            try:\r\n                data = _safe_overlay_path(root, relative).read_bytes()\r\n            except OSError as exc:\r\n                raise CoreBaselineError(f\"invalid transport lifecycle dependency: {relative}\") from exc\r\n            if len(data) != expected[\"length\"] or hashlib.sha256(data).hexdigest() != expected[\"sha256\"]:\r\n>               raise CoreBaselineError(f\"modified transport lifecycle dependency: {relative}\")\r\nE               nbsr.federation.profile.CoreBaselineError: modified transport lifecycle dependency: crates/nbsr-transport/Cargo.lock\r\n\r\nnbsr\\federation\\profile.py:519: CoreBaselineError\r\n=========================== short test summary info ===========================\r\nFAILED tests/federation/test_baseline_immutability.py::test_core_v02_baseline_accepts_exact_110_artifact_inventory\r\n1 failed, 3 passed in 48.86s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-raw-red": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-raw-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-raw-red",
+        "tests/federation/test_transport_lifecycle_overlay.py::test_exact_approved_transport_snapshot_passes"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.82,
+      "disk_start": 12920102912,
+      "disk_end": 12919136256,
+      "ram_end": 5964300288,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "6950504050022656586d53de685af6792ecd94ee027b44eab446c78d8e8b7d96",
+        "text": "F                                                                        [100%]\r\n================================== FAILURES ===================================\r\n________________ test_exact_approved_transport_snapshot_passes ________________\r\n\r\nauthority_root = WindowsPath('C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-raw-red/test_exact_approved_transport_0')\r\n\r\n    def test_exact_approved_transport_snapshot_passes(authority_root):\r\n>       assert assert_transport_lifecycle_core_overlay(authority_root) is None\r\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n\r\ntests\\federation\\test_transport_lifecycle_overlay.py:85: \r\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\r\n\r\nroot = WindowsPath('C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-raw-red/test_exact_approved_transport_0')\r\n\r\n    def assert_transport_lifecycle_core_overlay(root: Path) -> None:\r\n        \"\"\"Validate the approved lifecycle snapshot and its five explicit dependencies.\r\n    \r\n        This is selected-source authority, not whole-crate or production certification.\r\n        Historical validators remain bound to their original source inventories.\r\n        \"\"\"\r\n        root = root.resolve()\r\n        raw, overlay = _read_json_authority(root / _TRANSPORT_LIFECYCLE_PATH, \"transport lifecycle authority\")\r\n        if hashlib.sha256(raw).hexdigest() != _TRANSPORT_LIFECYCLE_SHA256:\r\n            raise CoreBaselineError(\"modified transport lifecycle authority digest\")\r\n        if set(overlay) != {\r\n            \"format_version\", \"authority_id\", \"status\", \"source_commit\", \"original_baseline\",\r\n            \"parent_overlay\", \"replacements\", \"supplemental_dependencies\",\r\n        }:\r\n            raise CoreBaselineError(\"invalid transport lifecycle authority schema\")\r\n        if (\r\n            type(overlay[\"format_version\"]) is not int or overlay[\"format_version\"] != 1\r\n            or overlay[\"authority_id\"] != \"NBSR-TRANSPORT-LIFECYCLE-2026-10-10\"\r\n            or overlay[\"status\"] != \"ACTIVE_AUTHORITY\"\r\n            or overlay[\"source_commit\"] != _TRANSPORT_LIFECYCLE_SOURCE\r\n            or overlay[\"original_baseline\"] != {\r\n                \"path\": \"docs/protocol/registries/core-v0.2-baseline-lock.json\",\r\n                \"sha256\": FederationProfile.core_v02_baseline_lock_sha256,\r\n            }\r\n            or overlay[\"parent_overlay\"] != {\r\n                \"path\": _DEMO_ACK_OVERLAY_PATH, \"sha256\": _DEMO_ACK_OVERLAY_SHA256,\r\n            }\r\n        ):\r\n            raise CoreBaselineError(\"invalid transport lifecycle authority chain\")\r\n        replacements = _closed_replacements(\r\n            root, overlay[\"replacements\"], _TRANSPORT_LIFECYCLE_REPLACEMENTS, \"transport lifecycle\",\r\n        )\r\n        dependencies = _closed_replacements(\r\n            root, overlay[\"supplemental_dependencies\"], _TRANSPORT_LIFECYCLE_DEPENDENCIES,\r\n            \"transport lifecycle dependency\",\r\n        )\r\n        # Reuse every historical ancestor and legacy-inventory check. Only this\r\n        # pinned, closed authority may supersede the two approved legacy entries.\r\n        _assert_demo_ack_core_overlay(root, replacements)\r\n        for relative, expected in dependencies.items():\r\n            try:\r\n                data = _safe_overlay_path(root, relative).read_bytes()\r\n            except OSError as exc:\r\n                raise CoreBaselineError(f\"invalid transport lifecycle dependency: {relative}\") from exc\r\n            if len(data) != expected[\"length\"] or hashlib.sha256(data).hexdigest() != expected[\"sha256\"]:\r\n>               raise CoreBaselineError(f\"modified transport lifecycle dependency: {relative}\")\r\nE               nbsr.federation.profile.CoreBaselineError: modified transport lifecycle dependency: crates/nbsr-transport/Cargo.lock\r\n\r\nnbsr\\federation\\profile.py:519: CoreBaselineError\r\n=========================== short test summary info ===========================\r\nFAILED tests/federation/test_transport_lifecycle_overlay.py::test_exact_approved_transport_snapshot_passes\r\n1 failed in 1.66s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-raw-green": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-raw-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-raw-green",
+        "tests/federation/test_transport_lifecycle_overlay.py",
+        "tests/federation/test_demo_ack_core_overlay.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 22.49,
+      "disk_start": 12918059008,
+      "disk_end": 12868689920,
+      "ram_end": 5986652160,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "4f63c3d5e8a89358e645ac7aa5e09017337d70b72f9fc74bbf0b1e7320fe03f2",
+        "text": "...........................................................              [100%]\r\n59 passed in 21.28s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-current-green": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-current-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-current-green",
+        "tests/federation/test_baseline_immutability.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 58.83,
+      "disk_start": 12863590400,
+      "disk_end": 12858712064,
+      "ram_end": 5761212416,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "6505a0d2dc87a01446dc765984149a0e08b96d7eda486abc3e3d7254f01e11d9",
+        "text": "....                                                                     [100%]\r\n4 passed in 57.54s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-neighbors": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-neighbors",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-authority-neighbors",
+        "tests/federation",
+        "--ignore=tests/federation/test_independent_wire_peer.py",
+        "--ignore=tests/federation/test_baseline_immutability.py",
+        "--ignore=tests/federation/test_demo_ack_core_overlay.py",
+        "--ignore=tests/federation/test_transport_lifecycle_overlay.py",
+        "--ignore=tests/federation/test_f75_core_baseline_overlay.py",
+        "--ignore=tests/federation/test_p1p2_core_overlay.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 34.95,
+      "disk_start": 12858777600,
+      "disk_end": 12853112832,
+      "ram_end": 5937135616,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "25e1961cba4b5ebb4ec83ed406a3f309efeb0bb1b88256aeeb36865cb558601b",
+        "text": "........................................................................ [ 13%]\r\n........................................................................ [ 26%]\r\n........................................................................ [ 39%]\r\n........................................................................ [ 52%]\r\n..........................................FF............................ [ 65%]\r\n........................................................................ [ 78%]\r\n........................................................................ [ 92%]\r\n...........................................                              [100%]\r\n================================== FAILURES ===================================\r\n_________ test_public_packet_capture_is_real_closed_and_privacy_safe __________\r\n\r\n    def test_public_packet_capture_is_real_closed_and_privacy_safe() -> None:\r\n        capture = EVIDENCE / \"live-federation.pcapng\"\r\n>       manifest = json.loads((EVIDENCE / \"capture-manifest.json\").read_text(encoding=\"utf-8\"))\r\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n\r\ntests\\federation\\test_packet_evidence.py:78: \r\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\r\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:787: in read_text\r\n    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:\r\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\r\n\r\nself = WindowsPath('C:/Users/bajra/OneDrive/Documents/NBSR/evidence/wp8-task10/capture-manifest.json')\r\nmode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None\r\n\r\n    def open(self, mode='r', buffering=-1, encoding=None,\r\n             errors=None, newline=None):\r\n        \"\"\"\r\n        Open the file pointed to by this path and return a file object, as\r\n        the built-in open() function does.\r\n        \"\"\"\r\n        if \"b\" not in mode:\r\n            encoding = io.text_encoding(encoding)\r\n>       return io.open(self, mode, buffering, encoding, errors, newline)\r\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nE       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\evidence\\\\wp8-task10\\\\capture-manifest.json'\r\n\r\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:771: FileNotFoundError\r\n_________ test_task10b_independent_capture_is_closed_and_public_safe __________\r\n\r\n    def test_task10b_independent_capture_is_closed_and_public_safe() -> None:\r\n        evidence = ROOT / \"evidence\" / \"wp8-task10b\"\r\n        capture = evidence / \"independent-go-rust.pcapng\"\r\n>       manifest = json.loads((evidence / \"capture-manifest.json\").read_text(encoding=\"utf-8\"))\r\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n\r\ntests\\federation\\test_packet_evidence.py:131: \r\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\r\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:787: in read_text\r\n    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:\r\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\r\n\r\nself = WindowsPath('C:/Users/bajra/OneDrive/Documents/NBSR/evidence/wp8-task10b/capture-manifest.json')\r\nmode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None\r\n\r\n    def open(self, mode='r', buffering=-1, encoding=None,\r\n             errors=None, newline=None):\r\n        \"\"\"\r\n        Open the file pointed to by this path and return a file object, as\r\n        the built-in open() function does.\r\n        \"\"\"\r\n        if \"b\" not in mode:\r\n            encoding = io.text_encoding(encoding)\r\n>       return io.open(self, mode, buffering, encoding, errors, newline)\r\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nE       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\evidence\\\\wp8-task10b\\\\capture-manifest.json'\r\n\r\n..\\..\\..\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py:771: FileNotFoundError\r\n=========================== short test summary info ===========================\r\nFAILED tests/federation/test_packet_evidence.py::test_public_packet_capture_is_real_closed_and_privacy_safe\r\nFAILED tests/federation/test_packet_evidence.py::test_task10b_independent_capture_is_closed_and_public_safe\r\n2 failed, 545 passed in 33.35s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "authority-packet-materialized": {
+      "commit": "8afe21f2741772f1658014bc424c4c986bde08fb",
+      "label": "authority-packet-materialized",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-packet-authority-pytest-20261010",
+        "C:/Users/bajra/AppData/Local/Temp/nbsr-packet-authority-20261010/tests/federation/test_packet_evidence.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.81,
+      "disk_start": 12847415296,
+      "disk_end": 12847415296,
+      "ram_end": 5855223808,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "0ed4d387e4bc4fa83eb4d39a45bdfae032aa906beaca842f5cf140f6e0dbeafc",
+        "text": "...                                                                      [100%]\r\n3 passed in 0.68s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    }
+  },
+  "provenance_correction": {
+    "source_commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+    "mismatches": [
+      {
+        "path": "crates/nbsr-transport/Cargo.lock",
+        "proposal_length": 32155,
+        "proposal_sha256": "3597ef2faa161fbd54f7ca990aa4d7028203e411f50758093bdc4410f0efbbc6",
+        "git_blob_length": 30942,
+        "git_blob_sha256": "976ace41027ae90bebbe2229a1575c1f0c7bc5e71b1847804f4d6d33404c21f8",
+        "raw_lf_to_crlf_exactly_matches_original_proposal": true
+      },
+      {
+        "path": "crates/nbsr-transport/Cargo.toml",
+        "proposal_length": 1018,
+        "proposal_sha256": "67c024c50c1f5f2026227a33196501f93d0aad51d66cafa4d4d92a036f015551",
+        "git_blob_length": 991,
+        "git_blob_sha256": "81103d93ae135c3e7763c5f81ca4960efd581bd881a1de5016a2731054af0d11",
+        "raw_lf_to_crlf_exactly_matches_original_proposal": true
+      }
+    ],
+    "raw_entries": [
+      {
+        "path": "crates/nbsr-transport/src/lib.rs",
+        "length": 6817,
+        "sha256": "3db5a0a615e12d4d67ed0380f07e9ad9778bde98a8879817992a0df000f99e43"
+      },
+      {
+        "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+        "length": 95878,
+        "sha256": "c0937c20ae437dcf4f598d117704830a458defc109d1b3900e4560c3d9ba0b92"
+      },
+      {
+        "path": "crates/nbsr-transport/Cargo.lock",
+        "length": 30942,
+        "sha256": "976ace41027ae90bebbe2229a1575c1f0c7bc5e71b1847804f4d6d33404c21f8"
+      },
+      {
+        "path": "crates/nbsr-transport/Cargo.toml",
+        "length": 991,
+        "sha256": "81103d93ae135c3e7763c5f81ca4960efd581bd881a1de5016a2731054af0d11"
+      },
+      {
+        "path": "crates/nbsr-transport/src/benchmark_bind.rs",
+        "length": 2560,
+        "sha256": "a3557e4cbd152d3be50910a648d2fb1505d5f1e210c694a98a0d8063dd5685e4"
+      },
+      {
+        "path": "crates/nbsr-transport/src/owned_send.rs",
+        "length": 14029,
+        "sha256": "f4d7bd3578abc198265fc9042362f648f74f67664f9779f88a1e9cd08ff8e960"
+      },
+      {
+        "path": "crates/nbsr-transport/src/udp_socket.rs",
+        "length": 3043,
+        "sha256": "c34aa4f12baf3d3241657e437e933ad97f3c859f54e9a69e5250e6b0a78e5761"
+      },
+      {
+        "path": "crates/nbsr-transport/src/control_read_tests.rs",
+        "length": 80299,
+        "sha256": "12289d13e8402e0b7eeb695d1361cf64d950306f72105d6b89c7c03391705a44"
+      },
+      {
+        "path": "crates/nbsr-transport/tests/application_stream.rs",
+        "length": 32027,
+        "sha256": "9f01b327fbf983632f44e82c9d2fa20d5d89623b0bcbbdd7da6025a56d22e524"
+      },
+      {
+        "path": "crates/nbsr-transport/tests/benchmark_connect_from_tests.rs",
+        "length": 5764,
+        "sha256": "f69e106532d43c9b20836913543352031fec277f9516c57772c4ec7c06b3bdf2"
+      },
+      {
+        "path": "crates/nbsr-transport/tests/control.rs",
+        "length": 5756,
+        "sha256": "22dece474ad2e5457dae2135ab42ded2fcc49c381447ecc6a8fa0f139c77a7cf"
+      },
+      {
+        "path": "crates/nbsr-transport/tests/handshake.rs",
+        "length": 32205,
+        "sha256": "a7eeeec83d7062e965401cb3d81f8601f6251ff239144ffc885dc032be99a95e"
+      },
+      {
+        "path": "crates/nbsr-transport/tests/stream_credit_integration.rs",
+        "length": 36477,
+        "sha256": "1329f62da0a869b9f6797c87eb3474a5fe7854fb30094d09b1b48b0c9d09e0a3"
+      }
+    ]
+  },
+  "working_files": {
+    "AGENTS.md": {
+      "length": 9168,
+      "sha256": "80aeddbde797d0d919b4045622cf660902b98dbf238f4b0aed03c5236f0ea6ef"
+    },
+    "docs/CI.md": {
+      "length": 9598,
+      "sha256": "8e63b54b388f6585cec7d657ee7a8ffc4172736e1c8036ca9ac23ce71d6a4b24"
+    },
+    "nbsr/federation/profile.py": {
+      "length": 33577,
+      "sha256": "14303e407290abe4d107502d979e38e4ec898c8a5b10c18a1d859a86d16f9582"
+    },
+    "tests/federation/test_baseline_immutability.py": {
+      "length": 3833,
+      "sha256": "99ebff5d0ad6179d387ee66309dd2343910c4596f2310729af40f32abbee9f03"
+    },
+    "tests/federation/test_demo_ack_core_overlay.py": {
+      "length": 5243,
+      "sha256": "d9a5c96dac43201a0594f53c00b3f64c12bb89398bf671adf9dbdb4ea1299893"
+    },
+    "tests/federation/test_transport_lifecycle_overlay.py": {
+      "length": 7345,
+      "sha256": "dde89ca141bdd95a64e9e80ccd39c76563387019de3b3b44daf964a90a83f676"
+    },
+    "docs/protocol/registries/core-v0.2-transport-lifecycle-overlay.json": {
+      "length": 1812,
+      "sha256": "d6cc7cf54e0e4752e5662c9a8ee049cb869c3797f4c4770175bf273db9992a79"
+    }
+  },
+  "independent_review": "No technical blocker; reviewer independently verified all seven raw Git source hashes, active digest, fixture and scope; reviewer did not execute tests.",
+  "additional_checks": {
+    "ruff_four_changed_python_files": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "remaining_blockers": [
+    "Original sparse working tree still excludes packet evidence; exact temporary materialization passes all 3 packet tests.",
+    "Full clean-source federation and hosted CI matrix not established."
+  ],
+  "cleanup": {
+    "all_supervised_direct_children_reaped": true,
+    "final_process_snapshot": "Get-Process python,pytest,cargo,rustc returned no processes",
+    "containers_created": false,
+    "downloads": false,
+    "commits_or_pushes_this_activation": false
+  },
+  "packet_materialization": {
+    "revision": "8afe21f2741772f1658014bc424c4c986bde08fb",
+    "temporary_root": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-packet-authority-20261010",
+    "files": [
+      {
+        "path": "tests/federation/test_packet_evidence.py",
+        "blob": "f1c811149f18b458e7f420f5a76b6150f30a3f33",
+        "length": 7089,
+        "sha256": "48b2123d245899d1b6e210a5a490324e679db39d764c09444537fdb0fdb2bd33"
+      },
+      {
+        "path": "scripts/capture_wp8_live_interop.ps1",
+        "blob": "76c48b9ab366b1a8eb66fcf18309d430a6d2f6ee",
+        "length": 6553,
+        "sha256": "c9563370aa0ffa4d655912e25370de5aa1f0fa3f82c0552fb070f3b3ba231e9f"
+      },
+      {
+        "path": "evidence/wp8-task10/capture-manifest.json",
+        "blob": "cf90c19d3709bd210db76e7993cb4bd4ea1e0489",
+        "length": 1161,
+        "sha256": "23eef4597529280aec471b987ad70a182a41a21825c7040be5d2cebd0e4506f4"
+      },
+      {
+        "path": "evidence/wp8-task10/live-federation.pcapng",
+        "blob": "7dca77a1d2fa7d4d13bdadc364da945821674d1e",
+        "length": 20260,
+        "sha256": "84c7c026b45acd98550c3487adfa3ce60cbc62c591a16aae7046ce9cd6b1c798"
+      },
+      {
+        "path": "evidence/wp8-task10b/capture-manifest.json",
+        "blob": "ae095df46e108b0c39e5259722a5e3eaaad4e56a",
+        "length": 1013,
+        "sha256": "98a19be7b63bae54353ee4bfc76a2fe8711385ca5fc88852458d3bd6b2830918"
+      },
+      {
+        "path": "evidence/wp8-task10b/independent-go-rust.pcapng",
+        "blob": "4eac1b59db426aebad3120f8f3e7c9e5347e596d",
+        "length": 16500,
+        "sha256": "00b1c645f08521ecc88c8e8892fca3da986f679b1b6c4de5ba4532bda7341ac1"
+      }
+    ],
+    "classification": "explicit sparse-checkout exclusions; skip-worktree index entries; exact blobs present locally",
+    "source_worktree_restored": false,
+    "also_identical_at_approved_source": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+    "manifest_last_changes": {
+      "evidence/wp8-task10/capture-manifest.json": "695b583de447ce166f4d051c16550c073874ad1d",
+      "evidence/wp8-task10b/capture-manifest.json": "c9ef9660c9d76e343ccc0ffaa8e23d4636b77873"
+    }
+  }
+}

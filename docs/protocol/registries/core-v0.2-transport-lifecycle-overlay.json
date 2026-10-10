@@ -1,0 +1,53 @@
+{
+  "format_version": 1,
+  "authority_id": "NBSR-TRANSPORT-LIFECYCLE-2026-10-10",
+  "status": "ACTIVE_AUTHORITY",
+  "source_commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+  "original_baseline": {
+    "path": "docs/protocol/registries/core-v0.2-baseline-lock.json",
+    "sha256": "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef"
+  },
+  "parent_overlay": {
+    "path": "docs/protocol/registries/core-v0.2-demo-ack-overlay.json",
+    "sha256": "99fe7153f251c4d68d836596bb532cf7bb32eb55f41d6c69b6fc04b281167801"
+  },
+  "replacements": [
+    {
+      "path": "crates/nbsr-transport/src/lib.rs",
+      "length": 6817,
+      "sha256": "3db5a0a615e12d4d67ed0380f07e9ad9778bde98a8879817992a0df000f99e43"
+    },
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "length": 95878,
+      "sha256": "c0937c20ae437dcf4f598d117704830a458defc109d1b3900e4560c3d9ba0b92"
+    }
+  ],
+  "supplemental_dependencies": [
+    {
+      "path": "crates/nbsr-transport/Cargo.lock",
+      "length": 30942,
+      "sha256": "976ace41027ae90bebbe2229a1575c1f0c7bc5e71b1847804f4d6d33404c21f8"
+    },
+    {
+      "path": "crates/nbsr-transport/Cargo.toml",
+      "length": 991,
+      "sha256": "81103d93ae135c3e7763c5f81ca4960efd581bd881a1de5016a2731054af0d11"
+    },
+    {
+      "path": "crates/nbsr-transport/src/benchmark_bind.rs",
+      "length": 2560,
+      "sha256": "a3557e4cbd152d3be50910a648d2fb1505d5f1e210c694a98a0d8063dd5685e4"
+    },
+    {
+      "path": "crates/nbsr-transport/src/owned_send.rs",
+      "length": 14029,
+      "sha256": "f4d7bd3578abc198265fc9042362f648f74f67664f9779f88a1e9cd08ff8e960"
+    },
+    {
+      "path": "crates/nbsr-transport/src/udp_socket.rs",
+      "length": 3043,
+      "sha256": "c34aa4f12baf3d3241657e437e933ad97f3c859f54e9a69e5250e6b0a78e5761"
+    }
+  ]
+}

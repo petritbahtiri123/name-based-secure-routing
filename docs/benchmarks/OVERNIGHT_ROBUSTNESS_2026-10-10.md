@@ -412,3 +412,26 @@ all supervised exits 0, no containers created and no background work. Offline
 cached dependencies, at most two jobs and unchanged 95-second guards were used.
 No new commit/push, settings change, dependency download or unrelated-file change.
 Root guidance remains applicable unchanged.
+
+## Later authority activation checkpoint
+
+See `docs/reviews/2026-10-10-authority-activation.md` and its JSON for the later
+approved additive source-authority work over `8afe21f2`. The implementation is
+uncommitted and publication remains paused. Corrected raw-Git authority and
+historical ACK tests passed 59 cases; the current-source gate passed 4. A
+neighboring run passed 545 and failed 2 because tracked skip-worktree packet
+manifests are absent locally. The full federation suite is not green.
+All negative attempts and the discovered archive newline-conversion discrepancy
+are retained. Independent review found no technical blocker in the corrected
+validator and hashes. No ACK runtime fix was started; that remains separate
+reviewed versioned-authority work. No build/download, commit/push, container,
+settings change, or unrelated-file cleanup occurred in this activation.
+
+Follow-up: read-only inspection confirmed explicit sparse-checkout exclusions,
+with exact evidence blobs available locally. Materializing the unchanged packet
+test/script and four evidence blobs from `8afe21f2` in a fresh temporary directory
+passed all 3 packet tests (0.68 s; supervised 1.81 s). Original 545/2 results remain
+retained. Independent review verified all six blobs and approved scoped local
+commit readiness. No sparse settings or working-tree evidence were changed.
+The user subsequently authorized preparing the scoped authority commit locally;
+publication remains paused. Full-suite and hosted CI success are not claimed.

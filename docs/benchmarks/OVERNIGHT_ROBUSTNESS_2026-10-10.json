@@ -511,5 +511,20 @@
         "path": "cached-target/debug/deps/nbsr_transport-e50f51b665ab68fb.exe"
       }
     ]
+  },
+  "authority_activation_checkpoint": {
+    "report": "docs/reviews/2026-10-10-authority-activation.md",
+    "manifest": "docs/reviews/2026-10-10-authority-activation.json",
+    "state": "uncommitted; publication paused",
+    "focused_passed": 63,
+    "neighbor_passed": 545,
+    "neighbor_failed": 2,
+    "blocker": "absent skip-worktree packet manifests",
+    "ack_runtime_work": "deferred; requires separate reviewed versioned authority",
+    "packet_resolution": {
+      "classification": "explicit sparse exclusions; exact blobs present locally",
+      "temporary_exact_blob_test_passed": 3,
+      "original_failures_preserved": true
+    }
   }
 }

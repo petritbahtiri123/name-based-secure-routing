@@ -121,3 +121,32 @@ See [GitHub secure-use guidance](https://docs.github.com/en/actions/reference/se
 [Ubuntu runner inventory](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md),
 [Windows runner inventory](https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-Readme.md),
 and the [OPA release](https://github.com/open-policy-agent/opa/releases/tag/v1.4.2).
+# Approved transport source authority
+
+The current-source gate in `tests/federation/test_baseline_immutability.py` uses
+`assert_transport_lifecycle_core_overlay`. Its separately versioned authority is
+`docs/protocol/registries/core-v0.2-transport-lifecycle-overlay.json`, recognizing
+the reviewed `99ac954e0c0d90a221b42492a59fa4d5b962ea5d` source snapshot.
+The original baseline, F75, P1/P2 and ACK authorities remain unchanged. Historical
+ACK tests use their approved `94a1e4a` fixture, while the main gate still reads
+current canonical source bytes.
+
+The layer checks all 110 legacy artifacts and explicitly pins `owned_send.rs`,
+`udp_socket.rs`, `benchmark_bind.rs`, `Cargo.toml` and `Cargo.lock` in the transport
+crate. The six verification-source hashes in the approval proposal identify
+review evidence; they are not additional runtime protocol gates. This selected
+scope is not a complete build dependency closure or production certification.
+Future ACK or other changes to pinned files require a new reviewed versioned
+authority rather than extending this snapshot's approval silently.
+
+Run focused authority, current-source and historical ACK tests in bounded groups
+using the provisioned environment; retain failed attempts and distinguish local
+validation from the hosted CI matrix. See the activation checkpoint under
+`docs/reviews/2026-10-10-authority-activation.md` for measured results and limits.
+
+Sparse local checkouts may omit committed packet evidence required by federation
+tests. Inspect skip-worktree flags, sparse patterns and Git blob availability
+before diagnosing missing packaging. Validate exact committed test/evidence bytes
+in a temporary materialization when appropriate; preserve the original missing-
+input result and do not overwrite user deletions or weaken tests. This scoped
+check is not a claim that the incomplete working checkout passes the full suite.

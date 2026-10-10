@@ -198,6 +198,21 @@ _DEMO_ACK_REASON = (
 )
 _DEMO_ACK_REPLACEMENT = "crates/nbsr-transport/src/quinn_adapter.rs"
 
+_TRANSPORT_LIFECYCLE_PATH = "docs/protocol/registries/core-v0.2-transport-lifecycle-overlay.json"
+_TRANSPORT_LIFECYCLE_SHA256 = "d6cc7cf54e0e4752e5662c9a8ee049cb869c3797f4c4770175bf273db9992a79"
+_TRANSPORT_LIFECYCLE_SOURCE = "99ac954e0c0d90a221b42492a59fa4d5b962ea5d"
+_TRANSPORT_LIFECYCLE_REPLACEMENTS = frozenset({
+    "crates/nbsr-transport/src/lib.rs",
+    "crates/nbsr-transport/src/quinn_adapter.rs",
+})
+_TRANSPORT_LIFECYCLE_DEPENDENCIES = frozenset({
+    "crates/nbsr-transport/src/owned_send.rs",
+    "crates/nbsr-transport/src/udp_socket.rs",
+    "crates/nbsr-transport/src/benchmark_bind.rs",
+    "crates/nbsr-transport/Cargo.toml",
+    "crates/nbsr-transport/Cargo.lock",
+})
+
 
 def _strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
     result: dict[str, object] = {}
@@ -452,6 +467,61 @@ def assert_p1p2_core_overlay(root: Path) -> None:
 
 
 def assert_demo_ack_core_overlay(root: Path) -> None:
+    """Validate the historical ACK snapshot without later replacement authority."""
+    _assert_demo_ack_core_overlay(root, {})
+
+
+def assert_transport_lifecycle_core_overlay(root: Path) -> None:
+    """Validate the approved lifecycle snapshot and its five explicit dependencies.
+
+    This is selected-source authority, not whole-crate or production certification.
+    Historical validators remain bound to their original source inventories.
+    """
+    root = root.resolve()
+    raw, overlay = _read_json_authority(root / _TRANSPORT_LIFECYCLE_PATH, "transport lifecycle authority")
+    if hashlib.sha256(raw).hexdigest() != _TRANSPORT_LIFECYCLE_SHA256:
+        raise CoreBaselineError("modified transport lifecycle authority digest")
+    if set(overlay) != {
+        "format_version", "authority_id", "status", "source_commit", "original_baseline",
+        "parent_overlay", "replacements", "supplemental_dependencies",
+    }:
+        raise CoreBaselineError("invalid transport lifecycle authority schema")
+    if (
+        type(overlay["format_version"]) is not int or overlay["format_version"] != 1
+        or overlay["authority_id"] != "NBSR-TRANSPORT-LIFECYCLE-2026-10-10"
+        or overlay["status"] != "ACTIVE_AUTHORITY"
+        or overlay["source_commit"] != _TRANSPORT_LIFECYCLE_SOURCE
+        or overlay["original_baseline"] != {
+            "path": "docs/protocol/registries/core-v0.2-baseline-lock.json",
+            "sha256": FederationProfile.core_v02_baseline_lock_sha256,
+        }
+        or overlay["parent_overlay"] != {
+            "path": _DEMO_ACK_OVERLAY_PATH, "sha256": _DEMO_ACK_OVERLAY_SHA256,
+        }
+    ):
+        raise CoreBaselineError("invalid transport lifecycle authority chain")
+    replacements = _closed_replacements(
+        root, overlay["replacements"], _TRANSPORT_LIFECYCLE_REPLACEMENTS, "transport lifecycle",
+    )
+    dependencies = _closed_replacements(
+        root, overlay["supplemental_dependencies"], _TRANSPORT_LIFECYCLE_DEPENDENCIES,
+        "transport lifecycle dependency",
+    )
+    # Reuse every historical ancestor and legacy-inventory check. Only this
+    # pinned, closed authority may supersede the two approved legacy entries.
+    _assert_demo_ack_core_overlay(root, replacements)
+    for relative, expected in dependencies.items():
+        try:
+            data = _safe_overlay_path(root, relative).read_bytes()
+        except OSError as exc:
+            raise CoreBaselineError(f"invalid transport lifecycle dependency: {relative}") from exc
+        if len(data) != expected["length"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
+            raise CoreBaselineError(f"modified transport lifecycle dependency: {relative}")
+
+
+def _assert_demo_ack_core_overlay(
+    root: Path, replacement_overrides: dict[str, dict[str, object]],
+) -> None:
     root = root.resolve()
     lock_bytes, lock = _read_json_authority(
         root / "docs/protocol/registries/core-v0.2-baseline-lock.json",
@@ -573,12 +643,14 @@ def assert_demo_ack_core_overlay(root: Path) -> None:
         if path.is_symlink():
             raise CoreBaselineError(f"Core baseline artifact must not be a symlink: {relative}")
         data = path.read_bytes()
-        expected = ack_approved.get(
+        expected = replacement_overrides.get(relative, ack_approved.get(
             relative,
             p1p2_approved.get(relative, f75_approved.get(relative, original_entry)),
-        )
+        ))
         if len(data) != expected["length"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
-            if relative in ack_approved:
+            if relative in replacement_overrides:
+                label = "transport lifecycle replacement"
+            elif relative in ack_approved:
                 label = "ACK overlay replacement"
             elif relative in p1p2_approved:
                 label = "parent P1/P2 overlay replacement"

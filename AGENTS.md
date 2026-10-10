@@ -121,6 +121,19 @@ the exact commands without executing them. Workflow security contract tests
 are in `tests/ci/`; JSON-syntax YAML permits standard-library validation.
 Local structural validation is not evidence of a successful hosted run.
 
+The current-source authority gate uses the separately approved transport lifecycle
+overlay: retain the 110-file legacy inventory and its historical ancestors plus
+the five explicitly pinned implementation/build dependencies. Test-source hashes
+are evidence, not extra runtime gates. Later changes to pinned source require
+their own reviewed versioned authority; never refresh an older overlay in place.
+Focused regressions are `tests/federation/test_transport_lifecycle_overlay.py`,
+`test_baseline_immutability.py` and historical `test_demo_ack_core_overlay.py`
+in the same directory. Keep historical fixture checks distinct from the current
+source gate; selected-source acceptance is not whole-crate or production proof.
+For missing committed evidence in sparse checkouts, inspect skip-worktree flags
+and exact Git blobs first. Validate a temporary materialization without restoring
+excluded files over user work; retain the original missing-input outcome.
+
 ## Large live-bundle harness checks
 
 For explicit 8192 live-bundle support, use the focused boundary tests documented
