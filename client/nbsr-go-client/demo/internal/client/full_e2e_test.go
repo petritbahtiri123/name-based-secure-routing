@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
+	"nbsr.local/client/nbsr-go-client/demo/internal/testfixture"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/identity"
 	"nbsr.local/client/nbsr-go-client/internal/session"
@@ -40,7 +41,7 @@ func TestFullTask4RealSecureRoute(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defaults, err := fixture.Start(t.TempDir())
+	defaults, err := fixture.Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +51,7 @@ func TestFullTask4RealSecureRoute(t *testing.T) {
 	request.Key.ProofThumbprint = proof.KeyRef().Thumbprint
 	view := session.DestinationRouteView{ServiceIdentity: request.Intent.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(request.Key.ServiceDigest), Intent: request.Intent, ProofThumbprint: request.Key.ProofThumbprint}
 	copy(view.ProofPublicKey[:], proof.PublicKey())
-	server, err := fixture.Start(t.TempDir(), fixture.WithRouteInputs(request, view))
+	server, err := fixture.Start(testfixture.TempDir(t), fixture.WithRouteInputs(request, view))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +62,7 @@ func TestFullTask4RealSecureRoute(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = authorityClient.Close() })
 
-	runtimeDir := t.TempDir()
+	runtimeDir := testfixture.TempDir(t)
 	admissionPath := filepath.Join(runtimeDir, "runtime-admission.conf")
 	admission, err := server.PublicRuntimeAdmissionConfig(sequence32(0x80))
 	if err != nil {

@@ -631,5 +631,28 @@
     "independent_review": "clean after Node unverified-map correction",
     "hosted": "pending later authorized publication",
     "ack": "unchanged"
+  },
+  "hosted_c822_checkpoint": {
+    "sha": "c822a0dd75a137f94482420a225e5f81c845fe60",
+    "run": 38057636484,
+    "url": "https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/38057636484",
+    "status": "completed/failure",
+    "passed": 6,
+    "failed": 1,
+    "report": "docs/reviews/2026-10-10-hosted-ci-c822a0dd.md",
+    "remaining": "Windows Go demo storage fixture group; client module fixed; Linux Go fixed",
+    "next_publication": "requires new authorization",
+    "ack": "unchanged"
+  },
+  "demo_windows_fixture_checkpoint": {
+    "report": "docs/reviews/2026-10-10-demo-windows-fixtures.md",
+    "manifest": "docs/reviews/2026-10-10-demo-windows-fixtures.json",
+    "pass_test_events": 73,
+    "skipped_tests": 4,
+    "vet": "PASS",
+    "review": "no blocking findings",
+    "publication": "authorized scoped local commit; unpublished; publication requires specific approval",
+    "hosted": "6 pass / Windows Go demo fail; local correction not hosted yet",
+    "ack": "unchanged"
   }
 }

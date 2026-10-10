@@ -1,6 +1,7 @@
 package main
 
 import (
+	"nbsr.local/client/nbsr-go-client/demo/internal/testfixture"
 	"net"
 	"os"
 	"path/filepath"
@@ -17,7 +18,7 @@ func TestAuthorityCommandRequiresLoopbackRuntimeConfiguration(t *testing.T) {
 }
 
 func TestStartPublishesStandaloneBootstrapAndAdmission(t *testing.T) {
-	root := t.TempDir()
+	root := testfixture.TempDir(t)
 	previous, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)

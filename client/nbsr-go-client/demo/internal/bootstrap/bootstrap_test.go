@@ -9,10 +9,11 @@ import (
 
 	"nbsr.local/client/nbsr-go-client/demo/internal/bootstrap"
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
+	"nbsr.local/client/nbsr-go-client/demo/internal/testfixture"
 )
 
 func TestExportLoadProducesOwnedStrictEnrolledClientState(t *testing.T) {
-	server, err := fixture.Start(t.TempDir())
+	server, err := fixture.Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -21,7 +22,7 @@ func TestExportLoadProducesOwnedStrictEnrolledClientState(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	root := t.TempDir()
+	root := testfixture.TempDir(t)
 	if err := server.ExportClientBootstrap(root, proofPrivate); err != nil {
 		t.Fatal(err)
 	}
@@ -43,13 +44,13 @@ func TestExportLoadProducesOwnedStrictEnrolledClientState(t *testing.T) {
 }
 
 func TestLoadRejectsUnknownFieldsTraversalAndSignerSubstitution(t *testing.T) {
-	server, err := fixture.Start(t.TempDir())
+	server, err := fixture.Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer server.Close()
 	_, proofPrivate, _ := ed25519.GenerateKey(nil)
-	root := t.TempDir()
+	root := testfixture.TempDir(t)
 	if err := server.ExportClientBootstrap(root, proofPrivate); err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +65,7 @@ func TestLoadRejectsUnknownFieldsTraversalAndSignerSubstitution(t *testing.T) {
 		"traversal": bytes.Replace(raw, []byte("client-secret.json"), []byte("../client-secret.json"), 1),
 	} {
 		t.Run(name, func(t *testing.T) {
-			copyRoot := t.TempDir()
+			copyRoot := testfixture.TempDir(t)
 			if err := os.WriteFile(filepath.Join(copyRoot, bootstrap.ManifestName), mutation, 0o600); err != nil {
 				t.Fatal(err)
 			}

@@ -1,0 +1,113 @@
+{
+  "sha": "c822a0dd75a137f94482420a225e5f81c845fe60",
+  "run": 38057636484,
+  "url": "https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/38057636484",
+  "created_at": "2026-10-10T13:56:07Z",
+  "completed_at": "2026-10-10T14:00:28Z",
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "id": 114229249703,
+      "name": "rust (ubuntu-24.04)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T13:56:09Z",
+      "completed_at": "2026-10-10T13:58:13Z"
+    },
+    {
+      "id": 114229249843,
+      "name": "go (windows-2025)",
+      "conclusion": "failure",
+      "started_at": "2026-10-10T13:56:09Z",
+      "completed_at": "2026-10-10T13:58:59Z"
+    },
+    {
+      "id": 114229249882,
+      "name": "go (ubuntu-24.04)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T13:56:09Z",
+      "completed_at": "2026-10-10T13:57:29Z"
+    },
+    {
+      "id": 114229249884,
+      "name": "python (windows-2025)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T13:56:11Z",
+      "completed_at": "2026-10-10T13:58:37Z"
+    },
+    {
+      "id": 114229249911,
+      "name": "python (ubuntu-24.04)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T13:56:09Z",
+      "completed_at": "2026-10-10T13:57:35Z"
+    },
+    {
+      "id": 114229249939,
+      "name": "rust (windows-2025)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T13:56:09Z",
+      "completed_at": "2026-10-10T14:00:28Z"
+    },
+    {
+      "id": 114229249962,
+      "name": "node-policy",
+      "conclusion": "success",
+      "started_at": "2026-10-10T13:56:10Z",
+      "completed_at": "2026-10-10T13:57:02Z"
+    }
+  ],
+  "passed": 6,
+  "failed": 1,
+  "running": 0,
+  "publication": {
+    "remote_sha_verified": "c822a0dd75a137f94482420a225e5f81c845fe60",
+    "previous_sha": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+    "branch": "codex/nbsr-v3-wp0-wp1",
+    "bypass": "specific user approval; protected-ref and verified-signature violations only; normal push; no settings change"
+  },
+  "diagnosis": {
+    "fixed": "Linux Go all five modules test/vet and explicit v2 pass; Windows client module including authority package and vet pass",
+    "remaining": "Windows Go demo module:23 top-level failing tests,32 failure markers including subtests, across four packages; generic ErrStoragePathRejected(24). Calls converge on demo/internal/fixture/authority.go:237. Caller-supplied runtimeDir is joined to acp-idempotency.cbor. Short TEMP/TMP alias hypothesis needs demo-specific deterministic reproduction and path diagnostics; hosted log does not expose underlying path/Win32 error.",
+    "unreached": "Windows demo vet, subsequent Go modules2-4 and explicit v2 CLI were not reached because module1 test failed."
+  },
+  "changes": "Evidence only; no additional commit, push, authority mutation or ACK work",
+  "logs_format": "Decoded workflow logs retained locally, LF-normalized",
+  "logs": [
+    {
+      "job_id": 114229249703,
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\hosted-c822-114229249703.log",
+      "sha256": "9429b5da5380ffe373dd370319c489852b19abac9a3cf830dd349f4ce0e94c9f"
+    },
+    {
+      "job_id": 114229249843,
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\hosted-c822-114229249843.log",
+      "sha256": "4a768eacd786fe749c247cd75be96b2436105f590e9b1450f8b2b5756a618354"
+    },
+    {
+      "job_id": 114229249882,
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\hosted-c822-114229249882.log",
+      "sha256": "8b576c9976b68dcee6be63ad99640411f90b9e74ae5daf95b9f0931b233665e8"
+    },
+    {
+      "job_id": 114229249884,
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\hosted-c822-114229249884.log",
+      "sha256": "08c1ad0a31bb3221c29aa834061cab70842a756f8e60ccbd10795d809d207d1b"
+    },
+    {
+      "job_id": 114229249911,
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\hosted-c822-114229249911.log",
+      "sha256": "d1e8609fce4087dea0244accb8c8c51078af41b6a16df199c05758f2f406f00e"
+    },
+    {
+      "job_id": 114229249939,
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\hosted-c822-114229249939.log",
+      "sha256": "0a32547fa2d7c7a0f6aeed47e864cf417b37826b0c742ec90702d6e5916edbf9"
+    },
+    {
+      "job_id": 114229249962,
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\hosted-c822-114229249962.log",
+      "sha256": "eb99890a1521291eabd30a7ee1e2b78a22b9373cab11460f74120d04c4f6a378"
+    }
+  ]
+}

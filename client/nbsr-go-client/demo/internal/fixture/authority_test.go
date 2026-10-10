@@ -9,13 +9,14 @@ import (
 	"strings"
 	"testing"
 
+	"nbsr.local/client/nbsr-go-client/demo/internal/testfixture"
 	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/session"
 )
 
 func TestRouteIssuerTrustIsPublicOnlyAndDefensivelyCopied(t *testing.T) {
-	server, err := Start(t.TempDir())
+	server, err := Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +33,7 @@ func TestRouteIssuerTrustIsPublicOnlyAndDefensivelyCopied(t *testing.T) {
 }
 
 func TestAuthorityFixtureSignsOnlyExactCatalogRequest(t *testing.T) {
-	server, err := Start(t.TempDir())
+	server, err := Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +64,7 @@ func TestAuthorityFixtureAcceptsMappingOwnedRuntimeRouteAndActualProof(t *testin
 	request.Key.TSGeneration, request.Key.ProofThumbprint = 5, thumbprint
 	view := session.DestinationRouteView{ServiceIdentity: request.Intent.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(request.Key.ServiceDigest), Intent: request.Intent, ProofThumbprint: thumbprint}
 	copy(view.ProofPublicKey[:], public)
-	server, err := Start(t.TempDir(), WithRouteInputs(request, view))
+	server, err := Start(testfixture.TempDir(t), WithRouteInputs(request, view))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +116,7 @@ func bytes32Value(seed byte) (value [32]byte) {
 }
 
 func TestAuthorityFixtureRejectsUnknownServiceAndCancellation(t *testing.T) {
-	server, err := Start(t.TempDir())
+	server, err := Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}

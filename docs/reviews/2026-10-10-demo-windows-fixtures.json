@@ -1,0 +1,186 @@
+{
+  "base_commit": "c822a0dd75a137f94482420a225e5f81c845fe60",
+  "status": "verified/reviewed for authorized scoped local commit; unpublished; hosted confirmation pending",
+  "diagnosis": "Controlled short TMP/TEMP reproduces error 24; canonicalize only new test-owned demo roots. Hosted underlying path was not logged.",
+  "passed_test_events": 73,
+  "passed_top_level_tests": 50,
+  "passed_subtests": 23,
+  "passed_packages": 7,
+  "skipped_tests": [
+    "TestFullTask4RealSecureRoute",
+    "TestStandaloneClientRealSecureRoute",
+    "TestStandaloneBackendFailureHasNoFallback",
+    "TestStandaloneTransportFailureHasNoFallback"
+  ],
+  "skip_output": [
+    "=== RUN   TestFullTask4RealSecureRoute",
+    "full_e2e_test.go:32: NBSR_TASK4_RUST_BINARY is required for the real Task 4 process test",
+    "--- SKIP: TestFullTask4RealSecureRoute (0.00s)",
+    "=== RUN   TestStandaloneClientRealSecureRoute",
+    "standalone_e2e_test.go:22: NBSR_TASK4_CLIENT_BINARY is required for the real Task 4 process test",
+    "--- SKIP: TestStandaloneClientRealSecureRoute (0.00s)",
+    "=== RUN   TestStandaloneBackendFailureHasNoFallback",
+    "standalone_e2e_test.go:26: NBSR_TASK4_CLIENT_BINARY is required for the real Task 4 process test",
+    "--- SKIP: TestStandaloneBackendFailureHasNoFallback (0.00s)",
+    "=== RUN   TestStandaloneTransportFailureHasNoFallback",
+    "standalone_e2e_test.go:30: NBSR_TASK4_CLIENT_BINARY is required for the real Task 4 process test",
+    "--- SKIP: TestStandaloneTransportFailureHasNoFallback (0.00s)"
+  ],
+  "checks": [
+    {
+      "commit": "c822a0dd75a137f94482420a225e5f81c845fe60",
+      "label": "demo-short-temp-red",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client/demo",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/fixture",
+        "-run",
+        "^TestRouteIssuerTrustIsPublicOnlyAndDefensivelyCopied$",
+        "-count=1",
+        "-v"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.61,
+      "disk_start": 12564430848,
+      "disk_end": 12563689472,
+      "ram_end": 4835299328,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-short-temp-red.stdout.log",
+          "sha256": "5ba878e318474d3be393f3210a8200816dbac36f00189893062658a67cb77ab3"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-short-temp-red.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "commit": "c822a0dd75a137f94482420a225e5f81c845fe60",
+      "label": "demo-short-temp-green",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client/demo",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/fixture",
+        "-run",
+        "^(TestRouteIssuerTrustIsPublicOnlyAndDefensivelyCopied|TestDemoOwnedFixtureUnderShortTempRetainsAliasRejection)$",
+        "-count=1",
+        "-v"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.81,
+      "disk_start": 12562939904,
+      "disk_end": 12561645568,
+      "ram_end": 4858216448,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-short-temp-green.stdout.log",
+          "sha256": "86922a43cdb930a524519378b387ed2e277196e08f4eb2d82a50f86a2d5fadb8"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-short-temp-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "commit": "c822a0dd75a137f94482420a225e5f81c845fe60",
+      "label": "demo-short-temp-full",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client/demo",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./...",
+        "-count=1",
+        "-json"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 10.84,
+      "disk_start": 12559122432,
+      "disk_end": 12554252288,
+      "ram_end": 4783443968,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-short-temp-full.stdout.log",
+          "sha256": "7ab76f5b959117debe4c447e6081d3b894289d19020937d5b4177a4d023fb0b5"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-short-temp-full.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "commit": "c822a0dd75a137f94482420a225e5f81c845fe60",
+      "label": "demo-vet",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client/demo",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "./..."
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 9.94,
+      "disk_start": 12548661248,
+      "disk_end": 12548190208,
+      "ram_end": 4701032448,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-vet.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\demo-vet.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "client/nbsr-go-client/demo/cmd/nbsr-demo-authority/main_test.go": "b5870f654dc7b91a5c5114fce4bc1ce14d0ae63b2dac5e7f5e5cc28b0d57a070",
+    "client/nbsr-go-client/demo/internal/bootstrap/bootstrap_test.go": "14cbbedf89237b0118ebf0bc1c49a9f261231535a2e237399e50023aff532dc0",
+    "client/nbsr-go-client/demo/internal/client/assembly_test.go": "1948cd1c9ce05447c2e5afad6b54dab867201cf1adb656562fc01e808e7b64fa",
+    "client/nbsr-go-client/demo/internal/client/authority_test.go": "6a0657b53e26654ddccb3bd136218bba74615f773217924e7595469342d2642d",
+    "client/nbsr-go-client/demo/internal/client/full_e2e_test.go": "6d7d312b3e1f37cd1ecc163b1cee17015f90cd1524418b3bf0f73f66f3f57f8a",
+    "client/nbsr-go-client/demo/internal/client/phase_failure_test.go": "258b5b7cd3cd2fedb81ab982fa9df2c6559de880b54e81de4bb23f4409704b66",
+    "client/nbsr-go-client/demo/internal/fixture/authority_test.go": "5a94a63c8754865a92260aea73bad94f6e5bcb67b439da34036d3b0a190c3f02",
+    "client/nbsr-go-client/demo/internal/fixture/authority_windows_test.go": "2f38163c5ba1a352d766ddb2ba9da3df46c47dc67f8521746a9b155a23154f25",
+    "client/nbsr-go-client/demo/internal/testfixture/temp.go": "9c631069ace1ffd5e623f1e78021a833d60c4463bc3d478f8fead13fcb143f14"
+  },
+  "independent_review": "full_delta_review: no blocking findings; static review only",
+  "limits": "Production and authority pins unchanged. No downloads, commit, push or ACK work.",
+  "cleanup": {
+    "bounded_direct_children_reaped": true,
+    "remaining_go_compile_link_vet_test_processes": 0,
+    "remaining_owned_short_temp_directories": 0,
+    "inspection": "Get-Process and owned temp directory listing; CIM unavailable, fallback succeeded"
+  }
+}

@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
+	"nbsr.local/client/nbsr-go-client/demo/internal/testfixture"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/identity"
 	"nbsr.local/client/nbsr-go-client/internal/resolution"
@@ -131,7 +132,7 @@ func newPhaseHarness(t *testing.T, connector *phaseConnector, channel *phaseChan
 	if err != nil {
 		t.Fatal(err)
 	}
-	defaults, err := fixture.Start(t.TempDir())
+	defaults, err := fixture.Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -141,7 +142,7 @@ func newPhaseHarness(t *testing.T, connector *phaseConnector, channel *phaseChan
 	view := session.DestinationRouteView{ServiceIdentity: request.Intent.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(request.Key.ServiceDigest), Intent: request.Intent, ProofThumbprint: request.Key.ProofThumbprint}
 	copy(view.ProofPublicKey[:], proof.PublicKey())
 	allOptions := append([]fixture.Option{fixture.WithRouteInputs(request, view)}, options...)
-	server, err := fixture.Start(t.TempDir(), allOptions...)
+	server, err := fixture.Start(testfixture.TempDir(t), allOptions...)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
+	"nbsr.local/client/nbsr-go-client/demo/internal/testfixture"
 	"nbsr.local/client/nbsr-go-client/internal/authority"
 	"nbsr.local/client/nbsr-go-client/internal/corestate"
 	"nbsr.local/client/nbsr-go-client/internal/session"
@@ -38,7 +39,7 @@ func TestAcquireRouteUsesProductionHTTP2AndReturnsUsableReservation(t *testing.T
 }
 
 func TestRuntimeRouteBindingUsesActualProofThroughHTTPManagerAndVerifier(t *testing.T) {
-	defaults, err := fixture.Start(t.TempDir())
+	defaults, err := fixture.Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +54,7 @@ func TestRuntimeRouteBindingUsesActualProofThroughHTTPManagerAndVerifier(t *test
 	request.Key.TSGeneration, request.Key.ProofThumbprint = 5, thumbprint
 	view := session.DestinationRouteView{ServiceIdentity: request.Intent.ServiceIdentity, ServiceDigest: corestate.ServiceDigest(request.Key.ServiceDigest), Intent: request.Intent, ProofThumbprint: thumbprint}
 	copy(view.ProofPublicKey[:], public)
-	server, err := fixture.Start(t.TempDir(), fixture.WithRouteInputs(request, view))
+	server, err := fixture.Start(testfixture.TempDir(t), fixture.WithRouteInputs(request, view))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +80,7 @@ func TestRuntimeRouteBindingUsesActualProofThroughHTTPManagerAndVerifier(t *test
 }
 
 func TestAuthorityClientCanUseProcessBootstrapWithoutFixtureServerReference(t *testing.T) {
-	server, err := fixture.Start(t.TempDir())
+	server, err := fixture.Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -135,7 +136,7 @@ func TestAcquireRouteUnknownServiceIsPolicyDenied(t *testing.T) {
 }
 
 func TestAcquireRouteTLSIdentityTimeoutAndCancellationFailClosed(t *testing.T) {
-	server, err := fixture.Start(t.TempDir())
+	server, err := fixture.Start(testfixture.TempDir(t))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -227,7 +228,7 @@ func TestAuthorityAcquisitionChurnReturnsToBaseline(t *testing.T) {
 
 func testAuthorityClient(t *testing.T, options ...fixture.Option) (*fixture.Server, *AuthorityClient) {
 	t.Helper()
-	server, err := fixture.Start(t.TempDir(), options...)
+	server, err := fixture.Start(testfixture.TempDir(t), options...)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -143,7 +143,9 @@ writer allowlist and reject unexpected explicit grants instead of trusting them.
 Storage tests resolve only freshly created test-owned temporary roots before
 constructing paths, because Windows short-name temp paths can fail the production
 alias check. Keep caller-supplied alias rejection and record hosted confirmation
-separately from a local short-path reproduction.
+separately from a local short-path reproduction. Demo tests share this fresh-root helper at
+`client/nbsr-go-client/demo/internal/testfixture/temp.go`; production startup must
+continue rejecting caller-supplied aliases.
 
 ## Large live-bundle harness checks
 

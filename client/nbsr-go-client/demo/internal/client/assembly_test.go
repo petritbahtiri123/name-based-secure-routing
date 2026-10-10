@@ -6,12 +6,13 @@ import (
 	"nbsr.local/client/nbsr-go-client/demo/internal/bootstrap"
 	democonfig "nbsr.local/client/nbsr-go-client/demo/internal/config"
 	"nbsr.local/client/nbsr-go-client/demo/internal/fixture"
+	"nbsr.local/client/nbsr-go-client/demo/internal/testfixture"
 	"nbsr.local/interop/nbsr-go-peer/wirepeer"
 )
 
 func TestStandaloneAssemblyUsesTheConcreteSecureRouteOpener(t *testing.T) {
-	root := t.TempDir()
-	server, err := fixture.StartStandaloneAt(t.TempDir(), "127.0.0.1:0", root)
+	root := testfixture.TempDir(t)
+	server, err := fixture.StartStandaloneAt(testfixture.TempDir(t), "127.0.0.1:0", root)
 	if err != nil {
 		t.Fatal(err)
 	}
