@@ -298,6 +298,10 @@
           }
         },
         {
+          "name": "Install constrained Python runtime for vector checks",
+          "run": "python -m pip install --constraint constraints/runtime.txt -e ."
+        },
+        {
           "name": "Node independent verifiers",
           "run": "python scripts/ci/check.py node --timeout 90"
         },

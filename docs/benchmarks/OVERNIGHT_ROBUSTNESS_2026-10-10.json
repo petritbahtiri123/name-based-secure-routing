@@ -533,5 +533,22 @@
     "hosted": "2 terminal workflow validation failures; zero jobs",
     "local_fix": "uncommitted and unpublished; 16 CI tests passed after sandbox cleanup retry",
     "ack": "deferred"
+  },
+  "hosted_corrective_checkpoint": {
+    "sha": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+    "run": 38053615382,
+    "status": "completed/failure",
+    "jobs_passed": 3,
+    "jobs_failed": 4,
+    "report": "docs/reviews/2026-10-10-hosted-ci-9ac925df.md",
+    "node_followup": "uncommitted/unpublished",
+    "ack": "deferred"
+  },
+  "ci_portability_checkpoint": {
+    "report": "docs/reviews/2026-10-10-ci-portability.md",
+    "all_four_local_corrections": "verified and reviewed; hosted pending",
+    "production_security_and_authority": "unchanged",
+    "push": "not authorized",
+    "ack": "deferred"
   }
 }

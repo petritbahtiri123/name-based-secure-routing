@@ -1,0 +1,294 @@
+{
+  "base_commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+  "status": "verified local precommit; no publication approval",
+  "runs": {
+    "portability-f75": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-f75",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-portability-f75",
+        "tests/federation/test_f75_core_baseline_overlay.py",
+        "-k",
+        "path_aliases"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 32.37,
+      "disk_start": 12800552960,
+      "disk_end": 12799307776,
+      "ram_end": 5652115456,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "15fa3a6337e5902b9e9fa90c0b481553d19138d0a9d0437c316803e6af05fe4b",
+        "text": ".....                                                                    [100%]\r\n5 passed, 16 deselected in 30.79s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "portability-f75-case-sensitive": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-f75-case-sensitive",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-portability-f75-case-sensitive",
+        "tests/federation/test_f75_core_baseline_overlay.py",
+        "-k",
+        "case_alias_rejection"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 13.76,
+      "disk_start": 12760432640,
+      "disk_end": 12759461888,
+      "ram_end": 4802752512,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "e781f1ff433bba0e1a28a28db7a9cc3bdf7d040ebeb4ba66f3b0742cff64e382",
+        "text": ".                                                                        [100%]\r\n1 passed, 21 deselected in 11.19s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "portability-go-client": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-go-client",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client/demo",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=60s",
+        "./cmd/nbsr-demo-client"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 32.76,
+      "disk_start": 12800143360,
+      "disk_end": 12785512448,
+      "ram_end": 5686468608,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "dbf7578eaacf25da9e2d6fe7a8796f89becf5c531ae70fafe60ea99d0c9c1498",
+        "text": "ok  \tnbsr.local/client/nbsr-go-client/demo/cmd/nbsr-demo-client\t0.300s\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "portability-acl-red": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-acl-red",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=60s",
+        "./internal/authority",
+        "-run",
+        "^TestTrustedEnrollmentFixtureReplacesUnapprovedExplicitWriter$",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 12.27,
+      "disk_start": 12785422336,
+      "disk_end": 12767846400,
+      "ram_end": 5594103808,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "839a524f5e4fa49308e3162fdf144a1e41b9bcaaa32365324b81489d7f54d0b9",
+        "text": "--- FAIL: TestTrustedEnrollmentFixtureReplacesUnapprovedExplicitWriter (0.06s)\n    enrollment_state_test_helpers_windows_test.go:53: exit status 1332: *S-1-5-21-111111111-222222222-333333333-4242: No mapping between account names and security IDs was done.\r\n        Successfully processed 0 files; Failed processing 1 files\nFAIL\nFAIL\tnbsr.local/client/nbsr-go-client/internal/authority\t1.313s\nFAIL\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "portability-acl-red-resolvable": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-acl-red-resolvable",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=60s",
+        "./internal/authority",
+        "-run",
+        "^TestTrustedEnrollmentFixtureReplacesUnapprovedExplicitWriter$",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 4.83,
+      "disk_start": 12767748096,
+      "disk_end": 12757831680,
+      "ram_end": 5847912448,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "bf5c0fa17fb2c2876ce6ed1a1440245aa4fa82a65dfbaa761143c7207bad2edd",
+        "text": "--- FAIL: TestTrustedEnrollmentFixtureReplacesUnapprovedExplicitWriter (0.10s)\n    enrollment_state_test_helpers_windows_test.go:60: provisioned fixture must contain only approved writers: authority error 24: unapproved write ACE\nFAIL\nFAIL\tnbsr.local/client/nbsr-go-client/internal/authority\t1.005s\nFAIL\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "portability-acl-green": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-acl-green",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=60s",
+        "./internal/authority",
+        "-run",
+        "^TestTrustedEnrollmentFixtureReplacesUnapprovedExplicitWriter$",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 4.82,
+      "disk_start": 12775030784,
+      "disk_end": 12765171712,
+      "ram_end": 5915611136,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "43c264d2806e002ae9ad940068e449b1a4e6338129dd1d9dadd986a7295b6297",
+        "text": "ok  \tnbsr.local/client/nbsr-go-client/internal/authority\t0.994s\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "portability-authority-suite": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-authority-suite",
+      "argv": [
+        "go",
+        "-C",
+        "client/nbsr-go-client",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-parallel=2",
+        "-timeout=70s",
+        "./internal/authority",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 18.86,
+      "disk_start": 12759580672,
+      "disk_end": 12759089152,
+      "ram_end": 5257482240,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "a9134e679498780dbc1410304637a883e5b5bfbc74396656d4edef87a01aed11",
+        "text": "ok  \tnbsr.local/client/nbsr-go-client/internal/authority\t16.550s\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    },
+    "portability-ci-full": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "portability-ci-full",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-portability-ci-full",
+        "tests/ci/test_ci.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.62,
+      "disk_start": 12759040000,
+      "disk_end": 12758982656,
+      "ram_end": 5226696704,
+      "direct_child_reaped": true,
+      "stdout": {
+        "sha256": "e6ad53b41f3c78145265144ce5fc4efc0f4728f57f373d26c1d8ed6012b50612",
+        "text": ".................                                                        [100%]\r\n17 passed in 2.58s\r\n"
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text": ""
+      }
+    }
+  },
+  "working_files": {
+    ".github/workflows/ci.yml": {
+      "length": 11532,
+      "sha256": "4eff0ce67e3cbd0603c011204085cd9a7a776953b6ced6b1c68b068574c437de"
+    },
+    "tests/ci/test_ci.py": {
+      "length": 5909,
+      "sha256": "2abdb41bce897e4f1d976921e7b8f5f234ab742c993c849df3e336c0ad8d3739"
+    },
+    "tests/federation/test_f75_core_baseline_overlay.py": {
+      "length": 6391,
+      "sha256": "d242c05619a00e7b8064875d450eb8f299bde391e770ee86eeecd84c2a85aa77"
+    },
+    "client/nbsr-go-client/demo/cmd/nbsr-demo-client/main_test.go": {
+      "length": 2729,
+      "sha256": "1fe39496e6a5dd0c5a4fea8fcdda3a8e16bcf9724d17e00f16a25c03450dc02d"
+    },
+    "client/nbsr-go-client/internal/authority/enrollment_state_test_helpers_windows_test.go": {
+      "length": 2842,
+      "sha256": "82cb3de33b0df187c7d498cf2809475b2de83dc971f0245fc9429a0c5902afcb"
+    }
+  },
+  "production_source_and_authority_pins": "unchanged",
+  "independent_review": "No blocking correctness/security findings; reviewer ran no tests.",
+  "limitations": [
+    "No native Linux execution on this Windows host",
+    "Hosted original ACL offending SID unavailable; retained-explicit-writer mechanism deterministically reproduced",
+    "Fresh hosted matrix required",
+    "Go text output gives package success, not individual test count"
+  ],
+  "cleanup": {
+    "all_direct_children_reaped": true,
+    "no_test_processes_in_final_snapshot": true,
+    "no_containers_created": true,
+    "no_dependency_downloads": true
+  },
+  "retained_node_results": "2026-10-10-hosted-ci-9ac925df.json"
+}

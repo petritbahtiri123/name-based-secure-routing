@@ -444,3 +444,21 @@ hosted workflow records ended in validation failure before creating jobs because
 A scoped local correction passed 16 CI regressions after a retained sandbox
 process-cleanup failure and justified retry. It remains uncommitted/unpublished;
 another publication requires approval. No ACK source changes were started.
+
+The next explicitly authorized correction was committed/published as `9ac925df`;
+remote SHA was verified. Real hosted run `38053615382` completed at 12:57:55 UTC
+after 4m39s: Rust Ubuntu/Windows and Python Windows passed; Python Ubuntu,
+Go Ubuntu/Windows and Node/policy failed. See the `hosted-ci-9ac925df` review
+report/JSON for exact counts and diagnosis. A reviewed Node runtime dependency
+setup fix is prepared locally with regression coverage, but remains uncommitted
+and unpublished. Other failures remain diagnosis-only. ACK changes, deployments,
+manual extended runs and further bypass publication remain deferred.
+
+The requested coherent local portability patch now addresses all four failures:
+Node runtime setup, semantic F75 alias rejection, the approved Linux Go fixture
+path, and exact protected ACL provisioning on test-owned Windows directories.
+See `docs/reviews/2026-10-10-ci-portability.md` and JSON. Focused checks and the
+full affected Windows authority package pass; 17 CI regressions pass. Independent
+review found no blocker. Production validation/authority pins are unchanged.
+Native Linux and hosted rerun remain unverified. Local commit is authorized;
+publication still requires fresh approval. No ACK work was started.

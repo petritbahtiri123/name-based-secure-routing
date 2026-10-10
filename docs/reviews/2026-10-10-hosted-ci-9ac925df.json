@@ -1,0 +1,244 @@
+{
+  "run": {
+    "id": 38053615382,
+    "sha": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+    "url": "https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/38053615382",
+    "status": "completed",
+    "conclusion": "failure",
+    "start": "2026-10-10T12:53:16Z",
+    "updated": "2026-10-10T12:57:55Z"
+  },
+  "jobs": [
+    {
+      "id": 114217533197,
+      "name": "python (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-10T12:53:19Z",
+      "completed_at": "2026-10-10T12:54:47Z",
+      "failed_steps": [
+        "Protocol, vectors and correctness lint"
+      ]
+    },
+    {
+      "id": 114217533326,
+      "name": "rust (windows-2025)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-10T12:53:19Z",
+      "completed_at": "2026-10-10T12:57:55Z",
+      "failed_steps": []
+    },
+    {
+      "id": 114217533327,
+      "name": "go (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-10T12:53:19Z",
+      "completed_at": "2026-10-10T12:54:39Z",
+      "failed_steps": [
+        "Test and vet every Go module"
+      ]
+    },
+    {
+      "id": 114217533339,
+      "name": "go (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-10T12:53:19Z",
+      "completed_at": "2026-10-10T12:56:01Z",
+      "failed_steps": [
+        "Test and vet every Go module"
+      ]
+    },
+    {
+      "id": 114217533355,
+      "name": "node-policy",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-10-10T12:53:19Z",
+      "completed_at": "2026-10-10T12:53:58Z",
+      "failed_steps": [
+        "Node independent verifiers"
+      ]
+    },
+    {
+      "id": 114217533368,
+      "name": "python (windows-2025)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-10T12:53:19Z",
+      "completed_at": "2026-10-10T12:55:43Z",
+      "failed_steps": []
+    },
+    {
+      "id": 114217533414,
+      "name": "rust (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-10T12:53:19Z",
+      "completed_at": "2026-10-10T12:55:16Z",
+      "failed_steps": []
+    }
+  ],
+  "job_logs": [
+    {
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\hosted-9ac-goLinuxLog.log",
+      "sha256": "73d7401ed16b7b153c32fc71cae546c121c922989435d494186468b63913b4c7"
+    },
+    {
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\hosted-9ac-goWindowsLog.log",
+      "sha256": "c77e59291b479ed2d1a6d9e3e94e667459735e1fe92dc405daf37caf88cadd7d"
+    },
+    {
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\hosted-9ac-nodeLog.log",
+      "sha256": "deb1685e45a44989b0c1912a3a304fb3ee22611cd25287f1b0c3052aabff36fe"
+    },
+    {
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\hosted-9ac-pythonLinuxLog.log",
+      "sha256": "5354b93527f978b1ad334d6a3786109f5f63c6b4a3f21ba3812dff1eadedc00c"
+    },
+    {
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\hosted-9ac-pythonWindowsLog.log",
+      "sha256": "ec6402500327c8620d8fe822948f489fa3731ff8c229b571c27d3e94ee2c7454"
+    },
+    {
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\hosted-9ac-rustLinuxLog.log",
+      "sha256": "17e72067b5d8eab09e733be2f19bf44524914bba0c68e8744170f7747a99028b"
+    },
+    {
+      "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\hosted-9ac-rustWindowsLog.log",
+      "sha256": "cc35ba6ff9c34d48152da3ac1429abb984f547823fde9b0c49d8da22668ab9d6"
+    }
+  ],
+  "local_runs": {
+    "hosted-node-deps-red": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "hosted-node-deps-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci/test_ci.py",
+        "-k",
+        "node_cross_language"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.02,
+      "disk_start": 12834766848,
+      "disk_end": 12834701312,
+      "ram_end": 6043054080,
+      "direct_child_reaped": true,
+      "logs": {
+        "stdout": {
+          "sha256": "39908a9bcb4f87459c8ed0c85ddead42206b42c0e1e8514214b6719614a1673d",
+          "text": "F                                                                        [100%]\n================================== FAILURES ===================================\n___ test_node_cross_language_checks_install_constrained_python_dependencies ___\n\n    def test_node_cross_language_checks_install_constrained_python_dependencies():\n        workflow = json.loads(Path(\".github/workflows/ci.yml\").read_text())\n        steps = workflow[\"jobs\"][\"node-policy\"][\"steps\"]\n        install = next((i for i, step in enumerate(steps) if step.get(\"run\") ==\n                        \"python -m pip install --constraint constraints/runtime.txt -e .\"), None)\n        verify = next(i for i, step in enumerate(steps) if step.get(\"name\") == \"Node independent verifiers\")\n>       assert install is not None and install < verify\nE       assert (None is not None)\n\ntests\\ci\\test_ci.py:127: AssertionError\n=========================== short test summary info ===========================\nFAILED tests/ci/test_ci.py::test_node_cross_language_checks_install_constrained_python_dependencies\n1 failed, 16 deselected in 0.76s\n"
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "text": ""
+        }
+      }
+    },
+    "hosted-node-deps-green": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "hosted-node-deps-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci/test_ci.py",
+        "-k",
+        "not timeout_is_failure_and_reaps_descendant"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.81,
+      "disk_start": 12834709504,
+      "disk_end": 12834709504,
+      "ram_end": 6031355904,
+      "direct_child_reaped": true,
+      "logs": {
+        "stdout": {
+          "sha256": "c8d845053d9ff714b836c785c0fd4edae39cd0a3f8a5c4161b9974cb2ae689f7",
+          "text": "................                                                         [100%]\n16 passed, 1 deselected in 0.67s\n"
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "text": ""
+        }
+      }
+    },
+    "hosted-node-profile": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "hosted-node-profile",
+      "argv": [
+        "python",
+        "scripts/ci/check.py",
+        "node",
+        "--timeout",
+        "90"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 3.42,
+      "disk_start": 12834611200,
+      "disk_end": 12833144832,
+      "ram_end": 5952462848,
+      "direct_child_reaped": true,
+      "logs": {
+        "stdout": {
+          "sha256": "96598baa46f8ccfb892707c03b1fde577656c086452f3533a238f9af3fea5ef8",
+          "text": "Running node-core-tests\n\u2714 strict JSON rejects duplicate object keys (1.7659ms)\n\u2714 strict JSON accepts escaped keys in separate objects (0.8991ms)\n\u2714 checked-in package has 14 valid and 18 invalid vectors (36.8933ms)\n\u2714 manifest rejects missing and unknown top-level keys (3.0048ms)\n\u2714 manifest rejects duplicate and unsorted IDs (2.7461ms)\n\u2714 manifest rejects unknown closed enum values (2.5001ms)\n\u2714 manifest rejects unsafe artifact paths (2.1423ms)\n\u2716 package rejects a missing artifact (207.8025ms)\n\u2716 package rejects an unlisted artifact (199.2776ms)\n\u2716 package rejects wrong length and SHA-256 (198.6929ms)\n\u2714 package root must be a real core-v0.2 directory (0.7965ms)\n\u2714 RFC 8949 map ordering is bytewise, not length-first (1.2754ms)\n\u2714 all valid CBOR artifacts decode and re-encode identically (24.1146ms)\n\u2714 all structural invalid vectors fail with the exact CBOR error kind (22.9384ms)\n\u2714 CBOR rejects unsupported values and invalid UTF-8 (0.4242ms)\n\u2714 CBOR enforces each configured resource limit (0.3113ms)\n\u2714 CBOR supports tag 18 only when explicitly enabled (0.2613ms)\n\u2714 CBOR encoder rejects cycles and duplicate deterministic map keys (0.1832ms)\n\u2714 public Ed25519 key files have the exact test-only format (3.7788ms)\n\u2714 valid RouteGrant COSE Sign1 verifies independently (25.0108ms)\n\u2714 valid Route Open proof verifies independently (21.6967ms)\n\u2714 all three invalid COSE vectors fail independently (22.9075ms)\n\u2714 invalid Route Open proof vector fails independently (25.5545ms)\n\u2714 COSE rejects malformed profile fields before signature verification (21.1462ms)\n\u2714 proof verification rejects a one-bit transcript mutation (23.4271ms)\n\u2714 all 32 artifact outcomes match the manifest exactly (29.341ms)\n\u2714 portable semantics reject unknown and missing body keys (22.9069ms)\n\u2714 portable semantics distinguish downgrade from unknown-version close (24.6294ms)\n\u2714 portable semantics reject boolean protocol versions as profile errors (22.6394ms)\n\u2714 complete checked-in package verifies read-only (78.2991ms)\n\u2716 scenario catalog requires exact referenced vector outcomes (283.2756ms)\n\u2716 package verification fails read-only after one artifact byte changes (359.7488ms)\n\u2714 CLI prints one bounded success line (134.5033ms)\n\u2714 CLI rejects missing and extra arguments (184.2615ms)\n\u2716 dedicated WP4 exporter verifier detects an internal mutation (303.6544ms)\n\u2714 documented Core v0.2 validation sequence passes (678.2362ms)\n\u2139 tests 36\n\u2139 suites 0\n\u2139 pass 30\n\u2139 fail 6\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 3080.6417\n\n\u2716 failing tests:\n\ntest at test\\verifier.test.mjs:157:1\n\u2716 package rejects a missing artifact (207.8025ms)\n  [Error: EPERM: operation not permitted, rmdir 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\.node-verifier-test-RSdogj\\core-v0.2'] { errno: -4048, code: 'EPERM', syscall: 'rmdir', path: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\.node-verifier-test-RSdogj\\\\core-v0.2' }\n\ntest at test\\verifier.test.mjs:165:1\n\u2716 package rejects an unlisted artifact (199.2776ms)\n  [Error: EPERM: operation not permitted, rmdir 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\.node-verifier-test-997udI\\core-v0.2'] { errno: -4048, code: 'EPERM', syscall: 'rmdir', path: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\.node-verifier-test-997udI\\\\core-v0.2' }\n\ntest at test\\verifier.test.mjs:173:1\n\u2716 package rejects wrong length and SHA-256 (198.6929ms)\n  [Error: EPERM: operation not permitted, rmdir 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\.node-verifier-test-BURSRK\\core-v0.2'] { errno: -4048, code: 'EPERM', syscall: 'rmdir', path: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\.node-verifier-test-BURSRK\\\\core-v0.2' }\n\ntest at test\\verifier.test.mjs:560:1\n\u2716 scenario catalog requires exact referenced vector outcomes (283.2756ms)\n  [Error: EPERM: operation not permitted, rmdir 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\.node-verifier-test-PMfLa7\\core-v0.2'] { errno: -4048, code: 'EPERM', syscall: 'rmdir', path: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\.node-verifier-test-PMfLa7\\\\core-v0.2' }\n\ntest at test\\verifier.test.mjs:570:1\n\u2716 package verification fails read-only after one artifact byte changes (359.7488ms)\n  [Error: EPERM: operation not permitted, rmdir 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\.node-verifier-test-KJxBbw\\core-v0.2'] { errno: -4048, code: 'EPERM', syscall: 'rmdir', path: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\.node-verifier-test-KJxBbw\\\\core-v0.2' }\n\ntest at test\\verifier.test.mjs:610:1\n\u2716 dedicated WP4 exporter verifier detects an internal mutation (303.6544ms)\n  [Error: EPERM: operation not permitted, rmdir 'C:\\Users\\bajra\\OneDrive\\Documents\\NBSR\\.node-verifier-test-YJBk9D\\core-v0.2'] { errno: -4048, code: 'EPERM', syscall: 'rmdir', path: 'C:\\\\Users\\\\bajra\\\\OneDrive\\\\Documents\\\\NBSR\\\\.node-verifier-test-YJBk9D\\\\core-v0.2' }\n"
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "text": ""
+        }
+      }
+    },
+    "hosted-node-vector-focused": {
+      "commit": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+      "label": "hosted-node-vector-focused",
+      "argv": [
+        "node",
+        "--test",
+        "--test-name-pattern=documented Core v0.2 validation sequence passes",
+        "tools/core-v02-node-verifier/test/verifier.test.mjs"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.81,
+      "disk_start": 12833947648,
+      "disk_end": 12833947648,
+      "ram_end": 6064050176,
+      "direct_child_reaped": true,
+      "logs": {
+        "stdout": {
+          "sha256": "7d40a90759cb9dfab40d0d066e717d11edb4f954baaf562b0135c513e13eaa93",
+          "text": "\u2714 documented Core v0.2 validation sequence passes (538.7423ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 1\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 639.7854\n"
+        },
+        "stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "text": ""
+        }
+      }
+    }
+  },
+  "local_followup": {
+    "status": "uncommitted/unpublished",
+    "files": {
+      ".github/workflows/ci.yml": "4eff0ce67e3cbd0603c011204085cd9a7a776953b6ced6b1c68b068574c437de",
+      "tests/ci/test_ci.py": "2abdb41bce897e4f1d976921e7b8f5f234ab742c993c849df3e336c0ad8d3739"
+    },
+    "review": "Independent scoped review found no blocker; reviewer ran no tests.",
+    "other_failures": "diagnosis only; no source or security changes"
+  }
+}

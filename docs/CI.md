@@ -156,3 +156,17 @@ through `RUNNER_TEMP` and `GITHUB_ENV`; GitHub does not expose the `runner` cont
 in job-level `env`. Local contract validation catches this known error but is not
 a full hosted schema check. The first published run failed before job creation;
 see `docs/reviews/2026-10-10-hosted-ci-d4ca54eb.md` for the preserved result.
+
+Node verification includes a Python vector-generator subprocess and therefore
+requires the constrained project runtime, not just a Python executable. The
+prepared setup uses `python -m pip install --constraint constraints/runtime.txt
+-e .` on the hosted runner. This does not authorize local dependency downloads.
+The first executing matrix's three successes and four failures are retained in
+`docs/reviews/2026-10-10-hosted-ci-9ac925df.md`; the Node setup correction is still
+unpublished, and the Linux diagnostic/fixture and Windows ACL failures remain.
+
+The subsequent local portability patch is documented in
+`docs/reviews/2026-10-10-ci-portability.md`. It preserves alias rejection across
+filesystem diagnostics, uses the existing platform-specific Go fixture hierarchy,
+and replaces the complete ACL only on test-owned enrollment directories. It does
+not relax production ACL validation. Native Linux and hosted rerun remain required.

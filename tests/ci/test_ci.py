@@ -118,6 +118,15 @@ def test_job_environment_rejects_runner_context(filename, job_id):
         validate_workflow(workflow)
 
 
+def test_node_cross_language_checks_install_constrained_python_dependencies():
+    workflow = json.loads(Path(".github/workflows/ci.yml").read_text())
+    steps = workflow["jobs"]["node-policy"]["steps"]
+    install = next((i for i, step in enumerate(steps) if step.get("run") ==
+                    "python -m pip install --constraint constraints/runtime.txt -e ."), None)
+    verify = next(i for i, step in enumerate(steps) if step.get("name") == "Node independent verifiers")
+    assert install is not None and install < verify
+
+
 @pytest.mark.parametrize("mutation", ["permissions", "action", "credentials", "cache", "artifact"])
 def test_security_contract_rejects_unsafe_workflow_mutations(mutation):
     workflow = json.loads(Path(".github/workflows/ci.yml").read_text(encoding="utf-8"))

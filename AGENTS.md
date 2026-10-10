@@ -136,6 +136,10 @@ excluded files over user work; retain the original missing-input outcome.
 Initialize runner-dependent CI environment paths in execution steps; the GitHub
 `runner` context is unavailable in job-level `env`. Local contract checks do not
 replace hosted workflow validation.
+Cross-platform fixture checks must preserve semantic rejection without relying
+on filesystem-specific diagnostics. Windows enrollment tests provision exact
+protected ACLs only on their own temporary directories; preserve the production
+writer allowlist and reject unexpected explicit grants instead of trusting them.
 
 ## Large live-bundle harness checks
 

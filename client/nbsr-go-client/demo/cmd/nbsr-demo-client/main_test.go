@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -27,7 +28,11 @@ func TestClientCommandAcceptsOnlyOneTask5Run(t *testing.T) {
 		}
 	}
 	t.Cleanup(func() { _ = os.RemoveAll(root) })
-	valid := []string{"--config", filepath.ToSlash(filepath.Join(root, "client", "config.json")), "--bootstrap", filepath.ToSlash(filepath.Join(root, "client", "bootstrap")), "--ready", filepath.ToSlash(filepath.Join(root, "readiness", "client.json")), "--runtime-root", filepath.ToSlash(root), "--build-root", `C:\NBSR-build\nbsr-demo\client-run`}
+	buildParent := `C:\NBSR-build\nbsr-demo`
+	if runtime.GOOS == "linux" {
+		buildParent = "/opt/nbsr-build/nbsr-demo"
+	}
+	valid := []string{"--config", filepath.ToSlash(filepath.Join(root, "client", "config.json")), "--bootstrap", filepath.ToSlash(filepath.Join(root, "client", "bootstrap")), "--ready", filepath.ToSlash(filepath.Join(root, "readiness", "client.json")), "--runtime-root", filepath.ToSlash(root), "--build-root", filepath.Join(buildParent, "client-run")}
 	options, err := parseArgs(valid)
 	if err != nil {
 		t.Fatal(err)
@@ -39,6 +44,11 @@ func TestClientCommandAcceptsOnlyOneTask5Run(t *testing.T) {
 	invalid[3] = "test-results/nbsr-demo/runtime/run-b/client/bootstrap"
 	if _, err := parseArgs(invalid); err == nil {
 		t.Fatal("another run's bootstrap was accepted")
+	}
+	invalid = append([]string(nil), valid...)
+	invalid[len(invalid)-1] = filepath.Join(buildParent, "run-b")
+	if _, err := parseArgs(invalid); err == nil {
+		t.Fatal("another run's build root was accepted")
 	}
 }
 

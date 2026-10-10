@@ -118,9 +118,26 @@ def test_original_baseline_digest_reference_is_mandatory(tmp_path: Path, change:
 )
 def test_path_aliases_cannot_widen_overlay_scope(tmp_path: Path, alias: str) -> None:
     overlay = _copy_authority(tmp_path)
+    # Establish a valid fixture before changing only the authorization path.
+    assert_f75_core_overlay(tmp_path)
     _rewrite_overlay(overlay, lambda value: value["replacements"][0].update(path=alias))
-    with pytest.raises(CoreBaselineError, match="replacement path"):
+    # A case alias may resolve on Windows but be absent on Linux. Both must
+    # reject the mutation; the filesystem-dependent diagnostic is not the rule.
+    with pytest.raises(CoreBaselineError):
         assert_f75_core_overlay(tmp_path)
+
+
+def test_case_alias_rejection_when_filesystem_does_not_resolve_it(tmp_path, monkeypatch):
+    original_resolve = Path.resolve
+
+    def case_sensitive_resolve(path, *args, **kwargs):
+        if "CRATES" in path.parts:
+            raise FileNotFoundError(str(path))
+        return original_resolve(path, *args, **kwargs)
+
+    # Exercise the hosted Linux missing-path branch even on a Windows test host.
+    monkeypatch.setattr(Path, "resolve", case_sensitive_resolve)
+    test_path_aliases_cannot_widen_overlay_scope(tmp_path, "CRATES/nbsr-transport/src/admission.rs")
 
 
 @pytest.mark.parametrize(
