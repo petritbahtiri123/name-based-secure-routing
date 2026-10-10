@@ -1,0 +1,88 @@
+{
+  "format_version": 1,
+  "status": "CANDIDATE_NOT_AUTHORITY",
+  "candidate_id": "NBSR-CORRECTED-TRANSPORT-2026-10-10",
+  "source_commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+  "ci_parent_commit": "f6400959e93f32f3eec32372c60773c115344583",
+  "ancestors": {
+    "docs/protocol/registries/core-v0.2-baseline-lock.json": "21d60dc60ee1bc00bef882b63fabaaea9229768770912ed7c93e6ae4d54453ef",
+    "docs/protocol/registries/core-v0.2-f75-overlay.json": "e095efd18e2d6ca154bfa5c49ae4e41362856e5054349040ca20ddc151c9ab1a",
+    "docs/protocol/registries/core-v0.2-p1p2-overlay.json": "7a33b7d6dd87031018563da0e8d2b1857515bc3ae2427094a6967d9e6329d3e4",
+    "docs/protocol/registries/core-v0.2-demo-ack-overlay.json": "99fe7153f251c4d68d836596bb532cf7bb32eb55f41d6c69b6fc04b281167801"
+  },
+  "parent_overlay": {
+    "path": "docs/protocol/registries/core-v0.2-demo-ack-overlay.json",
+    "sha256": "99fe7153f251c4d68d836596bb532cf7bb32eb55f41d6c69b6fc04b281167801"
+  },
+  "replacements": [
+    {
+      "path": "crates/nbsr-transport/src/lib.rs",
+      "length": 6817,
+      "sha256": "3db5a0a615e12d4d67ed0380f07e9ad9778bde98a8879817992a0df000f99e43"
+    },
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "length": 95878,
+      "sha256": "c0937c20ae437dcf4f598d117704830a458defc109d1b3900e4560c3d9ba0b92"
+    }
+  ],
+  "supplemental_dependencies": [
+    {
+      "path": "crates/nbsr-transport/Cargo.lock",
+      "length": 32155,
+      "sha256": "3597ef2faa161fbd54f7ca990aa4d7028203e411f50758093bdc4410f0efbbc6"
+    },
+    {
+      "path": "crates/nbsr-transport/Cargo.toml",
+      "length": 1018,
+      "sha256": "67c024c50c1f5f2026227a33196501f93d0aad51d66cafa4d4d92a036f015551"
+    },
+    {
+      "path": "crates/nbsr-transport/src/benchmark_bind.rs",
+      "length": 2560,
+      "sha256": "a3557e4cbd152d3be50910a648d2fb1505d5f1e210c694a98a0d8063dd5685e4"
+    },
+    {
+      "path": "crates/nbsr-transport/src/owned_send.rs",
+      "length": 14029,
+      "sha256": "f4d7bd3578abc198265fc9042362f648f74f67664f9779f88a1e9cd08ff8e960"
+    },
+    {
+      "path": "crates/nbsr-transport/src/udp_socket.rs",
+      "length": 3043,
+      "sha256": "c34aa4f12baf3d3241657e437e933ad97f3c859f54e9a69e5250e6b0a78e5761"
+    }
+  ],
+  "verification_sources": [
+    {
+      "path": "crates/nbsr-transport/src/control_read_tests.rs",
+      "length": 80299,
+      "sha256": "12289d13e8402e0b7eeb695d1361cf64d950306f72105d6b89c7c03391705a44"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/application_stream.rs",
+      "length": 32027,
+      "sha256": "9f01b327fbf983632f44e82c9d2fa20d5d89623b0bcbbdd7da6025a56d22e524"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/benchmark_connect_from_tests.rs",
+      "length": 5764,
+      "sha256": "f69e106532d43c9b20836913543352031fec277f9516c57772c4ec7c06b3bdf2"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/control.rs",
+      "length": 5756,
+      "sha256": "22dece474ad2e5457dae2135ab42ded2fcc49c381447ecc6a8fa0f139c77a7cf"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/handshake.rs",
+      "length": 32205,
+      "sha256": "a7eeeec83d7062e965401cb3d81f8601f6251ff239144ffc885dc032be99a95e"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/stream_credit_integration.rs",
+      "length": 36477,
+      "sha256": "1329f62da0a869b9f6797c87eb3474a5fe7854fb30094d09b1b48b0c9d09e0a3"
+    }
+  ]
+}

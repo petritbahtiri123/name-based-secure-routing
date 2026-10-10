@@ -1,0 +1,79 @@
+{
+  "source_commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+  "authority_status": "INACTIVE",
+  "runs": {
+    "corrected-candidate": {
+      "commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+      "label": "corrected-candidate",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "docs/reviews/test_corrected_transport_candidate.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.63,
+      "disk_start": 13042409472,
+      "disk_end": 13042339840,
+      "ram_end": 5877481472,
+      "direct_child_reaped": true
+    },
+    "corrected-current-gate": {
+      "commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+      "label": "corrected-current-gate",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_baseline_immutability.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.61,
+      "disk_start": 13042331648,
+      "disk_end": 13042327552,
+      "ram_end": 5980794880,
+      "direct_child_reaped": true
+    },
+    "corrected-current-gate-temp": {
+      "commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d",
+      "label": "corrected-current-gate-temp",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-owned-revoke-evidence/pytest-corrected-gate-20261010",
+        "tests/federation/test_baseline_immutability.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 45.97,
+      "disk_start": 13041901568,
+      "disk_end": 13036871680,
+      "ram_end": 5801332736,
+      "direct_child_reaped": true
+    }
+  },
+  "logs": {
+    "corrected-candidate.stdout.log": "e98e4484274a0fa3108fe58099dd2f2ba1556197c22a026b08c3870ed06d21f9",
+    "corrected-candidate.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "corrected-current-gate.stdout.log": "0ac450313760858dbfd28e962737662bdd5f1b5fda10d006568ec9ab76cc1542",
+    "corrected-current-gate.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "corrected-current-gate-temp.stdout.log": "c13ccb1b33b3e849e7f5fc48b9af83d91dc27177c84ff0d772dccd31c725bfb4",
+    "corrected-current-gate-temp.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "canonical_proposal_sha256": "854df440f81edec41177776eaef6722d35cb7936415cf8ae88441158429f3c10",
+  "review_test_sha256": "d73112e12be9f9e5b15c91116856d8bf95f90c43f95d1f30f3e11b2c66298900",
+  "source_equivalence": "Three staged source files matched retained tested snapshots; only CRLF normalization in Git blobs. Packaging adds review evidence only.",
+  "validation_scope": "37 review-only snapshot/mutation tests, not an activated validator. Existing current gate: 1 failed, 3 passed; first attempt: 4 temporary-directory setup errors."
+}
