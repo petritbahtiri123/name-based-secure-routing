@@ -476,3 +476,5 @@ Windows demo follow-up: deterministic short-TMP RED/GREEN, complete demo suite 7
 Hosted b6afdcdf run 38058799631: all seven jobs PASS, including Windows Go demo tests/vet and remaining Go checks. Exact outcomes, retained log hashes and coverage limits: `docs/reviews/2026-10-10-hosted-ci-b6afdcdf.md` / `.json`. Evidence-only monitoring; no ACK work.
 
 Receive/ACK revoke-then-drop gap reproduced and minimally corrected locally. RED 2 failures; GREEN 2; library 111 passed/1 existing ignored; integration 4+12; Clippy/default/fmt/diff pass; independent review clean. Evidence: `docs/reviews/2026-10-10-receive-ack-revocation-drop.md` and JSON. Authority pins untouched; separately approved version required. No commit/push; stopped at user budget request.
+
+Approved receive/ACK successor implemented for exact source2cc01bed:103 focused tests pass/zero skips, independent review clean, historical bindings preserved. Initial sandbox-temp failures retained. See `docs/reviews/2026-10-10-receive-ack-authority-implementation.md` and JSON. Scoped local commit authorized; no push/bypass.

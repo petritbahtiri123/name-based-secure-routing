@@ -126,7 +126,13 @@ overlay: retain the 110-file legacy inventory and its historical ancestors plus
 the five explicitly pinned implementation/build dependencies. Test-source hashes
 are evidence, not extra runtime gates. Later changes to pinned source require
 their own reviewed versioned authority; never refresh an older overlay in place.
-Focused regressions are `tests/federation/test_transport_lifecycle_overlay.py`,
+The receive/ACK-drop successor adds exactly one adapter override bound to its
+reviewed source commit. Keep the lifecycle validator historical; the current-source
+gate explicitly selects `assert_receive_ack_drop_core_overlay`. Its registry is
+`docs/protocol/registries/core-v0.2-receive-ack-drop-overlay.json`; the other six
+transport bindings and original inventory remain inherited unchanged.
+Focused regressions include `tests/federation/test_receive_ack_drop_overlay.py`,
+`tests/federation/test_transport_lifecycle_overlay.py`,
 `test_baseline_immutability.py` and historical `test_demo_ack_core_overlay.py`
 in the same directory. Keep historical fixture checks distinct from the current
 source gate; selected-source acceptance is not whole-crate or production proof.

@@ -471,12 +471,50 @@ def assert_demo_ack_core_overlay(root: Path) -> None:
     _assert_demo_ack_core_overlay(root, {})
 
 
+_RECEIVE_ACK_DROP_PATH = "docs/protocol/registries/core-v0.2-receive-ack-drop-overlay.json"
+_RECEIVE_ACK_DROP_SHA256 = "91ca59395dac68eca826a39d1ae5ff36f32c60cfba5c5ccb6eaa9c0bb3c9df4f"
+_RECEIVE_ACK_DROP_SOURCE = "2cc01bede62b43535ef5f69e241e8d9e79bc9b26"
+_RECEIVE_ACK_DROP_REPLACEMENTS = frozenset({"crates/nbsr-transport/src/quinn_adapter.rs"})
+
+
+def assert_receive_ack_drop_core_overlay(root: Path) -> None:
+    """Validate the approved one-file successor, preserving the lifecycle inventory."""
+    root = root.resolve()
+    raw, overlay = _read_json_authority(root / _RECEIVE_ACK_DROP_PATH, "receive ACK drop authority")
+    if hashlib.sha256(raw).hexdigest() != _RECEIVE_ACK_DROP_SHA256:
+        raise CoreBaselineError("modified receive ACK drop authority digest")
+    if set(overlay) != {
+        "format_version", "authority_id", "status", "source_commit", "parent_overlay", "replacements",
+    }:
+        raise CoreBaselineError("invalid receive ACK drop authority schema")
+    if (
+        type(overlay["format_version"]) is not int or overlay["format_version"] != 1
+        or overlay["authority_id"] != "NBSR-RECEIVE-ACK-DROP-2026-10-10"
+        or overlay["status"] != "ACTIVE_AUTHORITY"
+        or overlay["source_commit"] != _RECEIVE_ACK_DROP_SOURCE
+        or overlay["parent_overlay"] != {
+            "path": _TRANSPORT_LIFECYCLE_PATH, "sha256": _TRANSPORT_LIFECYCLE_SHA256,
+        }
+    ):
+        raise CoreBaselineError("invalid receive ACK drop authority chain")
+    replacements = _closed_replacements(
+        root, overlay["replacements"], _RECEIVE_ACK_DROP_REPLACEMENTS, "receive ACK drop",
+    )
+    _assert_transport_lifecycle_core_overlay(root, replacements)
+
+
 def assert_transport_lifecycle_core_overlay(root: Path) -> None:
     """Validate the approved lifecycle snapshot and its five explicit dependencies.
 
     This is selected-source authority, not whole-crate or production certification.
     Historical validators remain bound to their original source inventories.
     """
+    _assert_transport_lifecycle_core_overlay(root, {})
+
+
+def _assert_transport_lifecycle_core_overlay(
+    root: Path, replacement_overrides: dict[str, dict[str, object]],
+) -> None:
     root = root.resolve()
     raw, overlay = _read_json_authority(root / _TRANSPORT_LIFECYCLE_PATH, "transport lifecycle authority")
     if hashlib.sha256(raw).hexdigest() != _TRANSPORT_LIFECYCLE_SHA256:
@@ -507,8 +545,9 @@ def assert_transport_lifecycle_core_overlay(root: Path) -> None:
         root, overlay["supplemental_dependencies"], _TRANSPORT_LIFECYCLE_DEPENDENCIES,
         "transport lifecycle dependency",
     )
-    # Reuse every historical ancestor and legacy-inventory check. Only this
-    # pinned, closed authority may supersede the two approved legacy entries.
+    # Only the separate pinned successor supplies a closed one-file override.
+    # The historical public validator always supplies an empty mapping.
+    replacements.update(replacement_overrides)
     _assert_demo_ack_core_overlay(root, replacements)
     for relative, expected in dependencies.items():
         try:

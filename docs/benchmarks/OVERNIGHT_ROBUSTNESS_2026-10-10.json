@@ -677,5 +677,14 @@
     "authority": "existing pins untouched; new version approval required",
     "cleanup": "zero matching processes; all supervised children reaped",
     "next": "stop; no further work or publication"
+  },
+  "receive_ack_authority_checkpoint": {
+    "source": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+    "authority": "NBSR-RECEIVE-ACK-DROP-2026-10-10",
+    "status": "approved implemented reviewed; scoped local commit authorized; no publication",
+    "tests": "103 pass, zero skip; prior temp errors retained",
+    "review": "no blocking findings",
+    "report": "docs/reviews/2026-10-10-receive-ack-authority-implementation.md",
+    "publication": "not authorized"
   }
 }

@@ -1,0 +1,147 @@
+{
+  "source_commit": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+  "authority_id": "NBSR-RECEIVE-ACK-DROP-2026-10-10",
+  "status": "approved implemented reviewed; scoped local commit authorized; no publication",
+  "registry_sha256": "91ca59395dac68eca826a39d1ae5ff36f32c60cfba5c5ccb6eaa9c0bb3c9df4f",
+  "scope": "one adapter override, six inherited bindings and110 legacy entries preserved; historical public validators unchanged",
+  "validation": "103 focused tests passed, zero skips; Ruff/diff passed; independent raw-Git review no blocking findings",
+  "negative_attempts": "First RED setup error and first GREEN103 setup errors due sandbox temp. Owned-temp RED1 missing public validator after candidate implementation temporarily hidden; restored candidate GREEN103. This is not a preimplementation behavioral RED.",
+  "checks": [
+    {
+      "commit": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+      "label": "ack-authority-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_receive_ack_drop_overlay.py::test_approved_successor_accepts_exact_source"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.82,
+      "disk_start": 12461744128,
+      "disk_end": 12461740032,
+      "ram_end": 5686501376,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-red.stdout.log",
+          "sha256": "d82cc6e6abc7eb11604ceb671aa59465e188452a894c314fbe59ace4ba4442a6"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-red.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "commit": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+      "label": "ack-authority-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_receive_ack_drop_overlay.py",
+        "tests/federation/test_transport_lifecycle_overlay.py",
+        "tests/federation/test_baseline_immutability.py",
+        "tests/federation/test_demo_ack_core_overlay.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 9.64,
+      "disk_start": 12461555712,
+      "disk_end": 12462432256,
+      "ram_end": 5671403520,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-green.stdout.log",
+          "sha256": "2e45b4184c6ee5b75c5442ed9dacabf040ef39eec8292c86430a9973bfc01f36"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-green.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "commit": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+      "label": "ack-authority-red-owned-temp",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-ack-authority-red-20261010",
+        "tests/federation/test_receive_ack_drop_overlay.py::test_approved_successor_accepts_exact_source"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 12462301184,
+      "disk_end": 12461338624,
+      "ram_end": 5671759872,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-red-owned-temp.stdout.log",
+          "sha256": "9a9e0b1a1d795adeff4187d33fcf9f7cecdf6c5036ee01091e8338f65dc43a1f"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-red-owned-temp.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "commit": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+      "label": "ack-authority-green-owned-temp",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=C:/Users/bajra/AppData/Local/Temp/nbsr-ack-authority-green-20261010",
+        "tests/federation/test_receive_ack_drop_overlay.py",
+        "tests/federation/test_transport_lifecycle_overlay.py",
+        "tests/federation/test_baseline_immutability.py",
+        "tests/federation/test_demo_ack_core_overlay.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 66.38,
+      "disk_start": 12461314048,
+      "disk_end": 12358508544,
+      "ram_end": 5761327104,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-green-owned-temp.stdout.log",
+          "sha256": "de3aacf019ac6aed142b022e0292e0781091fc78fab7ef8053479cd667e36c81"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-authority-green-owned-temp.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "source_hashes": {
+    "AGENTS.md": "7d0060e650d41b7fec197d33ecde65fd57b50ebb95ec280d86b2d1c54eb53747",
+    "nbsr/federation/profile.py": "4c03086e91737d50b5889a5420693e49a8bf7da2b858a631fbb9ff2a64427c68",
+    "docs/protocol/registries/core-v0.2-receive-ack-drop-overlay.json": "91ca59395dac68eca826a39d1ae5ff36f32c60cfba5c5ccb6eaa9c0bb3c9df4f",
+    "tests/federation/test_receive_ack_drop_overlay.py": "046eba843bcd7ffc94fffb2a69ec6d843e5d0fc3350fafc936d6343695250e83",
+    "tests/federation/test_baseline_immutability.py": "f458b067dcdd65d8de4ff31a4c24f0542f2253ec163d5dc0922b696d94f33e72"
+  },
+  "limits": "No full repository or hosted run; no runtime source changes in authority patch; no push/bypass."
+}

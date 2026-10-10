@@ -1,0 +1,93 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_AUTHORIZED_OR_ACTIVE",
+  "source_commit": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+  "source_commit_files": [
+    "crates/nbsr-transport/src/control_read_tests.rs",
+    "crates/nbsr-transport/src/quinn_adapter.rs",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+    "docs/reviews/2026-10-10-hosted-ci-b6afdcdf.json",
+    "docs/reviews/2026-10-10-hosted-ci-b6afdcdf.md",
+    "docs/reviews/2026-10-10-receive-ack-revocation-drop.json",
+    "docs/reviews/2026-10-10-receive-ack-revocation-drop.md"
+  ],
+  "proposed_authority_id": "NBSR-RECEIVE-ACK-DROP-2026-10-10",
+  "proposed_registry_path": "docs/protocol/registries/core-v0.2-receive-ack-drop-overlay.json",
+  "parent_overlay": {
+    "path": "docs/protocol/registries/core-v0.2-transport-lifecycle-overlay.json",
+    "sha256": "d6cc7cf54e0e4752e5662c9a8ee049cb869c3797f4c4770175bf273db9992a79",
+    "source_commit": "99ac954e0c0d90a221b42492a59fa4d5b962ea5d"
+  },
+  "old_binding": {
+    "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+    "length": 95878,
+    "sha256": "c0937c20ae437dcf4f598d117704830a458defc109d1b3900e4560c3d9ba0b92"
+  },
+  "new_replacements": [
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "length": 96452,
+      "sha256": "088ce7bc101a5ab0f045fbc68d439e82c516d4cdef0644f92057a8297acb8806"
+    }
+  ],
+  "unchanged_selected_files": [
+    {
+      "path": "crates/nbsr-transport/src/lib.rs",
+      "length": 6817,
+      "sha256": "3db5a0a615e12d4d67ed0380f07e9ad9778bde98a8879817992a0df000f99e43"
+    },
+    {
+      "path": "crates/nbsr-transport/Cargo.lock",
+      "length": 30942,
+      "sha256": "976ace41027ae90bebbe2229a1575c1f0c7bc5e71b1847804f4d6d33404c21f8"
+    },
+    {
+      "path": "crates/nbsr-transport/Cargo.toml",
+      "length": 991,
+      "sha256": "81103d93ae135c3e7763c5f81ca4960efd581bd881a1de5016a2731054af0d11"
+    },
+    {
+      "path": "crates/nbsr-transport/src/benchmark_bind.rs",
+      "length": 2560,
+      "sha256": "a3557e4cbd152d3be50910a648d2fb1505d5f1e210c694a98a0d8063dd5685e4"
+    },
+    {
+      "path": "crates/nbsr-transport/src/owned_send.rs",
+      "length": 14029,
+      "sha256": "f4d7bd3578abc198265fc9042362f648f74f67664f9779f88a1e9cd08ff8e960"
+    },
+    {
+      "path": "crates/nbsr-transport/src/udp_socket.rs",
+      "length": 3043,
+      "sha256": "c34aa4f12baf3d3241657e437e933ad97f3c859f54e9a69e5250e6b0a78e5761"
+    }
+  ],
+  "invariants": [
+    "Preserve original 110-file inventory, all historical authority files, pins and historical validators.",
+    "Only quinn_adapter.rs differs from inherited selected-source bindings; no new runtime file scopes.",
+    "New separate validator validates pinned parent metadata, complete ancestor chain and all inherited inventory/dependency entries, with exactly one authorized replacement. Historical validator stays bound to historical bytes.",
+    "No fallback, unknown fields/paths, duplicate entries, symlink aliases, missing dependencies, authority mutation or implicit pin regeneration.",
+    "Test source hashes are evidence only; not extra runtime gates."
+  ],
+  "implementation_scope": [
+    "new registry file above",
+    "nbsr/federation/profile.py: separate pinned successor validator; preserve existing validator semantics",
+    "tests/federation/test_receive_ack_drop_overlay.py: exact acceptance and negative contract tests",
+    "tests/federation/test_baseline_immutability.py: select explicit new validator for current-source gate while preserving historical baseline assertions",
+    "AGENTS.md and relevant docs/reviews/checkpoint evidence"
+  ],
+  "validation_plan": [
+    "Read exact immutable Git source bytes; validate old historical authority with old snapshot and new authority with this exact source snapshot.",
+    "Reject modified parent/ancestors, extra/missing/duplicate replacement or dependency, source drift, path aliases, old source substituted for new, and original inventory changes.",
+    "Run only focused federation authority/immutability tests with provisioned environment and bounded supervisor; independent review before integration."
+  ],
+  "publication": "Not included in this proposal. Specific reviewed final commit/push/bypass approval still required.",
+  "neighbor_read_only": {
+    "topic": "remote close while owned send remains paused without another drive",
+    "evidence": [
+      "owned_send.rs drive docs explicitly say pause retains quota until owner abort/drop or resumed terminal handling.",
+      "control_read_tests.rs owned_send_peer_close_releases_paused_ownership resumes drive after peer close before asserting quota cleanup."
+    ],
+    "conclusion": "Coverage gap/characterization opportunity only, not a verified leak or defect. Eager cleanup would need a lifecycle guarantee decision; do not implement from this inspection."
+  }
+}

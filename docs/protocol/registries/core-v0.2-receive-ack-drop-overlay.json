@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "authority_id": "NBSR-RECEIVE-ACK-DROP-2026-10-10",
+  "status": "ACTIVE_AUTHORITY",
+  "source_commit": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+  "parent_overlay": {
+    "path": "docs/protocol/registries/core-v0.2-transport-lifecycle-overlay.json",
+    "sha256": "d6cc7cf54e0e4752e5662c9a8ee049cb869c3797f4c4770175bf273db9992a79"
+  },
+  "replacements": [
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "length": 96452,
+      "sha256": "088ce7bc101a5ab0f045fbc68d439e82c516d4cdef0644f92057a8297acb8806"
+    }
+  ]
+}
