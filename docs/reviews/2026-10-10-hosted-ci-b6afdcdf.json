@@ -1,0 +1,83 @@
+{
+  "sha": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+  "run": 38058799631,
+  "url": "https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/38058799631",
+  "status": "completed",
+  "conclusion": "success",
+  "created_at": "2026-10-10T14:14:06Z",
+  "completed_at": "2026-10-10T14:18:58Z",
+  "jobs": [
+    {
+      "id": 114232640990,
+      "name": "rust (windows-2025)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T14:14:09Z",
+      "completed_at": "2026-10-10T14:18:58Z",
+      "log_path": "C:/Users/bajra/AppData/Local/Temp/hosted-b6af-114232640990.log",
+      "log_sha256": "a3fc76bcbfaeaf9a77029d06773b553ed45606ae96df472806ecba7ae0bf88c5"
+    },
+    {
+      "id": 114232641098,
+      "name": "python (ubuntu-24.04)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T14:14:09Z",
+      "completed_at": "2026-10-10T14:15:21Z",
+      "log_path": "C:/Users/bajra/AppData/Local/Temp/hosted-b6af-114232641098.log",
+      "log_sha256": "c320d0d1df03d951eeb269325b7e78c03d80613b6501fcd7878d03e79f78ac33"
+    },
+    {
+      "id": 114232641124,
+      "name": "node-policy",
+      "conclusion": "success",
+      "started_at": "2026-10-10T14:14:09Z",
+      "completed_at": "2026-10-10T14:15:05Z",
+      "log_path": "C:/Users/bajra/AppData/Local/Temp/hosted-b6af-114232641124.log",
+      "log_sha256": "d3a2bc8dfedb95ae2fe0ad5b32895684e5df118e8edddc0b9992aabfcfb73b8a"
+    },
+    {
+      "id": 114232641125,
+      "name": "go (ubuntu-24.04)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T14:14:09Z",
+      "completed_at": "2026-10-10T14:15:40Z",
+      "log_path": "C:/Users/bajra/AppData/Local/Temp/hosted-b6af-114232641125.log",
+      "log_sha256": "ca879592dcb297325168a38c352c670a4def74480922b3425ffc3ca309b92167"
+    },
+    {
+      "id": 114232641134,
+      "name": "rust (ubuntu-24.04)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T14:14:09Z",
+      "completed_at": "2026-10-10T14:16:20Z",
+      "log_path": "C:/Users/bajra/AppData/Local/Temp/hosted-b6af-114232641134.log",
+      "log_sha256": "5de03bf728fc8da3a7d57e08e92574cc4f59291520174021483430d4803d3110"
+    },
+    {
+      "id": 114232641135,
+      "name": "go (windows-2025)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T14:14:08Z",
+      "completed_at": "2026-10-10T14:17:24Z",
+      "log_path": "C:/Users/bajra/AppData/Local/Temp/hosted-b6af-114232641135.log",
+      "log_sha256": "55b846281172119d4399273d48d8f446d0a1156fbc25b668c3f53dd1a8bf0683"
+    },
+    {
+      "id": 114232641137,
+      "name": "python (windows-2025)",
+      "conclusion": "success",
+      "started_at": "2026-10-10T14:14:08Z",
+      "completed_at": "2026-10-10T14:16:24Z",
+      "log_path": "C:/Users/bajra/AppData/Local/Temp/hosted-b6af-114232641137.log",
+      "log_sha256": "983a496cb9b5806f70d6888b733bda737331c90f90deece4ca45843a74088d26"
+    }
+  ],
+  "windows_go": "Seven demo packages PASS, helper no test files; all five Go modules test/vet complete; explicit v2 verifier zero divergences.",
+  "limitations": [
+    "Hosted Go logs are not verbose: individual prerequisite skips and Windows 8.3 regression execution versus skip are not exposed.",
+    "Local retained demo evidence: 73 passing events, four real-process prerequisite skips; new Windows regression and child subtest ran successfully.",
+    "Missing NBSR_TASK4_RUST_BINARY skips TestFullTask4RealSecureRoute. Missing NBSR_TASK4_CLIENT_BINARY skips TestStandaloneClientRealSecureRoute, TestStandaloneBackendFailureHasNoFallback, TestStandaloneTransportFailureHasNoFallback.",
+    "Rust library retains one ignored soak; hosted bounded profiles do not prove full real-process, WAN, load/capacity or production readiness.",
+    "Python Windows runs core only; protocol/federation profile results are Ubuntu evidence."
+  ],
+  "changes": "Evidence only; no code, authority/security changes, commit, push or ACK work."
+}

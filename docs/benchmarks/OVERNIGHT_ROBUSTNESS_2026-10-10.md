@@ -472,3 +472,7 @@ Approved federation version split is implemented and independently reviewed: exa
 Specifically authorized c822a0dd publication was accepted and remote SHA verified. Hosted run38057636484 completed:6passed/1failed. Linux Go federation and Windows Go client authority failures cleared; the later Windows demo module now exposes23 top-level error24 failures. Full evidence/limits: docs/reviews/2026-10-10-hosted-ci-c822a0dd.md and JSON. No further implementation/publication or ACK work occurred.
 
 Windows demo follow-up: deterministic short-TMP RED/GREEN, complete demo suite 73 passing test events / 4 prerequisite skips, vet PASS, independent review clean. Local unpublished correction and exact evidence: `docs/reviews/2026-10-10-demo-windows-fixtures.md` and `.json`. Hosted c822 remains 6 pass / 1 fail; no new publication or ACK work.
+
+Hosted b6afdcdf run 38058799631: all seven jobs PASS, including Windows Go demo tests/vet and remaining Go checks. Exact outcomes, retained log hashes and coverage limits: `docs/reviews/2026-10-10-hosted-ci-b6afdcdf.md` / `.json`. Evidence-only monitoring; no ACK work.
+
+Receive/ACK revoke-then-drop gap reproduced and minimally corrected locally. RED 2 failures; GREEN 2; library 111 passed/1 existing ignored; integration 4+12; Clippy/default/fmt/diff pass; independent review clean. Evidence: `docs/reviews/2026-10-10-receive-ack-revocation-drop.md` and JSON. Authority pins untouched; separately approved version required. No commit/push; stopped at user budget request.

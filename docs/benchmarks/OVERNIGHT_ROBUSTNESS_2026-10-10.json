@@ -654,5 +654,28 @@
     "publication": "authorized scoped local commit; unpublished; publication requires specific approval",
     "hosted": "6 pass / Windows Go demo fail; local correction not hosted yet",
     "ack": "unchanged"
+  },
+  "hosted_b6af_checkpoint": {
+    "sha": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+    "run": 38058799631,
+    "status": "completed/success",
+    "passed": 7,
+    "failed": 0,
+    "report": "docs/reviews/2026-10-10-hosted-ci-b6afdcdf.md",
+    "manifest": "docs/reviews/2026-10-10-hosted-ci-b6afdcdf.json",
+    "windows_demo": "hosted module tests/vet PASS",
+    "limits": "real-process prerequisites remain outside demonstrated coverage; existing soak ignored",
+    "ack": "unchanged"
+  },
+  "receive_ack_drop_checkpoint": {
+    "base": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+    "report": "docs/reviews/2026-10-10-receive-ack-revocation-drop.md",
+    "manifest": "docs/reviews/2026-10-10-receive-ack-revocation-drop.json",
+    "status": "reviewed local uncommitted correction; no publication",
+    "tests": "RED 2 fail; GREEN 2; library111/1ignored; integration4+12; Clippy/default/fmt/diff PASS",
+    "review": "no blocking findings",
+    "authority": "existing pins untouched; new version approval required",
+    "cleanup": "zero matching processes; all supervised children reaped",
+    "next": "stop; no further work or publication"
   }
 }

@@ -876,6 +876,12 @@ impl ApplicationStream {
     /// Channel cancellation interrupts the wait with `ApplicationStreamRejected`.
     /// Cancelling this future alone leaves the stream usable.
     pub async fn wait_for_send_ack(&self) -> Result<(), TransportError> {
+        // Unlock before retrying a revocation reset on future Drop. Ordinary
+        // cancellation remains resumable because this guard is never armed.
+        let _revocation_cleanup = BorrowedSendCancellation {
+            shared: &self.shared,
+            armed: false,
+        };
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);
         // Register before waiting for the mutex, so revocation cannot be lost
@@ -908,6 +914,12 @@ impl ApplicationStream {
     /// returns `ApplicationStreamFailed` without discarding progress. Terminal read
     /// errors discard progress and make further payload reads fail closed.
     pub async fn receive_payload(&mut self) -> Result<Vec<u8>, TransportError> {
+        // Unlock before retrying a revocation reset on future Drop. Ordinary
+        // cancellation remains resumable because this guard is never armed.
+        let _revocation_cleanup = BorrowedSendCancellation {
+            shared: &self.shared,
+            armed: false,
+        };
         let notified = self.shared.notify.notified();
         tokio::pin!(notified);
         notified.as_mut().enable();

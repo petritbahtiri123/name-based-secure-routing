@@ -2201,3 +2201,106 @@ async fn benchmark_frame_revocation_then_future_drop_completes_reset() {
         assert_eq!(retained, 0);
     }
 }
+
+// Current-thread execution prevents endpoint progress between FIN, the first ACK
+// poll, revocation and future Drop. No transport timing assumption is needed.
+async fn revoked_receive_or_ack_drop_resets_retained_stream(ack: bool) {
+    let mut f = PayloadFixture::with_window(Some(64)).await;
+    let shared = Arc::clone(&f.application.shared);
+    if ack {
+        f.application.send_payload(b"ack").await.unwrap();
+    } else {
+        f.sending.write_all(b"prefix").await.unwrap();
+    }
+    let mut pending: std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<(), TransportError>> + '_>,
+    > = if ack {
+        Box::pin(f.application.wait_for_send_ack())
+    } else {
+        Box::pin(async { f.application.receive_payload().await.map(|_| ()) })
+    };
+    let checkpoint = timeout(
+        Duration::from_secs(2),
+        std::future::poll_fn(|cx| match pending.as_mut().poll(cx) {
+            std::task::Poll::Ready(_) => std::task::Poll::Ready(false),
+            std::task::Poll::Pending
+                if *f.quota.buffered.lock().unwrap() == if ack { 3 } else { 6 } =>
+            {
+                std::task::Poll::Ready(true)
+            }
+            std::task::Poll::Pending => std::task::Poll::Pending,
+        }),
+    )
+    .await;
+    let held_lock = shared.inner.try_lock().is_err();
+    shared.force_reset();
+    let released_on_revoke = *f.quota.buffered.lock().unwrap() == 0;
+    drop(pending); // Do not repoll or destroy application/connection owners.
+    let unlocked = shared.inner.try_lock().is_ok();
+    let (reset, stopped) = tokio::join!(
+        timeout(Duration::from_secs(2), async {
+            let mut bytes = [0; 64];
+            loop {
+                match f.peer_receive.read(&mut bytes).await {
+                    Ok(Some(_)) => continue,
+                    result => break result,
+                }
+            }
+        }),
+        timeout(Duration::from_secs(2), f.sending.stopped()),
+    );
+    let cleared = shared.payload_receive.lock().unwrap().payload.is_empty();
+    let weak = Arc::downgrade(&shared);
+    drop(shared);
+    f.close().await; // Expected RED assertions follow bounded cleanup.
+    assert!(
+        matches!(checkpoint, Ok(true)) && held_lock && unlocked,
+        "pending mutex-owner checkpoint: {checkpoint:?}"
+    );
+    assert!(released_on_revoke && cleared && weak.upgrade().is_none());
+    assert!(
+        matches!(reset, Ok(Err(quinn::ReadError::Reset(code))) if code == VarInt::from_u32(1)),
+        "revoked future Drop must reset retained stream: {reset:?}"
+    );
+    assert!(
+        matches!(stopped, Ok(Ok(Some(code))) if code == VarInt::from_u32(1)),
+        "revoked future Drop must stop retained stream: {stopped:?}"
+    );
+}
+
+#[tokio::test]
+async fn revoked_receive_drop_resets_retained_stream() {
+    revoked_receive_or_ack_drop_resets_retained_stream(false).await;
+}
+
+#[tokio::test]
+async fn revoked_ack_drop_resets_retained_stream() {
+    revoked_receive_or_ack_drop_resets_retained_stream(true).await;
+}
+
+#[tokio::test]
+async fn ack_wait_cancellation_preserves_fin_and_quota_until_explicit_release() {
+    let mut f = PayloadFixture::with_window(Some(64)).await;
+    f.application.send_payload(b"ack").await.unwrap();
+    let shared = Arc::clone(&f.application.shared);
+    let mut pending = Box::pin(f.application.wait_for_send_ack());
+    let is_pending = std::future::poll_fn(|cx| {
+        std::task::Poll::Ready(std::future::Future::poll(pending.as_mut(), cx).is_pending())
+    })
+    .await;
+    let held_lock = shared.inner.try_lock().is_err();
+    drop(pending);
+    assert!(is_pending && held_lock && shared.inner.try_lock().is_ok());
+    assert!(!shared.cancelled.load(Ordering::Acquire));
+    assert_eq!(f.buffered(), 3);
+    let received = timeout(Duration::from_secs(2), f.peer_receive.read_to_end(64)).await;
+    let ack = timeout(Duration::from_secs(2), f.application.wait_for_send_ack()).await;
+    let retained = f.buffered();
+    f.application.release_buffered_payloads();
+    let released = f.buffered();
+    drop(shared);
+    f.close().await;
+    assert_eq!(received.unwrap().unwrap(), b"ack");
+    assert_eq!(ack.unwrap(), Ok(()));
+    assert_eq!((retained, released), (3, 0));
+}

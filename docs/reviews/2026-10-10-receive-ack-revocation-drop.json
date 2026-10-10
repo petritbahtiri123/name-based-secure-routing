@@ -1,0 +1,260 @@
+{
+  "base_commit": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+  "status": "reviewed for authorized scoped local source/evidence commit; authority activation and publication pending",
+  "root_cause": "Revocation force_reset clears reservations and notifies, but try_lock cannot reset transport while pending receive/ACK owns async mutex. Dropping future without repoll unlocks but previously did not retry RESET/STOP.",
+  "fix": "Existing unarmed BorrowedSendCancellation declared before each async mutex guard; reverse drop order unlocks then retries reset only if cancelled. No new task, frame, limits, authority or ordinary cancellation semantics.",
+  "red": "2 expected failures: receive RESET timeout; ACK clean EOF. Pending lock ownership, released quota and cleanup assertions passed first.",
+  "green": "2 passed; full library 111 passed / 1 existing ignored soak; application_stream 4 passed; stream_credit_integration 12 passed; all-target benchmark Clippy, default check, fmt and diff checks passed.",
+  "review": "full_delta_review: no blocking findings, independent static review; no tests executed by reviewer",
+  "checks": [
+    {
+      "commit": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+      "label": "ack-receive-drop-red",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--lib",
+        "drop_resets_retained_stream",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "abort": null,
+      "elapsed_seconds": 10.44,
+      "disk_start": 12524756992,
+      "disk_end": 12507930624,
+      "ram_end": 5514657792,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-drop-red.stdout.log",
+          "sha256": "19b060eb3e05c69d87f0767ef471315431f1f0ba40a3143a3c262bf4b8e54a90"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-drop-red.stderr.log",
+          "sha256": "cab99d15f641f7e6ea5ed75f2f85c45c152a04d098bbaff82758cafbef2c0206"
+        }
+      ]
+    },
+    {
+      "commit": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+      "label": "ack-receive-drop-green",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--lib",
+        "drop_resets_retained_stream",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 7.63,
+      "disk_start": 12507738112,
+      "disk_end": 12474970112,
+      "ram_end": 5470756864,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-drop-green.stdout.log",
+          "sha256": "e7bb78afc48c7ab577ab4a725eac24bd2573f97d7ed41a2c42099c440178c05f"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-drop-green.stderr.log",
+          "sha256": "c01717a8d3cba5714cd1ac94267a9bf9878143581ef9266b29819bc2e36986dd"
+        }
+      ]
+    },
+    {
+      "commit": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+      "label": "ack-receive-library",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--lib"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 7.25,
+      "disk_start": 12474609664,
+      "disk_end": 12474572800,
+      "ram_end": 5529640960,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-library.stdout.log",
+          "sha256": "7ef88bb30ec5b3045763e8ee8323a4cb85eb663e0026fb6b70500f4ec91e9cf6"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-library.stderr.log",
+          "sha256": "713444d97845c1cdfe5be12ce297eb5a4d7952e012e7534bab840562aa749bc3"
+        }
+      ]
+    },
+    {
+      "commit": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+      "label": "ack-receive-neighbors",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--test",
+        "application_stream",
+        "--test",
+        "stream_credit_integration"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 26.89,
+      "disk_start": 12472492032,
+      "disk_end": 12473212928,
+      "ram_end": 5331570688,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-neighbors.stdout.log",
+          "sha256": "346bbf0c4bc8b2e072ba42dc7daf4913a4fe2f80b8ea22acada2ebae96f45d46"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-neighbors.stderr.log",
+          "sha256": "ada7adecdac46c996941e7cb6b67090baa8c5b190dcb3c40496b837a55dc6bda"
+        }
+      ]
+    },
+    {
+      "commit": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+      "label": "ack-receive-clippy",
+      "argv": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--all-targets",
+        "--jobs",
+        "2",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 11.9,
+      "disk_start": 12473204736,
+      "disk_end": 12472180736,
+      "ram_end": 5433409536,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-clippy.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-clippy.stderr.log",
+          "sha256": "b3119ee4c1a688326b6e6bdb476593ca6d7fe11ec1119e14c3a53eb61849adcf"
+        }
+      ]
+    },
+    {
+      "commit": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+      "label": "ack-receive-default",
+      "argv": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "2",
+        "--lib"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.21,
+      "disk_start": 12472037376,
+      "disk_end": 12471914496,
+      "ram_end": 5458632704,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-default.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-default.stderr.log",
+          "sha256": "4d75ebd117f435d38f2ecbd1c7e9e073fdd4efd38de62e20e5ed7bcd3e12ff2d"
+        }
+      ]
+    }
+  ],
+  "source_hashes": {
+    "crates/nbsr-transport/src/quinn_adapter.rs": "afbbcfc3f8ce0d2ab3eadbe8012845c358937cc1b19d2980237efab092a71b9f",
+    "crates/nbsr-transport/src/control_read_tests.rs": "e11cb6c3a26f698eca4f248504508373a23070f198e38a4a747bcbe531462834"
+  },
+  "red_source_hashes": {
+    "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-red-quinn_adapter.rs": "535af60c2e0c9fdbf04d1cf44654bc1a33bb13a8bacdf1d6bef70588cc1a94c6",
+    "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-red-control_read_tests.rs": "64e52d7a5dc9546a7f0af93f9804e1006aa2cbe82bf4db0641c251ec6a6219db"
+  },
+  "patch": {
+    "path": "C:\\Users\\bajra\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\ack-receive-final.patch",
+    "sha256": "bafafc5d12616a2e6aa593f19627fe68a32aa4d955e5578b3b7a448549b3c055"
+  },
+  "binary": {
+    "path": "C:\\Users\\bajra\\Documents\\Codex\\2026-10-04\\task\\nbsr-handshake-target\\debug\\deps\\nbsr_transport-e50f51b665ab68fb.exe",
+    "sha256": "d6863fb34327e05de0367a5098c5141ea307d962e0c31bf5d2f18f67a4a27095"
+  },
+  "authority": {
+    "unchanged": true,
+    "direct_check": "CoreBaselineError: modified Core v0.2 parent P1/P2 overlay replacement: crates/nbsr-transport/src/admission.rs",
+    "diagnosis": "Unchanged admission working bytes equal HEAD after CRLF normalization; direct validator stopped before adapter. Independent canonical adapter hash comparison proves new source mismatches existing pin.",
+    "prior_pin": "c0937c20ae437dcf4f598d117704830a458defc109d1b3900e4560c3d9ba0b92",
+    "new_lf_sha256": "088ce7bc101a5ab0f045fbc68d439e82c516d4cdef0644f92057a8297acb8806",
+    "required": "Separately approved versioned authority; no pin refresh performed."
+  },
+  "cleanup": {
+    "all_supervised_children_reaped": true,
+    "matching_build_test_processes": 0,
+    "containers_created": 0,
+    "disk_free_bytes": 12471373824
+  },
+  "limits": [
+    "Windows loopback only; no new hosted or Linux runtime validation.",
+    "Existing adversarial_soak_holds_replay_history_at_ten_thousand ignored.",
+    "No large benchmark, download, commit, push, settings change, authority activation or follow-on investigation."
+  ]
+}
