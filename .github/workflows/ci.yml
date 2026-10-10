@@ -1,0 +1,328 @@
+{
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}",
+    "cancel-in-progress": true
+  },
+  "env": {
+    "CARGO_BUILD_JOBS": "2",
+    "RUST_TEST_THREADS": "2",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1"
+  },
+  "jobs": {
+    "python": {
+      "runs-on": "${{ matrix.os }}",
+      "timeout-minutes": 20,
+      "defaults": {
+        "run": {
+          "shell": "pwsh"
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "persist-credentials": false,
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "with": {
+            "python-version": "3.13.14"
+          }
+        },
+        {
+          "uses": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+          "with": {
+            "node-version": "24.19.0",
+            "package-manager-cache": false
+          }
+        },
+        {
+          "uses": "actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "with": {
+            "path": "${{ runner.temp }}/pip-cache",
+            "key": "pip-${{ runner.os }}-3.13.14-${{ hashFiles('constraints/*.txt', 'pyproject.toml') }}"
+          }
+        },
+        {
+          "name": "Install constrained Python dependencies",
+          "run": "python -m pip install --constraint constraints/dev.txt -e \".[dev]\""
+        },
+        {
+          "name": "Validate workflow contracts",
+          "run": "python scripts/ci/check.py validate"
+        },
+        {
+          "name": "Runtime and security tests",
+          "run": "python scripts/ci/check.py python-core --timeout 300"
+        },
+        {
+          "name": "Protocol, vectors and correctness lint",
+          "run": "python scripts/ci/check.py python-protocol --timeout 300",
+          "if": "runner.os == 'Linux'"
+        },
+        {
+          "uses": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "if": "success() && github.event_name == 'push' && github.ref == 'refs/heads/codex/nbsr-v3-wp0-wp1'",
+          "with": {
+            "path": "${{ runner.temp }}/pip-cache",
+            "key": "pip-${{ runner.os }}-3.13.14-${{ hashFiles('constraints/*.txt', 'pyproject.toml') }}"
+          }
+        },
+        {
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "if": "failure()",
+          "with": {
+            "name": "python-${{ runner.os }}",
+            "path": "ci-results/*.json",
+            "retention-days": 7,
+            "include-hidden-files": false,
+            "if-no-files-found": "ignore"
+          }
+        }
+      ],
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "os": [
+            "ubuntu-24.04",
+            "windows-2025"
+          ]
+        }
+      },
+      "env": {
+        "PIP_CACHE_DIR": "${{ runner.temp }}/pip-cache"
+      }
+    },
+    "rust": {
+      "runs-on": "${{ matrix.os }}",
+      "timeout-minutes": 25,
+      "defaults": {
+        "run": {
+          "shell": "pwsh"
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "persist-credentials": false,
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "with": {
+            "python-version": "3.13.14"
+          }
+        },
+        {
+          "name": "Install pinned Rust toolchain",
+          "run": "rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy"
+        },
+        {
+          "uses": "actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "with": {
+            "path": "~/.cargo/registry",
+            "key": "cargo-${{ runner.os }}-1.97.1-${{ hashFiles('crates/nbsr-transport/Cargo.lock') }}"
+          }
+        },
+        {
+          "name": "Fetch locked dependencies",
+          "run": "cargo fetch --locked --manifest-path crates/nbsr-transport/Cargo.toml"
+        },
+        {
+          "name": "Run bounded Rust profile",
+          "run": "python scripts/ci/check.py rust --timeout 600"
+        },
+        {
+          "name": "Verify lockfile is unchanged",
+          "run": "git diff --exit-code -- crates/nbsr-transport/Cargo.lock"
+        },
+        {
+          "uses": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "if": "success() && github.event_name == 'push' && github.ref == 'refs/heads/codex/nbsr-v3-wp0-wp1'",
+          "with": {
+            "path": "~/.cargo/registry",
+            "key": "cargo-${{ runner.os }}-1.97.1-${{ hashFiles('crates/nbsr-transport/Cargo.lock') }}"
+          }
+        },
+        {
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "if": "failure()",
+          "with": {
+            "name": "rust-${{ runner.os }}",
+            "path": "ci-results/*.json",
+            "retention-days": 7,
+            "include-hidden-files": false,
+            "if-no-files-found": "ignore"
+          }
+        }
+      ],
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "os": [
+            "ubuntu-24.04",
+            "windows-2025"
+          ]
+        }
+      },
+      "env": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "CARGO_TARGET_DIR": "${{ runner.temp }}/nbsr-target"
+      }
+    },
+    "go": {
+      "runs-on": "${{ matrix.os }}",
+      "timeout-minutes": 20,
+      "defaults": {
+        "run": {
+          "shell": "pwsh"
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "persist-credentials": false,
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "with": {
+            "python-version": "3.13.14"
+          }
+        },
+        {
+          "uses": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+          "with": {
+            "go-version": "1.26.5",
+            "cache": false
+          }
+        },
+        {
+          "uses": "actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "with": {
+            "path": "${{ runner.temp }}/gomod",
+            "key": "gomod-${{ runner.os }}-1.26.5-${{ hashFiles('**/go.sum', '**/go.mod') }}"
+          }
+        },
+        {
+          "name": "Resolve and verify module locks",
+          "run": "Push-Location client/nbsr-go-client\ngo mod download\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngo mod verify\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nPop-Location\nPush-Location client/nbsr-go-client/demo\ngo mod download\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngo mod verify\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nPop-Location\nPush-Location interop/nbsr-go-peer\ngo mod download\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngo mod verify\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nPop-Location\nPush-Location verifiers/federation-go\ngo mod download\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngo mod verify\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nPop-Location\nPush-Location deploy/isp-federation-poc/adapter\ngo mod download\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngo mod verify\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\nPop-Location"
+        },
+        {
+          "name": "Test and vet every Go module",
+          "run": "python scripts/ci/check.py go --timeout 300",
+          "env": {
+            "GOPROXY": "off"
+          }
+        },
+        {
+          "name": "Verify module files are unchanged",
+          "run": "git diff --exit-code -- \"**/go.mod\" \"**/go.sum\""
+        },
+        {
+          "uses": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "if": "success() && github.event_name == 'push' && github.ref == 'refs/heads/codex/nbsr-v3-wp0-wp1'",
+          "with": {
+            "path": "${{ runner.temp }}/gomod",
+            "key": "gomod-${{ runner.os }}-1.26.5-${{ hashFiles('**/go.sum', '**/go.mod') }}"
+          }
+        },
+        {
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "if": "failure()",
+          "with": {
+            "name": "go-${{ runner.os }}",
+            "path": "ci-results/*.json",
+            "retention-days": 7,
+            "include-hidden-files": false,
+            "if-no-files-found": "ignore"
+          }
+        }
+      ],
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "os": [
+            "ubuntu-24.04",
+            "windows-2025"
+          ]
+        }
+      },
+      "env": {
+        "GOMODCACHE": "${{ runner.temp }}/gomod"
+      }
+    },
+    "node-policy": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "defaults": {
+        "run": {
+          "shell": "pwsh"
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "persist-credentials": false,
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "with": {
+            "python-version": "3.13.14"
+          }
+        },
+        {
+          "uses": "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1",
+          "with": {
+            "node-version": "24.19.0",
+            "package-manager-cache": false
+          }
+        },
+        {
+          "name": "Node independent verifiers",
+          "run": "python scripts/ci/check.py node --timeout 90"
+        },
+        {
+          "name": "Pinned OPA policy tests",
+          "run": "set -euo pipefail\ncurl --fail --location --retry 2 https://github.com/open-policy-agent/opa/releases/download/v1.4.2/opa_linux_amd64_static -o \"$RUNNER_TEMP/opa\"\necho \"2c0ccdbbe0b8e2a5d12d9c42d92f1f34f494ffb32d1f3c4ddc36101be637d66f  $RUNNER_TEMP/opa\" | sha256sum --check\nchmod +x \"$RUNNER_TEMP/opa\"\n\"$RUNNER_TEMP/opa\" test policy -v",
+          "shell": "bash"
+        },
+        {
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "if": "failure()",
+          "with": {
+            "name": "node-policy-${{ runner.os }}",
+            "path": "ci-results/*.json",
+            "retention-days": 7,
+            "include-hidden-files": false,
+            "if-no-files-found": "ignore"
+          }
+        }
+      ]
+    }
+  },
+  "name": "Project checks",
+  "on": {
+    "push": {
+      "branches": [
+        "codex/nbsr-v3-wp0-wp1"
+      ]
+    },
+    "pull_request": {},
+    "workflow_dispatch": {}
+  }
+}

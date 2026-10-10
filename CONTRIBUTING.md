@@ -59,6 +59,11 @@ Security-sensitive parsing and verification must fail closed. Avoid generic comm
 
 ## Pull requests
 
+See [Project CI](docs/CI.md) for the Python, Rust, Go, Node and OPA checks,
+local profile commands, manual extended tests and failure troubleshooting.
+Hosted dependency setup is explicit; local agent work continues to use the
+provisioned offline caches and resource limits in `AGENTS.md`.
+
 A pull request should include:
 
 - what changed and why;

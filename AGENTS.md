@@ -111,6 +111,16 @@ as part of documentation upkeep. Codex loading behavior is described in the
 [official AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md/);
 other agents may need explicit loading and have different instruction precedence.
 
+## Project CI
+
+`docs/CI.md` defines the bounded GitHub-hosted profiles in `scripts/ci/check.py`
+and the manual extended workflow. Hosted dependency installation does not
+authorize local downloads or override the laptop limits above. Run only the
+affected profile or command locally with provisioned caches; `--list` inspects
+the exact commands without executing them. Workflow security contract tests
+are in `tests/ci/`; JSON-syntax YAML permits standard-library validation.
+Local structural validation is not evidence of a successful hosted run.
+
 ## Large live-bundle harness checks
 
 For explicit 8192 live-bundle support, use the focused boundary tests documented

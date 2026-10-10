@@ -1,0 +1,106 @@
+{
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}",
+    "cancel-in-progress": true
+  },
+  "env": {
+    "CARGO_BUILD_JOBS": "2",
+    "RUST_TEST_THREADS": "2",
+    "GOMAXPROCS": "2",
+    "GOTOOLCHAIN": "local",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1"
+  },
+  "jobs": {
+    "extended": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 30,
+      "defaults": {
+        "run": {
+          "shell": "pwsh"
+        }
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "persist-credentials": false,
+            "fetch-depth": 0
+          }
+        },
+        {
+          "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "with": {
+            "python-version": "3.13.14"
+          }
+        },
+        {
+          "name": "Install pinned Rust toolchain",
+          "run": "rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy"
+        },
+        {
+          "uses": "actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "with": {
+            "path": "~/.cargo/registry",
+            "key": "cargo-${{ runner.os }}-1.97.1-${{ hashFiles('crates/nbsr-transport/Cargo.lock') }}"
+          }
+        },
+        {
+          "name": "Fetch locked dependencies",
+          "run": "cargo fetch --locked --manifest-path crates/nbsr-transport/Cargo.toml"
+        },
+        {
+          "name": "Run bounded Rust profile",
+          "run": "python scripts/ci/check.py \"$env:PROFILE\" --timeout 1200"
+        },
+        {
+          "name": "Verify lockfile is unchanged",
+          "run": "git diff --exit-code -- crates/nbsr-transport/Cargo.lock"
+        },
+        {
+          "uses": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+          "if": "success() && github.event_name == 'push' && github.ref == 'refs/heads/codex/nbsr-v3-wp0-wp1'",
+          "with": {
+            "path": "~/.cargo/registry",
+            "key": "cargo-${{ runner.os }}-1.97.1-${{ hashFiles('crates/nbsr-transport/Cargo.lock') }}"
+          }
+        },
+        {
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "if": "failure()",
+          "with": {
+            "name": "rust-${{ runner.os }}",
+            "path": "ci-results/*.json",
+            "retention-days": 7,
+            "include-hidden-files": false,
+            "if-no-files-found": "ignore"
+          }
+        }
+      ],
+      "env": {
+        "RUSTUP_TOOLCHAIN": "1.97.1",
+        "CARGO_TARGET_DIR": "${{ runner.temp }}/nbsr-target",
+        "PROFILE": "${{ inputs.suite }}"
+      }
+    }
+  },
+  "name": "Manual extended checks",
+  "on": {
+    "workflow_dispatch": {
+      "inputs": {
+        "suite": {
+          "description": "Explicit test suite; no live benchmarks or infrastructure",
+          "required": true,
+          "default": "rust-extended",
+          "type": "choice",
+          "options": [
+            "rust-extended",
+            "soak"
+          ]
+        }
+      }
+    }
+  }
+}

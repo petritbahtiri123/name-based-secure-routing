@@ -13,6 +13,7 @@ __pycache__/
 secrets/
 tokens/
 test-results/
+ci-results/
 target/
 dist/
 *.zip

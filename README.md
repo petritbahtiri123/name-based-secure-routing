@@ -143,7 +143,7 @@ the [hardening report](docs/security-hardening-report.md), and the
 ## Requirements
 
 - Docker Desktop with the Linux engine and Compose v2
-- Python `>=3.12,<3.14` for local development
+- Python `>=3.12,<3.15` for local development (see tested versions below)
 - OPA CLI for direct Rego tests
 - Kind v0.32+ and kubectl for the Kubernetes reference deployment
 
@@ -237,8 +237,12 @@ opa test policy -v
 docker compose config --quiet
 ```
 
-Python 3.12.13 and 3.13.14 are tested. Python 3.14 is intentionally outside the
-declared range.
+Python 3.12.13 and 3.13.14 have recorded test coverage. Metadata permits Python
+3.14; focused local checks do not establish a complete supported-version matrix.
+The [project CI guide](docs/CI.md) describes the bounded Linux/Windows checks,
+manual extended suites, toolchain pins and validation limits. The full pytest
+command above includes independent Rust/Go wire-peer builds and requires their
+toolchains and dependency caches; it is broader than the quick CI profiles.
 
 ## Deterministic release archive
 
