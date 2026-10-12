@@ -1,0 +1,11 @@
+--- before/nbsr/connector_registration_offline.py
++++ after/nbsr/connector_registration_offline.py
+@@ -457,6 +457,8 @@
+         if not bstr(expected, 32) or not compare_digest(expected, proof[3]):
+             reject("PROOF_INVALID")
+         decision = self._verify(state, operation.raw, now)
++        if decision.revision != operation.decision.revision:
++            reject("RECORD_STALE")
+         body = decode_body("REQUEST", operation.raw)
+         key = (body[3], body[6])
+         registration_id = self.registration_id() if body[1] == "register" else None

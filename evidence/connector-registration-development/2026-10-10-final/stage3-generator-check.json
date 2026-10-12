@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-generator-check",
+  "argv": [
+    "python",
+    "scripts/generate_connector_development_vectors.py",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 12094369792,
+  "disk_end": 12094369792,
+  "ram_end": 5451415552,
+  "direct_child_reaped": true
+}

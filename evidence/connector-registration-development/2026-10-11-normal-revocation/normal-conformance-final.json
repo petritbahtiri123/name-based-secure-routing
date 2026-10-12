@@ -1,0 +1,34 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "normal-conformance-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_normal_revocation_conformance.py",
+    "tests/federation/test_threshold_container_supplement.py",
+    "tests/federation/test_revocation.py",
+    "tests/ci/test_ci.py",
+    "-k",
+    "not timeout and not interrupt and not process_tree",
+    "--basetemp",
+    "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-normal-ci-20261011-a"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 6.47,
+  "disk_start": 12029104128,
+  "disk_end": 12022108160,
+  "ram_end": 4698341376,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "c07ebb00fccce37d37b91cc4ef367c48455aad97571ceb64d68f856d769d0706",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

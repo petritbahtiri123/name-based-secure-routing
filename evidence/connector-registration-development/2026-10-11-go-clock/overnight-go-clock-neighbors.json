@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-go-clock-neighbors",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "./internal/cbor",
+    "-count=1",
+    "-json"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.41,
+  "disk_start": 11676864512,
+  "disk_end": 11674882048,
+  "ram_end": 4632268800,
+  "direct_child_reaped": true
+}

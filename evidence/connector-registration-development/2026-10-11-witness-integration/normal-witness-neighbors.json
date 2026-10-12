@@ -1,0 +1,25 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "normal-witness-neighbors",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_normal_revocation_witness_integration.py",
+    "tests/federation/test_normal_revocation_conformance.py",
+    "tests/federation/test_witness_thresholds.py",
+    "tests/federation/test_transparency.py",
+    "tests/federation/test_threshold_container_supplement.py",
+    "tests/federation/test_revocation.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 5.26,
+  "disk_start": 11962023936,
+  "disk_end": 11961520128,
+  "ram_end": 3299598336,
+  "direct_child_reaped": true
+}

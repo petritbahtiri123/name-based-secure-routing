@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "persistence-lint",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "scripts/inclusion_persistence.py",
+    "tests/federation/test_inclusion_persistence.py",
+    "scripts/ci/check.py",
+    "tests/ci/test_ci.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 11930480640,
+  "disk_end": 11930480640,
+  "ram_end": 2802020352,
+  "direct_child_reaped": true
+}

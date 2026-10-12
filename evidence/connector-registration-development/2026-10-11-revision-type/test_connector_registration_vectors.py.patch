@@ -1,0 +1,19 @@
+--- before/tests/protocol/test_connector_registration_vectors.py
++++ after/tests/protocol/test_connector_registration_vectors.py
+@@ -493,6 +493,16 @@
+     assert rig[1].counts()["owned"] == 0
+ 
+ 
++@pytest.mark.parametrize("revision", [True, 1.0])
++def test_current_revision_snapshot_requires_exact_integer(rig, revision):
++    proof = start(rig)[2]
++    rig[1].revision_source = lambda: revision
++    with error(ErrorCode.NBSR_E_RECORD_STALE):
++        rig[1].prove(rig[4], rid(1), 2, proof)
++    assert rig[1].counts()["owned"] == 0
++    assert rig[1].counts()["pending"] == 0
++
++
+ @pytest.mark.parametrize("operation", ["register", "renew"])
+ def test_challenge_revision_change_requires_fresh_exchange(rig, operation):
+     api, gateway, authority, clock, transport, body = rig

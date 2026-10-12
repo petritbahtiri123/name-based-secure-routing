@@ -1,0 +1,302 @@
+{
+  "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "Stage 2 offline closure restored after canonical gateway text64 correction; 2/10",
+  "report": "docs/reviews/2026-10-10-gateway-text64-correction.md",
+  "manifest": "docs/reviews/2026-10-10-gateway-text64-correction.json",
+  "tests": {
+    "configuration": 101,
+    "crp": 103,
+    "neighbors": 187,
+    "cbor": 68,
+    "total": 459,
+    "failed": 0,
+    "skipped": 0
+  },
+  "review": "independent narrow review: no blockers",
+  "cleanup": "5 supervised children reaped, no abort; no containers/background workers",
+  "uncommitted": true,
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 16296,
+      "sha256": "9af4e56d2c8e88bfc2a93f1ee64bd68976d4dc58b2e77726ec32cd1706699f2f"
+    },
+    {
+      "path": "deploy/single-instance/config.example.json",
+      "bytes": 1677,
+      "sha256": "34731e8fbbe91dad683db995c8501c0c975766193e961540d1c74c25d2a7f2af"
+    },
+    {
+      "path": "deploy/single-instance/config.schema.json",
+      "bytes": 9008,
+      "sha256": "0831d189f5538c620d06e2e13d133bb702e3724fbe98c266ddc3b56dc23b66c3"
+    },
+    {
+      "path": "deploy/single-instance/README.md",
+      "bytes": 4554,
+      "sha256": "1889dadc5734a3b3fcfce1f72708b62496ec19642adf5d4cb0d1de18dd6c6975"
+    },
+    {
+      "path": "deploy/single-instance/test_validate_config.py",
+      "bytes": 14280,
+      "sha256": "4ae3d6b7d198878c50a3d64a93c6c2603ab9901ec4510d75301fde17cae3e50e"
+    },
+    {
+      "path": "deploy/single-instance/validate_config.py",
+      "bytes": 10081,
+      "sha256": "5018a66d04f0570ee029c88ad811c88780b0e46effdceb5cce3c0cdac5616321"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+      "bytes": 37060,
+      "sha256": "5e22960b726b20d225f1d6bb423d4261e1652471f09f63c7fdc53a0aa5b6f6f8"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "bytes": 40111,
+      "sha256": "518d96590a898c6ad8dfa3838c146868c78677b4cdb2082b60d376d0dd06389d"
+    },
+    {
+      "path": "docs/protocol/status.md",
+      "bytes": 31855,
+      "sha256": "d878b9fdceacc1c5897a7b467bd48db1a6d74e5d39a05be2b2dd0deba049fca7"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-gateway-text64-correction.md",
+      "bytes": 2147,
+      "sha256": "564088ac287a4db7e07d706318453f8d7b65505be66bcc2671bac02eea9af3c0"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 60068,
+      "sha256": "37fb8f232075c855738d2339e0d486776841dd52eeee6d5756228c8e7e1a843b"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/config.example.json.snapshot",
+      "bytes": 1677,
+      "sha256": "34731e8fbbe91dad683db995c8501c0c975766193e961540d1c74c25d2a7f2af"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/config.schema.json.snapshot",
+      "bytes": 9008,
+      "sha256": "0831d189f5538c620d06e2e13d133bb702e3724fbe98c266ddc3b56dc23b66c3"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-final.json",
+      "bytes": 881,
+      "sha256": "aad7b6130f9ca532b617920c4186fdae47c65a18d95d10f597d2c50cbbb50d66"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-final.stdout.log",
+      "bytes": 588,
+      "sha256": "84049cd94f325487c41d6e12f34ac8d534375a9f8704b7cf9c975cc008a12d7c"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-format.json",
+      "bytes": 473,
+      "sha256": "80f9daf5b2e3f028420d4049f8c55feb3eb79786a55175c3783e73929d5f5a41"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-format.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-format.stdout.log",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-green.json",
+      "bytes": 519,
+      "sha256": "cf12225eb16e3aaf62a5810016c48434e4fe63857708053e942c6842742b8cb1"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-green.stdout.log",
+      "bytes": 183,
+      "sha256": "5f7b797b0af62ff26a82f3ee57a2a89da7c8773e71967b4fb7dff4626d1dc186"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-lint.json",
+      "bytes": 473,
+      "sha256": "0b9d9d8d4844a6d55cbf994cc3f40a6436ddfc9d7f9feb3c2213d96bf58ca77d"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-lint.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-lint.stdout.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-red.json",
+      "bytes": 581,
+      "sha256": "acbd9e54da3c071c72ae418e926d70ed608a2048c61898637d0b72e479e44558"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64-red.stdout.log",
+      "bytes": 9574,
+      "sha256": "c93a9145be95e8fa3076ede493d757b5d2f37d59f67050f34ed1f04e35618d54"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/gateway-text64.patch",
+      "bytes": 8648,
+      "sha256": "3e3fea366aea9b8f00b627ac74be1bc1fc4e86e8b01497a7c2da5fca0c6635ed"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/README.md.snapshot",
+      "bytes": 4554,
+      "sha256": "1889dadc5734a3b3fcfce1f72708b62496ec19642adf5d4cb0d1de18dd6c6975"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/test_validate_config.py.snapshot",
+      "bytes": 14280,
+      "sha256": "4ae3d6b7d198878c50a3d64a93c6c2603ab9901ec4510d75301fde17cae3e50e"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10-gateway-text64/validate_config.py.snapshot",
+      "bytes": 10081,
+      "sha256": "5018a66d04f0570ee029c88ad811c88780b0e46effdceb5cce3c0cdac5616321"
+    }
+  ],
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "gateway-text64-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-text64-final",
+        "deploy/single-instance/test_validate_config.py",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "tests/test_connector_federation_model.py",
+        "tests/test_connector_control_model.py",
+        "tests/federation/test_authorization.py",
+        "tests/federation/test_outage.py",
+        "tests/federation/test_revocation.py",
+        "tests/protocol/test_states.py",
+        "tests/protocol/test_cbor.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 6.63,
+      "disk_start": 12174155776,
+      "disk_end": 12174118912,
+      "ram_end": 4771553280,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "gateway-text64-format",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "deploy/single-instance/validate_config.py",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12174118912,
+      "disk_end": 12174118912,
+      "ram_end": 4792754176,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "gateway-text64-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-text64-green",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 4.42,
+      "disk_start": 12174757888,
+      "disk_end": 12174479360,
+      "ram_end": 4715237376,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "gateway-text64-lint",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "deploy/single-instance/validate_config.py",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12174114816,
+      "disk_end": 12174114816,
+      "ram_end": 4745101312,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "gateway-text64-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-text64-red",
+        "deploy/single-instance/test_validate_config.py",
+        "-k",
+        "example_gateway_id or gateway_text64_preserved"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.62,
+      "disk_start": 12174770176,
+      "disk_end": 12174757888,
+      "ram_end": 4608950272,
+      "direct_child_reaped": true
+    }
+  ],
+  "_publication_derivative": {
+    "original_sha256": "71bbab167f9b93c3d0e3bea0bff38a2c9d897ec656eb88ff2b43bdbc61f9c3fc",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

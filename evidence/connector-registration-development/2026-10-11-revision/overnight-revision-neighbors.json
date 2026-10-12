@@ -1,0 +1,29 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-revision-neighbors",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "tests/test_connector_control_model.py",
+    "tests/test_connector_federation_model.py",
+    "tests/test_connector_registration_authority_offline.py",
+    "tests/test_connector_authority_timer_offline.py",
+    "tests/protocol/test_cbor.py",
+    "tests/protocol/test_states.py",
+    "tests/federation/test_revocation.py",
+    "tests/federation/test_authorization.py",
+    "tests/federation/test_outage.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 4.22,
+  "disk_start": 11712913408,
+  "disk_end": 11712901120,
+  "ram_end": 4588617728,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-revision-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "-k",
+    "challenge_revision_change"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.42,
+  "disk_start": 11712942080,
+  "disk_end": 11712937984,
+  "ram_end": 4607004672,
+  "direct_child_reaped": true
+}

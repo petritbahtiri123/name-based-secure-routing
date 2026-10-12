@@ -1,0 +1,234 @@
+{
+  "profile": "connector-registration-development-v1",
+  "alpn": "nbsr-connector-dev-1",
+  "status": "IN-MEMORY FIXTURES; NO LIVE TRUST",
+  "cases": [
+    {
+      "file": "request.cbor",
+      "accepted": true,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "challenge.cbor",
+      "accepted": true,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "proof.cbor",
+      "accepted": true,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "accept.cbor",
+      "accepted": true,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "reject.cbor",
+      "accepted": true,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "withdraw.cbor",
+      "accepted": true,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "unknown-version.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "unknown-message.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "core-message.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "zero-sequence.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "bool-sequence.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "bad-request-prefix.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "zero-counter.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "extra-key.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "wrong-alpn.cbor",
+      "accepted": false,
+      "alpn": "nbsr-quic-1"
+    },
+    {
+      "file": "wrong-gateway.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "bool-lease.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "long-lease.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "missing-authority-refs.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "trailing.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "nonpreferred.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "indefinite.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "reject-correlation.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "reject-zero-retry.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    },
+    {
+      "file": "reject-forbidden-retry.cbor",
+      "accepted": false,
+      "alpn": "nbsr-connector-dev-1"
+    }
+  ],
+  "artifacts": {
+    "request.cbor": {
+      "sha256": "6f0cfca054c669b9cd83194840b476aebf1e81f5bc32df2dc014452195e10ebe",
+      "bytes": 435
+    },
+    "challenge.cbor": {
+      "sha256": "01ddc7e9a18031a6adb3283c22f3ff1b4883336096ba0235d288a3d41d2e9006",
+      "bytes": 122
+    },
+    "proof.cbor": {
+      "sha256": "113f3159686d6c5ea4e41934de11cdc1c3910c0d4d445b4b863c11e6efca2f9b",
+      "bytes": 154
+    },
+    "accept.cbor": {
+      "sha256": "5549d7fc4a2be732239a6f5ad7620d561317a2fa104762ddd0cdc084241bfa81",
+      "bytes": 201
+    },
+    "reject.cbor": {
+      "sha256": "6f02308fbc4520383595c89ae1da6adf8947df6cb3b010a5fc35af798d368eb3",
+      "bytes": 110
+    },
+    "withdraw.cbor": {
+      "sha256": "518df42d865e2a5ff0ae16f2c86f4239e3f5922277c08babc6769c6170c32a27",
+      "bytes": 122
+    },
+    "unknown-version.cbor": {
+      "sha256": "d0e416668035d04dc0f16b64abfc0f7455f658eb874b0acb41a1eedb8e977d58",
+      "bytes": 435
+    },
+    "unknown-message.cbor": {
+      "sha256": "77f127f3592a3e22e5a5e142f3bc543a468408e1697437e10471e4ed823167eb",
+      "bytes": 435
+    },
+    "core-message.cbor": {
+      "sha256": "b02363323d8d4a77fe7786e7cd7097fedda703bef6030a1ef11c2dbc9aae9f0b",
+      "bytes": 433
+    },
+    "zero-sequence.cbor": {
+      "sha256": "5d27242120f2eaaa3a706085eb114e9f04050646d6b056d87062299b88ed777c",
+      "bytes": 435
+    },
+    "bool-sequence.cbor": {
+      "sha256": "7cd385a1f3483f1378283a64d002a582aae980482daa89b2067324d1b341d5c4",
+      "bytes": 435
+    },
+    "bad-request-prefix.cbor": {
+      "sha256": "183ab2b2da86863d3412781c291842052c3fa0fc32c4a6f2d4535438fb3f6320",
+      "bytes": 435
+    },
+    "zero-counter.cbor": {
+      "sha256": "574ea45025e235f2797f75ef2f5aad4093a9ebe3b14ea39fd0fa2e6313ceba6a",
+      "bytes": 435
+    },
+    "extra-key.cbor": {
+      "sha256": "db888537e912b613346ea3b636e694702bdcf071cc6868c17b501ba1ce5f9a41",
+      "bytes": 437
+    },
+    "wrong-alpn.cbor": {
+      "sha256": "6f0cfca054c669b9cd83194840b476aebf1e81f5bc32df2dc014452195e10ebe",
+      "bytes": 435
+    },
+    "wrong-gateway.cbor": {
+      "sha256": "276026af5eae71e1a68d70aaec66e4936bbdd3d5cae2c6bc4ef4653f8035a606",
+      "bytes": 485
+    },
+    "bool-lease.cbor": {
+      "sha256": "e311384ff89a421be25cecc9353c10df2d1630911898195d082a9cb5b1503fbb",
+      "bytes": 434
+    },
+    "long-lease.cbor": {
+      "sha256": "1c569934b74110e4c451d47ef7cf753ba810699c180ae9348d774780149fe6fb",
+      "bytes": 435
+    },
+    "missing-authority-refs.cbor": {
+      "sha256": "b1c303994812dea3b2434e4d48bdba85c240b1e46950dbe4d24786d9a111bdcb",
+      "bytes": 363
+    },
+    "trailing.cbor": {
+      "sha256": "1f311a4e0db10523a4c822d60c521af9ab059de916e0bebf6b32243ada313bf0",
+      "bytes": 436
+    },
+    "nonpreferred.cbor": {
+      "sha256": "95acbd9193f476e833682aaa3a94de310dd76ddbfd1d71d813c5fa9296271766",
+      "bytes": 436
+    },
+    "indefinite.cbor": {
+      "sha256": "f01dc723c0700d2eb2c0eaf40c6dcfbf0874dada30f8eb4340c51d29eacb015f",
+      "bytes": 436
+    },
+    "reject-correlation.cbor": {
+      "sha256": "437a055b515f99f5364aa87db035cabeb0c84d377449c1a2dbf42fffb4c198b5",
+      "bytes": 110
+    },
+    "reject-zero-retry.cbor": {
+      "sha256": "1ea998348bf9ab7a87454d01b78751035cfe18e862c31eea29e965b0d587d6cd",
+      "bytes": 112
+    },
+    "reject-forbidden-retry.cbor": {
+      "sha256": "ddf032b8ba21e8930c84747abbc1d059f8478dcf29bbe3c726fdd9c56a78e2df",
+      "bytes": 112
+    }
+  }
+}

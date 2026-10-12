@@ -1,0 +1,47 @@
+{
+  "format_version": 1,
+  "profile": "connector-registration-development-v1",
+  "status": "APPROVED DEVELOPMENT ONLY - IN-MEMORY TESTS",
+  "runtime_authorized": false,
+  "live_trust_authorized": false,
+  "alpn": "nbsr-connector-dev-1",
+  "envelope_version": 1,
+  "message_namespace": "connector-development-local; never Core or Federation message decoding",
+  "messages": {
+    "REQUEST": 24576,
+    "CHALLENGE": 24577,
+    "PROOF": 24578,
+    "ACCEPT": 24579,
+    "REJECT": 24580,
+    "WITHDRAW": 24581
+  },
+  "actions": {
+    "namespace": "connector-registration-development-v1",
+    "CONNECTOR_REGISTER": 24576,
+    "effects": [
+      "register",
+      "renew"
+    ],
+    "excludes": [
+      "publication",
+      "route grants",
+      "delegation",
+      "application admission"
+    ]
+  },
+  "signer_purposes": {
+    "transport": 14,
+    "delegation": 6,
+    "bilateral_authorization": 11
+  },
+  "envelope_keys": {
+    "0": "connector version",
+    "1": "message",
+    "2": "request_id",
+    "3": "session_id",
+    "4": "directional sequence",
+    "5": "body"
+  },
+  "unknown_policy": "reject before mutation; no Core ALPN/version fallback",
+  "exporter_label": "EXPORTER-NBSR-Connector-Registration-v1"
+}

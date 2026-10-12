@@ -1,0 +1,28 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "loopback-final-fixtures2",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_loopback",
+    "--",
+    "--ignored",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 19.67,
+  "disk_start": 11778871296,
+  "disk_end": 11762487296,
+  "ram_end": 4078604288,
+  "direct_child_reaped": true
+}

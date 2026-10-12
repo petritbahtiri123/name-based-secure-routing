@@ -1,0 +1,21 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected-python",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_connected_authority_vectors.py",
+    "tests/federation/test_revocation_inclusion_v2.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.82,
+  "disk_start": 11745005568,
+  "disk_end": 11744415744,
+  "ram_end": 2591268864,
+  "direct_child_reaped": true
+}

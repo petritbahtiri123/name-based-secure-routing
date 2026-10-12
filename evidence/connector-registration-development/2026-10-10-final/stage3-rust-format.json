@@ -1,0 +1,21 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-rust-format",
+  "argv": [
+    "rustfmt",
+    "--edition",
+    "2024",
+    "--check",
+    "crates/nbsr-transport/src/connector_control.rs",
+    "crates/nbsr-transport/src/connector_registration.rs",
+    "crates/nbsr-transport/tests/connector_control.rs",
+    "crates/nbsr-transport/tests/connector_registration.rs"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 12091101184,
+  "disk_end": 12091101184,
+  "ram_end": 5557579776,
+  "direct_child_reaped": true
+}

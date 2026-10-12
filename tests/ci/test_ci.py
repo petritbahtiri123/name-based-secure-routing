@@ -4,9 +4,34 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 import pytest
 
 from scripts.ci.check import command_groups, run_command, validate_workflow
+
+
+def test_isolated_genesis_kar_target_selected_without_live_execution():
+    rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
+    assert rust.argv.count("connector_kar") == 1
+    assert "--ignored" not in rust.argv
+    registry = json.loads(Path("docs/protocol/registries/connector-registration-development-v1.json").read_text())
+    assert registry["runtime_authorized"] is False
+    assert registry["live_trust_authorized"] is False
+
+
+def test_inclusion_persistence_ci_is_memory_only():
+    command = next(c for c in command_groups("python-protocol") if c.name == "inclusion-persistence-local")
+    assert command.argv[1:] == (
+        "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/federation/test_inclusion_persistence.py",
+    )
+
+
+def test_connected_authority_local_vectors_and_target_are_selected():
+    rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
+    assert rust.argv.count("connector_authority") == 1
+    vectors = next(c for c in command_groups("python-protocol") if c.name == "connected-authority-vectors")
+    assert vectors.argv[1:] == ("-m", "scripts.check_connected_authority_vectors", "--check")
+    assert "--ignored" not in rust.argv
 
 
 def test_quick_profiles_are_bounded_and_do_not_run_ignored_soak():
@@ -14,7 +39,7 @@ def test_quick_profiles_are_bounded_and_do_not_run_ignored_soak():
         commands = command_groups(profile)
         assert commands
         assert all("--ignored" not in cmd.argv for cmd in commands)
-    assert len([cmd for cmd in command_groups("go") if cmd.name.endswith("test")]) == 5
+    assert len([cmd for cmd in command_groups("go") if cmd.name.endswith("test")]) == 6
     assert "--ignored" in command_groups("soak")[0].argv
 
 
@@ -151,3 +176,92 @@ def test_federation_v2_commands_opt_in_explicitly():
         index = command.argv.index("--version")
         assert command.argv[index + 1] == "federation-v0.1-development-v2"
         assert command.argv[-1].endswith("vectors/federation-v0.1-development-v2")
+
+
+def test_connector_offline_suites_are_selected():
+    core = command_groups("python-core")[0].argv
+    for name in ("control_model", "federation_model", "registration_authority_offline", "authority_timer_offline"):
+        assert f"tests/test_connector_{name}.py" in core
+    assert "deploy/single-instance/test_validate_config.py" in core
+    rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
+    for target in ("connector_control", "connector_registration", "connector_loopback"):
+        assert target in rust.argv
+    for kind in ("test", "vet"):
+        go = next(c for c in command_groups("go") if c.name == f"go-connector-{kind}")
+        assert "connector_development" in go.argv and "./connector" in go.argv
+    assert any("scripts/verify_connector_registration_vectors.mjs" in c.argv for c in command_groups("node"))
+
+
+def test_gateway_cli_process_contract_is_selected_with_its_neighbors():
+    core = command_groups("python-core")[0].argv
+    for name in ("cli", "plan", "profile", "verify", "journal"):
+        assert core.count(f"tests/test_gateway_{name}.py") == 1
+
+
+def test_native_signature_slice_and_python_oracle_are_selected_without_activation():
+    rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
+    assert rust.argv.count("connector_signature") == 1
+    oracle = next(c for c in command_groups("python-protocol") if c.name == "connector-signature-fixtures")
+    assert oracle.argv[1:] == ("scripts/extract_connector_signature_fixtures.py", "--check")
+    registry = json.loads(Path("docs/protocol/registries/connector-registration-development-v1.json").read_text())
+    assert registry["runtime_authorized"] is False
+    assert registry["live_trust_authorized"] is False
+
+
+def test_normal_revocation_conformance_is_selected_without_runtime_activation():
+    command = next(c for c in command_groups("python-protocol") if c.name == "normal-revocation-conformance")
+    assert command.argv[1:] == ("-m", "scripts.normal_revocation_conformance", "--check")
+    amendment = json.loads(Path("docs/protocol/registries/federation-v0.1-normal-revocation-conformance-v1.json").read_text())
+    assert amendment["runtime_enabled"] is amendment["live_enabled"] is False
+
+
+def test_revocation_inclusion_v2_selection_stays_local():
+    command = next(c for c in command_groups("python-protocol") if c.name == "revocation-inclusion-v2")
+    assert command.argv[1:] == ("-m", "scripts.revocation_inclusion_v2", "--check")
+    amendment = json.loads(Path("docs/protocol/registries/revocation-inclusion-local-v2.json").read_text())
+    assert amendment["runtime_enabled"] is amendment["live_enabled"] is False
+    assert amendment["record_version"] == 2
+
+
+def test_connector_loopback_is_manual_and_prebuilt():
+    commands = command_groups("connector-loopback")
+    assert "--no-run" in commands[0].argv
+    assert "-c" in commands[1].argv
+    assert "--ignored" in commands[2].argv and "--exact" in commands[2].argv
+    workflow = json.loads(Path(".github/workflows/extended.yml").read_text())
+    assert "connector-loopback" in workflow["on"]["workflow_dispatch"]["inputs"]["suite"]["options"]
+    steps = workflow["jobs"]["extended"]["steps"]
+    setup = next(s for s in steps if s.get("uses", "").startswith("actions/setup-go@"))
+    assert setup["if"] == "inputs.suite == 'connector-loopback'"
+    assert setup["with"]["go-version"] == "1.26.5"
+
+
+@pytest.mark.parametrize("build_code,live_code", [(7, 0), (0, 124), (0, 0)])
+def test_loopback_worker_is_owned_and_environment_restored(monkeypatch, tmp_path, build_code, live_code):
+    from scripts.ci import check
+
+    calls = []
+    monkeypatch.setattr(check.tempfile, "tempdir", str(tmp_path.resolve()))
+    monkeypatch.setattr(check, "ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["check.py", "connector-loopback"])
+    monkeypatch.setenv("NBSR_CONNECTOR_GO_TEST", "prior-worker")
+
+    def run(name, argv, cwd, seconds):
+        calls.append((name, argv, seconds))
+        if name == "connector-loopback-build":
+            return {"exit_code": 0}
+        if name == "connector-worker-build":
+            worker = Path(argv[argv.index("-o") + 1])
+            worker.write_text("synthetic worker")
+            return {"exit_code": build_code}
+        assert Path(os.environ["NBSR_CONNECTOR_GO_TEST"]).exists()
+        assert "--exact" in argv and "--ignored" in argv
+        return {"exit_code": live_code}
+
+    monkeypatch.setattr(check, "run_command", run)
+    assert check.main() == int(bool(build_code or live_code))
+    assert len(calls) == (2 if build_code else 3)
+    assert os.environ["NBSR_CONNECTOR_GO_TEST"] == "prior-worker"
+    worker = Path(calls[1][1][calls[1][1].index("-o") + 1])
+    assert not worker.parent.exists()
+    assert all(c[2] == 90 for c in calls)

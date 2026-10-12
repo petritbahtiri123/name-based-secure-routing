@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "inclusion-v2-review-green",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_revocation_inclusion_v2.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.02,
+  "disk_start": 11965997056,
+  "disk_end": 11965874176,
+  "ram_end": 3043442688,
+  "direct_child_reaped": true
+}

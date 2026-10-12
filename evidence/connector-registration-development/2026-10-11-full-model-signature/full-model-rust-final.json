@@ -1,0 +1,31 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "full-model-rust-final",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_signature",
+    "--test",
+    "connector_control",
+    "--test",
+    "connector_registration",
+    "--test",
+    "connector_loopback"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 1.41,
+  "disk_start": 12129517568,
+  "disk_end": 12128206848,
+  "ram_end": 4931207168,
+  "direct_child_reaped": true
+}

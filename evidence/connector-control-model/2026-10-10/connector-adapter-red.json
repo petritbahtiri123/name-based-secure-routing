@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connector-adapter-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_federation_model.py",
+    "-k",
+    "adapter_module_exists"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 12301602816,
+  "disk_end": 12301590528,
+  "ram_end": 4487446528,
+  "direct_child_reaped": true
+}

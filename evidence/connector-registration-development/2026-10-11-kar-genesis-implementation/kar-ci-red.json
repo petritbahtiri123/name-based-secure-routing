@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "kar-ci-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/ci/test_ci.py::test_isolated_genesis_kar_target_selected_without_live_execution"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.01,
+  "disk_start": 15157760000,
+  "disk_end": 15157755904,
+  "ram_end": 8153841664,
+  "direct_child_reaped": true
+}

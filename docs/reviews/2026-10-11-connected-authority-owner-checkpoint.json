@@ -1,0 +1,278 @@
+{
+  "status": "INCOMPLETE: resource-guard stop; four independent-review blockers remain",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "registration_ready": false,
+  "stage_status": "Stage 3 partial; 2/10 stages complete",
+  "scope": "test-only native normal negative enforcement into explicitly synthetic owner; SuppliedTestTrust only; proof horizon 0-to-1 and 1-to-2 leaves",
+  "changed_source_sha256": {
+    "crates/nbsr-transport/src/connector_authority.rs": "fcc830eaeb0156b71f6ba19554dadde9e0cceb9a8133a1e5788bb0252084cb68",
+    "crates/nbsr-transport/tests/connector_authority.rs": "add5ab10cecce7d53f4c9e6143d55b4af6fdfc0298580baed7400aa058802245",
+    "crates/nbsr-transport/src/connector_control.rs": "612ff0d0d591b91dbae4ae608fe02cb7f80209058de462d220d139b8e92a1083",
+    "crates/nbsr-transport/src/connector_registration.rs": "122f6eee4d0a8e81ead74750ecf1c40ba1c34d65cd79cdc26495d66175c8ba59",
+    "scripts/check_connected_authority_vectors.py": "952b207c5dd471b9e1d2f5efcaabbebb4fb2630ac7f3fdb3541007db724fadb5",
+    "tests/federation/test_connected_authority_vectors.py": "11711e6a7d274991d9423205899a5e3848728f037cb090e065d843000f6fb6e0",
+    "vectors/connector-authority-local-v1/cases.json": "f9fa48623fa2cf08510d8e12b93a978f5a78631c9c1859b8e49574de214374aa"
+  },
+  "binary": {
+    "path": "@LOCAL_USER_ROOT@\\Documents\\Codex\\2026-10-04\\task\\nbsr-handshake-target\\debug\\deps\\connector_authority-9ea28296b80a42d6.exe",
+    "sha256": "8c363bae8c410baccf5352a8baaf5078420405ade92d95be68a5730cde246f91",
+    "note": "six-test passing binary; Rust source subsequently formatted only"
+  },
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-oracle-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_connected_authority_vectors.py"
+      ],
+      "exit_code": 2,
+      "abort": null,
+      "elapsed_seconds": 2.22,
+      "disk_start": 11893399552,
+      "disk_end": 11893395456,
+      "ram_end": 3505233920,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-oracle-green",
+      "argv": [
+        "python",
+        "-m",
+        "scripts.check_connected_authority_vectors"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.01,
+      "disk_start": 11893202944,
+      "disk_end": 11893272576,
+      "ram_end": 3393036288,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-native-red",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_authority"
+      ],
+      "exit_code": 101,
+      "abort": null,
+      "elapsed_seconds": 16.49,
+      "disk_start": 11888533504,
+      "disk_end": 11886690304,
+      "ram_end": 2837708800,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-native-first",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_authority"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 16.87,
+      "disk_start": 11887812608,
+      "disk_end": 11856412672,
+      "ram_end": 3360407552,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-vectors-current",
+      "argv": [
+        "python",
+        "-m",
+        "scripts.check_connected_authority_vectors"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.81,
+      "disk_start": 11856486400,
+      "disk_end": 11856486400,
+      "ram_end": 3421900800,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-freshness-red",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_authority",
+        "final_apply_rechecks_all_selected_evidence_deadlines"
+      ],
+      "exit_code": 101,
+      "abort": null,
+      "elapsed_seconds": 1.82,
+      "disk_start": 11834998784,
+      "disk_end": 11819630592,
+      "ram_end": 2984001536,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-freshness-green",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_authority"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.03,
+      "disk_start": 11819106304,
+      "disk_end": 11820589056,
+      "ram_end": 2889166848,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-neighbors",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_control",
+        "--test",
+        "connector_registration",
+        "--test",
+        "connector_signature"
+      ],
+      "exit_code": 1,
+      "abort": "RAM guard",
+      "elapsed_seconds": 4.22,
+      "disk_start": 11814203392,
+      "disk_end": 11745234944,
+      "ram_end": 2437328896,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-python",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_connected_authority_vectors.py",
+        "tests/federation/test_revocation_inclusion_v2.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.82,
+      "disk_start": 11745005568,
+      "disk_end": 11744415744,
+      "ram_end": 2591268864,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connected-vectors-check",
+      "argv": [
+        "python",
+        "-m",
+        "scripts.check_connected_authority_vectors",
+        "--check"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.81,
+      "disk_start": 11739447296,
+      "disk_end": 11739447296,
+      "ram_end": 2569654272,
+      "direct_child_reaped": true
+    }
+  ],
+  "final_tests": {
+    "native": 6,
+    "python": 77,
+    "vector_cases": 11,
+    "neighbor_rust": "ABORTED by RAM guard; incomplete"
+  },
+  "checks": {
+    "ruff": "PASS on two new Python files",
+    "scoped_rustfmt": "PASS",
+    "git_diff_check": "PASS with existing line-ending warnings"
+  },
+  "failures_retained": [
+    "missing Python module RED",
+    "missing Rust module RED",
+    "witness expiry +1 accepted RED",
+    "Rust neighbors RAM guard abort"
+  ],
+  "review": {
+    "freshness": "independent source review clear after selected-key/witness expiry cap; exact-boundary regression passed",
+    "remaining": [
+      "signed target not bound to owner dependency inventory",
+      "bundle log/witness memberships and thresholds/policy consistency incomplete",
+      "record terminal-expiry and reason validation differ from Python",
+      "same record with fresh event binding reapplies owner effect"
+    ]
+  },
+  "additional_review_question": "Check whether prior-anchor maximum-staleness must also be retained through final apply; only current checkpoint is rechecked there.",
+  "cleanup": {
+    "all_supervised_direct_children_reaped": true,
+    "visible_cargo_rustc_connector_test_workers": [],
+    "task_sockets_or_containers_created": false
+  },
+  "limits": "No commit/push/download/keys/sockets/ACL or runtime enablement. CI selection deferred until blockers resolved. No neighbor retry after RAM guard.",
+  "evidence": "evidence/connector-registration-development/2026-10-11-connected-authority-checkpoint",
+  "next": "Resolve each remaining review finding with deterministic signed regressions, then rerun affected neighbors only when headroom permits; full review before CI selection/completion.",
+  "_publication_derivative": {
+    "original_sha256": "dc86c40f3bdb503b64c18b57f692c4e396710f3cd7ed49b14d431f52c021e21d",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

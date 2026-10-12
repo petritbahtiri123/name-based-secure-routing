@@ -1,0 +1,501 @@
+{
+  "authorized_cutoff_utc": "2026-10-11T07:00:00Z",
+  "scope": "small code-only/offline improvements; exact earlier isolated loopback permitted if justified; no new trust/registry/lifetime decisions, credentials, external traffic, publish or security changes",
+  "state": "CI follow-up complete; reviewed local checkpoint, hosted validation unrun",
+  "checkpoints": [
+    {
+      "slice": "challenge-revision",
+      "report": "docs/reviews/2026-10-11-connector-challenge-revision.md",
+      "manifest": "docs/reviews/2026-10-11-connector-challenge-revision.json",
+      "passed": 434,
+      "skipped": 0,
+      "deselected": 0,
+      "reproduced_failures": 2,
+      "review": "clear",
+      "cleanup": "all direct children reaped; no visible relevant workers; no task sockets/containers"
+    },
+    {
+      "slice": "go-observed-expiry",
+      "report": "docs/reviews/2026-10-11-connector-go-expiry.md",
+      "manifest": "docs/reviews/2026-10-11-connector-go-expiry.json",
+      "go_counts": {
+        "nbsr.local/interop/nbsr-go-peer/internal/cbor": {
+          "pass_events": 10,
+          "pass_top_level": 3
+        },
+        "nbsr.local/interop/nbsr-go-peer/connector": {
+          "pass_events": 71,
+          "pass_top_level": 21,
+          "skip_events": 1,
+          "skip_top_level": 1
+        }
+      },
+      "review": "clear",
+      "cleanup": "all children reaped; no visible relevant workers; no sockets/containers",
+      "limits": "observed owner expiry only, not general monotonic clock"
+    },
+    {
+      "slice": "go-clock-floor",
+      "report": "docs/reviews/2026-10-11-connector-go-clock.md",
+      "manifest": "docs/reviews/2026-10-11-connector-go-clock.json",
+      "go_counts": {
+        "nbsr.local/interop/nbsr-go-peer/internal/cbor": {
+          "pass_events": 10,
+          "pass_top_level": 3
+        },
+        "nbsr.local/interop/nbsr-go-peer/connector": {
+          "pass_events": 77,
+          "pass_top_level": 25,
+          "skip_events": 1,
+          "skip_top_level": 1
+        }
+      },
+      "review": "clear",
+      "cleanup": "all children reaped; no visible relevant workers; no sockets/containers",
+      "reproduced_failures": 3
+    },
+    {
+      "slice": "rust-clock-floor",
+      "report": "docs/reviews/2026-10-11-connector-rust-clock.md",
+      "manifest": "docs/reviews/2026-10-11-connector-rust-clock.json",
+      "passed": 23,
+      "ignored": 1,
+      "reproduced_failures": 4,
+      "review": "clear",
+      "cleanup": "all direct children reaped; no visible relevant workers; no task sockets/containers"
+    },
+    {
+      "slice": "2026-10-11-connector-revision-type",
+      "report": "docs/reviews/2026-10-11-connector-revision-type.md",
+      "manifest": "docs/reviews/2026-10-11-connector-revision-type.json"
+    },
+    {
+      "slice": "2026-10-11-connector-loopback",
+      "report": "docs/reviews/2026-10-11-connector-loopback.md",
+      "manifest": "docs/reviews/2026-10-11-connector-loopback.json"
+    },
+    {
+      "slice": "ci-selection",
+      "report": "docs/reviews/2026-10-11-connector-ci-selection.md",
+      "manifest": "docs/reviews/2026-10-11-connector-ci-selection.json",
+      "ci_tests_passed": 23,
+      "selected_python_passed": 297,
+      "loopback_cases_passed": 19,
+      "hosted_run": false
+    }
+  ],
+  "parent_notification_error": "send_message_to_thread returned thread not found for supplied parent ID; no repeated attempts; final handoff remains automatic",
+  "checkpoint_utc": "2026-10-10T21:09:59.960874+00:00",
+  "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "final_results": {
+    "python_passed": 436,
+    "python_exclusions": 0,
+    "go_top_level_passed": 28,
+    "go_pass_events": 87,
+    "go_worker_skipped": 1,
+    "rust_passed": 23,
+    "rust_live_ignored_by_default": 1,
+    "explicit_loopback_cases_passed": 19,
+    "supervised_runs": 29,
+    "retained_failed_runs": 6,
+    "reproduced_red_cases": 14,
+    "resource_aborts": 0
+  },
+  "cleanup": "all supervised children reaped; live PIDs and UDP endpoints absent; new Go worker removed; no task containers",
+  "limits": "Stage 3 partial; stages 1-2 remain 2/10. Real authority/revocation provider composition, timers and deployment remain unproven.",
+  "current_source_sha256": {
+    "nbsr/connector_registration_offline.py": "eb392e37b5d23f76e3e2c9ccd5148c24d9f7c2a008b83e2c55fda5802903a774",
+    "tests/protocol/test_connector_registration_vectors.py": "becf2cd1978bbb62b4367eaff26309fe49a30a84ac49f6e4c2f64c709ee73ae6",
+    "interop/nbsr-go-peer/connector/coordinator.go": "fd8bb45a3c96c3a1b6386769e628bf8d26ed604a7b067c48ff3bec151a428508",
+    "interop/nbsr-go-peer/connector/coordinator_test.go": "b7a5070e04e918c3d606370a9ebf85b9af507537fec710abecc03afdda7d02d4",
+    "crates/nbsr-transport/src/connector_registration.rs": "2325912b381e897985092203327b6bcdb5b68b57b132ff3fdc2966733f8d322f",
+    "crates/nbsr-transport/tests/connector_registration.rs": "1a363322653c15994657ccb746ffd74f0a71262df9e0d4fa281bf29761fd82d2"
+  },
+  "deliverable_sha256": {
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md": "5b2307096ba5cedcd43a88c8f30dbc6ec318d8af5bd470bdccfcce0c8e9d0f1f",
+    "AGENTS.md": "bd7b3e31ea323ccd0b6cdf32b589766e4e7b6859c5155aa6738a80cb42e62664",
+    "docs/protocol/status.md": "ba14624abbdf4cc00a2a70ce5640e309f739699a9da372aad025894065e8649f",
+    "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md": "3bb5aac8e7532a5a408a15a97f3652ceda47ff817a5977042801ec74d8e71d31",
+    "interop/nbsr-go-peer/connector/README.md": "95561a2e125c8e83210e0a5c35a8d08d5b63fb94273098b836a439f10636d0c3",
+    "docs/reviews/2026-10-11-connector-revision-type.md": "e506aefe0a1739e782a87e17bca4f9543c78f02382bf90d1d19e165b4606ccf1",
+    "docs/reviews/2026-10-11-connector-loopback.md": "3be2b432b2127f4b8469f33fa9b91ceb9dc82732e898bb84b271872f0e77918f",
+    "docs/reviews/2026-10-11-connector-revision-type.json": "f80cc51213fbc7c32bb392539f318c7c5364897e3de537f532889c9df460f15e",
+    "docs/reviews/2026-10-11-connector-loopback.json": "8a500e00bd24a06e4908af333409507a9e5ee08cd3c442bdf92a37d5352267d1"
+  },
+  "ci_followup_timestamp_utc": "2026-10-10T21:19:01.902416+00:00",
+  "prior_deliverable_hashes_note": "deliverable_sha256 records the earlier five-fix checkpoint; preserved snapshot copied into CI evidence before documentation updates",
+  "ci_followup_source_sha256": {
+    "scripts/ci/check.py": "b73adec085e0848d77933bd8e9a5306467dd8a3cd140911cab2a70a99e3ca6c0",
+    "tests/ci/test_ci.py": "14a50856ff1692bafe8168c4d05f8ba2386c8bcb9349d170862be0cb7b8be762",
+    ".github/workflows/extended.yml": "b3d3a6b154ca1cda754b31b0242f2c5ade1c12a3f27e74c43174f6a4365c3704",
+    "docs/CI.md": "118464f80ef1297906984a7ecdb72e4554c2c073fe90253734248ceccf3497df",
+    "AGENTS.md": "025bc677957f6b59d12cb2e94b123efafc088f1066a892b07315beca4e8ca018",
+    "docs/protocol/status.md": "c3e79599882c40b79357048897346c34d026340885d3db1814183931efdc7ac4"
+  },
+  "normal_revocation_local_conformance": {
+    "report": "docs/reviews/2026-10-11-normal-revocation-conformance.md",
+    "manifest": "docs/reviews/2026-10-11-normal-revocation-conformance.json",
+    "passed": 103,
+    "deselected": 3,
+    "literal_cases": 33,
+    "review": "clear after full-roster common-control regression/fix",
+    "scope": "local conformance only; runtime/live false; Stage3 partial;2/10",
+    "cleanup": "all supervised direct children reaped; no resource abort; no visible relevant processes; no sockets/containers created"
+  },
+  "normal_revocation_witness_composition": {
+    "report": "docs/reviews/2026-10-11-normal-revocation-witness-integration.md",
+    "manifest": "docs/reviews/2026-10-11-normal-revocation-witness-integration.json",
+    "passed": 123,
+    "new_tests": 31,
+    "skipped": 0,
+    "deselected": 0,
+    "review": "no blocking findings; not independently rerun",
+    "next_gate": [
+      "authenticated current governing log/witness/membership configuration and applicable policy",
+      "actual governed record inclusion evidence/canonical-leaf binding",
+      "retained checkpoint/revocation/replay floor and provenance at restart"
+    ],
+    "cleanup": "all supervised direct children reaped; no resource abort; no visible relevant processes; no sockets or containers created",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "stage3": "partial;2/10 complete"
+  },
+  "normal_revocation_inclusion_contract_gap": {
+    "report": "docs/reviews/2026-10-11-normal-revocation-inclusion-contract-gap.md",
+    "manifest": "docs/reviews/2026-10-11-normal-revocation-inclusion-contract-gap.json",
+    "status": "blocked before implementation on exact canonical leaf/reference semantic mapping",
+    "passed": 1,
+    "diagnostic_assertions_passed": 5,
+    "review": "independent review confirms narrow prerequisite",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "cleanup": "both supervised children reaped; no resource abort; no visible Python/Cargo/rustc/Go workers; no keys/signatures/sockets/containers created"
+  },
+  "approved_revocation_inclusion_v2": {
+    "report": "docs/reviews/2026-10-11-revocation-inclusion-v2.md",
+    "manifest": "docs/reviews/2026-10-11-revocation-inclusion-v2.json",
+    "passed": 200,
+    "new_inclusion_tests": 76,
+    "literal_packages": 6,
+    "historical_literals": 89,
+    "review": "clear after RED/GREEN event-retention and floor fixes",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "cleanup": "all supervised direct children reaped; no resource abort; no visible Python/Cargo/rustc/Go workers; no sockets or containers created",
+    "remaining": [
+      "real accepted governing configuration provenance/currentness",
+      "durable floors and replay retention at restart",
+      "all-mode live authority composition",
+      "broader historical proof chains and renewal",
+      "final comprehensive audit"
+    ]
+  },
+  "revocation_restart_boundary": {
+    "report": "docs/reviews/2026-10-11-revocation-restart-boundary.md",
+    "manifest": "docs/reviews/2026-10-11-revocation-restart-boundary.json",
+    "status": "decision required before persistence behavior changes",
+    "passed": 3,
+    "review": "no safe drop-in integration; read-only independent review",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "cleanup": "supervised direct child reaped; no resource abort; no sockets or containers created"
+  },
+  "inclusion_persistence_design": {
+    "report": "docs/reviews/2026-10-11-inclusion-persistence-design.md",
+    "manifest": "docs/reviews/2026-10-11-inclusion-persistence-design.json",
+    "status": "proposal awaiting approval; design only",
+    "tests_run": 0,
+    "review": "Independent read-only review found one source attribution error: existing bounded readers do not establish Windows ancestor-reparse/alias safety. Corrected to require a fresh prevalidated canonical root and explicit additional checks. Otherwise no blocking contradiction; no independent tests or ACL operations.",
+    "acl_changes": false
+  },
+  "inclusion_persistence_implementation": {
+    "report": "docs/reviews/2026-10-11-inclusion-persistence-implementation.md",
+    "manifest": "docs/reviews/2026-10-11-inclusion-persistence-implementation.json",
+    "passed": 255,
+    "new_persistence_tests": 51,
+    "review": "clear after release and reentrancy RED/GREEN fixes",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "cleanup": "All 9 supervised direct children reaped; no resource abort. No sockets or containers created. No visible relevant workers at final check.",
+    "remaining": [
+      "filesystem adapter/private writes",
+      "Windows ACL/path/real lock validation",
+      "fsync/partial disk write/power-loss tests",
+      "hosted CI",
+      "whole repository suite"
+    ]
+  },
+  "approved_inclusion_filesystem_attempt": {
+    "status": "blocked before root creation or ACL changes",
+    "report": "docs/reviews/2026-10-11-inclusion-filesystem-approved-attempt.md",
+    "run": {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "inclusion-filesystem-approved",
+      "argv": [
+        "python",
+        "-m",
+        "scripts.inclusion_filesystem_trial"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 1.41,
+      "disk_start": 11916836864,
+      "disk_end": 11916718080,
+      "ram_end": 2795384832,
+      "direct_child_reaped": true
+    },
+    "test_root": "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-inclusion-restart-5168d29d-1251-4ad8-89c9-388a3a6a9574",
+    "source_sha256": "519bec44827bff6af6b645fa4d9b26d33e3821c52139db30d25d366aaaa5b70b",
+    "evidence": "evidence/connector-registration-development/2026-10-11-inclusion-filesystem-approved-attempt",
+    "passed": 0,
+    "not_run": [
+      "root creation",
+      "ACL mutation",
+      "filesystem write/read/reopen",
+      "interrupted replacement/repair",
+      "filesystem cleanup"
+    ],
+    "actual_permission_effects": "none; private helper not reached",
+    "root_absence_verified": true,
+    "cleanup": "no root created; supervised child reaped; visible relevant workers empty",
+    "review": "Read-only preflight review found root-identity/content cleanup gap; corrected before run. Cleanup path remains unexecuted.",
+    "runtime_enabled": false,
+    "live_enabled": false
+  },
+  "approved_inclusion_filesystem_matching_module": {
+    "status": "approved exact-root retry passed",
+    "report": "docs/reviews/2026-10-11-inclusion-filesystem-matching-module.md",
+    "run": {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "inclusion-filesystem-approved-matching-module",
+      "argv": [
+        "python",
+        "-m",
+        "scripts.inclusion_filesystem_trial"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.43,
+      "disk_start": 11909812224,
+      "disk_end": 11909804032,
+      "ram_end": 2774818816,
+      "direct_child_reaped": true
+    },
+    "outcome": {
+      "passed": [
+        "root private ACL observed",
+        "private write bounded read reopen idempotence",
+        "completed watermark interruption and primary repair"
+      ],
+      "created": true,
+      "cleanup": "exact root removed; absence verified",
+      "acl_after": {
+        "Owner": "@LOCAL_ACCOUNT_SID@",
+        "Protected": true,
+        "Rules": [
+          {
+            "SID": "S-1-5-18",
+            "Rights": 2032127,
+            "Inherited": false,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "S-1-5-32-544",
+            "Rights": 2032127,
+            "Inherited": false,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "@LOCAL_ACCOUNT_SID@",
+            "Rights": 2032127,
+            "Inherited": false,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          }
+        ]
+      },
+      "acl_before": {
+        "Owner": "@LOCAL_ACCOUNT_SID@",
+        "Protected": false,
+        "Rules": [
+          {
+            "SID": "@LOCAL_ACCOUNT_SID@",
+            "Rights": 1245631,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "@LOCAL_ACCOUNT_SID@",
+            "Rights": 1245631,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "@LOCAL_ACCOUNT_SID@",
+            "Rights": 1245631,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "@LOCAL_ACCOUNT_SID@",
+            "Rights": 1245695,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "S-1-15-3-2968813833-811790644-2202111208-3784096404-1081847329-2708967783-1438471679",
+            "Rights": 2032127,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "None"
+          },
+          {
+            "SID": "S-1-15-3-2968813833-811790644-2202111208-3784096404-1081847329-2708967783-1438471679",
+            "Rights": 268435456,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "@LOCAL_ACCOUNT_SID@",
+            "Rights": 2032127,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "S-1-5-18",
+            "Rights": 2032127,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          },
+          {
+            "SID": "S-1-5-32-544",
+            "Rights": 2032127,
+            "Inherited": true,
+            "Type": "Allow",
+            "Flags": "ContainerInherit, ObjectInherit"
+          }
+        ]
+      },
+      "snapshot_sha256": "a6a59b66d8a772a21d0b04131889bc0c82e6b4ab5c09649f4936f77020a9f34e"
+    },
+    "source_sha256": {
+      "scripts/inclusion_filesystem_trial.py": "13c2f53d833ac0700ff62a7ab5548a6155f111ce95e5b66ddf1b21bc9ec7ac2d",
+      "scripts/inclusion_persistence.py": "c31c5d271cf26e7d3a478046602e355d9caa5d290d1f58c2930f04edec6208db",
+      "nbsr/secure_files.py": "822cf16c1f48198a51a838342cdc59acdce3782c8873cce38c9c801a8bce9237"
+    },
+    "evidence": "evidence/connector-registration-development/2026-10-11-inclusion-filesystem-matching-module",
+    "passed_assertion_groups": 3,
+    "pytest_count": null,
+    "root_absence_independently_verified": true,
+    "cleanup": "exact owned root removed; direct child reaped; no visible relevant workers",
+    "not_proven": [
+      "process-death recovery",
+      "partial disk write handling",
+      "power-loss durability",
+      "independent trusted restart floor",
+      "production adapter or runtime authority"
+    ],
+    "runtime_enabled": false,
+    "live_enabled": false
+  },
+  "connected_authority_owner_proposal": {
+    "status": "decision-ready proposal; not implemented",
+    "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "proposal": "docs/reviews/2026-10-11-connected-authority-owner-proposal.md",
+    "proposal_sha256": "7f88daea091ebcd73df68d8a20864e5d1d1da11742c06b9db3f890b034deb41c",
+    "recommended_scope": "test-compiled native normal-v2 DENY_NEW_USE/TERMINATE_ACTIVE_USE application to existing synthetic owner; no positive admission or READY",
+    "review": "Independent review found effect-enum mismatch and synchronous termination release hazard. Corrected to explicit two-effect application and begin_cleanup/exact finish_cleanup path. No tests run.",
+    "source_sha256": {
+      "crates/nbsr-transport/src/connector_registration.rs": "e3460c09f81f3486e44717a71cd1c385798be34b8ba5a41c62de845ac35960d9",
+      "crates/nbsr-transport/src/connector_signature.rs": "c0e67b67d86dd7918573864c434af9fcd5d3f3f3825ef1f04e1df1e4af28f2b6",
+      "nbsr/federation/trust.py": "0d3f6c9a320d057b3844367369ad20226d3766a22267ae3bc42e0839d43af25b",
+      "nbsr/federation/cose.py": "35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba",
+      "nbsr/federation/revocation.py": "46f12de41a81a681ff7ca0e21d90d03eb8c0ba624cff6895d202a9b87566e529"
+    },
+    "matrix_reconciled": "Exact-root filesystem trial PASS only; process-death/powerloss/trusted-bootstrap remain open; stage counts unchanged",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "tests_run": 0
+  },
+  "connected_authority_owner_checkpoint": {
+    "status": "INCOMPLETE: resource-guard stop; four independent-review blockers remain",
+    "manifest": "docs/reviews/2026-10-11-connected-authority-owner-checkpoint.json",
+    "report": "docs/reviews/2026-10-11-connected-authority-owner-checkpoint.md",
+    "native_passed": 6,
+    "python_passed": 77,
+    "rust_neighbors": "RAM guard abort; not complete",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "stage_status": "Stage 3 partial; 2/10 stages complete"
+  },
+  "connected_authority_owner_implementation": {
+    "status": "reviewed local supplied-test-trust negative-enforcement slice; four blockers resolved",
+    "report": "docs/reviews/2026-10-11-connected-authority-owner-implementation.md",
+    "manifest": "docs/reviews/2026-10-11-connected-authority-owner-implementation.json",
+    "rust_passed": 44,
+    "python_unique_passed": 159,
+    "review": "no remaining scoped blocker",
+    "stage_status": "Stage 3 partial; 2/10 overall",
+    "runtime_enabled": false,
+    "registration_ready": false,
+    "cleanup": "all supervised children reaped; exact timeout children absent; no task sockets/containers"
+  },
+  "approved_incremental_cache_cleanup": {
+    "record": "docs/reviews/2026-10-11-incremental-cache-cleanup.json",
+    "logical_bytes_removed": 3908720279,
+    "free_bytes_before": 11693117440,
+    "free_bytes_after": 15179739136,
+    "target_absent": true,
+    "protected_binary_unchanged": true
+  },
+  "kar_genesis_design": {
+    "report": "docs/reviews/2026-10-11-kar-genesis-design.md",
+    "manifest": "docs/reviews/2026-10-11-kar-genesis-design.json",
+    "status": "design only; no matching retained purpose-12 normal-roster KAR chain in reviewed inventory",
+    "implementation_authorized": false,
+    "tests_run": 0,
+    "review": "inclusive-expiry draft error corrected; isolated genesis prerequisite recommended"
+  },
+  "kar_genesis_implementation": {
+    "status": "implemented isolated test-only slice; reviewed; composed positive acceptance incomplete",
+    "unique_test_results": {
+      "rust_passed": 15,
+      "python_passed": 65,
+      "signature_cases_verified": 14,
+      "red_kar_assertion_failures": 7,
+      "red_ci_selection_failures": 1
+    },
+    "limitations": [
+      "No successful composed positive acceptance test: new signatures prohibited and retained root/KAR validity intervals disjoint",
+      "No normal roster assertions replaced or authorities connected",
+      "No hosted CI execution"
+    ],
+    "runtime_enabled": false,
+    "registration_ready": false,
+    "stage_status": "Stage 3 partial; 2/10 overall",
+    "manifest": "docs/reviews/2026-10-11-kar-genesis-implementation.json"
+  },
+  "kar_composed_positive_proposal": {
+    "report": "docs/reviews/2026-10-11-kar-composed-positive-proposal.md",
+    "manifest": "docs/reviews/2026-10-11-kar-composed-positive-proposal.json",
+    "status": "independently reviewed; exactly one unchanged purpose3 payload signature proposed; no signing performed",
+    "purpose12_positive_mapping": false
+  },
+  "_publication_derivative": {
+    "original_sha256": "a17b0054b9efd926631d79245cb87630ee8bff7b842a9c863a37b24d63be457c",
+    "changes": [
+      "personal Windows account SID replaced by placeholder",
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

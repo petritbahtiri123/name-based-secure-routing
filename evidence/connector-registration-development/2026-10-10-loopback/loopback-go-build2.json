@@ -1,0 +1,30 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "loopback-go-build2",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "-c",
+    "-o",
+    "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-loopback-go.test.exe",
+    "./connector"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.61,
+  "disk_start": 11906117632,
+  "disk_end": 11904176128,
+  "ram_end": 4710940672,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "c2afcbbb199bea541c8d26581ff207c6879984ed6a56805a2f7e2b8d50343e1f",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

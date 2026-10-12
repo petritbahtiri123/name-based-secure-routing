@@ -1,0 +1,26 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "rust-async-api-red",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_registration",
+    "async_cleanup"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 12057522176,
+  "disk_end": 12064366592,
+  "ram_end": 4645986304,
+  "direct_child_reaped": true
+}

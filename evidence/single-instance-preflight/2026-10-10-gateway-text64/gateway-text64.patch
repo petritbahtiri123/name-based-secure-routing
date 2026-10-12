@@ -1,0 +1,210 @@
+--- prior/config.example.json
++++ current/config.example.json
+@@ -3,7 +3,7 @@
+   "mode": "offline",
+   "client": {
+     "service_id": "1111111111111111111111111111111111111111111111111111111111111111",
+-    "gateway_id": "2222222222222222222222222222222222222222222222222222222222222222",
++    "gateway_id": "gateway.fixture",
+     "proxy": {
+       "host": "127.0.0.1",
+       "port": 18080
+@@ -11,7 +11,7 @@
+     "identity_ref": "ref:client-identity"
+   },
+   "gateway": {
+-    "gateway_id": "2222222222222222222222222222222222222222222222222222222222222222",
++    "gateway_id": "gateway.fixture",
+     "endpoint": {
+       "host": "gateway.example.test",
+       "port": 4433
+@@ -24,7 +24,7 @@
+     "services": [
+       {
+         "service_id": "1111111111111111111111111111111111111111111111111111111111111111",
+-        "gateway_id": "2222222222222222222222222222222222222222222222222222222222222222",
++        "gateway_id": "gateway.fixture",
+         "operator_id": "3333333333333333333333333333333333333333333333333333333333333333",
+         "connector_principal": "4444444444444444444444444444444444444444444444444444444444444444",
+         "registration_authority_ref": "ref:registration-authority",
+--- prior/config.schema.json
++++ current/config.schema.json
+@@ -9,7 +9,9 @@
+           "type": "string"
+         },
+         "gateway_id": {
+-          "pattern": "^[0-9a-f]{64}$",
++          "maxLength": 64,
++          "minLength": 1,
++          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+           "title": "Gateway Id",
+           "type": "string"
+         },
+@@ -60,7 +62,9 @@
+       "additionalProperties": false,
+       "properties": {
+         "gateway_id": {
+-          "pattern": "^[0-9a-f]{64}$",
++          "maxLength": 64,
++          "minLength": 1,
++          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+           "title": "Gateway Id",
+           "type": "string"
+         },
+@@ -220,7 +224,9 @@
+           "type": "string"
+         },
+         "gateway_id": {
+-          "pattern": "^[0-9a-f]{64}$",
++          "maxLength": 64,
++          "minLength": 1,
++          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+           "title": "Gateway Id",
+           "type": "string"
+         },
+--- prior/README.md
++++ current/README.md
+@@ -57,3 +57,13 @@
+ under the writable temporary root. Do not reuse a directory containing user data:
+ pytest owns and may remove its selected base directory. Test counts and exact
+ commands are retained in the Stage 2 evidence report.
++
++Gateway identifiers use the approved registration `text64` contract in every
++role: 1–64 ASCII characters, starting with a lowercase letter, followed by
++lowercase letters/digits with single dot, underscore or hyphen separators between
++nonempty components. They pass into REQUEST key 6 unchanged. They are not 32-byte
++operator/service IDs; no case folding, trimming, hashing or truncation is allowed.
++The example uses `gateway.fixture`. The previous numeric hex example was a
++configuration-to-registration defect; old evidence is retained. A cross-contract
++test inserts the example identifiers into the retained registration REQUEST and
++runs the actual approved body validator. This checks representation, not authority.
+--- prior/test_validate_config.py
++++ current/test_validate_config.py
+@@ -26,12 +26,12 @@
+         "mode": "offline",
+         "client": {
+             "service_id": "11" * 32,
+-            "gateway_id": "22" * 32,
++            "gateway_id": "gateway.fixture",
+             "proxy": {"host": "127.0.0.1", "port": 18080},
+             "identity_ref": "ref:client-identity",
+         },
+         "gateway": {
+-            "gateway_id": "22" * 32,
++            "gateway_id": "gateway.fixture",
+             "endpoint": {"host": "gateway.example.test", "port": 4433},
+             "trust_ref": "ref:gateway-trust",
+             "registration_policy_ref": "ref:registration-policy",
+@@ -41,7 +41,7 @@
+             "services": [
+                 {
+                     "service_id": "11" * 32,
+-                    "gateway_id": "22" * 32,
++                    "gateway_id": "gateway.fixture",
+                     "operator_id": "33" * 32,
+                     "connector_principal": "44" * 32,
+                     "registration_authority_ref": "ref:registration-authority",
+@@ -319,3 +319,48 @@
+     assert validator.main([str(child)]) == 2
+     assert link in visited
+     assert "local" in capsys.readouterr().err
++
++
++def test_example_gateway_id_passes_actual_registration_body_contract():
++    from nbsr.connector_registration_offline import canonical, decode_body
++
++    config = json.loads((ROOT / "config.example.json").read_text())
++    assert implementation().validate_bytes(json.dumps(config).encode())["ready"] is False
++    request_path = ROOT.parents[1] / "vectors/connector-registration-v1-counter/request.cbor"
++    body = decode_body("REQUEST", request_path.read_bytes())
++    for gateway_id in (config["client"]["gateway_id"], config["gateway"]["gateway_id"], config["origin"]["services"][0]["gateway_id"]):
++        body[6] = gateway_id
++        assert decode_body("REQUEST", canonical(body))[6] == gateway_id
++
++
++@pytest.mark.parametrize("gateway_id", ["a", "gateway.fixture", "a" * 64, "a-1.b_2"])
++def test_gateway_text64_preserved_across_config_and_request(gateway_id):
++    from nbsr.connector_registration_offline import canonical, decode_body
++
++    config = sample()
++    for item in (config["client"], config["gateway"], config["origin"]["services"][0]):
++        item["gateway_id"] = gateway_id
++    validator = implementation()
++    assert validator.validate_bytes(json.dumps(config).encode())["ready"] is False
++    parsed = validator.Configuration.model_validate(config)
++    assert parsed.gateway.gateway_id == gateway_id
++    body = decode_body("REQUEST", (ROOT.parents[1] / "vectors/connector-registration-v1-counter/request.cbor").read_bytes())
++    body[6] = parsed.gateway.gateway_id
++    assert decode_body("REQUEST", canonical(body))[6] == gateway_id
++
++
++@pytest.mark.parametrize("gateway_id", ["", "a" * 65, "22" * 32, "Gateway", "a..b", "a-", "a\n", " g", "g ", "g\u00e9", 1])
++@pytest.mark.parametrize("role", ["client", "gateway", "service"])
++def test_invalid_gateway_text64_rejected_at_each_role(gateway_id, role):
++    config = sample()
++    node = config["origin"]["services"][0] if role == "service" else config[role]
++    node["gateway_id"] = gateway_id
++    with pytest.raises(ValueError):
++        implementation().validate_bytes(json.dumps(config).encode())
++
++
++def test_valid_text_gateway_mismatch_rejects():
++    config = sample()
++    config["client"]["gateway_id"] = "gateway.other"
++    with pytest.raises(ValueError):
++        implementation().validate_bytes(json.dumps(config).encode())
+--- prior/validate_config.py
++++ current/validate_config.py
+@@ -11,7 +11,7 @@
+ 
+ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+ 
+-from nbsr.protocol.fields import require_canonical_name
++from nbsr.protocol.fields import TEXT_ID_PATTERN, require_canonical_name, require_text_id
+ from nbsr.protocol import ProtocolViolation
+ 
+ MAX_CONFIG_BYTES = 65536
+@@ -28,6 +28,18 @@
+     return value
+ 
+ 
++def canonical_gateway_id(value):
++    try:
++        return require_text_id(value)
++    except ProtocolViolation:
++        raise ValueError("gateway_id must be canonical text64") from None
++
++
++GatewayId = Annotated[
++    str,
++    Field(min_length=1, max_length=64, pattern="^" + TEXT_ID_PATTERN.pattern.replace(r"\Z", "$")),
++    AfterValidator(canonical_gateway_id),
++]
+ Identifier = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$"), AfterValidator(nonzero)]
+ Reference = Annotated[str, Field(min_length=5, max_length=68, pattern=r"^ref:[a-z][a-z0-9-]*$")]
+ Port = Annotated[int, Field(ge=1, le=65535)]
+@@ -66,13 +78,13 @@
+ 
+ class Client(Closed):
+     service_id: Identifier
+-    gateway_id: Identifier
++    gateway_id: GatewayId
+     proxy: Proxy
+     identity_ref: Reference
+ 
+ 
+ class Gateway(Closed):
+-    gateway_id: Identifier
++    gateway_id: GatewayId
+     endpoint: Endpoint
+     trust_ref: Reference
+     registration_policy_ref: Reference
+@@ -101,7 +113,7 @@
+ 
+ class Service(Closed):
+     service_id: Identifier
+-    gateway_id: Identifier
++    gateway_id: GatewayId
+     operator_id: Identifier
+     connector_principal: Identifier
+     registration_authority_ref: Reference

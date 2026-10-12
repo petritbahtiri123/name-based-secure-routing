@@ -1,0 +1,332 @@
+[
+  {
+    "name": "ten_operations_evict_without_reexecution",
+    "seed_high_water": "0",
+    "steps": [
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "1",
+        "retained": 0,
+        "pending": "1"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "1",
+        "retained": 1,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000002",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "2",
+        "retained": 1,
+        "pending": "2"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000002",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "2",
+        "retained": 2,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000003",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "3",
+        "retained": 2,
+        "pending": "3"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000003",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "3",
+        "retained": 3,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000004",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "4",
+        "retained": 3,
+        "pending": "4"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000004",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "4",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000005",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "5",
+        "retained": 4,
+        "pending": "5"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000005",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "5",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000006",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "6",
+        "retained": 4,
+        "pending": "6"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000006",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "6",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000007",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "7",
+        "retained": 4,
+        "pending": "7"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000007",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "7",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000008",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "8",
+        "retained": 4,
+        "pending": "8"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000008",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "8",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000009",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "9",
+        "retained": 4,
+        "pending": "9"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000009",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "9",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "7373737373737373000000000000000a",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "10",
+        "retained": 4,
+        "pending": "10"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "7373737373737373000000000000000a",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "10",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "REPLAY",
+        "high_water": "10",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "7373737373737373000000000000000a",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "10",
+        "retained": 4,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "7373737373737373000000000000000a",
+        "changed_body": true,
+        "expected": "REPLAY",
+        "high_water": "10",
+        "retained": 4,
+        "pending": null
+      }
+    ]
+  },
+  {
+    "name": "pending_retry_capacity",
+    "seed_high_water": "0",
+    "steps": [
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "1",
+        "retained": 0,
+        "pending": "1"
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000002",
+        "changed_body": false,
+        "expected": "OVER_CAPACITY",
+        "high_water": "1",
+        "retained": 0,
+        "pending": "1"
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "1",
+        "retained": 0,
+        "pending": "1"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "1",
+        "retained": 1,
+        "pending": null
+      }
+    ]
+  },
+  {
+    "name": "counter_exhaustion_fixture",
+    "seed_high_water": "18446744073709551614",
+    "steps": [
+      {
+        "kind": "request",
+        "request_id_hex": "7373737373737373ffffffffffffffff",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "18446744073709551615",
+        "retained": 0,
+        "pending": "18446744073709551615"
+      },
+      {
+        "kind": "proof",
+        "request_id_hex": "7373737373737373ffffffffffffffff",
+        "changed_body": false,
+        "expected": "ACCEPT",
+        "high_water": "18446744073709551615",
+        "retained": 1,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000000",
+        "changed_body": false,
+        "expected": "REPLAY",
+        "high_water": "18446744073709551615",
+        "retained": 1,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "REPLAY",
+        "high_water": "18446744073709551615",
+        "retained": 1,
+        "pending": null
+      }
+    ]
+  },
+  {
+    "name": "prefix_and_start",
+    "seed_high_water": "0",
+    "steps": [
+      {
+        "kind": "request",
+        "request_id_hex": "78787878787878780000000000000001",
+        "changed_body": false,
+        "expected": "REPLAY",
+        "high_water": "0",
+        "retained": 0,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000002",
+        "changed_body": false,
+        "expected": "REPLAY",
+        "high_water": "0",
+        "retained": 0,
+        "pending": null
+      },
+      {
+        "kind": "request",
+        "request_id_hex": "73737373737373730000000000000001",
+        "changed_body": false,
+        "expected": "CHALLENGE",
+        "high_water": "1",
+        "retained": 0,
+        "pending": "1"
+      }
+    ]
+  }
+]

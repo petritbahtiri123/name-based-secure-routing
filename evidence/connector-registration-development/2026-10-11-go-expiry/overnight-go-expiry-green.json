@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-go-expiry-green",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "-run",
+    "^TestObservedOwnerExpiryCannotResurrectAfterClockRollback$",
+    "-count=1"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.61,
+  "disk_start": 11704336384,
+  "disk_end": 11702480896,
+  "ram_end": 4609957888,
+  "direct_child_reaped": true
+}

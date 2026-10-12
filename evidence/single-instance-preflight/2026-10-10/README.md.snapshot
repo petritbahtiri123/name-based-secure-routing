@@ -1,0 +1,59 @@
+# Single-instance offline configuration
+
+Run from the repository root in the provisioned Python environment:
+
+```powershell
+python -B deploy/single-instance/validate_config.py deploy/single-instance/config.example.json
+python -m pytest -q -p no:cacheprovider deploy/single-instance/test_validate_config.py
+```
+
+Exit 0 emits `CONFIG_VALID_OFFLINE`, `ready: false` and
+`references_verified: false`. Exit 2 emits a redacted `CONFIG_INVALID` diagnostic.
+No reference is opened, no environment configuration is merged, and no key,
+credential, enrollment, socket, subprocess, container or output file is created.
+A valid configuration neither authenticates its identities nor proves readiness.
+
+The input is a materialized local regular JSON file (maximum 64 KiB) under
+stable operator-controlled directories. On Windows it must be on a fixed local
+drive; UNC/device/alternate-stream paths, links, reparse points and offline/recall
+files reject before descendant access. The path inspection is not an atomic
+sandbox against concurrent directory replacement. On other platforms the caller
+must also ensure the filesystem is local. If a synchronized file is a placeholder,
+supply an already-materialized local copy; preflight does not hydrate it.
+
+`config.schema.json` is the Pydantic-generated structural schema. The Python
+validator additionally checks canonical endpoint spelling, nonzero identifiers,
+private/loopback origin IP literals and matching service/gateway IDs across roles.
+Canonical origin hostnames are accepted without resolution; this does not prove
+private address classification or authorize a runtime destination. Stage 5 must
+validate configured and resolved targets before origin traffic. URLs, userinfo,
+link-local IPs and public origin IP literals are outside this offline slice.
+
+Exactly one `origin.services` entry is accepted. Entries carry service and gateway
+IDs; adding a second requires separate capacity approval, not service-specific
+code. `client` contains no private origin endpoint. The example's repeated-byte
+IDs and `ref:*` names are public illustrative inputs, not installed identities,
+credentials or authority. References are bounded logical names only; no provider,
+path, secret store or credential fallback is selected. Missing, empty, inline or
+path-like references reject. Existence, contents, ACLs, provenance and verified
+binding of supplied references remain runtime/provisioning gates.
+
+The only mode is `offline`; pilot or unknown modes reject. The registration
+limits preserve the approved 60-second maximum lease, 5-second exchange,
+three attempts, 1/2-second backoffs, one owner, one pending operation, four retained
+results and zero waiting registrations. A smaller configured attempt budget uses
+only its applicable prefix of the approved backoff sequence. These fields cannot
+extend admission authority, reset replay state or change active-work policy.
+The initial HTTP profile remains GET / with 4096-byte request/response bounds.
+
+This slice reuses the repository's Pydantic dependency and canonical-name check,
+plus the existing strict JSON/closed-field pattern. It deliberately does not
+instantiate `nbsr.config.Settings`: that service object merges environment/defaults
+and exposes key-file loading, which are outside offline preflight. The existing
+Go demo's fixture paths and pinned binary identity are not repurposed as production
+configuration. No runtime wire values or deployment resources are allocated.
+
+On this Windows laptop pytest needs a fresh task-owned directory via `--basetemp`
+under the writable temporary root. Do not reuse a directory containing user data:
+pytest owns and may remove its selected base directory. Test counts and exact
+commands are retained in the Stage 2 evidence report.

@@ -1,0 +1,31 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "signed-authority-neighbors",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_registration_authority_offline.py",
+    "tests/federation/test_cose_authority.py",
+    "tests/federation/test_key_authorization.py",
+    "tests/federation/test_delegation.py",
+    "tests/federation/test_delegation_graph.py",
+    "tests/federation/test_ownership.py",
+    "tests/test_connector_federation_model.py",
+    "tests/test_connector_control_model.py",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "tests/protocol/test_cbor.py",
+    "-k",
+    "not test_direct_child_update_recovery_revocation_and_continuity and not test_task2_cose_authority_is_reused_for_exact_delegation_purpose_and_signer and not test_authority_verifier_checks_every_exact_purpose_sign1_before_returning_authority and not test_transfer_and_recovery_new_generation_require_exact_evidence_and_preserve_service_id and not test_task2_cose_authority_is_reused_for_exact_ownership_purpose_and_signer"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 6.44,
+  "disk_start": 11731779584,
+  "disk_end": 11726594048,
+  "ram_end": 4597997568,
+  "direct_child_reaped": true
+}

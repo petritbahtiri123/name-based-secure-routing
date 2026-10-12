@@ -1,0 +1,25 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connector-adapter-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_federation_model.py",
+    "tests/test_connector_control_model.py",
+    "tests/federation/test_authorization.py",
+    "tests/federation/test_outage.py",
+    "tests/federation/test_revocation.py",
+    "tests/protocol/test_states.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.62,
+  "disk_start": 12301578240,
+  "disk_end": 12301578240,
+  "ram_end": 4467523584,
+  "direct_child_reaped": true
+}

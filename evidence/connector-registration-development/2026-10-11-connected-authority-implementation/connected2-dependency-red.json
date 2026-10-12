@@ -1,0 +1,24 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-dependency-red",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "1",
+    "--test",
+    "connector_authority",
+    "supplied_dependency_inventory_must_bind_exact_owner_and_target"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 3.42,
+  "disk_start": 11718643712,
+  "disk_end": 11709452288,
+  "ram_end": 2750599168,
+  "direct_child_reaped": true
+}

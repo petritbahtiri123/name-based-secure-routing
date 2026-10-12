@@ -1,0 +1,535 @@
+diff --git a/.github/workflows/extended.yml b/.github/workflows/extended.yml
+index 41f12f59..4799ac89 100644
+--- a/.github/workflows/extended.yml
++++ b/.github/workflows/extended.yml
+@@ -55,13 +55,27 @@
+           "name": "Fetch locked dependencies",
+           "run": "cargo fetch --locked --manifest-path crates/nbsr-transport/Cargo.toml"
+         },
++        {
++          "uses": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
++          "if": "inputs.suite == 'connector-loopback'",
++          "with": {
++            "go-version": "1.26.5",
++            "cache": false
++          }
++        },
++        {
++          "name": "Prepare existing connector module dependencies",
++          "if": "inputs.suite == 'connector-loopback'",
++          "working-directory": "interop/nbsr-go-peer",
++          "run": "go mod download\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngo mod verify\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n\"GOPROXY=off\" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
++        },
+         {
+           "name": "Run bounded Rust profile",
+-          "run": "python scripts/ci/check.py \"$env:PROFILE\" --timeout 1200"
++          "run": "if ($env:PROFILE -eq 'connector-loopback') { python scripts/ci/check.py \"$env:PROFILE\" --timeout 90 } else { python scripts/ci/check.py \"$env:PROFILE\" --timeout 1200 }"
+         },
+         {
+           "name": "Verify lockfile is unchanged",
+-          "run": "git diff --exit-code -- crates/nbsr-transport/Cargo.lock"
++          "run": "git diff --exit-code -- crates/nbsr-transport/Cargo.lock interop/nbsr-go-peer/go.mod interop/nbsr-go-peer/go.sum"
+         },
+         {
+           "uses": "actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9",
+@@ -100,7 +114,8 @@
+           "type": "choice",
+           "options": [
+             "rust-extended",
+-            "soak"
++            "soak",
++            "connector-loopback"
+           ]
+         }
+       }
+diff --git a/AGENTS.md b/AGENTS.md
+index 3e2c9ab7..d1da98c3 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -120,10 +120,23 @@ Fake verifier/clock/transport results do not establish cryptographic proof,
+ wire interoperability, asynchronous cancellation, durable identity or deployment
+ readiness. Preserve the frozen state map and keep model policy choices distinct
+ from approved protocol semantics.
+-Active-work tests explicitly choose whether the registration lease caps the
+-simulated request; neither fixture choice settles the real lifetime policy.
++Active-work fixtures name admission eligibility, ongoing authority and a finite
++profile-labelled completion grace separately. Registration expiry starts drain
++from its actual boundary; polling or repeated denial cannot restart that grace.
++Explicit work renewal preserves ownership and the request bound, and cannot
++resurrect expired work. These fake inputs do not settle real authority mapping.
+ Typed enforcement accepts the exact federation enum, never a numeric cast from
+ Core revocation modes. Failed cleanup must retain visible ownership.
++The offline `nbsr/connector_federation_model.py` adapter additionally checks
++`tests/test_connector_federation_model.py`, `tests/federation/test_authorization.py`
++and `tests/federation/test_outage.py` alongside the model neighbors above. Reuse
++existing bilateral COSE/authorization and state result types. Bare results are
++not authenticated evidence; cache freshness is not authority validity. Ordinary
++outage's temporary new-use gate is distinct from a revocation latch. The adapter's
++incident input remains explicitly simulated, with no cryptographic revocation
++delivery or real connector identity mapping. Historical source hashes remain
++snapshots; preserve them when extending the local model.
++
+ 
+ `docs/CI.md` defines the bounded GitHub-hosted profiles in `scripts/ci/check.py`
+ and the manual extended workflow. Hosted dependency installation does not
+@@ -184,3 +197,137 @@ Development-v2 requires explicit `--version federation-v0.1-development-v2` and
+ pin or resolve missing archived authority through current-registry fallback.
+ Check both versions; preserve exact purpose separation and negative selection,
+ authority-drift and alias cases. CI command profiles include explicit v2 checks.
++
++## Connector registration offline vectors
++
++`nbsr/connector_registration_offline.py` is a serialized offline CRP-1 model,
++not a runtime trust boundary. Its `OfflineDecision`, dependency invalidation and
++exporter callbacks are explicit fixtures; they cannot authenticate registration
++authority or revocation delivery. Action/message/profile/ALPN allocations remain
++unassigned. Keep registration lease limits separate from application-work policy.
++Use `tests/protocol/test_connector_registration_vectors.py` with the connector
++model/adapter neighbors above and `tests/protocol/test_cbor.py`. Check retained
++artifacts with `python scripts/generate_connector_registration_vectors.py --check`
++and `node scripts/verify_connector_registration_vectors.mjs` using provisioned
++runtimes. Current draft-2 artifacts are in
++`vectors/connector-registration-v1-counter/`; preserve the original package.
++The Node verifier checks bytes/transcripts/exporter derivation and independent
++counter/cache traces; Python executes lifecycle scenarios. Neither establishes live wire interoperability.
++The offline coordinator requires explicit timer polling and a read-only revision
++snapshot. Failed cleanup retains quota. Keep four completed results plus one
++pending operation separate from constant-size replay/current-acceptance state.
++Session-bound 64-bit operation counters start at one, never wrap and are separate
++from directional envelope sequences. Evicted counters never execute again;
++cache eviction and renewal must preserve ownership and independently bounded work.
++Proof revalidation must match both the challenge's authority revision and the
++current read-only revision. A stale challenge is consumed without changing an
++existing owner's lease; retry requires the next operation counter.
++Exhaustion does not imply reconnect or takeover. Two-service fixtures do not enable multiple live
++services. Preserve the historical proposal/review hashes when extending evidence.
++
++
++## Single-instance offline configuration
++
++`deploy/single-instance/validate_config.py` and its adjacent schema/example are
++an offline configuration gate only. Run the adjacent `test_validate_config.py`
++with the connector registration/model neighbors. Reuse provisioned Pydantic;
++never instantiate service Settings, merge environment defaults, open references
++or generate credentials during preflight. Keep client config origin-free,
++service-keyed entries limited to one, unknown/duplicate fields rejected and
++accepted registration bounds unchanged. Schema validation alone does not cover
++cross-role bindings or authorize origin DNS/traffic. Reference existence and
++provenance are later runtime/provisioning checks; CONFIG_VALID_OFFLINE is never
++READY. Input paths must be stable, local, materialized and free of links/reparse
++points; inspection is not a concurrent filesystem sandbox. See the adjacent
++README for exact limitations. On Windows use a fresh test-owned `--basetemp`
++under the writable temporary root when the default pytest temp is unavailable;
++never point it at existing user data. Preserve earlier evidence manifests.
++
++Gateway IDs in single-instance config are the approved canonical `text64`, not
++32-byte operator/service identities. Keep a config-example-to-actual-registration
++body regression; isolated config validation is insufficient. Preserve values
++unchanged across the boundary, with no hashing, truncation or normalization.
++
++## Connector development-only Go/Rust slice
++
++`interop/nbsr-go-peer/connector/` requires the `connector_development` build tag;
++Rust `connector_control.rs`, `connector_registration.rs` and `connector_cleanup.rs` compile only in their
++integration-test targets. The separate development registry/shared vectors do
++not alter frozen Core/Federation allocations or authorize live trust. Keep
++synthetic authority/exporter fixtures explicit, failed cleanup ownership visible,
++and production source pins unchanged. Focused commands and scope limits are in
++`interop/nbsr-go-peer/connector/README.md`; reuse verified caches under the existing
++supervisor/resource guards. Python package checks are in
++`tests/protocol/test_connector_development_vectors.py`; its generator supports
++`--check`. Shared decoding and in-memory tests do not establish live Go/Rust
++interoperability, cryptographic authority or Stage 3 closure.
++
++The development `CleanupPeer` adapter treats wait cancellation/timeout as
++unconfirmed cleanup, never released ownership. Backend completion callbacks
++must target their exact attempt; only serialized coordinator cleanup applies
++success. Failure requires explicit retry, with one outstanding close and no
++replacement before confirmation. This adds no application-work grace or real
++backend completion guarantee. Keep callback/wait tests deterministic without sleeps.
++
++Rust cleanup tickets remain retained by the exact connection when a wait future
++is dropped. Only serialized confirmation matching the current attempt, session
++and owner generation may release quota. Do not route synchronous close or expiry
++around an outstanding async ticket; failed confirmation requires explicit retry.
++Callback completion is synthetic evidence, not a real transport shutdown guarantee.
++
++The development Go coordinator retains an observed-time floor across injected
++clock reads. Backward/out-of-range time latches admission off; no later sample
++restores eligibility. Retain peer/owner until confirmed explicit cleanup, and
++test callback-time changes and lost-ACCEPT retries without real sleeps or keys.
++The test-only Rust gateway applies the same observed-time floor at attach/handle/
++poll. Invalid time retains all owned resources; direct cleanup and exact retained
++async confirmation must still work without resetting the clock/admission latch.
++
++The development loopback integration is explicitly opt-in: Rust
++`tests/connector_loopback.rs` is ignored by default and needs the prebuilt Go test
++worker described in `interop/nbsr-go-peer/connector/README.md`. Local sockets and
++temporary test PKI require task authorization. Keep both endpoints on IPv4 loopback,
++fixture keys in memory/private stdin, and authority/revocation fixtures labelled.
++Retain failed trials and verify child reap/socket release before confirming cleanup.
++Real TLS/exporter success does not establish signed registration authority, verified
++revocation delivery, real authority timers, application traffic or Stage 3 closure.
++
++## Offline signed registration fixtures
++
++`nbsr/connector_registration_authority_offline.py` verifies signed genesis fixtures
++only under explicit `connector-registration-development-v1` selection and an exact
++record/signer inventory. Action 24576 is fixture-scoped, not a global allocation.
++Run `tests/test_connector_registration_authority_offline.py` with the existing
++provisioned Python environment. Use public deterministic test-key material only;
++some older federation neighbors generate random keys, so exclude those tests when
++key generation is outside task authority. Exact exclusions are retained in the
++signed-authority review manifest. Preserve the monotonic observed logical-time
++floor through rejected expiry checks and revision changes. Inventory pins and
++freshness/denial inputs remain fixtures; receipt identity is instance-local, not
++a hostile-process trust boundary. No authenticated revocation producer, real
++timer or live coordinator/provider integration is established by these tests.
++
++## Offline authority timer fixtures
++
++`nbsr/connector_authority_timer_offline.py` attaches one explicitly polled
++scheduler to a mock model. Poll once per fixture step before operations: it
++samples the injected clock once and model operations use that snapshot until
++the next poll. The bounded event-ID inventory never evicts or resets denials;
++revision and exact owner/session/dependency checks are repeated at dispatch.
++Late dispatch anchors drain at effective time, not observation time. Registration
++expiry preserves admitted work under its independent authority/request/grace
++bounds. Run `tests/test_connector_authority_timer_offline.py` plus model/adapter,
++signed-authority, registration-vector, state/revocation/outage neighbors recorded
++in `docs/reviews/2026-10-10-connector-authority-timer.json`. Events remain explicitly
++simulated; no authenticated receipt, delivery, real timer or runtime trust follows.
++
++Offline registration current-revision callbacks must return exact positive
++integers; booleans and numeric lookalikes are not revision snapshots. Sample the
++callback once and reject invalid types before committing ownership.
++
++CI selects root connector/offline-config suites explicitly, Go fixtures with
++`connector_development`, and Rust connector targets with the live test ignored.
++The `connector-loopback` profile is an explicit manual workflow choice; it owns
++a temporary Go worker and directly supervises each command. Listing the profile
++does not run it. Local execution still needs socket/test-PKI authorization and
++the existing resource supervisor. Local passes do not establish hosted success.
+diff --git a/docs/CI.md b/docs/CI.md
+index 7a2d4c71..ef878e1c 100644
+--- a/docs/CI.md
++++ b/docs/CI.md
+@@ -10,12 +10,12 @@ without installing a YAML parser.
+ 
+ | Job | Platforms | Checks |
+ | --- | --- | --- |
+-| Python | Ubuntu 24.04, Windows 2025 | Explicit runtime, gateway, security, admission and CI tests; `pip check` |
++| Python | Ubuntu 24.04, Windows 2025 | Explicit runtime, gateway, security, admission, connector model/authority/timer, offline config and CI tests; `pip check` |
+ | Python protocol | Ubuntu 24.04 | Protocol, vectors and federation tests except independent wire-peer builds; deterministic vector regeneration; privacy check; correctness lint |
+-| Rust | Ubuntu 24.04, Windows 2025 | Format, default library check, benchmark-feature library, handshake/credit/drain/config, frame codec, doc-tests, all-target Clippy |
+-| Go | Ubuntu 24.04, Windows 2025 | Test and vet all five modules, including the nested client demo and ISP adapter |
+-| Node and policy | Ubuntu 24.04 | Core/federation independent verifier tests and vectors, exporter vectors, OPA policy tests |
+-| Manual extended | Ubuntu 24.04 | All nonignored Rust integration tests, or the existing ignored replay-history soak |
++| Rust | Ubuntu 24.04, Windows 2025 | Format, default library check, benchmark-feature library, handshake/credit/drain/config, frame codec, connector integration targets (live ignored), doc-tests, all-target Clippy |
++| Go | Ubuntu 24.04, Windows 2025 | Test and vet all five modules, plus explicit `connector_development` test/vet in the interop module |
++| Node and policy | Ubuntu 24.04 | Core/federation independent verifier tests and vectors, exporter and connector registration vectors, OPA policy tests |
++| Manual extended | Ubuntu 24.04 | All nonignored Rust integration tests, existing ignored replay-history soak, or explicitly selected isolated connector loopback |
+ 
+ Python uses 3.13.14, Rust 1.97.1, Go 1.26.5 and Node 24.19.0. These are explicit
+ pins, not a claim of coverage for every version allowed by package metadata.
+@@ -73,7 +73,7 @@ python -m ruff check --no-cache scripts/ci tests/ci
+ ```
+ 
+ Profiles are `python-core`, `python-protocol`, `rust`, `go`, `node`,
+-`rust-extended` and `soak`. Local commands default to 90 seconds each; larger
++`rust-extended`, `connector-loopback` and `soak`. Local commands default to 90 seconds each; larger
+ timeouts are reserved for hosted CI. This runner does not install dependencies
+ or enforce the laptop's disk/RAM guards: local build/test supervision must still
+ follow `AGENTS.md`. Set the verified `CARGO_TARGET_DIR` and offline Go/Cargo
+@@ -100,6 +100,37 @@ workflow schema. Local Windows checks cannot establish Linux success. CI status
+ is pending until a published commit has actual workflow/check results; an empty
+ check list is not a pass.
+ 
++### Connector selection audit, October 11
++
++Before this local correction, `tests/protocol` already discovered both connector
++vector suites and `tests/federation` covered their existing neighbors. Four
++root-level connector suites and the adjacent offline config suite were omitted.
++Default Go `./...` excluded the build-tagged connector package. Quick Rust did
++not execute its new integration targets; manual `rust-extended` executed their
++nonignored tests but still ignored the live test. The Node connector verifier
++was also absent. Earlier local connector pass counts are not hosted CI results.
++
++The explicit selections above close these invocation gaps. The manual-only
++`connector-loopback` choice prebuilds Rust, builds a Go worker in a fresh owned
++temporary directory, and invokes exactly `isolated_go_rust_control_registration`.
++Each command is directly supervised with a 90-second execution timeout plus
++the existing bounded cleanup; this is not a 90-second cumulative job claim.
++The worker directory is removed on normal completion or command failure, and
++any prior worker environment value is restored. No wrapper launches a second
++supervision layer. Hosted cancellation still depends on runner teardown.
++
++The existing pinned Go version and module lockfiles are reused only when this
++manual choice is selected; no dependency versions, permissions, secrets, runner
++selection or branch safeguards change. The helper uses real loopback TLS with
++ephemeral in-memory test PKI and synthetic authority/revocation inputs. It does
++not establish live authority, real timers, application traffic or Stage 3 closure.
++Local use still requires explicit socket/test-PKI authorization, provisioned
++caches, and the laptop's cleanup-inclusive resource supervisor.
++
++Local Windows selection/security regressions and the exact loopback profile
++passed; hosted schema validation, Linux execution and the published matrix remain
++unrun for this change. See `docs/reviews/2026-10-11-connector-ci-selection.md`.
++
+ ## Release boundary
+ 
+ Versioned binaries and Docker images, single-instance/Kubernetes installation,
+diff --git a/docs/protocol/status.md b/docs/protocol/status.md
+index 4bf05a62..99ac5ff2 100644
+--- a/docs/protocol/status.md
++++ b/docs/protocol/status.md
+@@ -2,6 +2,41 @@
+ 
+ # NBSR implementation status
+ 
++**Single-instance operator package (2026-10-10):** Stage 1's approved offline
++connector contract and Stage 2's versioned one-service configuration/preflight
++meet their scoped acceptance gates (2/10). Rust destination owns registration
++and cleanup; Go origin owns attempts and renewal; Python remains a reference
++oracle. After correcting the gateway-ID config-to-registration mismatch, the 459-test
++local checkpoint is recorded in
++[`gateway text64 correction`](../reviews/2026-10-10-gateway-text64-correction.md).
++The earlier 420-test checkpoint remains historical and did not cover that boundary.
++Configuration validity never establishes readiness, reference authenticity or
++private-origin reachability. The separately approved development-only registry
++and Go/Rust in-memory implementation now exist; see
++[`development slice review`](../reviews/2026-10-10-connector-development.md).
++A subsequent [cleanup adapter review](../reviews/2026-10-10-connector-async-cleanup.md)
++adds fixture-only asynchronous confirmation and cancellation-safe waiting behind
++the existing Go close interface; it does not implement real backend termination.
++The [consolidated code-only checkpoint](../reviews/2026-10-10-connector-stage3-code-checkpoint.md)
++also includes the corresponding test-only Rust ticket/owner composition. Dropped
++waiters retain quota; only exact confirmed cleanup can release it.
++The subsequently authorized [loopback test](../reviews/2026-10-10-connector-loopback.md)
++composes real Go/Quinn TLS and exporter binding with these test-only coordinators.
++It retains synthetic registration authority/revocation and a logical authority clock.
++The separate [signed-fixture adapter](../reviews/2026-10-10-connector-signed-authority.md)
++now checks existing COSE signatures, exact dependencies and registration scope
++offline (444 scoped tests pass; five random-key-generation neighbors excluded).
++Its signer trust, freshness and denial revisions are explicit fixture inputs;
++it is not connected to the live coordinators and supplies no revocation delivery.
++The [offline timer adapter](../reviews/2026-10-10-connector-authority-timer.md)
++adds bounded simulated effective-time dispatch with one sampled clock per explicit
++poll, stale-event isolation and non-restarting drain (432 scoped tests pass).
++It preserves admitted-work bounds independently of registration lease expiry;
++this is model composition, not real event delivery or an automatic runtime timer.
++Stage 3 remains partial: signed registration-authority integration, verified event
++delivery and real authority timers remain gates. Local TLS control interoperability
++does not establish production authority, application relay or deployment readiness.
++
+ **NBSR END-TO-END DEMO COMPLETE (scoped local demo):** the Windows loopback,
+ explicit HTTP CONNECT proxy path for `service-a.nbsr.test:8080` is implemented
+ and backed by the Task 7 allowlisted evidence package. The demonstrated route
+@@ -390,3 +425,20 @@ interoperability, and no raw-scan resistance outside the exact simulated
+ topology claims. It also provides no process-global runtime uniqueness,
+ distributed replay protection, persistence, concurrency safety, crash
+ durability, distributed transaction, or live resource scheduler.
++
++### October 11 reviewed local checkpoint
++
++Five offline/development fixes and a fresh 19-case Go/Rust loopback pass are
++recorded in `docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md`. Latest scoped
++results are Python 436 passes, Go 28 top-level passes, and Rust 23 passes plus
++one default live ignore. Explicit live execution passed all 19 cases, with child
++reap and UDP cleanup confirmed. This supersedes the earlier no-rerun checkpoint
++for current-source loopback evidence only; historical records remain unchanged.
++Stage 3 remains partial, with real authority/revocation and timers unproven.
++
++The October 11 CI selection audit found omitted root Python/config tests,
++build-tagged Go tests and quick Rust connector targets. Local wiring now selects
++them and exposes the isolated loopback only as an explicit manual choice; see
++`../reviews/2026-10-11-connector-ci-selection.md`. Earlier connector counts were
++local validation, not evidence of hosted selection or success. Hosted execution
++of this correction remains unrun, with no Stage 3 status advancement.
+diff --git a/scripts/ci/check.py b/scripts/ci/check.py
+index 3d023f29..9d922bef 100644
+--- a/scripts/ci/check.py
++++ b/scripts/ci/check.py
+@@ -10,6 +10,7 @@ import re
+ import signal
+ import subprocess
+ import sys
++import tempfile
+ 
+ ROOT = Path(__file__).resolve().parents[2]
+ GO_MODULES = (
+@@ -24,6 +25,8 @@ CORE_TESTS = (
+     "test_gateway_plan", "test_gateway_profile", "test_gateway_verify", "test_gateway_journal",
+     "test_wp6_continuity_state", "test_wp6_failover", "test_wp6_replication",
+     "test_wp7_admission", "test_wp7_limits", "test_wp7_operator_model", "test_wp7_review_fixes",
++    "test_connector_control_model", "test_connector_federation_model",
++    "test_connector_registration_authority_offline", "test_connector_authority_timer_offline",
+ )
+ 
+ 
+@@ -40,7 +43,8 @@ def command_groups(profile: str) -> list[Command]:
+              "--features", "benchmark-harness", "--jobs", "2")
+     if profile == "python-core":
+         return [Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
+-                                       *(f"tests/{name}.py" for name in CORE_TESTS))),
++                                       *(f"tests/{name}.py" for name in CORE_TESTS),
++                                       "deploy/single-instance/test_validate_config.py")),
+                 Command("python-dependencies", (py, "-m", "pip", "check"))]
+     if profile == "python-protocol":
+         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+@@ -62,10 +66,19 @@ def command_groups(profile: str) -> list[Command]:
+                 Command("rust-transport", cargo + tuple(part for name in ("handshake", "stream_credit_integration", "drain", "config")
+                                                         for part in ("--test", name))),
+                 Command("rust-codec", cargo + ("--test", "p2a_benchmark", "frame")),
++                Command("rust-connector", cargo + ("--test", "connector_control", "--test", "connector_registration",
++                                                   "--test", "connector_loopback")),
+                 Command("rust-doc", cargo + ("--doc",)),
+                 Command("rust-clippy", ("cargo", "clippy", *cargo[2:], "--all-targets", "--", "-D", "warnings"))]
+     if profile == "rust-extended":
+         return [Command("rust-extended", cargo + ("--tests",))]
++    if profile == "connector-loopback":
++        return [Command("connector-loopback-build", cargo + ("--test", "connector_loopback", "--no-run")),
++                Command("connector-worker-build", ("go", "test", "-mod=readonly", "-p=2", "-tags", "connector_development",
++                                                    "-c", "-o", os.environ.get("NBSR_CONNECTOR_GO_TEST", "<task-owned-worker>"),
++                                                    "./connector"), "interop/nbsr-go-peer"),
++                Command("connector-loopback", cargo + ("--test", "connector_loopback", "isolated_go_rust_control_registration",
++                                                       "--", "--ignored", "--exact", "--nocapture"))]
+     if profile == "soak":
+         return [Command("rust-soak", cargo + ("--lib", "channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand",
+                                              "--", "--ignored", "--exact", "--test-threads=1"))]
+@@ -73,9 +86,13 @@ def command_groups(profile: str) -> list[Command]:
+         return [Command(f"go-{index}-{kind}", ("go", kind, "-mod=readonly", "-p=2",
+                                                *(("-timeout=90s", "-parallel=2", "./...") if kind == "test" else ("./...",))), module)
+                 for index, module in enumerate(GO_MODULES) for kind in ("test", "vet")] + [
++                    Command(f"go-connector-{kind}", ("go", kind, "-mod=readonly", "-p=2", "-tags", "connector_development",
++                                                    *(("-timeout=90s", "-parallel=2", "-count=1") if kind == "test" else ()),
++                                                    "./connector"), "interop/nbsr-go-peer") for kind in ("test", "vet")] + [
+                     Command("go-federation-v2", ("go", "run", "-mod=readonly", "-p=2", "./cmd/verify", "--version", "federation-v0.1-development-v2", "../../vectors/federation-v0.1-development-v2"), "verifiers/federation-go")]
+     if profile == "node":
+-        return [Command("node-core-tests", ("node", "--test", "test/verifier.test.mjs"), "tools/core-v02-node-verifier"),
++        return [Command("node-connector-vectors", ("node", "scripts/verify_connector_registration_vectors.mjs")),
++                Command("node-core-tests", ("node", "--test", "test/verifier.test.mjs"), "tools/core-v02-node-verifier"),
+                 Command("node-core-vectors", ("node", "verify.mjs", "../../vectors/core-v0.2"), "tools/core-v02-node-verifier"),
+                 Command("node-federation-tests", ("node", "--test", *(str(p.relative_to(ROOT / "verifiers/federation-node")) for p in sorted((ROOT / "verifiers/federation-node/test").glob("*.test.js")))), "verifiers/federation-node"),
+                 Command("node-federation-vectors", ("node", "src/verifier.js", "../../vectors/federation-v0.1"), "verifiers/federation-node"),
+@@ -145,7 +162,8 @@ def validate_workflow(workflow: dict) -> None:
+ 
+ def main() -> int:
+     parser = argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument("profile", choices=("python-core", "python-protocol", "rust", "go", "node", "rust-extended", "soak", "validate"))
++    parser.add_argument("profile", choices=("python-core", "python-protocol", "rust", "go", "node", "rust-extended",
++                                           "connector-loopback", "soak", "validate"))
+     parser.add_argument("--timeout", type=int, default=90)
+     parser.add_argument("--list", action="store_true")
+     args = parser.parse_args()
+@@ -164,17 +182,33 @@ def main() -> int:
+             print(cmd.name, cmd.cwd, *cmd.argv)
+         return 0
+     os.environ.update(CARGO_BUILD_JOBS="2", RUST_TEST_THREADS="2", GOFLAGS="-mod=readonly -p=2", GOMAXPROCS="2", GOTOOLCHAIN="local")
++    if args.profile == "connector-loopback":
++        previous = os.environ.get("NBSR_CONNECTOR_GO_TEST")
++        with tempfile.TemporaryDirectory(prefix="nbsr-connector-ci-") as directory:
++            try:
++                os.environ["NBSR_CONNECTOR_GO_TEST"] = str(Path(directory) / ("worker.exe" if os.name == "nt" else "worker"))
++                return execute_profile(args.profile, args.timeout)
++            finally:
++                if previous is None:
++                    os.environ.pop("NBSR_CONNECTOR_GO_TEST", None)
++                else:
++                    os.environ["NBSR_CONNECTOR_GO_TEST"] = previous
++    return execute_profile(args.profile, args.timeout)
++
++
++def execute_profile(profile: str, seconds: int) -> int:
++    commands = command_groups(profile)
+     results = []
+     destination = ROOT / "ci-results"
+     destination.mkdir(exist_ok=True)
+     for cmd in commands:
+         print(f"Running {cmd.name}", flush=True)
+         try:
+-            result = run_command(cmd.name, cmd.argv, ROOT / cmd.cwd, args.timeout)
++            result = run_command(cmd.name, cmd.argv, ROOT / cmd.cwd, seconds)
+         except (OSError, subprocess.SubprocessError):
+             result = {"check": cmd.name, "exit_code": 125, "timed_out": False}
+         results.append(result)
+-        (destination / f"{args.profile}.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
++        (destination / f"{profile}.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
+         if result["exit_code"]:
+             return 1
+     return 0
+diff --git a/tests/ci/test_ci.py b/tests/ci/test_ci.py
+index b8444017..56a6820a 100644
+--- a/tests/ci/test_ci.py
++++ b/tests/ci/test_ci.py
+@@ -14,7 +14,7 @@ def test_quick_profiles_are_bounded_and_do_not_run_ignored_soak():
+         commands = command_groups(profile)
+         assert commands
+         assert all("--ignored" not in cmd.argv for cmd in commands)
+-    assert len([cmd for cmd in command_groups("go") if cmd.name.endswith("test")]) == 5
++    assert len([cmd for cmd in command_groups("go") if cmd.name.endswith("test")]) == 6
+     assert "--ignored" in command_groups("soak")[0].argv
+ 
+ 
+@@ -151,3 +151,61 @@ def test_federation_v2_commands_opt_in_explicitly():
+         index = command.argv.index("--version")
+         assert command.argv[index + 1] == "federation-v0.1-development-v2"
+         assert command.argv[-1].endswith("vectors/federation-v0.1-development-v2")
++
++
++def test_connector_offline_suites_are_selected():
++    core = command_groups("python-core")[0].argv
++    for name in ("control_model", "federation_model", "registration_authority_offline", "authority_timer_offline"):
++        assert f"tests/test_connector_{name}.py" in core
++    assert "deploy/single-instance/test_validate_config.py" in core
++    rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
++    for target in ("connector_control", "connector_registration", "connector_loopback"):
++        assert target in rust.argv
++    for kind in ("test", "vet"):
++        go = next(c for c in command_groups("go") if c.name == f"go-connector-{kind}")
++        assert "connector_development" in go.argv and "./connector" in go.argv
++    assert any("scripts/verify_connector_registration_vectors.mjs" in c.argv for c in command_groups("node"))
++
++
++def test_connector_loopback_is_manual_and_prebuilt():
++    commands = command_groups("connector-loopback")
++    assert "--no-run" in commands[0].argv
++    assert "-c" in commands[1].argv
++    assert "--ignored" in commands[2].argv and "--exact" in commands[2].argv
++    workflow = json.loads(Path(".github/workflows/extended.yml").read_text())
++    assert "connector-loopback" in workflow["on"]["workflow_dispatch"]["inputs"]["suite"]["options"]
++    steps = workflow["jobs"]["extended"]["steps"]
++    setup = next(s for s in steps if s.get("uses", "").startswith("actions/setup-go@"))
++    assert setup["if"] == "inputs.suite == 'connector-loopback'"
++    assert setup["with"]["go-version"] == "1.26.5"
++
++
++@pytest.mark.parametrize("build_code,live_code", [(7, 0), (0, 124), (0, 0)])
++def test_loopback_worker_is_owned_and_environment_restored(monkeypatch, tmp_path, build_code, live_code):
++    from scripts.ci import check
++
++    calls = []
++    monkeypatch.setattr(check.tempfile, "tempdir", str(tmp_path.resolve()))
++    monkeypatch.setattr(check, "ROOT", tmp_path)
++    monkeypatch.setattr(sys, "argv", ["check.py", "connector-loopback"])
++    monkeypatch.setenv("NBSR_CONNECTOR_GO_TEST", "prior-worker")
++
++    def run(name, argv, cwd, seconds):
++        calls.append((name, argv, seconds))
++        if name == "connector-loopback-build":
++            return {"exit_code": 0}
++        if name == "connector-worker-build":
++            worker = Path(argv[argv.index("-o") + 1])
++            worker.write_text("synthetic worker")
++            return {"exit_code": build_code}
++        assert Path(os.environ["NBSR_CONNECTOR_GO_TEST"]).exists()
++        assert "--exact" in argv and "--ignored" in argv
++        return {"exit_code": live_code}
++
++    monkeypatch.setattr(check, "run_command", run)
++    assert check.main() == int(bool(build_code or live_code))
++    assert len(calls) == (2 if build_code else 3)
++    assert os.environ["NBSR_CONNECTOR_GO_TEST"] == "prior-worker"
++    worker = Path(calls[1][1][calls[1][1].index("-o") + 1])
++    assert not worker.parent.exists()
++    assert all(c[2] == 90 for c in calls)

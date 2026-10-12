@@ -1,0 +1,114 @@
+{
+  "timestamp_utc": "2026-10-11T16:49:48.385651+00:00",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "blocked before implementation on exact canonical leaf/reference semantic mapping",
+  "passed": 1,
+  "skipped": 0,
+  "deselected": 0,
+  "diagnostic_assertions_passed": 5,
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "normal-inclusion-diagnostic",
+      "argv": [
+        "python",
+        "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-inclusion-contract-diagnostic.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.61,
+      "disk_start": 11971284992,
+      "disk_end": 11971280896,
+      "ram_end": 3464392704,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "normal-inclusion-existing-regression",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_transparency.py::test_inclusion_proof_binds_exact_checkpoint_leaf_scope_and_path"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.82,
+      "disk_start": 11971260416,
+      "disk_end": 11971108864,
+      "ram_end": 3397029888,
+      "direct_child_reaped": true
+    }
+  ],
+  "changed_files": [
+    "AGENTS.md",
+    "docs/reviews/2026-10-11-registration-full-model-acceptance.md",
+    "docs/reviews/2026-10-11-normal-revocation-inclusion-contract-gap.md",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md"
+  ],
+  "source_sha256": {
+    "docs/protocol/federation-v0.1-development-profile.md": "11b17600714f9b1a5216ab679e8b57a3e39ed86695186af6703edb4a579c983d",
+    "docs/protocol/registries/federation-v0.1-schema-proposal.json": "de0a3e6bf7b679408974137bcbb3b642137ae1584856b21db2c0bd4852166410",
+    "docs/protocol/wp8-federation-v0.1-schema-allocation.md": "282b954c88c71732ae03eb98946fc32e5f1675bb199e2d0d1cdd35b7d718575a",
+    "docs/protocol/wp8-federation-v0.1-schema-requiredness.md": "a4ebf0e5374d095dcdbf35b83f8c91ad4b0228146a1c31d2d83c11ed6b960d35",
+    "nbsr/federation/fields.py": "e6cf23d2e852fc67781eed61808ad1e21edb7599e000a2dbd8e35925ec6731e1",
+    "nbsr/federation/revocation.py": "46f12de41a81a681ff7ca0e21d90d03eb8c0ba624cff6895d202a9b87566e529",
+    "nbsr/federation/transparency.py": "b457880f5e6fbcae78fcf279c7b478d954deb005080ffdb09a66c1915c433b06",
+    "tests/federation/test_transparency.py": "c44f94111453ce2b8bcce12d249e09d87f19fcd5b44b8a7cf307da799ab70a20",
+    "AGENTS.md": "c3612415d0074975622e259a2f3d21a62370b3e295b412a8452ac9eb3166cf61",
+    "docs/reviews/2026-10-11-registration-full-model-acceptance.md": "451469659789bdfe6886cb4b910f19df817c5f535562fe4dd498cbe63ac5f906",
+    "docs/reviews/2026-10-11-normal-revocation-inclusion-contract-gap.md": "bd1e79f49e5bca412aa89a78e56bad8ef708ecba736b2413cde2b900bf5e01a0",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md": "db1340f25211d40e51fab1b5d0697c0da9f0cf2aff8e6ae9b7d1b1111c5cee44"
+  },
+  "historical_status": "",
+  "review": "Independent connector_model_review found no accepted cycle-free leaf mapping in inspected sources. Same-record field39 checkpoint semantics create record->leaf/root->checkpoint digest->record cycle; optional proof digest may add a cycle. Require approved exact leaf bytes, signed-record binding, and checkpoint/proof reference placement. No implementation or excluded fields/placeholders/two-phase semantics inferred. Reviewer read-only; no tests run.",
+  "diff_check": "PASS; line-ending notices only",
+  "omitted": [
+    "Prior 123-test witness composition not rerun",
+    "Broad Python, Rust, Go and live checks not run",
+    "Hosted CI not run"
+  ],
+  "omission_reason": "no executable repository source or vector change; one direct existing inclusion regression and pure public-data diagnostic only",
+  "diagnostic_limits": "construction dependency demonstration, not fixed-point impossibility proof or accepted signed inclusion evidence",
+  "next_prerequisite": [
+    "approved exact canonical revocation leaf bytes and signed record binding",
+    "field39 prior-vs-containing checkpoint semantics",
+    "cycle-free checkpoint/proof reference placement"
+  ],
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "stage3": "partial;2/10 complete",
+  "cleanup": "both supervised children reaped; no resource abort; no visible Python/Cargo/rustc/Go workers; no keys/signatures/sockets/containers created",
+  "evidence_sha256": {
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/AGENTS.md.snapshot": "c3612415d0074975622e259a2f3d21a62370b3e295b412a8452ac9eb3166cf61",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/diagnostic.py": "b254abb3358fea83894c1a9d0cff6d630e4d3da270a7680f0a2392ec9ddb0017",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/docs__benchmarks__OVERNIGHT_ROBUSTNESS_2026-10-11.md.snapshot": "db1340f25211d40e51fab1b5d0697c0da9f0cf2aff8e6ae9b7d1b1111c5cee44",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/docs__protocol__federation-v0.1-development-profile.md.snapshot": "11b17600714f9b1a5216ab679e8b57a3e39ed86695186af6703edb4a579c983d",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/docs__protocol__registries__federation-v0.1-schema-proposal.json.snapshot": "de0a3e6bf7b679408974137bcbb3b642137ae1584856b21db2c0bd4852166410",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/docs__protocol__wp8-federation-v0.1-schema-allocation.md.snapshot": "282b954c88c71732ae03eb98946fc32e5f1675bb199e2d0d1cdd35b7d718575a",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/docs__protocol__wp8-federation-v0.1-schema-requiredness.md.snapshot": "a4ebf0e5374d095dcdbf35b83f8c91ad4b0228146a1c31d2d83c11ed6b960d35",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/docs__reviews__2026-10-11-normal-revocation-inclusion-contract-gap.md.snapshot": "bd1e79f49e5bca412aa89a78e56bad8ef708ecba736b2413cde2b900bf5e01a0",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/docs__reviews__2026-10-11-registration-full-model-acceptance.md.snapshot": "451469659789bdfe6886cb4b910f19df817c5f535562fe4dd498cbe63ac5f906",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/independent-review.txt": "9fcdc0d3f0354a662a9657a77e8cb670f0e58af2b76db2e49f84a1e19a09c856",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/nbsr__federation__fields.py.snapshot": "e6cf23d2e852fc67781eed61808ad1e21edb7599e000a2dbd8e35925ec6731e1",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/nbsr__federation__revocation.py.snapshot": "46f12de41a81a681ff7ca0e21d90d03eb8c0ba624cff6895d202a9b87566e529",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/nbsr__federation__transparency.py.snapshot": "b457880f5e6fbcae78fcf279c7b478d954deb005080ffdb09a66c1915c433b06",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/normal-inclusion-diagnostic.json": "db3b68f4edd3cd42d237db0102d5b04a136b08a236da0f1974cfd6d6c531321a",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/normal-inclusion-diagnostic.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/normal-inclusion-diagnostic.stdout.log": "b1fe238a17662a2bfa2df013f822c8eab848f4fa631feedfebb10dfd670ea00f",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/normal-inclusion-existing-regression.json": "3f07bffc68ea4c248955062f3c9f8e25819b57881eee3b5313a829c198789ca8",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/normal-inclusion-existing-regression.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/normal-inclusion-existing-regression.stdout.log": "3540d91ec320c224de34431488d94bb509ee1f0d3077c7b83c9c5b56b52ef419",
+    "evidence/connector-registration-development/2026-10-11-inclusion-contract-gap/tests__federation__test_transparency.py.snapshot": "c44f94111453ce2b8bcce12d249e09d87f19fcd5b44b8a7cf307da799ab70a20"
+  },
+  "_publication_derivative": {
+    "original_sha256": "1a2b9996bb118455e233dcdf1efd4b87313909a0c41286ba14efb611500c1007",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "restart-store-pure",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_store.py::test_canonical_snapshot_round_trip_contains_only_bounded_safety_state",
+    "tests/federation/test_store.py::test_fresh_node_does_not_accept_first_seen_authority_without_current_proof",
+    "tests/federation/test_store.py::test_snapshot_rejects_invalid_semantics_and_limit_plus_one"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.02,
+  "disk_start": 11953475584,
+  "disk_end": 11953483776,
+  "ram_end": 3475566592,
+  "direct_child_reaped": true
+}

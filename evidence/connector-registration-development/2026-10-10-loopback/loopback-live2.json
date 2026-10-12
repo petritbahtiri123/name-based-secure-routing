@@ -1,0 +1,28 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "loopback-live2",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_loopback",
+    "--",
+    "--ignored",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 14.27,
+  "disk_start": 11904110592,
+  "disk_end": 11874832384,
+  "ram_end": 4592291840,
+  "direct_child_reaped": true
+}

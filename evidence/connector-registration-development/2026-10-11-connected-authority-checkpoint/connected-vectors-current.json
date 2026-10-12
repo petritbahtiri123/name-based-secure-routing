@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected-vectors-current",
+  "argv": [
+    "python",
+    "-m",
+    "scripts.check_connected_authority_vectors"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.81,
+  "disk_start": 11856486400,
+  "disk_end": 11856486400,
+  "ram_end": 3421900800,
+  "direct_child_reaped": true
+}

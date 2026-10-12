@@ -1,0 +1,19 @@
+{
+  "status": "decision-ready proposal; not implemented",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "proposal": "docs/reviews/2026-10-11-connected-authority-owner-proposal.md",
+  "proposal_sha256": "7f88daea091ebcd73df68d8a20864e5d1d1da11742c06b9db3f890b034deb41c",
+  "recommended_scope": "test-compiled native normal-v2 DENY_NEW_USE/TERMINATE_ACTIVE_USE application to existing synthetic owner; no positive admission or READY",
+  "review": "Independent review found effect-enum mismatch and synchronous termination release hazard. Corrected to explicit two-effect application and begin_cleanup/exact finish_cleanup path. No tests run.",
+  "source_sha256": {
+    "crates/nbsr-transport/src/connector_registration.rs": "e3460c09f81f3486e44717a71cd1c385798be34b8ba5a41c62de845ac35960d9",
+    "crates/nbsr-transport/src/connector_signature.rs": "c0e67b67d86dd7918573864c434af9fcd5d3f3f3825ef1f04e1df1e4af28f2b6",
+    "nbsr/federation/trust.py": "0d3f6c9a320d057b3844367369ad20226d3766a22267ae3bc42e0839d43af25b",
+    "nbsr/federation/cose.py": "35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba",
+    "nbsr/federation/revocation.py": "46f12de41a81a681ff7ca0e21d90d03eb8c0ba624cff6895d202a9b87566e529"
+  },
+  "matrix_reconciled": "Exact-root filesystem trial PASS only; process-death/powerloss/trusted-bootstrap remain open; stage counts unchanged",
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "tests_run": 0
+}

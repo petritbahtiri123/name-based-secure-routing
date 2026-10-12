@@ -1,0 +1,20 @@
+{
+  "status": "DESIGN ONLY; awaiting scoped human approval",
+  "decision": "REVOCATION-INCLUSION-01",
+  "revision": 1,
+  "timestamp_utc": "2026-10-11T16:56:11.550097+00:00",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "proposal_sha256": "97e3ba1c5d951260140c3923177ad22aefc7fb1f9df0eb9136d299598556beb1",
+  "recommendation": "full canonical version-2 record with prior checkpoint anchor; detached authenticated later inclusion evidence",
+  "review": "Independent connector_model_review: no remaining blocking design finding after explicit F=A/F=C floor rule; clearance to present only; no tests run",
+  "tests_run": 0,
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "approval_scope": "separate versioned normal-mode local conformance amendment only; no historical rewrites or runtime activation",
+  "limitations": [
+    "immediate-successor checkpoint scope",
+    "existing witness-required contexts only",
+    "later floor can make package unusable without undoing denial",
+    "broader proof-chain renewal, real governing provenance and durable restart remain separate"
+  ]
+}

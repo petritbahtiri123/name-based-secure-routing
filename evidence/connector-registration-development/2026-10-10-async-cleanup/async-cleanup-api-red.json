@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "async-cleanup-api-red",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "-run",
+    "TestAsyncCleanup",
+    "-count=1"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 12073484288,
+  "disk_end": 12073476096,
+  "ram_end": 4602101760,
+  "direct_child_reaped": true
+}

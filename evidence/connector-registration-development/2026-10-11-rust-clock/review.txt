@@ -1,0 +1,1 @@
+Independent connector_model_review: no blocking findings. Invalid/backward time blocks attach/handle/poll, disables eligibility and retains resources. Cleanup remains independent; existing tickets remain valid because begin_cleanup already snapshots ineligible owner. No edits/tests.

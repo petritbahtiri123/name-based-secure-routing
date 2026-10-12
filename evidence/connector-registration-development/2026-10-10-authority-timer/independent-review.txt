@@ -1,0 +1,8 @@
+Independent connector_model_review scoped review.
+Found separate clock sampling: timer30/model29 could remove an event before
+enforce rejected it as future; timer19/model20 could miss a due event.
+Two scripted-clock regressions failed. Fix captures original injected clock,
+samples once per explicit poll and supplies snapshot to model operations.
+Removal now follows enforcement. Review confirmed both paths resolved.
+Reviewer caught misplaced test tail during editing; corrected before final tests.
+Final rereview: no remaining blocking findings. Reviewer did not rerun tests.

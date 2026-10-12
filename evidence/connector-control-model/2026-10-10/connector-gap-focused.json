@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connector-gap-focused",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_federation_model.py",
+    "-k",
+    "gap_"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 12295512064,
+  "disk_end": 12295499776,
+  "ram_end": 4499181568,
+  "direct_child_reaped": true
+}

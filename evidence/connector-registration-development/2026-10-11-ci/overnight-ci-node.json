@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-ci-node",
+  "argv": [
+    "@LOCAL_USER_ROOT@/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe",
+    "scripts/verify_connector_registration_vectors.mjs"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 11650584576,
+  "disk_end": 11646394368,
+  "ram_end": 4763512832,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "2359a64edc25420a877e539949982fe6ce387b729d5b44346f5c7d23554455de",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

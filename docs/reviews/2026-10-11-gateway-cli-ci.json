@@ -1,0 +1,141 @@
+{
+  "timestamp_utc": "2026-10-11T15:21:40.198400+00:00",
+  "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "day-gateway-ci-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci",
+        "--basetemp",
+        "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-ci-contract-20261011"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.62,
+      "disk_start": 12193406976,
+      "disk_end": 12193402880,
+      "ram_end": 3738644480,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "day-gateway-ci-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci/test_ci.py",
+        "-k",
+        "gateway_cli_process"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.64,
+      "disk_start": 12194025472,
+      "disk_end": 12193894400,
+      "ram_end": 3179069440,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "day-gateway-ci-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci/test_ci.py",
+        "-k",
+        "gateway_cli_process"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 12195172352,
+      "disk_end": 12195168256,
+      "ram_end": 4265947136,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "day-gateway-cli-neighbors",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_gateway_cli.py",
+        "tests/test_gateway_plan.py",
+        "tests/test_gateway_profile.py",
+        "tests/test_gateway_verify.py",
+        "tests/test_gateway_journal.py",
+        "--basetemp",
+        "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-ci-20261011"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.63,
+      "disk_start": 12193894400,
+      "disk_end": 12193550336,
+      "ram_end": 3236089856,
+      "direct_child_reaped": true
+    }
+  ],
+  "hashes": {
+    "scripts/ci/check.py": "1113c3d4fdcc2001543ca472b9542e3a09b501e3fae346ca65a837513bba791f",
+    "tests/ci/test_ci.py": "319d62bb73ba5fd37987981c8cdbd6d4b4867c3746d11756193f9e785c9af9fa",
+    "tests/test_gateway_cli.py": "af0b7ce53c230aa1eb822ac923bce3bd5cb63e83cd21fecfea4fd7f98edddbe5",
+    "nbsr/gateway_cli.py": "5b45739e1cbe1c3c1dcbc6d83e4460781a72383902a1a39ede6fead279d29a79",
+    "docs/CI.md": "63427c7c5f7e49d623452e96d34e6ab1de603531d5534f31f70805afd60905d0",
+    "AGENTS.md": "d473a7f93edb57f8bc50adbd89567cb94c6c27c3e28340ef250f66c369f0a743",
+    "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md": "388e5aa4e2d87e1e04eae2a58b693dee7f1b3e45502d79217beac9b6c784b6e6",
+    "docs/reviews/2026-10-11-role-reuse-ci-inventory.md": "d4d74b934364265cbfd62d66abdb958c205e611d9ff6411e3122eacecf01e224",
+    "docs/reviews/2026-10-11-gateway-cli-ci.md": "3e654325de01d3a31dd659cabfda17e4490bea6be82a6f724165badff67f08a5",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/check.py.snapshot": "1113c3d4fdcc2001543ca472b9542e3a09b501e3fae346ca65a837513bba791f",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-final.json": "7e869af03fb8cf4d3e53dfc4049a28351df38f60203beda094b722da0a92e383",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-final.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-final.stdout.log": "68cb1ff447ec778bfa6a06a5cad4cd34da2faa6850fd98d678ad064a377d69af",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-green.json": "25883b8dbabbe634f439c3bd5af51baf7e96b4432de2d05663cf102f21ae5f86",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-green.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-green.stdout.log": "7a40d8f88ccc0c03c4d12245d45a2ab82afb518ebaa3e78f8cc544695001a4c4",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-red.json": "7038ef15dc5a07bdd4eb9edc323e7fa8941804ebffe6ac73875b9ffe1e3a1825",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-red.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-ci-red.stdout.log": "a61d77e8ebed527689f8153ae9318a87faf045856722f3f6adde2c34c1fec4d1",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-cli-neighbors.json": "40f33d320ef20656e14ef84b60827e2b5a504f4585926730e6ef0433e9f58885",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-cli-neighbors.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/day-gateway-cli-neighbors.stdout.log": "719ccc055d4fb4d74fae479a050f0d163dacc6f1c06697591a9c434b52be1cdb",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/incremental.patch": "00ba99ea8e0b37be2867a871337e64dc77e993b8cc56dc1085ad41f1f4c3f1fd",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/nbsr-ci-clean-check.py": "f14d97f2153e7b507161a446a1ae86b7bf7f4bdcc280b7cd5a8ad73fcef558ca",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/nbsr-gateway-ci-before-test.py": "14a50856ff1692bafe8168c4d05f8ba2386c8bcb9349d170862be0cb7b8be762",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/nbsr-gateway-ci-before.py": "b73adec085e0848d77933bd8e9a5306467dd8a3cd140911cab2a70a99e3ca6c0",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/nbsr-owned-revoke-check.py": "36a829667b4ca77eb76deb6a027ee1475c14f6197687d117b7682f5e421e0410",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/review.txt": "9e2c8d3e7a7195421ca0d4305d682324029815a8d76001abf6e9029b0ded3d38",
+    "evidence/connector-registration-development/2026-10-11-gateway-ci/test_ci.py.snapshot": "319d62bb73ba5fd37987981c8cdbd6d4b4867c3746d11756193f9e785c9af9fa"
+  },
+  "gateway_passed": 65,
+  "ci_passed": 24,
+  "hosted_run": false,
+  "review": "clear",
+  "role_inventory": "docs/reviews/2026-10-11-role-reuse-ci-inventory.md",
+  "_publication_derivative": {
+    "original_sha256": "fd7d2219622a2f93e1e990be60f8654c57ba0c1f49c2a946381b9e090729c9b2",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

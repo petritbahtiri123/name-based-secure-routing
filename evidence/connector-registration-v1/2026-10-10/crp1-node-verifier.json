@@ -1,0 +1,15 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp1-node-verifier",
+  "argv": [
+    "node",
+    "scripts/verify_connector_registration_vectors.mjs"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.41,
+  "disk_start": 12216582144,
+  "disk_end": 12216582144,
+  "ram_end": 4672958464,
+  "direct_child_reaped": true
+}

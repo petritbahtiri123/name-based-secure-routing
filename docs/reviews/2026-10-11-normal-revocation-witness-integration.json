@@ -1,0 +1,202 @@
+{
+  "timestamp_utc": "2026-10-11T16:44:24.962793+00:00",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "scope": "one local signed-checkpoint/witness composition; explicitly configured obligation; uncommitted",
+  "changed_files": [
+    "scripts/normal_revocation_witness_conformance.py",
+    "tests/federation/test_normal_revocation_witness_integration.py",
+    "docs/reviews/2026-10-11-normal-revocation-witness-integration.md",
+    "docs/reviews/2026-10-11-registration-full-model-acceptance.md",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md",
+    "AGENTS.md",
+    "docs/CI.md"
+  ],
+  "source_sha256": {
+    "scripts/normal_revocation_witness_conformance.py": "71c8fd53cd87272ddcd3ba40fbcfb3f81fb22f825fe0cb9650d1760f94800fca",
+    "tests/federation/test_normal_revocation_witness_integration.py": "0f511ad1237c3fd3d5b7cacaee0aff5f72f903ecbd65a3f77d14156e8a07aa2f",
+    "docs/reviews/2026-10-11-normal-revocation-witness-integration.md": "9afc33d38a5b428cd1148ddc9f8f0af218bb34fbb0d042f4b643f2e95bc83f04",
+    "docs/reviews/2026-10-11-registration-full-model-acceptance.md": "c219f9c794f4f628ee21c004e6a8950c9b4e4cc2cbaad1b0e4c64dc3de5e2c01",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md": "45aa07d2ff4a5294e3f4809644fe6bb2864a46f35984942a3dbc078576ac5610",
+    "AGENTS.md": "b201cf6f81ffb688b2be00c9249d89e0eb745e2451d5b41768b6042af049a02c",
+    "docs/CI.md": "3a199463806f244b7fefe4a8a5103a207a19f02f5005ceae713c235afc6825c5",
+    "scripts/normal_revocation_conformance.py": "123b3c971f8396315cda9112af9e36bf55df6d4ac72f656798910b56fb87a05f",
+    "nbsr/federation/cose.py": "35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba",
+    "nbsr/federation/transparency.py": "b457880f5e6fbcae78fcf279c7b478d954deb005080ffdb09a66c1915c433b06",
+    "nbsr/federation/revocation.py": "46f12de41a81a681ff7ca0e21d90d03eb8c0ba624cff6895d202a9b87566e529",
+    "scripts/verify_federation_threshold_container_fixtures.py": "5de58ab9e500bb5376642250d65b1cf695d69032ee8485daaf3f7fbe840d5d2e",
+    "scripts/render_federation_threshold_container.py": "a05b0dbd78f34e3280cbf84b9c68288392fdd1705d50d7dd8ce1062f6636e1b1",
+    "docs/protocol/registries/federation-v0.1-normal-revocation-conformance-v1.json": "792251eb0caa9b91831e8e7e2b9893be0f22756df5fb5f8ecc73774114532a0a",
+    "tests/federation/test_transparency.py": "c44f94111453ce2b8bcce12d249e09d87f19fcd5b44b8a7cf307da799ab70a20",
+    "tests/federation/test_witness_thresholds.py": "1b72780fde014a9b81b4b1ccdf9fbeb36f1d012a66d7dfd95c3c807481155a5e",
+    "scripts/ci/check.py": "d5ed796869367810d004920d237842ebd0d5c107234064e16fd0876d7a811305"
+  },
+  "runtime": {
+    "version": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+    "executable": "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "sha256": "03168c01b7b7491423350e82c26fee71f35b43694d1319d3c668bda6903a0c38"
+  },
+  "passed": 123,
+  "new_integration_tests": 31,
+  "skipped": 0,
+  "deselected": 0,
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "normal-witness-focused",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_normal_revocation_witness_integration.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.02,
+      "disk_start": 11993907200,
+      "disk_end": 11966713856,
+      "ram_end": 3305320448,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "normal-witness-lint",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "scripts/normal_revocation_witness_conformance.py",
+        "tests/federation/test_normal_revocation_witness_integration.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.41,
+      "disk_start": 11962023936,
+      "disk_end": 11961958400,
+      "ram_end": 3269664768,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "normal-witness-neighbors",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_normal_revocation_witness_integration.py",
+        "tests/federation/test_normal_revocation_conformance.py",
+        "tests/federation/test_witness_thresholds.py",
+        "tests/federation/test_transparency.py",
+        "tests/federation/test_threshold_container_supplement.py",
+        "tests/federation/test_revocation.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.26,
+      "disk_start": 11962023936,
+      "disk_end": 11961520128,
+      "ram_end": 3299598336,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "normal-witness-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_normal_revocation_witness_integration.py"
+      ],
+      "exit_code": 2,
+      "abort": null,
+      "elapsed_seconds": 2.22,
+      "disk_start": 11995676672,
+      "disk_end": 11995664384,
+      "ram_end": 3518197760,
+      "direct_child_reaped": true
+    }
+  ],
+  "omitted": [
+    "Rust/Go/live tests: no changes to those paths and no sockets authorized",
+    "full federation/repository tests: scoped neighbors only",
+    "state repository disk/ACL tests: not part of this transient composition",
+    "hosted CI: not authorized",
+    "full pilot security audit: still pending"
+  ],
+  "other_checks": {
+    "ruff_format": "2 files already formatted",
+    "git_diff_check": "PASS (line-ending notices only)",
+    "ci_selection": "python-protocol/python-federation already selects tests/federation; command inspected, not full profile executed",
+    "historical_status": "",
+    "visible_python_cargo_rustc_go_processes": []
+  },
+  "review": "Independent connector_model_review: no blocking finding. Record log ID/digest/tree size/scope bound; signed continuity/witnesses verified; freshness before idempotent path; unrelated missing obligations pending. ACCEPT is checkpoint confirmation only, not record inclusion, authenticated configuration, or durable replay/restart protection. Reviewer did not run tests.",
+  "historical_sha256": {
+    "docs/protocol/registries/federation-v0.1-threshold-container-proposal.json": "d09e78c21a149e91a73f0da32b723a0038937da12c6543cbf1a7605c7e7acf08",
+    "docs/protocol/registries/federation-v0.1-development.json": "ed880f236a2b4b5e11e281e58c540534e1cd27f7c752d3990291cf1be55c80d0",
+    "vectors/federation-v0.1-threshold-container/literal-fixtures.json": "5cd780332fae841bfab6a31cc362b00d28071264b11b43b55f1a40bfc6228e9a",
+    "nbsr/federation/cose.py": "35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba",
+    "nbsr/federation/transparency.py": "b457880f5e6fbcae78fcf279c7b478d954deb005080ffdb09a66c1915c433b06",
+    "nbsr/federation/store.py": "cf3877b1fbb02b9505c216b51f52f1e7ae9e5cb6a9d6544c5c6cb63da472eef9"
+  },
+  "evidence_sha256": {
+    "evidence/connector-registration-development/2026-10-11-witness-integration/AGENTS.md.snapshot": "b201cf6f81ffb688b2be00c9249d89e0eb745e2451d5b41768b6042af049a02c",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/docs__benchmarks__OVERNIGHT_ROBUSTNESS_2026-10-11.md.snapshot": "45aa07d2ff4a5294e3f4809644fe6bb2864a46f35984942a3dbc078576ac5610",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/docs__CI.md.snapshot": "3a199463806f244b7fefe4a8a5103a207a19f02f5005ceae713c235afc6825c5",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/docs__protocol__registries__federation-v0.1-normal-revocation-conformance-v1.json.snapshot": "792251eb0caa9b91831e8e7e2b9893be0f22756df5fb5f8ecc73774114532a0a",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/docs__reviews__2026-10-11-normal-revocation-witness-integration.md.snapshot": "9afc33d38a5b428cd1148ddc9f8f0af218bb34fbb0d042f4b643f2e95bc83f04",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/docs__reviews__2026-10-11-registration-full-model-acceptance.md.snapshot": "c219f9c794f4f628ee21c004e6a8950c9b4e4cc2cbaad1b0e4c64dc3de5e2c01",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/independent-review.txt": "791700d392f89ad6da55cee004df17560050eac52538f14d4bc914ad08ae03dd",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/nbsr__federation__cose.py.snapshot": "35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/nbsr__federation__revocation.py.snapshot": "46f12de41a81a681ff7ca0e21d90d03eb8c0ba624cff6895d202a9b87566e529",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/nbsr__federation__transparency.py.snapshot": "b457880f5e6fbcae78fcf279c7b478d954deb005080ffdb09a66c1915c433b06",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-focused.json": "c981e74cdf8be95f8473f880e26cd963bcf558fcfcded2f111178b5e5dfa1561",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-focused.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-focused.stdout.log": "822ed672ea54af6b033b38e405a9e1cf4058cf5cfa9306685b98bdb0ecae2e4f",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-lint.json": "54aa81ad3837b6c5b45e036aeb7431785e0b0cf1f9af6c92ac7190ef496c8d0b",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-lint.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-lint.stdout.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-neighbors.json": "c7fbbd053edc1510aa30934169d10fe270d69eb5a535881ec1fb4764442d43dd",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-neighbors.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-neighbors.stdout.log": "4839266e2b5c4ff3361523401b3162e10ad0dfd427a8545a2c718850b8764514",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-red.json": "3789428ce5d43f53f0098a110e83f3b5fa58586e6620f17b239a8af98eb734d5",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-red.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/normal-witness-red.stdout.log": "5a53d38e1809f644769325325ed20dc8693c51a1aa5fd3fdc3b920327a51b979",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/scripts__ci__check.py.snapshot": "d5ed796869367810d004920d237842ebd0d5c107234064e16fd0876d7a811305",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/scripts__normal_revocation_conformance.py.snapshot": "123b3c971f8396315cda9112af9e36bf55df6d4ac72f656798910b56fb87a05f",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/scripts__normal_revocation_witness_conformance.py.snapshot": "71c8fd53cd87272ddcd3ba40fbcfb3f81fb22f825fe0cb9650d1760f94800fca",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/scripts__render_federation_threshold_container.py.snapshot": "a05b0dbd78f34e3280cbf84b9c68288392fdd1705d50d7dd8ce1062f6636e1b1",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/scripts__verify_federation_threshold_container_fixtures.py.snapshot": "5de58ab9e500bb5376642250d65b1cf695d69032ee8485daaf3f7fbe840d5d2e",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/tests__federation__test_normal_revocation_witness_integration.py.snapshot": "0f511ad1237c3fd3d5b7cacaee0aff5f72f903ecbd65a3f77d14156e8a07aa2f",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/tests__federation__test_transparency.py.snapshot": "c44f94111453ce2b8bcce12d249e09d87f19fcd5b44b8a7cf307da799ab70a20",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/tests__federation__test_witness_thresholds.py.snapshot": "1b72780fde014a9b81b4b1ccdf9fbeb36f1d012a66d7dfd95c3c807481155a5e",
+    "evidence/connector-registration-development/2026-10-11-witness-integration/tracked-dirty-source.patch": "14b9a4c85316100e18be556e2b34a4db23ad6ec84fd1bb95dd3e0a0b10345930"
+  },
+  "cleanup": "all supervised direct children reaped; no resource abort; no visible relevant processes; no sockets or containers created",
+  "next_gate": [
+    "authenticated current governing log/witness/membership configuration and applicable policy",
+    "actual governed record inclusion evidence/canonical-leaf binding",
+    "retained checkpoint/revocation/replay floor and provenance at restart"
+  ],
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "stage3": "partial;2/10 complete",
+  "_publication_derivative": {
+    "original_sha256": "1dbce049af47e31c4ed5e0d620890bd16c321345e383f7d5f057d638343ec2b0",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

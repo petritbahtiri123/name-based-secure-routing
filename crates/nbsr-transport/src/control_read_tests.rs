@@ -2304,3 +2304,55 @@ async fn ack_wait_cancellation_preserves_fin_and_quota_until_explicit_release() 
     assert_eq!(ack.unwrap(), Ok(()));
     assert_eq!((retained, released), (3, 0));
 }
+
+// Peer closure is observed by the connection, but a paused operation retains its
+// owned payload/quota until the caller explicitly aborts or drops that owner.
+#[tokio::test]
+async fn paused_owned_send_peer_close_retains_quota_until_abort_or_drop_without_repoll() {
+    for abort in [false, true] {
+        let mut f = PayloadFixture::with_window(Some(64)).await;
+        let shared = Arc::clone(&f.application.shared);
+        let mut operation = f.application.begin_owned_send(vec![0x5a; 4096]).unwrap();
+        let mut driving = Box::pin(operation.drive());
+        let pending = std::future::poll_fn(|cx| {
+            std::task::Poll::Ready(std::future::Future::poll(driving.as_mut(), cx).is_pending())
+        })
+        .await;
+        let held_lock = shared.inner.try_lock().is_err();
+        let mut prefix = [0];
+        let progress = timeout(
+            Duration::from_secs(2),
+            f.peer_receive.read_exact(&mut prefix),
+        )
+        .await;
+        drop(driving);
+        let before_close = *f.quota.buffered.lock().unwrap();
+        f.destination
+            .connection
+            .close(VarInt::from_u32(1), b"paused close");
+        let closed = timeout(Duration::from_secs(2), f.source.connection.closed()).await;
+        let retained_after_close = *f.quota.buffered.lock().unwrap();
+        // No further drive: test both documented explicit ownership boundaries.
+        if abort {
+            operation.abort();
+        } else {
+            drop(operation);
+        }
+        let after_owner_drop = *f.quota.buffered.lock().unwrap();
+        let terminal = shared.cancelled.load(Ordering::Acquire);
+        let weak = Arc::downgrade(&shared);
+        drop(shared);
+        f.close().await;
+        assert!(pending && held_lock && progress.is_ok());
+        assert_eq!(prefix, [0x5a]);
+        assert!(matches!(
+            closed,
+            Ok(quinn::ConnectionError::ApplicationClosed(_))
+        ));
+        assert_eq!(
+            (before_close, retained_after_close, after_owner_drop),
+            (4096, 4096, 0)
+        );
+        assert!(terminal && weak.upgrade().is_none());
+    }
+}

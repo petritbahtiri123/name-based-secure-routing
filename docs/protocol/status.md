@@ -2,6 +2,46 @@
 
 # NBSR implementation status
 
+October 11 bounded follow-up: the development Rust gateway rejects zero authority
+revision receipts before registration or renewal challenges, matching the offline
+oracle. See [positive-revision evidence](../reviews/2026-10-11-connector-zero-revision.md).
+This local correction preserves ownership/cleanup and does not close Stage 3.
+
+**Single-instance operator package (2026-10-10):** Stage 1's approved offline
+connector contract and Stage 2's versioned one-service configuration/preflight
+meet their scoped acceptance gates (2/10). Rust destination owns registration
+and cleanup; Go origin owns attempts and renewal; Python remains a reference
+oracle. After correcting the gateway-ID config-to-registration mismatch, the 459-test
+local checkpoint is recorded in
+[`gateway text64 correction`](../reviews/2026-10-10-gateway-text64-correction.md).
+The earlier 420-test checkpoint remains historical and did not cover that boundary.
+Configuration validity never establishes readiness, reference authenticity or
+private-origin reachability. The separately approved development-only registry
+and Go/Rust in-memory implementation now exist; see
+[`development slice review`](../reviews/2026-10-10-connector-development.md).
+A subsequent [cleanup adapter review](../reviews/2026-10-10-connector-async-cleanup.md)
+adds fixture-only asynchronous confirmation and cancellation-safe waiting behind
+the existing Go close interface; it does not implement real backend termination.
+The [consolidated code-only checkpoint](../reviews/2026-10-10-connector-stage3-code-checkpoint.md)
+also includes the corresponding test-only Rust ticket/owner composition. Dropped
+waiters retain quota; only exact confirmed cleanup can release it.
+The subsequently authorized [loopback test](../reviews/2026-10-10-connector-loopback.md)
+composes real Go/Quinn TLS and exporter binding with these test-only coordinators.
+It retains synthetic registration authority/revocation and a logical authority clock.
+The separate [signed-fixture adapter](../reviews/2026-10-10-connector-signed-authority.md)
+now checks existing COSE signatures, exact dependencies and registration scope
+offline (444 scoped tests pass; five random-key-generation neighbors excluded).
+Its signer trust, freshness and denial revisions are explicit fixture inputs;
+it is not connected to the live coordinators and supplies no revocation delivery.
+The [offline timer adapter](../reviews/2026-10-10-connector-authority-timer.md)
+adds bounded simulated effective-time dispatch with one sampled clock per explicit
+poll, stale-event isolation and non-restarting drain (432 scoped tests pass).
+It preserves admitted-work bounds independently of registration lease expiry;
+this is model composition, not real event delivery or an automatic runtime timer.
+Stage 3 remains partial: signed registration-authority integration, verified event
+delivery and real authority timers remain gates. Local TLS control interoperability
+does not establish production authority, application relay or deployment readiness.
+
 **NBSR END-TO-END DEMO COMPLETE (scoped local demo):** the Windows loopback,
 explicit HTTP CONNECT proxy path for `service-a.nbsr.test:8080` is implemented
 and backed by the Task 7 allowlisted evidence package. The demonstrated route
@@ -390,3 +430,36 @@ interoperability, and no raw-scan resistance outside the exact simulated
 topology claims. It also provides no process-global runtime uniqueness,
 distributed replay protection, persistence, concurrency safety, crash
 durability, distributed transaction, or live resource scheduler.
+
+### October 11 reviewed local checkpoint
+
+Five offline/development fixes and a fresh 19-case Go/Rust loopback pass are
+recorded in `docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md`. Latest scoped
+results are Python 436 passes, Go 28 top-level passes, and Rust 23 passes plus
+one default live ignore. Explicit live execution passed all 19 cases, with child
+reap and UDP cleanup confirmed. This supersedes the earlier no-rerun checkpoint
+for current-source loopback evidence only; historical records remain unchanged.
+Stage 3 remains partial, with real authority/revocation and timers unproven.
+
+The October 11 CI selection audit found omitted root Python/config tests,
+build-tagged Go tests and quick Rust connector targets. Local wiring now selects
+them and exposes the isolated loopback only as an explicit manual choice; see
+`../reviews/2026-10-11-connector-ci-selection.md`. Earlier connector counts were
+local validation, not evidence of hosted selection or success. Hosted execution
+of this correction remains unrun, with no Stage 3 status advancement.
+
+The approved connected-authority local slice now has a test-compiled normal
+negative-enforcement bridge and explicit vector/CI selection; see
+`../reviews/2026-10-11-connected-authority-owner-implementation.md`. It operates
+under supplied test trust and a fixture-created owner. It cannot authorize
+registration, prove bootstrap provenance or report READY. Historical incomplete
+review/resource checkpoints remain retained; Stage 3 stays partial, 2/10 overall.
+
+The isolated genesis KAR prerequisite is implemented in a separate test target;
+see `../reviews/2026-10-11-kar-genesis-implementation.md`. Semantic positive and
+boundary tests pass under supplied test trust, while unchanged signed fixtures
+exercise composed rejection. Successful composed positive acceptance remains
+unverified because no qualifying retained signed fixture exists and new signatures
+were not authorized. The five normal-roster authorities remain unconnected;
+no current roster assertion is replaced. READY stays false and Stage 3 remains
+partial, 2/10 overall.

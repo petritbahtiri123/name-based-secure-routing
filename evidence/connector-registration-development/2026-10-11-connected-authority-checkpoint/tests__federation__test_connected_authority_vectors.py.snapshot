@@ -1,0 +1,8 @@
+from scripts.check_connected_authority_vectors import build
+
+
+def test_connected_vectors_use_existing_verifier_and_no_runtime_authority():
+    value = build()
+    assert value["runtime_enabled"] is value["live_enabled"] is False
+    assert {case["name"] for case in value["cases"]} >= {"deny", "terminate", "two-signers", "bad-signature"}
+    assert sum(case["accepted"] for case in value["cases"]) >= 2

@@ -1,0 +1,37 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-python-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-stage3-python-final",
+    "deploy/single-instance/test_validate_config.py",
+    "tests/protocol/test_connector_development_vectors.py",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "tests/test_connector_control_model.py",
+    "tests/test_connector_federation_model.py",
+    "tests/protocol/test_states.py",
+    "tests/federation/test_revocation.py",
+    "tests/federation/test_authorization.py",
+    "tests/federation/test_outage.py",
+    "tests/protocol/test_cbor.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 6.23,
+  "disk_start": 12094369792,
+  "disk_end": 12094283776,
+  "ram_end": 5546102784,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "f45856f8a797d3b01c443b389b445abdf9c451ee7d923f30a81fe9ca899d3600",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

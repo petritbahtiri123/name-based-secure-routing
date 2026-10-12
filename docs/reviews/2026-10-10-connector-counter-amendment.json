@@ -1,0 +1,630 @@
+{
+  "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "counter amendment implemented; Stage 1 partial; 0/10 complete",
+  "tests": "358 passed, zero failed/skipped",
+  "report": "docs/reviews/2026-10-10-connector-counter-amendment.md",
+  "manifest": "docs/reviews/2026-10-10-connector-counter-amendment.json",
+  "remaining_stage1": "approve Go/Rust ownership seam and destination gateway location; final contract acceptance",
+  "next_stage": "Stage 2 strict schema/configuration and side-effect-free preflight after selection",
+  "cleanup": "12 supervised children reaped, no abort; no task-created containers/background workers",
+  "publication": "none",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 14823,
+      "sha256": "7551c86edd877544dee6a4b456e6934668d884ba78046c924aa58d93a1310036"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+      "bytes": 35455,
+      "sha256": "2d919ef0c40c71afb6dbb9fd1d514d3aaa5f0ac01e3da7f6b73ac9182204059a"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "bytes": 38790,
+      "sha256": "36fad111a1b73d8e1826b60e3d0ff718008be16f5e40959e6aebc7337c555082"
+    },
+    {
+      "path": "docs/protocol/connector-outbound-profile.md",
+      "bytes": 82373,
+      "sha256": "eb12a8c9d490c68e70e02b201039f0b4d06762e96fccd908ee9f71c6687f451f"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-counter-amendment.md",
+      "bytes": 3986,
+      "sha256": "d1a31004713c72b6df0ea32297e2e71764dbf6b20d5643fa59f24bf070abfc66"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 58162,
+      "sha256": "f7a5e7590d551d61a97f7dc436357b8d8e864023e85f6e9f51d067c0620ed920"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/connector_registration_offline.py.snapshot",
+      "bytes": 24552,
+      "sha256": "36379e9ed96c57dabe14028582042b14a2f9fcb365142c7fcdf57d6d15dd1d50"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/counter-amendment.patch",
+      "bytes": 40386,
+      "sha256": "fe6be81554a8bb5c083133cd8a0757c2f911740b5f775d7539ca4389ef7178fe"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-artifacts-check.json",
+      "bytes": 387,
+      "sha256": "18f218ce8a180a3c9a68450f36ab5e7f2a49e0f2a69c1b26983a987d8291c080"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-artifacts-check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-artifacts-check.stdout.log",
+      "bytes": 75,
+      "sha256": "6888e2f67e703108d0a677570ec7ef23798a0dfe01f1dfdb5dec47f0982cc6d8"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-green.json",
+      "bytes": 529,
+      "sha256": "69cfa7c1838685cdf34eb0261d2bef3467b72f4dd0ead728e49793d9b09a6bad"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-green.stdout.log",
+      "bytes": 196,
+      "sha256": "ada11a53df5e96372f8102f9229baee16c80bb442b7f16de8da4ac64fff48aea"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-red.json",
+      "bytes": 534,
+      "sha256": "d27377b7d5aa8c31c3053376b32023b55fd6d01807639b436b910321d39af941"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-red.stdout.log",
+      "bytes": 5294,
+      "sha256": "ff783e8b000276aa3f0aac5f3c1156c9f6075c4b5e7cb5951f1005751b960f0c"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-final.json",
+      "bytes": 737,
+      "sha256": "fe37e3cfd2400cfbe9addb1917cbdf38bdab7fad5c2fe713b0bb49da748c5d84"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-final.stdout.log",
+      "bytes": 426,
+      "sha256": "427eb3cf58abc63ebc163525080ef4b13840d432a30da07342495786d95a9c5d"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-focused.json",
+      "bytes": 439,
+      "sha256": "afe6f1bf05ea3637cd4690acb4d9f8743e9c024e72221e008c2be5d537112482"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-focused.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-focused.stdout.log",
+      "bytes": 183,
+      "sha256": "6aa31afb43d5b82a1a216ec8a37b0f943f3c23f712c8e445659f9560f343ba22"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-format.json",
+      "bytes": 526,
+      "sha256": "9a015498ec49218d22e78b8a61198b5268ebb3eaff3d880a7d7c2f9ba336fa25"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-format.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-format.stdout.log",
+      "bytes": 26,
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-generate.json",
+      "bytes": 364,
+      "sha256": "10df0708a9acc2928486370c2fb28a7bb3741c34a9cfa93b54ace8d717e41d61"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-generate.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-generate.stdout.log",
+      "bytes": 60,
+      "sha256": "e8b2b4247b4f103ad4c021e6244caa6bb32bcdb15dc23a181da234c15f3d7dac"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-lint.json",
+      "bytes": 526,
+      "sha256": "94de0975e1c6400c4a6e24489e84161812364d5c825007a77fdca474331f4a3a"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-lint.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-lint.stdout.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-node.json",
+      "bytes": 357,
+      "sha256": "cf972de5be11e14e493576b01ec9361cda0ed6a61d9e2399610d0d430d6ffcf3"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-node.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-node.stdout.log",
+      "bytes": 169,
+      "sha256": "eee81b56d15e8c4995bd59103ba370fef331dfed5952c6044d89b910ce6b5f1d"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-renew-red.json",
+      "bytes": 475,
+      "sha256": "1977af0faa2f5d99dc53401b3adea669297d7b5e4457d92c2b672dc7047a4d50"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-renew-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-renew-red.stdout.log",
+      "bytes": 2060,
+      "sha256": "4a5aedb4b884a1935a5f3a5825efe4227cda1761f5631f87380052b6e2b5e435"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-green.json",
+      "bytes": 526,
+      "sha256": "c6c97dfd17bc5d8cdf00d9278c7f400b012d374cccaeaf7ddbafae610cbd2cdd"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-green.stdout.log",
+      "bytes": 196,
+      "sha256": "b0c52294cb35d1a587f542f7001f1e3ef33a627f249efe54708dcd4369ba7108"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-red.json",
+      "bytes": 478,
+      "sha256": "a519f4dcb1dea72bfe96f69955e45955fcb68c8c449af9db7e75d301f3d1b541"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-red.stdout.log",
+      "bytes": 8776,
+      "sha256": "79d77be95e9b4b962325d3a0115193ccf53632f20875227996e77e40d7f5fa79"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/generate_connector_registration_vectors.py.snapshot",
+      "bytes": 11779,
+      "sha256": "c46338c4f3cfaf4d12f654eba62a68ddc70167a94712fb84a58714dc19e4c8c1"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/test_connector_registration_vectors.py.snapshot",
+      "bytes": 31124,
+      "sha256": "db7632e04e62d349f225129f211fb221fb6bf505b715b1387f209a53d9b28b1f"
+    },
+    {
+      "path": "evidence/connector-registration-v1/2026-10-10-counter/verify_connector_registration_vectors.mjs.snapshot",
+      "bytes": 6769,
+      "sha256": "78682cf8577b146b11b8fb646857e4148cfc11de16269dd79e7307b9ff3bb3cb"
+    },
+    {
+      "path": "nbsr/connector_registration_offline.py",
+      "bytes": 24552,
+      "sha256": "36379e9ed96c57dabe14028582042b14a2f9fcb365142c7fcdf57d6d15dd1d50"
+    },
+    {
+      "path": "scripts/generate_connector_registration_vectors.py",
+      "bytes": 11779,
+      "sha256": "c46338c4f3cfaf4d12f654eba62a68ddc70167a94712fb84a58714dc19e4c8c1"
+    },
+    {
+      "path": "scripts/verify_connector_registration_vectors.mjs",
+      "bytes": 6769,
+      "sha256": "78682cf8577b146b11b8fb646857e4148cfc11de16269dd79e7307b9ff3bb3cb"
+    },
+    {
+      "path": "tests/protocol/test_connector_registration_vectors.py",
+      "bytes": 31124,
+      "sha256": "db7632e04e62d349f225129f211fb221fb6bf505b715b1387f209a53d9b28b1f"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/accept-digest.bin",
+      "bytes": 32,
+      "sha256": "1506ea767c1036b72e7a9fc3e7cacb0b756cbb510b76fcebbcc7b4ab6b007c24"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/accept.cbor",
+      "bytes": 155,
+      "sha256": "d7f0b6b5d24753ab6263fcb00006d3579e2dcec361dbf65747602dd7f90fb6b1"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/challenge.cbor",
+      "bytes": 76,
+      "sha256": "4eed291aab768714f85c551809c3ff8463bcad953147a27f9618b9414da8c302"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/context.cbor",
+      "bytes": 296,
+      "sha256": "799861913879144985b85f37d7aad8fe78eaa0c40cd868b4b84c1a7760faf6ae"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/counter-traces.json",
+      "bytes": 8722,
+      "sha256": "a5a7a86f73606c04ddc776e675f5598259726800b7bcd11cfe950ec7638722be"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/exporter.bin",
+      "bytes": 32,
+      "sha256": "e302a468f2cb4468ea673b4029184d4aac18f4e6ee37f8be4773d9a996f0d69d"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/fixture-exporter-master.bin",
+      "bytes": 32,
+      "sha256": "630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/invalid-bool-lease.cbor",
+      "bytes": 388,
+      "sha256": "c3259d87513f847f1f1cc9e2cdf3b822b0a98d14d2143bd28d26972c4b58aff4"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/invalid-duplicate.cbor",
+      "bytes": 5,
+      "sha256": "892b6b90f32391221e6b6d89232cace793d204b58088538ff928a4e155f9b3a7"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/invalid-exporter.bin",
+      "bytes": 32,
+      "sha256": "820b9f94228da756a5e8d1ff0ef0e5e784dfeb3c6b3b06eaae55c0735459f77e"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/invalid-indefinite.cbor",
+      "bytes": 2,
+      "sha256": "58daaf73604c8f2c4e3584b7bf43e64efaf6845deca4ef4f295a94633876e900"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/invalid-nonpreferred.cbor",
+      "bytes": 4,
+      "sha256": "0826ecd578e6f71de50a510afd9a7ad9dbdc8a4595c11df3fecbda2a5ab1ba26"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/invalid-trailing.cbor",
+      "bytes": 390,
+      "sha256": "1a3001e2b25c8614b77862b980346a93899e7168aab6a11b531e158798e9787c"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/invalid-unknown-key.cbor",
+      "bytes": 391,
+      "sha256": "ee8c3db8b92bac524d88d28de9d3334f6df787b083c97bd13f1b1ebafff930a1"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/manifest.json",
+      "bytes": 14926,
+      "sha256": "d567bab1b36f626cc43f28ac72823b113f50cdf4b196795a62bcbc37bc6387c9"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/proof.cbor",
+      "bytes": 108,
+      "sha256": "fd2f86f589c1e84841153a6c6434657ae2fcae1427649e2aa4ba063989dc2617"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/reject.cbor",
+      "bytes": 64,
+      "sha256": "39352cb2fb657de0775f0204332a31eae14c341cf2252c45ce067e0ca7a4ed04"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/request.cbor",
+      "bytes": 389,
+      "sha256": "115d9e9df3544d5de35e7a10a930f5fbd82a7d9f0511d5a4d2c47df077821898"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/request.frame",
+      "bytes": 391,
+      "sha256": "1d7a5499f2809972678e2f3f634cc47d26051120cb440daa5bd11cee80becb5a"
+    },
+    {
+      "path": "vectors/connector-registration-v1-counter/withdraw.cbor",
+      "bytes": 76,
+      "sha256": "ce2ca8cfc3438f145009c8e3c22987fb3679869d002acb3ae8fe3bc7129104d2"
+    }
+  ],
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-artifacts-check",
+      "argv": [
+        "python",
+        "scripts/generate_connector_registration_vectors.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.61,
+      "disk_start": 12202401792,
+      "disk_end": 12202467328,
+      "ram_end": 4500901888,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-counter-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "-k",
+        "not retained_byte and not retained_negative and not manifest_has"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 12199813120,
+      "disk_end": 12199813120,
+      "ram_end": 4430606336,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-counter-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "-k",
+        "counter_starts or request_prefix or pending_does or envelope_directions"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.62,
+      "disk_start": 12200054784,
+      "disk_end": 12200050688,
+      "ram_end": 4394594304,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "tests/test_connector_federation_model.py",
+        "tests/test_connector_control_model.py",
+        "tests/federation/test_authorization.py",
+        "tests/federation/test_outage.py",
+        "tests/federation/test_revocation.py",
+        "tests/protocol/test_states.py",
+        "tests/protocol/test_cbor.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.62,
+      "disk_start": 12202500096,
+      "disk_end": 12202504192,
+      "ram_end": 4503744512,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-focused",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.62,
+      "disk_start": 12207874048,
+      "disk_end": 12207874048,
+      "ram_end": 4569350144,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-format",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "nbsr/connector_registration_offline.py",
+        "scripts/generate_connector_registration_vectors.py",
+        "tests/protocol/test_connector_registration_vectors.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12202467328,
+      "disk_end": 12202467328,
+      "ram_end": 4505731072,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-generate",
+      "argv": [
+        "python",
+        "scripts/generate_connector_registration_vectors.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.61,
+      "disk_start": 12199571456,
+      "disk_end": 12199530496,
+      "ram_end": 4574580736,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-lint",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "nbsr/connector_registration_offline.py",
+        "scripts/generate_connector_registration_vectors.py",
+        "tests/protocol/test_connector_registration_vectors.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12202467328,
+      "disk_end": 12202467328,
+      "ram_end": 4509585408,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-node",
+      "argv": [
+        "node",
+        "scripts/verify_connector_registration_vectors.mjs"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12199530496,
+      "disk_end": 12199530496,
+      "ram_end": 4571844608,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-renew-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "-k",
+        "more_than_four"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 3.86,
+      "disk_start": 12200869888,
+      "disk_end": 12200001536,
+      "ram_end": 4433465344,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-trim-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "-k",
+        "not retained_byte and not retained_negative and not manifest_has"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 12199759872,
+      "disk_end": 12199763968,
+      "ram_end": 4491173888,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "crp2-trim-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "-k",
+        "pending_completion"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.42,
+      "disk_start": 12199792640,
+      "disk_end": 12199784448,
+      "ram_end": 4469882880,
+      "direct_child_reaped": true
+    }
+  ],
+  "counts": {
+    "crp": 103,
+    "neighbors": 187,
+    "cbor": 68,
+    "total": 358,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independent_counter_transitions": 34,
+  "unchanged_prior_sources": [
+    "nbsr/connector_control_model.py",
+    "nbsr/connector_federation_model.py",
+    "tests/test_connector_federation_model.py"
+  ],
+  "index_empty": true
+}

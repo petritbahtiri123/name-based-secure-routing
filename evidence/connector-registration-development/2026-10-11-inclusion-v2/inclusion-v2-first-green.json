@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "inclusion-v2-first-green",
+  "argv": [
+    "python",
+    "-m",
+    "scripts.revocation_inclusion_v2"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.81,
+  "disk_start": 11971010560,
+  "disk_end": 11970936832,
+  "ram_end": 3065413632,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,18 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "day-zero-revision-format",
+  "argv": [
+    "cargo",
+    "fmt",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.02,
+  "disk_start": 12199088128,
+  "disk_end": 12199026688,
+  "ram_end": 4137017344,
+  "direct_child_reaped": true
+}

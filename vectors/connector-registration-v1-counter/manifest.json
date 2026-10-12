@@ -1,0 +1,380 @@
+{
+  "profile": "connector-registration-v1-draft2",
+  "status": "OFFLINE TEST-LOCAL ONLY",
+  "runtime_authorized": false,
+  "allocation_markers": [
+    "UNALLOCATED_CONNECTOR_REGISTER_ACTION",
+    "UNALLOCATED_CONNECTOR_PROFILE",
+    "UNALLOCATED_REQUEST",
+    "UNALLOCATED_CHALLENGE",
+    "UNALLOCATED_PROOF",
+    "UNALLOCATED_ACCEPT",
+    "UNALLOCATED_REJECT",
+    "UNALLOCATED_WITHDRAW",
+    "UNALLOCATED_IF_REQUIRED"
+  ],
+  "limits": {
+    "max_request_bytes": 16384,
+    "max_frame_bytes": 65536,
+    "max_refs": 64,
+    "max_depth": 8,
+    "max_lease_seconds": 60,
+    "max_exchange_seconds": 5,
+    "max_connect_attempts": 3,
+    "backoff_seconds": [
+      1,
+      2
+    ],
+    "pending_per_connection": 1,
+    "completed_results_per_connection": 4,
+    "waiting_registrations": 0,
+    "enabled_services_first_slice": 1
+  },
+  "case_count": 24,
+  "counter_amendment": {
+    "request_id": "session_id[0:8] || uint64_be(operation_counter)",
+    "first_counter": "1",
+    "maximum_counter": "18446744073709551615",
+    "next_counter": "high_water + 1; no wrap",
+    "retained_results": 4,
+    "pending": 1,
+    "envelope_directions": "independent monotonic uint64",
+    "new_operation_consumption": "after structural/session/counter/pending checks, before authority verification",
+    "eviction": "oldest completed outcome; never pending; current acceptance digest stored separately"
+  },
+  "cases": [
+    {
+      "id": "CRP-01",
+      "name": "register_success",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp01_register"
+      ],
+      "expected": "one eligible owner; correlated bounded ACCEPT",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-02",
+      "name": "renew_success",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp02_renew_extends_lease_preserves_handle"
+      ],
+      "expected": "same registration/epoch/generation; replaced bounded ACCEPT; no work replay",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-03",
+      "name": "exact_retry",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp03_retry_and_superseded_rejection"
+      ],
+      "expected": "identical canonical ACCEPT body only for current eligible owner; no lease/generation increase; superseded result rejects",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-04",
+      "name": "withdraw",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp04_withdraw"
+      ],
+      "expected": "ineligible then confirmed cleanup; zero owned",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-05",
+      "name": "wrong_peer_or_key",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp05_wrong_principal_pin",
+        "tests/test_connector_federation_model.py::test_existing_crypto_boundary_rejects_invalid_fixture"
+      ],
+      "expected": "reject; no new owner",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-06",
+      "name": "missing_registration_right",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp06_missing_registration_authority"
+      ],
+      "expected": "reject; no authority inferred from TLS",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-07",
+      "name": "scope_widening",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp07_scope_and_policy"
+      ],
+      "expected": "reject; no owner",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-08",
+      "name": "expired_or_revoked_authority",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp08_authority_rechecked_at_commit",
+        "tests/test_connector_federation_model.py::test_gap_independent_expiry_boundary_before_at_after"
+      ],
+      "expected": "reject; no acceptance",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-09",
+      "name": "stale_generation",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp09_verifier_stale_lineage_rejects",
+        "tests/protocol/test_connector_registration_vectors.py::test_authority_revision_changed_before_commit_rejects"
+      ],
+      "expected": "reject; no rollback/equivocation acceptance",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-10",
+      "name": "cross_connection",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp10_cross_connection"
+      ],
+      "expected": "reject; no replay",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-11",
+      "name": "bad_exporter",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp11_bad_binding"
+      ],
+      "expected": "reject proof; no fallback",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-12",
+      "name": "challenge_expiry",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp12_challenge_expiry"
+      ],
+      "expected": "reject; no commit",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-13",
+      "name": "conflicting_retry",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp13_conflicting_retry"
+      ],
+      "expected": "replay rejection; existing owner unchanged",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-14",
+      "name": "duplicate_owner",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp14_duplicate_owner"
+      ],
+      "expected": "capacity rejection; existing owner/transport unaffected",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-15",
+      "name": "late_renewal",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp15_lease_expires_between_challenge_and_commit"
+      ],
+      "expected": "reject renewal; no deadline reset; applicable drain",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-16",
+      "name": "lost_acceptance",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp16_lost_response_retry_and_disconnect"
+      ],
+      "expected": "same result while live/valid; no second owner; loss cleanup bounded",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-17",
+      "name": "stale_cleanup",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp17_stale_cleanup"
+      ],
+      "expected": "no successor mutation or resource release",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-18",
+      "name": "failed_cleanup",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp18_failed_cleanup"
+      ],
+      "expected": "eligibility withdrawn; ownership retained; no takeover",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-19",
+      "name": "admission_vs_active",
+      "pytest_nodes": [
+        "tests/test_connector_control_model.py::test_admission_only_expiry_preserves_active_until_finite_grace",
+        "tests/test_connector_control_model.py::test_late_poll_cannot_restart_expiry_grace"
+      ],
+      "expected": "new use stops; bounded valid work preserved; no invented extension",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-20",
+      "name": "deny_and_terminate",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp20_denial_invalidates_cached_success",
+        "tests/test_connector_control_model.py::test_repeat_deny_then_terminate_never_downgrades",
+        "tests/test_connector_control_model.py::test_terminate_cancels_work_but_releases_only_confirmed_cleanup"
+      ],
+      "expected": "deny preserves only bounded work; terminate immediate; repeated drain never resets",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-21",
+      "name": "outage_and_recovery",
+      "pytest_nodes": [
+        "tests/test_connector_federation_model.py::test_fresh_verified_recovery_restores_eligibility_without_replay",
+        "tests/test_connector_federation_model.py::test_recovery_cannot_resurrect_started_drain"
+      ],
+      "expected": "bounded continuation; no expansion; restore only before applicable cutoff",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-22",
+      "name": "invalid_or_future_event",
+      "pytest_nodes": [
+        "tests/test_connector_federation_model.py::test_gap_timed_semantic_fixture_no_early_effect_or_expiry_resurrection",
+        "tests/test_connector_federation_model.py::test_wrong_owner_or_context_has_no_effect"
+      ],
+      "expected": "no unauthorized/premature effect; narrow dispatch at valid effective boundary",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-23",
+      "name": "parser_and_resource_bounds",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp23_parser",
+        "tests/protocol/test_connector_registration_vectors.py::test_crp23_control_only",
+        "tests/protocol/test_connector_registration_vectors.py::test_crp23_connect_budget",
+        "tests/protocol/test_connector_registration_vectors.py::test_crp23_pending_capacity_and_sequence",
+        "tests/protocol/test_connector_registration_vectors.py::test_crp23_frame_boundaries",
+        "tests/protocol/test_connector_registration_vectors.py::test_crp23_invalid_frames"
+      ],
+      "expected": "bounded rejection; no owner/queue leak; no 0-RTT/data accepted",
+      "layer": "offline scenario; not assigned-wire conformance"
+    },
+    {
+      "id": "CRP-24",
+      "name": "second_service_isolation_design",
+      "pytest_nodes": [
+        "tests/protocol/test_connector_registration_vectors.py::test_crp24_service_isolation",
+        "tests/test_connector_federation_model.py::test_gap_two_live_owners_have_independent_dependency_effects"
+      ],
+      "expected": "A operations cannot change B; shared compromise affects exactly dependent owners; runtime still single-enabled-service",
+      "layer": "offline scenario; not assigned-wire conformance"
+    }
+  ],
+  "exporter_label": "EXPORTER-NBSR-Connector-Registration-v1",
+  "context_domain": "NBSR-CONNECTOR-REGISTRATION-CONTEXT-v1",
+  "accept_domain": "NBSR-CONNECTOR-ACCEPT-DIGEST-v1",
+  "session_id_hex": "73737373737373737373737373737373",
+  "request_id_hex": "73737373737373730000000000000001",
+  "fixture_authority": {
+    "kind": "synthetic OfflineDecision; not authenticated registration authority",
+    "admission_ceiling": 1000,
+    "revision": 1,
+    "clock_skew_seconds": 0,
+    "governing_profile": "explicit-offline-registration-fixture",
+    "record_refs_hex": [
+      "6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b",
+      "6464646464646464646464646464646464646464646464646464646464646464"
+    ],
+    "real_bilateral_checks": "tests/test_connector_federation_model.py; separate existing crypto fixture, not registration-action proof"
+  },
+  "nonclaims": [
+    "no TLS handshake",
+    "no signed registration-action fixture until allocation",
+    "no authenticated event producer",
+    "no carrier envelope identifiers",
+    "operation counter is connector-profile correlation, not authority generation or a registry allocation",
+    "clock skew 0 is a test input, not an assigned production policy"
+  ],
+  "artifacts": {
+    "accept-digest.bin": {
+      "bytes": 32,
+      "sha256": "1506ea767c1036b72e7a9fc3e7cacb0b756cbb510b76fcebbcc7b4ab6b007c24"
+    },
+    "accept.cbor": {
+      "bytes": 155,
+      "sha256": "d7f0b6b5d24753ab6263fcb00006d3579e2dcec361dbf65747602dd7f90fb6b1"
+    },
+    "challenge.cbor": {
+      "bytes": 76,
+      "sha256": "4eed291aab768714f85c551809c3ff8463bcad953147a27f9618b9414da8c302"
+    },
+    "context.cbor": {
+      "bytes": 296,
+      "sha256": "799861913879144985b85f37d7aad8fe78eaa0c40cd868b4b84c1a7760faf6ae"
+    },
+    "counter-traces.json": {
+      "bytes": 8722,
+      "sha256": "a5a7a86f73606c04ddc776e675f5598259726800b7bcd11cfe950ec7638722be"
+    },
+    "exporter.bin": {
+      "bytes": 32,
+      "sha256": "e302a468f2cb4468ea673b4029184d4aac18f4e6ee37f8be4773d9a996f0d69d"
+    },
+    "fixture-exporter-master.bin": {
+      "bytes": 32,
+      "sha256": "630dcd2966c4336691125448bbb25b4ff412a49c732db2c8abc1b8581bd710dd"
+    },
+    "invalid-bool-lease.cbor": {
+      "bytes": 388,
+      "sha256": "c3259d87513f847f1f1cc9e2cdf3b822b0a98d14d2143bd28d26972c4b58aff4"
+    },
+    "invalid-duplicate.cbor": {
+      "bytes": 5,
+      "sha256": "892b6b90f32391221e6b6d89232cace793d204b58088538ff928a4e155f9b3a7"
+    },
+    "invalid-exporter.bin": {
+      "bytes": 32,
+      "sha256": "820b9f94228da756a5e8d1ff0ef0e5e784dfeb3c6b3b06eaae55c0735459f77e"
+    },
+    "invalid-indefinite.cbor": {
+      "bytes": 2,
+      "sha256": "58daaf73604c8f2c4e3584b7bf43e64efaf6845deca4ef4f295a94633876e900"
+    },
+    "invalid-nonpreferred.cbor": {
+      "bytes": 4,
+      "sha256": "0826ecd578e6f71de50a510afd9a7ad9dbdc8a4595c11df3fecbda2a5ab1ba26"
+    },
+    "invalid-trailing.cbor": {
+      "bytes": 390,
+      "sha256": "1a3001e2b25c8614b77862b980346a93899e7168aab6a11b531e158798e9787c"
+    },
+    "invalid-unknown-key.cbor": {
+      "bytes": 391,
+      "sha256": "ee8c3db8b92bac524d88d28de9d3334f6df787b083c97bd13f1b1ebafff930a1"
+    },
+    "proof.cbor": {
+      "bytes": 108,
+      "sha256": "fd2f86f589c1e84841153a6c6434657ae2fcae1427649e2aa4ba063989dc2617"
+    },
+    "reject.cbor": {
+      "bytes": 64,
+      "sha256": "39352cb2fb657de0775f0204332a31eae14c341cf2252c45ce067e0ca7a4ed04"
+    },
+    "request.cbor": {
+      "bytes": 389,
+      "sha256": "115d9e9df3544d5de35e7a10a930f5fbd82a7d9f0511d5a4d2c47df077821898"
+    },
+    "request.frame": {
+      "bytes": 391,
+      "sha256": "1d7a5499f2809972678e2f3f634cc47d26051120cb440daa5bd11cee80becb5a"
+    },
+    "withdraw.cbor": {
+      "bytes": 76,
+      "sha256": "ce2ca8cfc3438f145009c8e3c22987fb3679869d002acb3ae8fe3bc7129104d2"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+--- before/interop/nbsr-go-peer/connector/coordinator.go
++++ after/interop/nbsr-go-peer/connector/coordinator.go
+@@ -68,9 +68,16 @@
+ 	if c.owner == nil {
+ 		return nil
+ 	}
++	c.observeOwnerExpiry(c.clock.Now())
+ 	v := *c.owner
+-	v.Eligible = v.Eligible && !c.stopped && c.clock.Now() < v.Expires
+ 	return &v
++}
++func (c *Coordinator) observeOwnerExpiry(now uint64) {
++	// Observed expiry withdraws eligibility permanently for this acceptance.
++	// Retain ownership until explicit cleanup, even if the fixture clock rolls back.
++	if c.owner != nil && (c.stopped || now >= c.owner.Expires) {
++		c.owner.Eligible = false
++	}
+ }
+ func (c *Coordinator) Connect(d Dialer) error {
+ 	if c.peer != nil || c.connectStarted || c.stopped || d == nil {
+@@ -137,6 +144,7 @@
+ 		}
+ 	}
+ 	now := c.clock.Now()
++	c.observeOwnerExpiry(now)
+ 	if now > 253402300794 || body[14] != now || (c.owner == nil && now >= c.attemptDeadline) {
+ 		return ErrInvalid
+ 	}
+@@ -194,7 +202,12 @@
+ 	return e, nil
+ }
+ func (c *Coordinator) validPending() bool {
+-	return c.pending != nil && c.live() && c.clock.Now() < c.pending.deadline && (c.owner == nil || (c.owner.Eligible && c.clock.Now() < c.owner.Expires))
++	if c.pending == nil || !c.live() {
++		return false
++	}
++	now := c.clock.Now()
++	c.observeOwnerExpiry(now)
++	return now < c.pending.deadline && (c.owner == nil || c.owner.Eligible)
+ }
+ func (c *Coordinator) Retry() error {
+ 	if !c.validPending() {

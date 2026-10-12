@@ -1,0 +1,33 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "day-gateway-cli-neighbors",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_gateway_cli.py",
+    "tests/test_gateway_plan.py",
+    "tests/test_gateway_profile.py",
+    "tests/test_gateway_verify.py",
+    "tests/test_gateway_journal.py",
+    "--basetemp",
+    "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-ci-20261011"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 5.63,
+  "disk_start": 12193894400,
+  "disk_end": 12193550336,
+  "ram_end": 3236089856,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "40f33d320ef20656e14ef84b60827e2b5a504f4585926730e6ef0433e9f58885",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "authorized_cutoff_utc": "2026-10-11T07:00:00Z",
+  "scope": "small code-only/offline improvements; exact earlier isolated loopback permitted if justified; no new trust/registry/lifetime decisions, credentials, external traffic, publish or security changes",
+  "state": "stopped at reviewed checkpoint; no publication",
+  "checkpoints": [
+    {
+      "slice": "challenge-revision",
+      "report": "docs/reviews/2026-10-11-connector-challenge-revision.md",
+      "manifest": "docs/reviews/2026-10-11-connector-challenge-revision.json",
+      "passed": 434,
+      "skipped": 0,
+      "deselected": 0,
+      "reproduced_failures": 2,
+      "review": "clear",
+      "cleanup": "all direct children reaped; no visible relevant workers; no task sockets/containers"
+    },
+    {
+      "slice": "go-observed-expiry",
+      "report": "docs/reviews/2026-10-11-connector-go-expiry.md",
+      "manifest": "docs/reviews/2026-10-11-connector-go-expiry.json",
+      "go_counts": {
+        "nbsr.local/interop/nbsr-go-peer/internal/cbor": {
+          "pass_events": 10,
+          "pass_top_level": 3
+        },
+        "nbsr.local/interop/nbsr-go-peer/connector": {
+          "pass_events": 71,
+          "pass_top_level": 21,
+          "skip_events": 1,
+          "skip_top_level": 1
+        }
+      },
+      "review": "clear",
+      "cleanup": "all children reaped; no visible relevant workers; no sockets/containers",
+      "limits": "observed owner expiry only, not general monotonic clock"
+    },
+    {
+      "slice": "go-clock-floor",
+      "report": "docs/reviews/2026-10-11-connector-go-clock.md",
+      "manifest": "docs/reviews/2026-10-11-connector-go-clock.json",
+      "go_counts": {
+        "nbsr.local/interop/nbsr-go-peer/internal/cbor": {
+          "pass_events": 10,
+          "pass_top_level": 3
+        },
+        "nbsr.local/interop/nbsr-go-peer/connector": {
+          "pass_events": 77,
+          "pass_top_level": 25,
+          "skip_events": 1,
+          "skip_top_level": 1
+        }
+      },
+      "review": "clear",
+      "cleanup": "all children reaped; no visible relevant workers; no sockets/containers",
+      "reproduced_failures": 3
+    },
+    {
+      "slice": "rust-clock-floor",
+      "report": "docs/reviews/2026-10-11-connector-rust-clock.md",
+      "manifest": "docs/reviews/2026-10-11-connector-rust-clock.json",
+      "passed": 23,
+      "ignored": 1,
+      "reproduced_failures": 4,
+      "review": "clear",
+      "cleanup": "all direct children reaped; no visible relevant workers; no task sockets/containers"
+    },
+    {
+      "slice": "2026-10-11-connector-revision-type",
+      "report": "docs/reviews/2026-10-11-connector-revision-type.md",
+      "manifest": "docs/reviews/2026-10-11-connector-revision-type.json"
+    },
+    {
+      "slice": "2026-10-11-connector-loopback",
+      "report": "docs/reviews/2026-10-11-connector-loopback.md",
+      "manifest": "docs/reviews/2026-10-11-connector-loopback.json"
+    }
+  ],
+  "parent_notification_error": "send_message_to_thread returned thread not found for supplied parent ID; no repeated attempts; final handoff remains automatic",
+  "checkpoint_utc": "2026-10-10T21:09:59.960874+00:00",
+  "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "final_results": {
+    "python_passed": 436,
+    "python_exclusions": 0,
+    "go_top_level_passed": 28,
+    "go_pass_events": 87,
+    "go_worker_skipped": 1,
+    "rust_passed": 23,
+    "rust_live_ignored_by_default": 1,
+    "explicit_loopback_cases_passed": 19,
+    "supervised_runs": 29,
+    "retained_failed_runs": 6,
+    "reproduced_red_cases": 14,
+    "resource_aborts": 0
+  },
+  "cleanup": "all supervised children reaped; live PIDs and UDP endpoints absent; new Go worker removed; no task containers",
+  "limits": "Stage 3 partial; stages 1-2 remain 2/10. Real authority/revocation provider composition, timers and deployment remain unproven.",
+  "current_source_sha256": {
+    "nbsr/connector_registration_offline.py": "eb392e37b5d23f76e3e2c9ccd5148c24d9f7c2a008b83e2c55fda5802903a774",
+    "tests/protocol/test_connector_registration_vectors.py": "becf2cd1978bbb62b4367eaff26309fe49a30a84ac49f6e4c2f64c709ee73ae6",
+    "interop/nbsr-go-peer/connector/coordinator.go": "fd8bb45a3c96c3a1b6386769e628bf8d26ed604a7b067c48ff3bec151a428508",
+    "interop/nbsr-go-peer/connector/coordinator_test.go": "b7a5070e04e918c3d606370a9ebf85b9af507537fec710abecc03afdda7d02d4",
+    "crates/nbsr-transport/src/connector_registration.rs": "2325912b381e897985092203327b6bcdb5b68b57b132ff3fdc2966733f8d322f",
+    "crates/nbsr-transport/tests/connector_registration.rs": "1a363322653c15994657ccb746ffd74f0a71262df9e0d4fa281bf29761fd82d2"
+  },
+  "deliverable_sha256": {
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md": "5b2307096ba5cedcd43a88c8f30dbc6ec318d8af5bd470bdccfcce0c8e9d0f1f",
+    "AGENTS.md": "bd7b3e31ea323ccd0b6cdf32b589766e4e7b6859c5155aa6738a80cb42e62664",
+    "docs/protocol/status.md": "ba14624abbdf4cc00a2a70ce5640e309f739699a9da372aad025894065e8649f",
+    "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md": "3bb5aac8e7532a5a408a15a97f3652ceda47ff817a5977042801ec74d8e71d31",
+    "interop/nbsr-go-peer/connector/README.md": "95561a2e125c8e83210e0a5c35a8d08d5b63fb94273098b836a439f10636d0c3",
+    "docs/reviews/2026-10-11-connector-revision-type.md": "e506aefe0a1739e782a87e17bca4f9543c78f02382bf90d1d19e165b4606ccf1",
+    "docs/reviews/2026-10-11-connector-loopback.md": "3be2b432b2127f4b8469f33fa9b91ceb9dc82732e898bb84b271872f0e77918f",
+    "docs/reviews/2026-10-11-connector-revision-type.json": "f80cc51213fbc7c32bb392539f318c7c5364897e3de537f532889c9df460f15e",
+    "docs/reviews/2026-10-11-connector-loopback.json": "8a500e00bd24a06e4908af333409507a9e5ee08cd3c442bdf92a37d5352267d1"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp1-artifacts-check",
+  "argv": [
+    "python",
+    "scripts/generate_connector_registration_vectors.py",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 12213096448,
+  "disk_end": 12213096448,
+  "ram_end": 4559589376,
+  "direct_child_reaped": true
+}

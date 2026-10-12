@@ -1,0 +1,47 @@
+ M AGENTS.md
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md
+ M docs/protocol/connector-outbound-profile.md
+ M docs/protocol/status.md
+ M docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+?? crates/nbsr-transport/src/connector_cleanup.rs
+?? crates/nbsr-transport/src/connector_control.rs
+?? crates/nbsr-transport/src/connector_registration.rs
+?? crates/nbsr-transport/tests/connector_control.rs
+?? crates/nbsr-transport/tests/connector_registration.rs
+?? docs/protocol/registries/connector-registration-development-v1.json
+?? interop/nbsr-go-peer/connector/README.md
+?? interop/nbsr-go-peer/connector/cleanup.go
+?? interop/nbsr-go-peer/connector/cleanup_test.go
+?? interop/nbsr-go-peer/connector/codec.go
+?? interop/nbsr-go-peer/connector/codec_test.go
+?? interop/nbsr-go-peer/connector/coordinator.go
+?? interop/nbsr-go-peer/connector/coordinator_test.go
+?? scripts/generate_connector_development_vectors.py
+?? tests/protocol/test_connector_development_vectors.py
+?? vectors/connector-registration-development-v1/accept.cbor
+?? vectors/connector-registration-development-v1/bad-request-prefix.cbor
+?? vectors/connector-registration-development-v1/bool-lease.cbor
+?? vectors/connector-registration-development-v1/bool-sequence.cbor
+?? vectors/connector-registration-development-v1/challenge.cbor
+?? vectors/connector-registration-development-v1/core-message.cbor
+?? vectors/connector-registration-development-v1/extra-key.cbor
+?? vectors/connector-registration-development-v1/indefinite.cbor
+?? vectors/connector-registration-development-v1/long-lease.cbor
+?? vectors/connector-registration-development-v1/manifest.json
+?? vectors/connector-registration-development-v1/missing-authority-refs.cbor
+?? vectors/connector-registration-development-v1/nonpreferred.cbor
+?? vectors/connector-registration-development-v1/proof.cbor
+?? vectors/connector-registration-development-v1/reject-correlation.cbor
+?? vectors/connector-registration-development-v1/reject-forbidden-retry.cbor
+?? vectors/connector-registration-development-v1/reject-zero-retry.cbor
+?? vectors/connector-registration-development-v1/reject.cbor
+?? vectors/connector-registration-development-v1/request.cbor
+?? vectors/connector-registration-development-v1/trailing.cbor
+?? vectors/connector-registration-development-v1/unknown-message.cbor
+?? vectors/connector-registration-development-v1/unknown-version.cbor
+?? vectors/connector-registration-development-v1/withdraw.cbor
+?? vectors/connector-registration-development-v1/wrong-alpn.cbor
+?? vectors/connector-registration-development-v1/wrong-gateway.cbor
+?? vectors/connector-registration-development-v1/zero-counter.cbor
+?? vectors/connector-registration-development-v1/zero-sequence.cbor

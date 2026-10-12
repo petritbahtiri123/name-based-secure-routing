@@ -1,0 +1,35 @@
+{
+  "id": "normal-revocation-conformance-v1",
+  "version": 1,
+  "scope": "explicit local conformance only; fixture membership and witness outcomes are not authenticated authority",
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "parent_sha256": {
+    "docs/protocol/registries/federation-v0.1-threshold-container-proposal.json": "d09e78c21a149e91a73f0da32b723a0038937da12c6543cbf1a7605c7e7acf08",
+    "docs/protocol/registries/federation-v0.1-development.json": "ed880f236a2b4b5e11e281e58c540534e1cd27f7c752d3990291cf1be55c80d0"
+  },
+  "policy_name": "normal-revocation-v1",
+  "signed_mode": 2,
+  "named_policy": {
+    "deny_only": true,
+    "minimum_organizations": 3,
+    "allowed_object_classes": [
+      "TypedRevocationRecord"
+    ],
+    "allowed_message_types": [
+      "REVOCATION_PUSH"
+    ],
+    "allowed_authority_effects": [
+      "deny"
+    ],
+    "groups": [
+      {
+        "id": "normal-revocation",
+        "required": 3,
+        "eligible": 5,
+        "class": "FEDERATION_AUTHORITY",
+        "purpose": "REVOCATION"
+      }
+    ]
+  }
+}

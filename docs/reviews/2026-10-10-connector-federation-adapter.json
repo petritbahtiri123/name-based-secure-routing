@@ -1,0 +1,295 @@
+{
+  "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "offline mock adapter implemented and independently reviewed; uncommitted; stage1 partial",
+  "tests": "174 passed, zero skips:21 adapter+88 model+65 neighbors; Ruff check/format pass",
+  "review": "duplicate cleanup and recovery-clock-boundary regressions retained and fixed; independent review no remaining blocker",
+  "report": "docs/reviews/2026-10-10-connector-federation-adapter.md",
+  "manifest": "docs/reviews/2026-10-10-connector-federation-adapter.json",
+  "limitations": [
+    "fixture identity association only",
+    "simulated revocation incidents, not authenticated delivery",
+    "no durable replay/revocation store",
+    "real deadline and ownership provenance unresolved"
+  ],
+  "publication": "no new commit/push/bypass",
+  "cleanup": {
+    "direct_children_reaped": true,
+    "visible_python_processes_after_tests": 0,
+    "containers_created": 0
+  },
+  "files": [
+    {
+      "path": "nbsr/connector_control_model.py",
+      "bytes": 15649,
+      "sha256": "75085acd5fce48e765cd0d3ee23579ba3c9f029ae13f4ba8c2096a5fc0d7e6dd"
+    },
+    {
+      "path": "nbsr/connector_federation_model.py",
+      "bytes": 9679,
+      "sha256": "fab7cf4c047bceb46e23f141260c9fe59c9889600b4e79604e7bac83b8810703"
+    },
+    {
+      "path": "tests/test_connector_federation_model.py",
+      "bytes": 10742,
+      "sha256": "96a8f5d3b25968e00a01917194c2cd12da4c1816e205e55ee2624a9c915915c1"
+    },
+    {
+      "path": "tests/test_connector_control_model.py",
+      "bytes": 25692,
+      "sha256": "8b1e164ac2e035ded9a0b01046d6e08b62d314c7a79d3ed052c006ae65c26271"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 13069,
+      "sha256": "e1cfbf5bb205c3f143ca56e4975ff41338581c123d4344e964d06ed18d42cb82"
+    },
+    {
+      "path": "docs/protocol/connector-outbound-profile.md",
+      "bytes": 49439,
+      "sha256": "c3eb271e68e87fcf487c5dec149610a194c2e29405edde0ffb4a73be367b22d5"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 50276,
+      "sha256": "b3d6bbdf6fed4dccad0004b12978bf1a66101e98e8889dcc4a6ea1a31a14e1d3"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-federation-adapter.md",
+      "bytes": 6107,
+      "sha256": "44e8df8d4d48cf4aa5b107d8243e9c656d4037856183e98405532bba29348d0b"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "bytes": 36835,
+      "sha256": "b2addac0e1ee7fdd1f5179e743efaa64049a9fa5a27e567f65b103f0053c379c"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+      "bytes": 32727,
+      "sha256": "d7d86c1d98bf4e4548b904992a00e6e09960c5e53b5a72cea205c656c20d613c"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/adapter-final-connector_control_model.py.snapshot",
+      "bytes": 15649,
+      "sha256": "75085acd5fce48e765cd0d3ee23579ba3c9f029ae13f4ba8c2096a5fc0d7e6dd"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/adapter-final-connector_federation_model.py.snapshot",
+      "bytes": 9679,
+      "sha256": "fab7cf4c047bceb46e23f141260c9fe59c9889600b4e79604e7bac83b8810703"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/adapter-final-test_connector_federation_model.py.snapshot",
+      "bytes": 10742,
+      "sha256": "96a8f5d3b25968e00a01917194c2cd12da4c1816e205e55ee2624a9c915915c1"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-boundaries.json",
+      "bytes": 442,
+      "sha256": "5f0e4ec1b3994a3f7f693e9fc592188dc7201919c378f293dcceefe74d2ded7e"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-boundaries.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-boundaries.stdout.log",
+      "bytes": 101,
+      "sha256": "97f96b458379aead24a51cba79fb46a9ac7f90d1a49e3e39a9b828ca7b3ff9d4"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-final.json",
+      "bytes": 652,
+      "sha256": "89250d874326dbd38897d5a7cdc24ee56aa48c38cbb1503dc71c7e2e6da1f55e"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-final.stdout.log",
+      "bytes": 264,
+      "sha256": "d4d86aa1adb4eeeff1a38df347a86a3b57afd48a4bbc0153c63b2bb6a5e5da08"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-green.json",
+      "bytes": 652,
+      "sha256": "0132a7fcbbc376933d4e554a525171415532f10fbc0a0615202f6ea3b32052b1"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-green.stdout.log",
+      "bytes": 264,
+      "sha256": "1544c175e60e30aa206d0add019e62963827b6d2e64033ef0bf9c9db2fdcab44"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-model-final.patch",
+      "bytes": 11389,
+      "sha256": "7a98bfcc7fb017cb6650fe4c3a566e3eb7e95ec03b729b3104fcc4b1d3eb3918"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-owner-red.json",
+      "bytes": 496,
+      "sha256": "cba9b500a1254375f65145b6444f11141698e50e0f37c0007e191c884097c5c3"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-owner-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-owner-red.stdout.log",
+      "bytes": 4324,
+      "sha256": "764401b63fef8b612e997cf4a1278c34182604ed5dd73abdf1eb02fdb2d41a3d"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-red.json",
+      "bytes": 476,
+      "sha256": "220259e58dbfa8e21af0229785c9601f67b32fd999d68fd95e9755add883f823"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-adapter-red.stdout.log",
+      "bytes": 966,
+      "sha256": "ec78c6a6561fdb8b6bf665e5606442faa7debabc19876647418fe98586dfe171"
+    }
+  ],
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-adapter-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_federation_model.py",
+        "-k",
+        "adapter_module_exists"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.22,
+      "disk_start": 12301602816,
+      "disk_end": 12301590528,
+      "ram_end": 4487446528,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-adapter-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_federation_model.py",
+        "tests/test_connector_control_model.py",
+        "tests/federation/test_authorization.py",
+        "tests/federation/test_outage.py",
+        "tests/federation/test_revocation.py",
+        "tests/protocol/test_states.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.82,
+      "disk_start": 12303613952,
+      "disk_end": 12303626240,
+      "ram_end": 4463812608,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-adapter-boundaries",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_federation_model.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 4.86,
+      "disk_start": 12301946880,
+      "disk_end": 12301881344,
+      "ram_end": 2615820288,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-adapter-owner-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_federation_model.py",
+        "-k",
+        "duplicate_open or recovery_crossing"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 12301737984,
+      "disk_end": 12301729792,
+      "ram_end": 4309786624,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-adapter-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_federation_model.py",
+        "tests/test_connector_control_model.py",
+        "tests/federation/test_authorization.py",
+        "tests/federation/test_outage.py",
+        "tests/federation/test_revocation.py",
+        "tests/protocol/test_states.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.62,
+      "disk_start": 12301578240,
+      "disk_end": 12301578240,
+      "ram_end": 4467523584,
+      "direct_child_reaped": true
+    }
+  ],
+  "counts": {
+    "adapter": 21,
+    "model": 88,
+    "neighbors": 65,
+    "total": 174,
+    "skipped": 0
+  },
+  "checks": {
+    "ruff": "pass",
+    "format": "pass",
+    "scoped_diff": "pass; retained raw logs excluded"
+  }
+}

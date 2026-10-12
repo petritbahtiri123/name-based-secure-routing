@@ -1,0 +1,15 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp2-generate",
+  "argv": [
+    "python",
+    "scripts/generate_connector_registration_vectors.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 12199571456,
+  "disk_end": 12199530496,
+  "ram_end": 4574580736,
+  "direct_child_reaped": true
+}

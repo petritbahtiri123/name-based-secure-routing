@@ -1,0 +1,356 @@
+{
+  "$defs": {
+    "Client": {
+      "additionalProperties": false,
+      "properties": {
+        "service_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Service Id",
+          "type": "string"
+        },
+        "gateway_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+          "title": "Gateway Id",
+          "type": "string"
+        },
+        "proxy": {
+          "$ref": "#/$defs/Proxy"
+        },
+        "identity_ref": {
+          "maxLength": 68,
+          "minLength": 5,
+          "pattern": "^ref:[a-z][a-z0-9-]*$",
+          "title": "Identity Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "service_id",
+        "gateway_id",
+        "proxy",
+        "identity_ref"
+      ],
+      "title": "Client",
+      "type": "object"
+    },
+    "Endpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "maxLength": 253,
+          "minLength": 1,
+          "title": "Host",
+          "type": "string"
+        },
+        "port": {
+          "maximum": 65535,
+          "minimum": 1,
+          "title": "Port",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "host",
+        "port"
+      ],
+      "title": "Endpoint",
+      "type": "object"
+    },
+    "Gateway": {
+      "additionalProperties": false,
+      "properties": {
+        "gateway_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+          "title": "Gateway Id",
+          "type": "string"
+        },
+        "endpoint": {
+          "$ref": "#/$defs/Endpoint"
+        },
+        "trust_ref": {
+          "maxLength": 68,
+          "minLength": 5,
+          "pattern": "^ref:[a-z][a-z0-9-]*$",
+          "title": "Trust Ref",
+          "type": "string"
+        },
+        "registration_policy_ref": {
+          "maxLength": 68,
+          "minLength": 5,
+          "pattern": "^ref:[a-z][a-z0-9-]*$",
+          "title": "Registration Policy Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gateway_id",
+        "endpoint",
+        "trust_ref",
+        "registration_policy_ref"
+      ],
+      "title": "Gateway",
+      "type": "object"
+    },
+    "Origin": {
+      "additionalProperties": false,
+      "properties": {
+        "identity_ref": {
+          "maxLength": 68,
+          "minLength": 5,
+          "pattern": "^ref:[a-z][a-z0-9-]*$",
+          "title": "Identity Ref",
+          "type": "string"
+        },
+        "services": {
+          "items": {
+            "$ref": "#/$defs/Service"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "title": "Services",
+          "type": "array"
+        }
+      },
+      "required": [
+        "identity_ref",
+        "services"
+      ],
+      "title": "Origin",
+      "type": "object"
+    },
+    "Proxy": {
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "enum": [
+            "127.0.0.1",
+            "::1"
+          ],
+          "title": "Host",
+          "type": "string"
+        },
+        "port": {
+          "maximum": 65535,
+          "minimum": 1,
+          "title": "Port",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "host",
+        "port"
+      ],
+      "title": "Proxy",
+      "type": "object"
+    },
+    "Registration": {
+      "additionalProperties": false,
+      "properties": {
+        "requested_lease_seconds": {
+          "maximum": 60,
+          "minimum": 1,
+          "title": "Requested Lease Seconds",
+          "type": "integer"
+        },
+        "exchange_timeout_seconds": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Exchange Timeout Seconds",
+          "type": "integer"
+        },
+        "connect_attempts": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Connect Attempts",
+          "type": "integer"
+        },
+        "backoff_seconds": {
+          "const": [
+            1,
+            2
+          ],
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Backoff Seconds",
+          "type": "array"
+        },
+        "owners_per_service": {
+          "const": 1,
+          "title": "Owners Per Service",
+          "type": "integer"
+        },
+        "pending_per_connection": {
+          "const": 1,
+          "title": "Pending Per Connection",
+          "type": "integer"
+        },
+        "completed_results_per_connection": {
+          "const": 4,
+          "title": "Completed Results Per Connection",
+          "type": "integer"
+        },
+        "waiting_registrations": {
+          "const": 0,
+          "title": "Waiting Registrations",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "requested_lease_seconds",
+        "exchange_timeout_seconds",
+        "connect_attempts",
+        "backoff_seconds",
+        "owners_per_service",
+        "pending_per_connection",
+        "completed_results_per_connection",
+        "waiting_registrations"
+      ],
+      "title": "Registration",
+      "type": "object"
+    },
+    "Service": {
+      "additionalProperties": false,
+      "properties": {
+        "service_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Service Id",
+          "type": "string"
+        },
+        "gateway_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+          "title": "Gateway Id",
+          "type": "string"
+        },
+        "operator_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Operator Id",
+          "type": "string"
+        },
+        "connector_principal": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Connector Principal",
+          "type": "string"
+        },
+        "registration_authority_ref": {
+          "maxLength": 68,
+          "minLength": 5,
+          "pattern": "^ref:[a-z][a-z0-9-]*$",
+          "title": "Registration Authority Ref",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        }
+      },
+      "required": [
+        "service_id",
+        "gateway_id",
+        "operator_id",
+        "connector_principal",
+        "registration_authority_ref",
+        "target"
+      ],
+      "title": "Service",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "maxLength": 253,
+          "minLength": 1,
+          "title": "Host",
+          "type": "string"
+        },
+        "port": {
+          "maximum": 65535,
+          "minimum": 1,
+          "title": "Port",
+          "type": "integer"
+        },
+        "scheme": {
+          "const": "http",
+          "title": "Scheme",
+          "type": "string"
+        },
+        "method": {
+          "const": "GET",
+          "title": "Method",
+          "type": "string"
+        },
+        "path": {
+          "const": "/",
+          "title": "Path",
+          "type": "string"
+        },
+        "max_request_bytes": {
+          "const": 4096,
+          "title": "Max Request Bytes",
+          "type": "integer"
+        },
+        "max_response_bytes": {
+          "const": 4096,
+          "title": "Max Response Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "host",
+        "port",
+        "scheme",
+        "method",
+        "path",
+        "max_request_bytes",
+        "max_response_bytes"
+      ],
+      "title": "Target",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "nbsr-single-instance-config-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "mode": {
+      "const": "offline",
+      "title": "Mode",
+      "type": "string"
+    },
+    "client": {
+      "$ref": "#/$defs/Client"
+    },
+    "gateway": {
+      "$ref": "#/$defs/Gateway"
+    },
+    "origin": {
+      "$ref": "#/$defs/Origin"
+    },
+    "registration": {
+      "$ref": "#/$defs/Registration"
+    }
+  },
+  "required": [
+    "schema_version",
+    "mode",
+    "client",
+    "gateway",
+    "origin",
+    "registration"
+  ],
+  "title": "Configuration",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Offline structure only; validate_config.py additionally enforces canonical endpoints, private origin literals, nonzero IDs and cross-role service-key consistency. Named references are not opened or authenticated. Validity is not readiness."
+}

@@ -1,0 +1,1 @@
+Independent connector_model_review: no blocking findings. Owner/Begin/pending validation permanently latch observed expiry; regressions cover blocked renewal traffic. Retains ownership until cleanup. Not general clock monotonicity. No edits/test reruns.

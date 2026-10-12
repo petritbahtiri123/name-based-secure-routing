@@ -1,0 +1,28 @@
+{
+  "observed_pids": [
+    376,
+    3032,
+    3688,
+    4048,
+    4172,
+    5076,
+    6852,
+    8224,
+    10152,
+    11860,
+    11904,
+    11952,
+    12044,
+    12280,
+    16512,
+    16636,
+    17056,
+    17168,
+    18264,
+    18336
+  ],
+  "remaining_processes": [],
+  "remaining_udp_endpoints": [],
+  "socket_query": "netstat -ano -p udp",
+  "earlier_query_failure": "Get-NetUDPEndpoint CIM unavailable; first netstat attempt had no PIDs because fixture compile failed, invalid check retained separately"
+}

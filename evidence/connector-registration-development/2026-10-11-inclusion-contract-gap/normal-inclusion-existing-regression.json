@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "normal-inclusion-existing-regression",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_transparency.py::test_inclusion_proof_binds_exact_checkpoint_leaf_scope_and_path"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.82,
+  "disk_start": 11971260416,
+  "disk_end": 11971108864,
+  "ram_end": 3397029888,
+  "direct_child_reaped": true
+}

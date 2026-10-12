@@ -1,0 +1,112 @@
+--- before/interop/nbsr-go-peer/connector/coordinator.go
++++ after/interop/nbsr-go-peer/connector/coordinator.go
+@@ -51,6 +51,23 @@
+ 	owner                   *Owner
+ 	connectStarted, stopped bool
+ 	attemptDeadline         uint64
++	lastTime                uint64
++	hasTime                 bool
++}
++
++// now retains every observed fixture time, including rejected expiry checks.
++// Invalid time latches admission off without pretending cleanup succeeded.
++func (c *Coordinator) now() uint64 {
++	now := c.clock.Now()
++	if now > 253402300799 || (c.hasTime && now < c.lastTime) {
++		c.stopped = true
++		if c.owner != nil {
++			c.owner.Eligible = false
++		}
++		return 253402300800 // Outside every allowed deadline; never a valid time.
++	}
++	c.hasTime, c.lastTime = true, now
++	return now
+ }
+ 
+ func NewCoordinator(clock Clock, authority Authority, expected [32]byte, session [16]byte, template map[uint64]any) (*Coordinator, error) {
+@@ -68,7 +85,7 @@
+ 	if c.owner == nil {
+ 		return nil
+ 	}
+-	c.observeOwnerExpiry(c.clock.Now())
++	c.observeOwnerExpiry(c.now())
+ 	v := *c.owner
+ 	return &v
+ }
+@@ -105,13 +122,14 @@
+ 				}
+ 				return ErrInvalid
+ 			}
+-			if c.clock.Now() > 253402300794 {
++			now := c.now()
++			if now > 253402300794 {
+ 				if err := c.Close(); err != nil {
+ 					return err
+ 				}
+ 				return ErrInvalid
+ 			}
+-			c.attemptDeadline = c.clock.Now() + 5
++			c.attemptDeadline = now + 5
+ 			return nil
+ 		}
+ 		if attempt < 2 {
+@@ -143,7 +161,7 @@
+ 			return ErrInvalid
+ 		}
+ 	}
+-	now := c.clock.Now()
++	now := c.now()
+ 	c.observeOwnerExpiry(now)
+ 	if now > 253402300794 || body[14] != now || (c.owner == nil && now >= c.attemptDeadline) {
+ 		return ErrInvalid
+@@ -205,7 +223,7 @@
+ 	if c.pending == nil || !c.live() {
+ 		return false
+ 	}
+-	now := c.clock.Now()
++	now := c.now()
+ 	c.observeOwnerExpiry(now)
+ 	return now < c.pending.deadline && (c.owner == nil || c.owner.Eligible)
+ }
+@@ -214,7 +232,7 @@
+ 		return ErrInvalid
+ 	}
+ 	p := c.pending
+-	expires, err := c.authority.Check(c.peer, p.request, c.clock.Now())
++	expires, err := c.authority.Check(c.peer, p.request, c.now())
+ 	if err != nil || expires < c.pending.authorityDeadline || expires > 253402300799 {
+ 		if c.owner != nil {
+ 			c.owner.Eligible = false
+@@ -253,7 +271,7 @@
+ 	}
+ 	requestBytes, _ := cbor.Encode(p.request.Body)
+ 	digest := sha256.Sum256(requestBytes)
+-	if !bytes.Equal(e.Body[1].([]byte), digest[:]) || e.Body[3].(uint64) > p.deadline || e.Body[3].(uint64) <= c.clock.Now() {
++	if !bytes.Equal(e.Body[1].([]byte), digest[:]) || e.Body[3].(uint64) > p.deadline || e.Body[3].(uint64) <= c.now() {
+ 		return ErrInvalid
+ 	}
+ 	if p.challenge != nil {
+@@ -302,12 +320,12 @@
+ 	req := p.request.Body
+ 	raw, _ := cbor.Encode(req)
+ 	h := sha256.Sum256(raw)
+-	now := c.clock.Now()
++	now := c.now()
+ 	if !bytes.Equal(b[1].([]byte), h[:]) || !bytes.Equal(b[8].([]byte), req[11].([]byte)) || !bytes.Equal(b[9].([]byte), req[12].([]byte)) || b[5].(uint64) > now || b[6].(uint64) <= now || b[6].(uint64) > p.authorityDeadline || b[6].(uint64)-b[5].(uint64) > req[13].(uint64) {
+ 		return ErrInvalid
+ 	}
+ 	expires, err := c.authority.Check(c.peer, p.request, now)
+-	if err != nil || expires < b[6].(uint64) || expires > 253402300799 || !c.validPending() || c.clock.Now() >= b[6].(uint64) {
++	if err != nil || expires < b[6].(uint64) || expires > 253402300799 || !c.validPending() || c.now() >= b[6].(uint64) {
+ 		if c.owner != nil {
+ 			c.owner.Eligible = false
+ 		}
+@@ -378,7 +396,7 @@
+ 
+ // Poll is explicit fixture-time cleanup, not an asynchronous runtime deadline.
+ func (c *Coordinator) Poll() error {
+-	now := c.clock.Now()
++	now := c.now()
+ 	if c.stopped || now > 253402300799 || (c.pending != nil && now >= c.pending.deadline) || (c.owner != nil && now >= c.owner.Expires) || (c.peer != nil && c.owner == nil && now >= c.attemptDeadline) {
+ 		return c.Close()
+ 	}

@@ -1,0 +1,1 @@
+Independent connector_model_review: no blocking findings; exact-once selection alongside four neighbors. Seven tests support offline CLI contract coverage, not deployment/SCM/hosted success. No tests rerun by reviewer.

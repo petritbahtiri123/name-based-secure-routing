@@ -1,0 +1,12 @@
+--- before/nbsr/connector_registration_offline.py
++++ after/nbsr/connector_registration_offline.py
+@@ -470,7 +470,8 @@
+         committed_at = self._now()
+         if transport.closed or transport.session != state.session or state.denied or committed_at >= min(challenge[3], decision.expires_at):
+             reject("RECORD_STALE")
+-        if decision.revision != self.revision_source():
++        current_revision = self.revision_source()
++        if not uint(current_revision, 1) or decision.revision != current_revision:
+             reject("RECORD_STALE")
+         if body[1] == "renew":
+             if not self._eligible_at(state, committed_at) or state.key != key or body[15] != self._accept_hash(state):

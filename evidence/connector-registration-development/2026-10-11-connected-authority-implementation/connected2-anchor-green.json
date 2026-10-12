@@ -1,0 +1,24 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-anchor-green",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "1",
+    "--test",
+    "connector_authority",
+    "old_retained_anchor_accepts_fresh_containing_checkpoint"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.02,
+  "disk_start": 11695370240,
+  "disk_end": 11696484352,
+  "ram_end": 4439048192,
+  "direct_child_reaped": true
+}

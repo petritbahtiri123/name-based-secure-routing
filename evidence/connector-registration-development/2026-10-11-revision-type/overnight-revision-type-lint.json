@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-revision-type-lint",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "nbsr/connector_registration_offline.py",
+    "tests/protocol/test_connector_registration_vectors.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 11648122880,
+  "disk_end": 11648122880,
+  "ram_end": 4516888576,
+  "direct_child_reaped": true
+}

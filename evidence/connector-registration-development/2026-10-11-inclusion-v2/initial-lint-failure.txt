@@ -1,0 +1,1 @@
+Initial unsupervised python -m ruff check --no-cache scripts/revocation_inclusion_v2.py tests/federation/test_revocation_inclusion_v2.py scripts/verify_federation_threshold_container_fixtures.py returned exit1: F401 unused copy.deepcopy and PROFILE imports in tests. Removed; supervised final lint passes.

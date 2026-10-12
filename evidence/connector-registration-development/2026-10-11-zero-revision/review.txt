@@ -1,0 +1,1 @@
+Independent connector_model_review: no blocking findings. Rejects zero before challenge, preserving renewal owner. Proof requires positive challenge revision equality, current snapshot equality and precommit recheck. Tests cover registration, renewal and failed cleanup retention. Reviewer did not rerun tests.

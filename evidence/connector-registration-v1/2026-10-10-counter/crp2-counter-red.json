@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp2-counter-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "-k",
+    "counter_starts or request_prefix or pending_does or envelope_directions"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.62,
+  "disk_start": 12200054784,
+  "disk_end": 12200050688,
+  "ram_end": 4394594304,
+  "direct_child_reaped": true
+}

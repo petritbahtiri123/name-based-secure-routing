@@ -1,0 +1,848 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 3e2c9ab7..a7d13a37 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -120,10 +120,23 @@ Fake verifier/clock/transport results do not establish cryptographic proof,
+ wire interoperability, asynchronous cancellation, durable identity or deployment
+ readiness. Preserve the frozen state map and keep model policy choices distinct
+ from approved protocol semantics.
+-Active-work tests explicitly choose whether the registration lease caps the
+-simulated request; neither fixture choice settles the real lifetime policy.
++Active-work fixtures name admission eligibility, ongoing authority and a finite
++profile-labelled completion grace separately. Registration expiry starts drain
++from its actual boundary; polling or repeated denial cannot restart that grace.
++Explicit work renewal preserves ownership and the request bound, and cannot
++resurrect expired work. These fake inputs do not settle real authority mapping.
+ Typed enforcement accepts the exact federation enum, never a numeric cast from
+ Core revocation modes. Failed cleanup must retain visible ownership.
++The offline `nbsr/connector_federation_model.py` adapter additionally checks
++`tests/test_connector_federation_model.py`, `tests/federation/test_authorization.py`
++and `tests/federation/test_outage.py` alongside the model neighbors above. Reuse
++existing bilateral COSE/authorization and state result types. Bare results are
++not authenticated evidence; cache freshness is not authority validity. Ordinary
++outage's temporary new-use gate is distinct from a revocation latch. The adapter's
++incident input remains explicitly simulated, with no cryptographic revocation
++delivery or real connector identity mapping. Historical source hashes remain
++snapshots; preserve them when extending the local model.
++
+ 
+ `docs/CI.md` defines the bounded GitHub-hosted profiles in `scripts/ci/check.py`
+ and the manual extended workflow. Hosted dependency installation does not
+@@ -184,3 +197,157 @@ Development-v2 requires explicit `--version federation-v0.1-development-v2` and
+ pin or resolve missing archived authority through current-registry fallback.
+ Check both versions; preserve exact purpose separation and negative selection,
+ authority-drift and alias cases. CI command profiles include explicit v2 checks.
++
++## Connector registration offline vectors
++
++`nbsr/connector_registration_offline.py` is a serialized offline CRP-1 model,
++not a runtime trust boundary. Its `OfflineDecision`, dependency invalidation and
++exporter callbacks are explicit fixtures; they cannot authenticate registration
++authority or revocation delivery. Action/message/profile/ALPN allocations remain
++unassigned. Keep registration lease limits separate from application-work policy.
++Use `tests/protocol/test_connector_registration_vectors.py` with the connector
++model/adapter neighbors above and `tests/protocol/test_cbor.py`. Check retained
++artifacts with `python scripts/generate_connector_registration_vectors.py --check`
++and `node scripts/verify_connector_registration_vectors.mjs` using provisioned
++runtimes. Current draft-2 artifacts are in
++`vectors/connector-registration-v1-counter/`; preserve the original package.
++The Node verifier checks bytes/transcripts/exporter derivation and independent
++counter/cache traces; Python executes lifecycle scenarios. Neither establishes live wire interoperability.
++The offline coordinator requires explicit timer polling and a read-only revision
++snapshot. Failed cleanup retains quota. Keep four completed results plus one
++pending operation separate from constant-size replay/current-acceptance state.
++Session-bound 64-bit operation counters start at one, never wrap and are separate
++from directional envelope sequences. Evicted counters never execute again;
++cache eviction and renewal must preserve ownership and independently bounded work.
++Proof revalidation must match both the challenge's authority revision and the
++current read-only revision. A stale challenge is consumed without changing an
++existing owner's lease; retry requires the next operation counter.
++The development Rust gateway also requires a positive authority revision before
++creating a challenge; equality between two zero fixture revisions is insufficient.
++Exhaustion does not imply reconnect or takeover. Two-service fixtures do not enable multiple live
++services. Preserve the historical proposal/review hashes when extending evidence.
++
++
++## Single-instance offline configuration
++
++`deploy/single-instance/validate_config.py` and its adjacent schema/example are
++an offline configuration gate only. Run the adjacent `test_validate_config.py`
++with the connector registration/model neighbors. Reuse provisioned Pydantic;
++never instantiate service Settings, merge environment defaults, open references
++or generate credentials during preflight. Keep client config origin-free,
++service-keyed entries limited to one, unknown/duplicate fields rejected and
++accepted registration bounds unchanged. Schema validation alone does not cover
++cross-role bindings or authorize origin DNS/traffic. Reference existence and
++provenance are later runtime/provisioning checks; CONFIG_VALID_OFFLINE is never
++READY. Input paths must be stable, local, materialized and free of links/reparse
++points; inspection is not a concurrent filesystem sandbox. See the adjacent
++README for exact limitations. On Windows use a fresh test-owned `--basetemp`
++under the writable temporary root when the default pytest temp is unavailable;
++never point it at existing user data. Preserve earlier evidence manifests.
++
++Gateway IDs in single-instance config are the approved canonical `text64`, not
++32-byte operator/service identities. Keep a config-example-to-actual-registration
++body regression; isolated config validation is insufficient. Preserve values
++unchanged across the boundary, with no hashing, truncation or normalization.
++
++## Connector development-only Go/Rust slice
++
++`interop/nbsr-go-peer/connector/` requires the `connector_development` build tag;
++Rust `connector_control.rs`, `connector_registration.rs` and `connector_cleanup.rs` compile only in their
++integration-test targets. The separate development registry/shared vectors do
++not alter frozen Core/Federation allocations or authorize live trust. Keep
++synthetic authority/exporter fixtures explicit, failed cleanup ownership visible,
++and production source pins unchanged. Focused commands and scope limits are in
++`interop/nbsr-go-peer/connector/README.md`; reuse verified caches under the existing
++supervisor/resource guards. Python package checks are in
++`tests/protocol/test_connector_development_vectors.py`; its generator supports
++`--check`. Shared decoding and in-memory tests do not establish live Go/Rust
++interoperability, cryptographic authority or Stage 3 closure.
++
++The development `CleanupPeer` adapter treats wait cancellation/timeout as
++unconfirmed cleanup, never released ownership. Backend completion callbacks
++must target their exact attempt; only serialized coordinator cleanup applies
++success. Failure requires explicit retry, with one outstanding close and no
++replacement before confirmation. This adds no application-work grace or real
++backend completion guarantee. Keep callback/wait tests deterministic without sleeps.
++
++Rust cleanup tickets remain retained by the exact connection when a wait future
++is dropped. Only serialized confirmation matching the current attempt, session
++and owner generation may release quota. Do not route synchronous close or expiry
++around an outstanding async ticket; failed confirmation requires explicit retry.
++Callback completion is synthetic evidence, not a real transport shutdown guarantee.
++
++The development Go coordinator retains an observed-time floor across injected
++clock reads. Backward/out-of-range time latches admission off; no later sample
++restores eligibility. Retain peer/owner until confirmed explicit cleanup, and
++test callback-time changes and lost-ACCEPT retries without real sleeps or keys.
++The test-only Rust gateway applies the same observed-time floor at attach/handle/
++poll. Invalid time retains all owned resources; direct cleanup and exact retained
++async confirmation must still work without resetting the clock/admission latch.
++
++The development loopback integration is explicitly opt-in: Rust
++`tests/connector_loopback.rs` is ignored by default and needs the prebuilt Go test
++worker described in `interop/nbsr-go-peer/connector/README.md`. Local sockets and
++temporary test PKI require task authorization. Keep both endpoints on IPv4 loopback,
++fixture keys in memory/private stdin, and authority/revocation fixtures labelled.
++Retain failed trials and verify child reap/socket release before confirming cleanup.
++Real TLS/exporter success does not establish signed registration authority, verified
++revocation delivery, real authority timers, application traffic or Stage 3 closure.
++
++## Offline signed registration fixtures
++
++`nbsr/connector_registration_authority_offline.py` verifies signed genesis fixtures
++only under explicit `connector-registration-development-v1` selection and an exact
++record/signer inventory. Action 24576 is fixture-scoped, not a global allocation.
++Run `tests/test_connector_registration_authority_offline.py` with the existing
++provisioned Python environment. Use public deterministic test-key material only;
++some older federation neighbors generate random keys, so exclude those tests when
++key generation is outside task authority. Exact exclusions are retained in the
++signed-authority review manifest. Preserve the monotonic observed logical-time
++floor through rejected expiry checks and revision changes. Inventory pins and
++freshness/denial inputs remain fixtures; receipt identity is instance-local, not
++a hostile-process trust boundary. No authenticated revocation producer, real
++timer or live coordinator/provider integration is established by these tests.
++
++## Offline authority timer fixtures
++
++`nbsr/connector_authority_timer_offline.py` attaches one explicitly polled
++scheduler to a mock model. Poll once per fixture step before operations: it
++samples the injected clock once and model operations use that snapshot until
++the next poll. The bounded event-ID inventory never evicts or resets denials;
++revision and exact owner/session/dependency checks are repeated at dispatch.
++Late dispatch anchors drain at effective time, not observation time. Registration
++expiry preserves admitted work under its independent authority/request/grace
++bounds. Run `tests/test_connector_authority_timer_offline.py` plus model/adapter,
++signed-authority, registration-vector, state/revocation/outage neighbors recorded
++in `docs/reviews/2026-10-10-connector-authority-timer.json`. Events remain explicitly
++simulated; no authenticated receipt, delivery, real timer or runtime trust follows.
++
++Offline registration current-revision callbacks must return exact positive
++integers; booleans and numeric lookalikes are not revision snapshots. Sample the
++callback once and reject invalid types before committing ownership.
++
++CI selects root connector/offline-config suites explicitly, Go fixtures with
++`connector_development`, and Rust connector targets with the live test ignored.
++The `connector-loopback` profile is an explicit manual workflow choice; it owns
++a temporary Go worker and directly supervises each command. Listing the profile
++does not run it. Local execution still needs socket/test-PKI authorization and
++the existing resource supervisor. Local passes do not establish hosted success.
++Gateway CI includes `tests/test_gateway_cli.py` with plan/profile/verify/journal
++neighbors. CLI subprocess success proves offline command contracts only, not
++SCM lifecycle, privileged routing installation or deployed rollback acceptance.
++
++The full-model connector signature prerequisite is test-only:
++`crates/nbsr-transport/src/connector_signature.rs` compiles in the
++`connector_signature` integration-test target, selected by the Rust CI profile.
++`python scripts/extract_connector_signature_fixtures.py --check` independently
++checks retained public signed bytes with the Python COSE primitive; it is selected
++by python-protocol CI and generates no keys or signatures. The native result
++proves signature/payload/kid binding only, not signer purpose, lifecycle, current
++authority, threshold acceptance or registration readiness. Keep all applicable
++controller/normal/emergency governance requirements; controller-only operation is
++not a fallback. The full acceptance matrix is
++`docs/reviews/2026-10-11-registration-full-model-acceptance.md`. Normal revocation
++3/5 must not reuse global-trust-v1 merely because its quorum matches: that named
++policy applies to trust-bundle replacement. No runtime registry flags or pinned
++source overlays change for this isolated test prerequisite.
+diff --git a/docs/CI.md b/docs/CI.md
+index 7a2d4c71..bc4d94aa 100644
+--- a/docs/CI.md
++++ b/docs/CI.md
+@@ -10,12 +10,12 @@ without installing a YAML parser.
+ 
+ | Job | Platforms | Checks |
+ | --- | --- | --- |
+-| Python | Ubuntu 24.04, Windows 2025 | Explicit runtime, gateway, security, admission and CI tests; `pip check` |
++| Python | Ubuntu 24.04, Windows 2025 | Explicit runtime, gateway, security, admission, connector model/authority/timer, offline config and CI tests; `pip check` |
+ | Python protocol | Ubuntu 24.04 | Protocol, vectors and federation tests except independent wire-peer builds; deterministic vector regeneration; privacy check; correctness lint |
+-| Rust | Ubuntu 24.04, Windows 2025 | Format, default library check, benchmark-feature library, handshake/credit/drain/config, frame codec, doc-tests, all-target Clippy |
+-| Go | Ubuntu 24.04, Windows 2025 | Test and vet all five modules, including the nested client demo and ISP adapter |
+-| Node and policy | Ubuntu 24.04 | Core/federation independent verifier tests and vectors, exporter vectors, OPA policy tests |
+-| Manual extended | Ubuntu 24.04 | All nonignored Rust integration tests, or the existing ignored replay-history soak |
++| Rust | Ubuntu 24.04, Windows 2025 | Format, default library check, benchmark-feature library, handshake/credit/drain/config, frame codec, connector integration targets (live ignored), doc-tests, all-target Clippy |
++| Go | Ubuntu 24.04, Windows 2025 | Test and vet all five modules, plus explicit `connector_development` test/vet in the interop module |
++| Node and policy | Ubuntu 24.04 | Core/federation independent verifier tests and vectors, exporter and connector registration vectors, OPA policy tests |
++| Manual extended | Ubuntu 24.04 | All nonignored Rust integration tests, existing ignored replay-history soak, or explicitly selected isolated connector loopback |
+ 
+ Python uses 3.13.14, Rust 1.97.1, Go 1.26.5 and Node 24.19.0. These are explicit
+ pins, not a claim of coverage for every version allowed by package metadata.
+@@ -73,7 +73,7 @@ python -m ruff check --no-cache scripts/ci tests/ci
+ ```
+ 
+ Profiles are `python-core`, `python-protocol`, `rust`, `go`, `node`,
+-`rust-extended` and `soak`. Local commands default to 90 seconds each; larger
++`rust-extended`, `connector-loopback` and `soak`. Local commands default to 90 seconds each; larger
+ timeouts are reserved for hosted CI. This runner does not install dependencies
+ or enforce the laptop's disk/RAM guards: local build/test supervision must still
+ follow `AGENTS.md`. Set the verified `CARGO_TARGET_DIR` and offline Go/Cargo
+@@ -100,6 +100,45 @@ workflow schema. Local Windows checks cannot establish Linux success. CI status
+ is pending until a published commit has actual workflow/check results; an empty
+ check list is not a pass.
+ 
++### Connector selection audit, October 11
++
++Before this local correction, `tests/protocol` already discovered both connector
++vector suites and `tests/federation` covered their existing neighbors. Four
++root-level connector suites and the adjacent offline config suite were omitted.
++Default Go `./...` excluded the build-tagged connector package. Quick Rust did
++not execute its new integration targets; manual `rust-extended` executed their
++nonignored tests but still ignored the live test. The Node connector verifier
++was also absent. Earlier local connector pass counts are not hosted CI results.
++
++The explicit selections above close these invocation gaps. The manual-only
++`connector-loopback` choice prebuilds Rust, builds a Go worker in a fresh owned
++temporary directory, and invokes exactly `isolated_go_rust_control_registration`.
++Each command is directly supervised with a 90-second execution timeout plus
++the existing bounded cleanup; this is not a 90-second cumulative job claim.
++The worker directory is removed on normal completion or command failure, and
++any prior worker environment value is restored. No wrapper launches a second
++supervision layer. Hosted cancellation still depends on runner teardown.
++
++The existing pinned Go version and module lockfiles are reused only when this
++manual choice is selected; no dependency versions, permissions, secrets, runner
++selection or branch safeguards change. The helper uses real loopback TLS with
++ephemeral in-memory test PKI and synthetic authority/revocation inputs. It does
++not establish live authority, real timers, application traffic or Stage 3 closure.
++Local use still requires explicit socket/test-PKI authorization, provisioned
++caches, and the laptop's cleanup-inclusive resource supervisor.
++
++Local Windows selection/security regressions and the exact loopback profile
++passed; hosted schema validation, Linux execution and the published matrix remain
++unrun for this change. See `docs/reviews/2026-10-11-connector-ci-selection.md`.
++
++The subsequent role/reuse audit adds the existing `tests/test_gateway_cli.py`
++to `python-core` on both platforms, alongside its four gateway library suites.
++Its seven tests exercise real CLI subprocesses for deterministic plans, unchanged
++inputs, verification exit codes, resolver-last rollback plans, bounded/redacted
++input rejection, explicit paths and the example profile. This is offline planning
++and simulated verification, not privileged installation, service startup or live
++rollback. See `docs/reviews/2026-10-11-gateway-cli-ci.md` and the role inventory.
++
+ ## Release boundary
+ 
+ Versioned binaries and Docker images, single-instance/Kubernetes installation,
+@@ -188,3 +227,14 @@ registry; v2 uses the already approved current registry. See
+ `docs/reviews/2026-10-10-federation-version-approval-scope.md` and its implementation
+ JSON for pins, exact verification and limits. Local success does not establish a
+ hosted pass; no publication or workflow security changes are part of this change.
++
++The Rust connector group also selects `--test connector_signature`, a test-only
++exact COSE signature prerequisite with retained public single/threshold signature
++inputs. The Python protocol group runs
++`python scripts/extract_connector_signature_fixtures.py --check`; extraction uses
++existing signed bytes and generates no keys or signatures. Neither check grants
++registration authority or establishes threshold/governance acceptance. The
++development registry remains runtime/live-trust disabled. See
++`docs/reviews/2026-10-11-registration-full-model-acceptance.md` for the complete
++security obligations and unresolved runtime gates. Local results are not hosted
++CI evidence.
+diff --git a/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md b/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+index a606fe98..5c465fac 100644
+--- a/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
++++ b/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+@@ -1,5 +1,161 @@
+ # Single-instance operator package implementation plan
+ 
++## Current milestone alignment — approved counter amendment, 2026-10-10
++
++This section supersedes earlier progress counts and stage-placement statements below;
++those records remain historical. The original ten stage boundaries are retained.
++**Stages 1 and 2 are complete within their contract/offline acceptance boundaries
++(2/10).** Ownership approval and the exact interface inventory close Stage 1.
++
++Current runtime decision checkpoint:
++`docs/reviews/2026-10-11-stage3-runtime-decision.md` maps Stage 3 acceptance to
++actual code and retained evidence. The development registry still disallows
++runtime/live-trust activation; the verified event producer remains a documented
++packaging boundary. Review the proposed provider contract before promoting
++fixture receipts or test-only coordinators into runtime authority. No new stage
++completion or implicit approval follows from the local loopback/CI passes.
++
++Full-model correction (user approved after pause/security review, 2026-10-11):
++`docs/reviews/2026-10-11-registration-provider-contract-proposal.md` supersedes the
++controller-only proposal. One operator does not remove applicable federation
++obligations. No fallback from threshold-required governance to controller authority
++is supported. Preserve controller, normal 3/5 and emergency 2/5 semantics and exact
++dependency governance; runtime registration remains unavailable until all applicable
++modes are authenticated and enforced. The full acceptance matrix is
++`docs/reviews/2026-10-11-registration-full-model-acceptance.md`. The implemented isolated
++slice checks native signatures under fixture trust, not live registration authority.
++Injected clock uncertainty and any 64-entry test inventory are test inputs only.
++Real provenance, safe restart, clock policy and runtime activation remain gated.
++
++Stage 2 supplies versioned one-service configuration and offline preflight, with
++459 scoped tests passing (101 configuration + 358 unchanged neighbors). See
++`docs/reviews/2026-10-10-gateway-text64-correction.md` for current evidence and
++limitations; the counter amendment report remains a historical checkpoint.
++
++| Stage | Deliverable and acceptance boundary | Depends on / current evidence |
++|---|---|---|
++| 1 | Freeze control/authority contract, Go/Rust ownership seam, gateway location and interface/vector inventory. | Offline profile, 103 CRP tests, 24 scenario mappings, independent bytes and 34 counter transitions exist. Ownership approved; exact interface/file inventory reconciled in the profile. |
++| 2 | Strict versioned configuration schema, secret-free example and side-effect-free preflight; reject ambiguous or unsafe config with zero DNS, dial, writes or credential creation. | 1; offline schema/preflight accepted after gateway text64 correction; 101 tests plus neighbors. References remain unverified; no readiness claim. |
++| 3 | Persistent authenticated outbound registration and destination gateway ownership; two control exchanges without reconnect, one accepted owner, no premature READY. | Partial: development codecs/coordinators and isolated Go/Quinn TLS/exporter loopback exist, with signed-authority and timer fixtures plus CI selection. Real authority/revocation-provider composition and runtime timer delivery remain open; fixture conformance does not close this gate. |
++| 4 | Reconnect, lease, revocation and resource bounds under disconnect/backpressure; confirmed cleanup or visible failed ownership. | 3; offline model evidence is a reference, not runtime acceptance. |
++| 5 | Relay one authorized GET / flow to one private origin, preserving existing 4096-byte limits and zero origin traffic for rejected requests. | 2–4; no arbitrary HTTP or multi-service expansion. |
++| 6 | Compose local client, authority and destination runtimes with explicit enrollment, configured trust, real clock and truthful readiness. | 2–5; fixture providers remain labelled. Real provider installation is Stage 9. |
++| 7 | Docker packaging, startup supervision, bounded shutdown and redacted diagnostics using approved cached inputs. | 6; image/build/start authorization remains separate. Proposed packaging deadlines need validation here. |
++| 8 | Reproducible local acceptance and runbook: two start/request/stop cycles, negative matrix, rollback and zero owned residuals. Finish A. | 7; affected CI and authorized Docker smoke required. |
++| 9 | Real identity/provisioning and pilot installation, persistent signer custody, rotation/recovery and renewed Stage 8 acceptance. | 8 plus provider decisions and machine authorization. |
++| 10 | One bounded customer pilot with exact host, service, trust, limits, abort owner and rollback approved before traffic. Finish B. | 9; operator acceptance and retained failures required. |
++
++### Explicit final security-audit gate (user approved, 2026-10-11)
++
++Once local plug-and-play is functional, complete a comprehensive security scan
++before any real pilot. Validate findings against reachable behavior and the threat
++model; fix verified issues, retest and obtain independent review before proceeding.
++Ongoing focused security checks continue during implementation. This gate does not
++promise zero vulnerabilities or authorize a pilot, deployment, credentials or
++security-setting changes. Retain findings, dispositions and validation limitations.
++
++### Approved Stage 1 decision: component ownership
++
++October 11 reconciliation: stages 1–2 remain complete within their offline
++acceptance boundaries; Stage 3 remains partial and stages 4–10 have no new
++acceptance evidence. The bounded positive-revision correction is recorded in
++`docs/reviews/2026-10-11-connector-zero-revision.md`. Earlier stage counts and
++no-loopback statements below remain historical. All subsequent connector work
++is local and uncommitted; the published HEAD does not contain these additions.
++
++The original Stage 1 requirement is: “Select the narrow Go/Rust ownership seam
++and gateway location.” Earlier text deferring that selection to Stage 3 is
++superseded. Selecting it is a contract decision; implementing it is Stage 3.
++
++**Approved by the user:** the Rust/Quinn destination gateway owns the
++service-keyed registration table, serialized authority-revision commit check,
++accepted handles, quota/dependency ownership and transport cleanup. The Go
++origin connector owns outbound attempts, retry/correlation and renewal through
++narrow injected transport and authority interfaces. Python remains an offline
++reference oracle. The gateway is the logical destination role; its configured
++endpoint belongs to Stage 2 and packaging/deployment to Stages 7 and 10. This
++introduces no additional gateway daemon or Go internal-package import bypass.
++
++The user approved this division and proceeding to Stage 2. The exact inventory
++in `docs/protocol/connector-outbound-profile.md` is synchronized with the existing
++offline oracle and selected future Go/Rust implementation/test files. Stage 1's
++contract gate is closed; this does not assert live authenticated registration.
++Real producers, clocks, cleanup workers and transport integration remain later
++runtime gates. Registry/carrier allocation remains an explicit reviewed pre-wire
++gate before Stage 3 activation; offline UNALLOCATED values are never wire IDs.
++Publication remains optional and separately authorized, outside the ten stages.
++
++### Verified reuse map, October 11
++
++The Go device client already has identity/storage, resolution, flow/session and
++proxy libraries with tests. Its test-only Windows SCM gate and retained DPAPI
++restart evidence must be reused; they do not establish a complete installed
++demo-client service. Existing Rust destination admission/session/channel owners,
++Python Name/control-plane services, demo authority/client, gateway planning,
++Kubernetes manifests and ISP adapter also remain reuse candidates. “Server” is
++not a new role allocation: distinguish Name/control-plane authority from the
++destination Edge transport and the customer-network origin connector.
++
++See `docs/reviews/2026-10-11-role-reuse-ci-inventory.md` for source-backed roles
++and stage-specific acceptance gaps. Ordinary Go CI selects unit tests but does
++not run SCM installation/restarts; the existing full Task 4 secure-route process
++test skips without its three explicit environment inputs, which current CI does
++not provision. Deployment manifests and simulated gateway checks are not live
++Kubernetes/ISP/cloud acceptance. This clarification changes no approved stage
++boundary, trust allocation, deployment selection or completion count.
++
++The authorized CI follow-on selects the existing seven offline gateway CLI
++tests alongside their library neighbors. Local 65-test gateway and 24-test CI
++scopes pass; hosted execution remains unrun. This strengthens reusable planning
++tool coverage without marking installed startup/rollback or a future stage
++complete. Evidence: `docs/reviews/2026-10-11-gateway-cli-ci.md`.
++
++### Approved development-only Stage 3 slice
++
++Subsequent approval selects `connector-registration-development-v1`, ALPN
++`nbsr-connector-dev-1`, independent connector envelope version 1, six messages
++24576..24581 and connector-local register/renew action 24576. This is a separate
++development registry/package, not a Core/Federation authority change. See
++`interop/nbsr-go-peer/connector/README.md` and
++`docs/reviews/2026-10-10-connector-development.md`. The Go development package
++uses the existing interop module's strict internal CBOR codec; production client
++integration remains future work. Rust modules compile only inside new integration
++tests. Stages 1-2 remain 2/10 complete; fixture success does not close Stage 3.
++The subsequent Go callback adapter and Rust cleanup-ticket composition preserve
++ownership across cancelled waits and require exact confirmation before release.
++See `docs/reviews/2026-10-10-connector-stage3-code-checkpoint.md` for the consolidated
++code-only inventory. Actual backend termination and live provider bindings remain
++unimplemented; no new timeout or active-work grace policy has been selected.
++
++The later explicitly authorized loopback slice now tests the existing coordinators
++over real Go/Quinn TLS with temporary isolated Ed25519 certificates and confirmed
++endpoint cleanup. See `docs/reviews/2026-10-10-connector-loopback.md`. Registration
++authority, revocation events and authority time remain fixtures; signed provider
++integration and real authority timers remain Stage 3 gates. No origin traffic,
++runtime installation or additional stage completion follows from this test.
++
++The subsequent offline signed-authority adapter verifies genesis COSE fixture
++records against explicit signer/digest inventories and registration-only action
++24576 in the selected development profile. Its current receipt binds request,
++peer, session and revision; monotonic logical time prevents expiry resurrection.
++See `docs/reviews/2026-10-10-connector-signed-authority.md` for 444 passing scoped
++tests, five explicit exclusions, failures and independent review. This has no
++live coordinator integration, authenticated revocation receipt or real timers.
++Stage 3 remains partial and stages 1-2 remain 2/10 complete.
++
++The authorized offline timer slice now composes labelled test events with the
++existing mock model, without new lifetime policy. One sampled injected time per
++explicit poll drives effective-time dispatch, expiry and non-restarting drain;
++stale owner/session/revision and unrelated dependencies are isolated. See
++`docs/reviews/2026-10-10-connector-authority-timer.md` for 432 scoped passing tests
++and retained review regressions. Signed-fixture verification and timer behavior
++can now be exercised offline. They are not a verified revocation producer or a
++Go/Rust runtime provider. Real receipt production still requires the unfrozen
++packaging/threshold boundary to be approved; any live clocks/providers/network
++validation also needs explicit scope authority. Further pure fixture composition
++does not itself require a new protocol/lifetime decision.
++
++
+ > **For agentic workers:** Use `superpowers:executing-plans` to implement one
+ > approved, bounded task at a time. This is a proposed plan, not approval of new
+ > protocol semantics, platform identity design, credentials or publication.
+@@ -461,18 +617,26 @@ their applicable explicit authorization. The roadmap itself adds none of these.
+ 
+ ### 1. Freeze the outbound control and authorization contract
+ 
+-**Depends on:** current evidence; **status:** partial: approved mock-only model
+-implemented and reviewed; protocol design decisions remain open.
+-Review draft now exists at `docs/protocol/connector-outbound-profile.md`.
+-It includes 16 planned acceptance cases and explicit unresolved failure-state,
+-identity, wire, time/lease and ownership decisions. It is not an approved profile
+-or completed milestone; executable vectors and runtime implementation remain pending.
+-The isolated model now has 72 passing tests plus 13 frozen-state and 24 federation
+-revocation neighbor tests (109 total); see
+-`docs/reviews/2026-10-10-connector-active-work.md`. The earlier 49-test checkpoint
+-remains in `docs/reviews/2026-10-10-connector-control-model.md`. These are partial model
+-coverage of the 16 cases, not real authentication, asynchronous I/O or deployment
+-acceptance. The 0/10 completed-package-milestone count remains unchanged.
++**Depends on:** current evidence; **status:** offline contract acceptance complete.
++Current profile/interface inventory and draft-2 manifest are reconciled with the
++approved ownership boundary. The current 103 CRP tests and 34 independent counter
++transitions supplement the existing model/federation checks; no runtime claim.
++
++Historical early checkpoint (superseded, retained for traceability):
++
++> **Depends on:** current evidence; **status:** partial: approved mock-only model
++> implemented and reviewed; protocol design decisions remain open.
++> Review draft now exists at `docs/protocol/connector-outbound-profile.md`.
++> It includes 16 planned acceptance cases and explicit unresolved failure-state,
++> identity, wire, time/lease and ownership decisions. It is not an approved profile
++> or completed milestone; executable vectors and runtime implementation remain pending.
++> The isolated model now has 72 passing tests plus 13 frozen-state and 24 federation
++> revocation neighbor tests (109 total); see
++> `docs/reviews/2026-10-10-connector-active-work.md`. The earlier 49-test checkpoint
++> remains in `docs/reviews/2026-10-10-connector-control-model.md`. These are partial model
++> coverage of the 16 cases, not real authentication, asynchronous I/O or deployment
++> acceptance. The 0/10 completed-package-milestone count remains unchanged.
++
+ Reuse V3.6, frozen connector states and OriginSet delegation rules. Produce
+ `docs/protocol/connector-outbound-profile.md` plus a vector/test manifest naming
+ the exact proposed control artifacts before runtime edits. Resolve connector
+@@ -482,29 +646,43 @@ finite retry/queue/drain limits. Select the narrow Go/Rust ownership seam and
+ gateway location. New Core IDs, ALPN, state edges or pinned-source authority
+ changes need explicit versioned protocol review; do not invent them in code.
+ 
+-- [ ] Review one success transcript and wrong peer/service, expired/revoked
++- [x] Review one success transcript and wrong peer/service, expired/revoked
+   delegation, stale generation and duplicate-registration vectors. Each must
+   have an unambiguous accept/reject and ownership outcome.
+-- [ ] Approve the profile and exact interface/vector inventory. TLS possession
++- [x] Approve the profile and exact interface/vector inventory. TLS possession
+   alone must never imply service publication; destination admission stays
+   independent. This is the first material-design approval gate.
+ 
++Stage 1 closure is the approved offline contract and reviewed fixture inventory,
++not authenticated live registration, allocated wire IDs or runtime conformance.
++
+ ### 2. Establish safe configuration and side-effect-free preflight
+ 
+-**Depends on:** 1; **status:** planned. Create the previously proposed
++**Depends on:** 1; **status:** offline acceptance complete. Implemented
+ `deploy/single-instance/config.schema.json`, `validate_config.py`,
+ `test_validate_config.py` and a secret-free example. Separate client, gateway and
+ origin-side fields; consume approved identity/trust references and finite limits.
+ Version the schema. Normal startup never invents keys, authority, default
+-passwords or enrollment permission. Local harness test material must be supplied
+-explicitly and rejected by the future pilot mode.
++passwords or enrollment permission. Named references are supplied explicitly; no referenced contents are read.
++The example is illustrative, and this validator rejects pilot mode entirely.
+ 
+-- [ ] Test duplicate/unknown/missing keys, invalid scope/limit/target, absent
++- [x] Test duplicate/unknown/missing keys, invalid scope/limit/target, absent
+   secret reference and unsupported schema. Assert zero DNS, dial, write,
+   credential creation and container startup during check-config.
+-- [ ] Accept a valid sample without exposing secret contents. Client config has
++- [x] Accept a valid sample without exposing secret contents. Client config has
+   no private-origin endpoint. Configuration validity is not live readiness.
+ 
++The CLI accepts only stable, materialized local regular files and never follows
++links/reparse/recall paths. It does not provide an atomic sandbox against concurrent
++parent replacement; non-Windows callers must ensure a local filesystem. Structural
++schema checks plus Python semantic checks are required. Reference existence,
++authenticity and runtime binding are later gates. Origin hostnames are not resolved
++or authorized here. No Stage 3 work has been implemented by this acceptance.
++The original 420-test closure missed gateway identifier representation: its hex
++example failed the approved REQUEST validator. The focused correction now uses
++canonical text64 unchanged in all roles, with a cross-contract regression. Stage
++2 closure is restored for its offline scope; prior reports remain historical.
++
+ ### 3. Implement persistent outbound registration and gateway ownership
+ 
+ **Depends on:** 1–2; **status:** planned. Reuse QUIC/TLS, proof and framing
+@@ -690,3 +868,96 @@ Historical patch numbering, child-connector topology and stale CI blocker are
+ explicitly superseded above. Milestone 8 permits labelled supplied test identity;
+ milestone 10 requires verified real providers. Optional publication is outside
+ the count. No runtime tests or deployment were performed for this roadmap edit.
++
++
++### Local lifetime correction after publication
++
++The historical Permission.expires gap described above is now corrected in the
++mock: separate admission/active bounds, explicit finite profile-labelled grace,
++and same-owner work renewal without replay. The removed lease_bounds_active
++switch is historical test evidence, not a remaining real-policy choice.
++125 local tests pass; see docs/reviews/2026-10-10-connector-lifetime-separation.md.
++This patch remains uncommitted and is distinct from published c7abbc44's seven
++successful CI jobs (run 38067741432). Stage 1 remains partial, 0/10 complete.
++Real connector proof/purpose/credential mapping, profile provenance, outage-event
++classification and runtime integration remain open. No next stage is authorized
++by a passing mock test; no publication is included in this local iteration.
++
++
++### Offline adapter follow-up
++
++The next bounded stage-1 adapter slice is implemented locally: existing bilateral
++COSE/authorization evidence feeds a one-owner fixture; existing federation outage
++results gate new use separately from active work. Fresh exact-context recovery,
++finite drain, dependency-scoped simulated incidents and failed cleanup are tested.
++174 local tests pass with independent review clear; see
++`docs/reviews/2026-10-10-connector-federation-adapter.md`. This remains uncommitted,
++not a runtime connector authority implementation. Real identity/role mapping,
++profile provenance, authenticated event delivery and shared ownership are still
++required. Stage 1 remains partial; 0/10 complete. No next stage or publication.
++
++
++Stage-1 review checkpoint: 13 additional mock tests now pass, 187 total; no model
++code change. See `docs/reviews/2026-10-10-connector-stage1-checkpoint.md` for exact
++coverage and the five remaining runtime/specification bindings. 174-test baseline
++evidence is retained. Stage 1 partial, 0/10 complete; no next task or publication.
++
++
++### Concrete CRP-1 proposal delivered for stage-1 review
++
++The CRP-1 section in `docs/protocol/connector-outbound-profile.md` now specifies
++candidate closed message bodies, exact exporter domain/context, live ownership,
++correlation/idempotency, bounded leases and categorized deadline provenance,
++verified-event dispatch boundary, errors, stream roles and proposed interfaces/files.
++`docs/protocol/connector-registration-v1-vector-proposal.json` enumerates 24 finite
++cases; it is a design inventory, not generated/verified wire conformance evidence.
++Registration action, carrier/message IDs and any needed ALPN remain unallocated;
++no registry or frozen authority changed. This is the concrete draft for approval,
++not another request to prepare it later.
++
++User direction accepts one service first with extensibility. Configuration and
++core owner/quota/dependency operations are service-keyed; the outer first-slice
++limit is one enabled service. A second-service pure-fixture criterion proves
++isolation without enabling multi-service runtime or adding a plugin framework.
++Unknown wire changes reject; changed fields/rights/proof semantics need a new
++reviewed profile version. Existing service bytes remain stable when capacity is
++expanded through separately approved configuration/capability work.
++
++Decisions D1-D3 cover exact delegated right plus restrictive key pin, dedicated
++exporter/correlation and one-owner failure handling, and explicit bounded profile
++limits. Narrow direction approval is not numeric allocation or protocol activation.
++Stage-1 final acceptance still requires those exact decisions, allocation review,
++executable success/negative vectors and independent conformance checks. Current
++187-test evidence remains unchanged; stage 1 partial, 0/10 complete. Runtime is
++stage 3 and later; no implementation, credentials, commit or push in this draft.
++
++### Approved offline CRP-1 execution checkpoint
++
++The subsequent user approval covers D1-D3 offline specification/vector work only.
++The CRP-1 pure coordinator/codec and a 24-scenario executable mapping now exist at
++`nbsr/connector_registration_offline.py` and
++`vectors/connector-registration-v1/manifest.json`. Final focused/neighbor result:
++338 passed, zero failed/skipped, including a fresh rerun of the previous 187-test
++scope. Node independently validates retained byte/transcript/exporter fixtures;
++it does not independently execute the Python lifecycle scenarios.
++
++The original proposal and earlier evidence are historical, not overwritten.
++Service-keyed pins, ownership and dependency isolation remain explicit. No
++registration lease is applied as a universal application/download timeout.
++The offline four-operation no-eviction bound exposes an unresolved long-lived
++replay-retention decision; it is not a new production reconnect policy. Registry
++allocations, authenticated registration/event producers, production policy and
++final stateful/wire conformance remain gates. Stage 1 partial; 0/10 complete.
++See `docs/reviews/2026-10-10-connector-registration-offline.md` and `.json` for
++failed regressions, reviewed fixes, exact source/artifact hashes and validation
++limits. No live trust, networking, credentials, deployment, commit or push.
++
++### October 11 reviewed local checkpoint
++
++Five offline/development fixes and a fresh 19-case Go/Rust loopback pass are
++recorded in `docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md`. Latest scoped
++results are Python 436 passes, Go 28 top-level passes, and Rust 23 passes plus
++one default live ignore. Explicit live execution passed all 19 cases, with child
++reap and UDP cleanup confirmed. This supersedes the earlier no-rerun checkpoint
++for current-source loopback evidence only; historical records remain unchanged.
++Stage 3 remains partial, with real authority/revocation and timers unproven.
+diff --git a/scripts/ci/check.py b/scripts/ci/check.py
+index 3d023f29..b8592863 100644
+--- a/scripts/ci/check.py
++++ b/scripts/ci/check.py
+@@ -10,6 +10,7 @@ import re
+ import signal
+ import subprocess
+ import sys
++import tempfile
+ 
+ ROOT = Path(__file__).resolve().parents[2]
+ GO_MODULES = (
+@@ -21,9 +22,11 @@ CORE_TESTS = (
+     "test_name_registry", "test_name_relay", "test_name_security", "test_originset",
+     "test_resolution_state", "test_route_registry", "test_secure_files", "test_security",
+     "test_service_tls", "test_services", "test_synthetic", "test_verifier",
+-    "test_gateway_plan", "test_gateway_profile", "test_gateway_verify", "test_gateway_journal",
++    "test_gateway_plan", "test_gateway_profile", "test_gateway_verify", "test_gateway_journal", "test_gateway_cli",
+     "test_wp6_continuity_state", "test_wp6_failover", "test_wp6_replication",
+     "test_wp7_admission", "test_wp7_limits", "test_wp7_operator_model", "test_wp7_review_fixes",
++    "test_connector_control_model", "test_connector_federation_model",
++    "test_connector_registration_authority_offline", "test_connector_authority_timer_offline",
+ )
+ 
+ 
+@@ -40,7 +43,8 @@ def command_groups(profile: str) -> list[Command]:
+              "--features", "benchmark-harness", "--jobs", "2")
+     if profile == "python-core":
+         return [Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
+-                                       *(f"tests/{name}.py" for name in CORE_TESTS))),
++                                       *(f"tests/{name}.py" for name in CORE_TESTS),
++                                       "deploy/single-instance/test_validate_config.py")),
+                 Command("python-dependencies", (py, "-m", "pip", "check"))]
+     if profile == "python-protocol":
+         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+@@ -53,6 +57,7 @@ def command_groups(profile: str) -> list[Command]:
+                 Command("repository-privacy", (py, "scripts/verify_wp8_repository_safety.py", "privacy", ".")),
+                 Command("core-vectors", (py, "scripts/generate_core_v02_vectors.py", "--check", "vectors/core-v0.2")),
+                 Command("federation-v2-vectors", (py, "scripts/generate_federation_v01_vectors.py", "--version", "federation-v0.1-development-v2", "--check", "vectors/federation-v0.1-development-v2")),
++                Command("connector-signature-fixtures", (py, "scripts/extract_connector_signature_fixtures.py", "--check")),
+                 Command("exporter-vectors", (py, "scripts/generate_wp4_exporter_vectors.py", "--check"))]
+     if profile == "rust":
+         return [Command("rust-format", ("cargo", "fmt", "--manifest-path", "crates/nbsr-transport/Cargo.toml", "--check")),
+@@ -62,10 +67,19 @@ def command_groups(profile: str) -> list[Command]:
+                 Command("rust-transport", cargo + tuple(part for name in ("handshake", "stream_credit_integration", "drain", "config")
+                                                         for part in ("--test", name))),
+                 Command("rust-codec", cargo + ("--test", "p2a_benchmark", "frame")),
++                Command("rust-connector", cargo + ("--test", "connector_control", "--test", "connector_registration",
++                                                   "--test", "connector_loopback", "--test", "connector_signature")),
+                 Command("rust-doc", cargo + ("--doc",)),
+                 Command("rust-clippy", ("cargo", "clippy", *cargo[2:], "--all-targets", "--", "-D", "warnings"))]
+     if profile == "rust-extended":
+         return [Command("rust-extended", cargo + ("--tests",))]
++    if profile == "connector-loopback":
++        return [Command("connector-loopback-build", cargo + ("--test", "connector_loopback", "--no-run")),
++                Command("connector-worker-build", ("go", "test", "-mod=readonly", "-p=2", "-tags", "connector_development",
++                                                    "-c", "-o", os.environ.get("NBSR_CONNECTOR_GO_TEST", "<task-owned-worker>"),
++                                                    "./connector"), "interop/nbsr-go-peer"),
++                Command("connector-loopback", cargo + ("--test", "connector_loopback", "isolated_go_rust_control_registration",
++                                                       "--", "--ignored", "--exact", "--nocapture"))]
+     if profile == "soak":
+         return [Command("rust-soak", cargo + ("--lib", "channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand",
+                                              "--", "--ignored", "--exact", "--test-threads=1"))]
+@@ -73,9 +87,13 @@ def command_groups(profile: str) -> list[Command]:
+         return [Command(f"go-{index}-{kind}", ("go", kind, "-mod=readonly", "-p=2",
+                                                *(("-timeout=90s", "-parallel=2", "./...") if kind == "test" else ("./...",))), module)
+                 for index, module in enumerate(GO_MODULES) for kind in ("test", "vet")] + [
++                    Command(f"go-connector-{kind}", ("go", kind, "-mod=readonly", "-p=2", "-tags", "connector_development",
++                                                    *(("-timeout=90s", "-parallel=2", "-count=1") if kind == "test" else ()),
++                                                    "./connector"), "interop/nbsr-go-peer") for kind in ("test", "vet")] + [
+                     Command("go-federation-v2", ("go", "run", "-mod=readonly", "-p=2", "./cmd/verify", "--version", "federation-v0.1-development-v2", "../../vectors/federation-v0.1-development-v2"), "verifiers/federation-go")]
+     if profile == "node":
+-        return [Command("node-core-tests", ("node", "--test", "test/verifier.test.mjs"), "tools/core-v02-node-verifier"),
++        return [Command("node-connector-vectors", ("node", "scripts/verify_connector_registration_vectors.mjs")),
++                Command("node-core-tests", ("node", "--test", "test/verifier.test.mjs"), "tools/core-v02-node-verifier"),
+                 Command("node-core-vectors", ("node", "verify.mjs", "../../vectors/core-v0.2"), "tools/core-v02-node-verifier"),
+                 Command("node-federation-tests", ("node", "--test", *(str(p.relative_to(ROOT / "verifiers/federation-node")) for p in sorted((ROOT / "verifiers/federation-node/test").glob("*.test.js")))), "verifiers/federation-node"),
+                 Command("node-federation-vectors", ("node", "src/verifier.js", "../../vectors/federation-v0.1"), "verifiers/federation-node"),
+@@ -145,7 +163,8 @@ def validate_workflow(workflow: dict) -> None:
+ 
+ def main() -> int:
+     parser = argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument("profile", choices=("python-core", "python-protocol", "rust", "go", "node", "rust-extended", "soak", "validate"))
++    parser.add_argument("profile", choices=("python-core", "python-protocol", "rust", "go", "node", "rust-extended",
++                                           "connector-loopback", "soak", "validate"))
+     parser.add_argument("--timeout", type=int, default=90)
+     parser.add_argument("--list", action="store_true")
+     args = parser.parse_args()
+@@ -164,17 +183,33 @@ def main() -> int:
+             print(cmd.name, cmd.cwd, *cmd.argv)
+         return 0
+     os.environ.update(CARGO_BUILD_JOBS="2", RUST_TEST_THREADS="2", GOFLAGS="-mod=readonly -p=2", GOMAXPROCS="2", GOTOOLCHAIN="local")
++    if args.profile == "connector-loopback":
++        previous = os.environ.get("NBSR_CONNECTOR_GO_TEST")
++        with tempfile.TemporaryDirectory(prefix="nbsr-connector-ci-") as directory:
++            try:
++                os.environ["NBSR_CONNECTOR_GO_TEST"] = str(Path(directory) / ("worker.exe" if os.name == "nt" else "worker"))
++                return execute_profile(args.profile, args.timeout)
++            finally:
++                if previous is None:
++                    os.environ.pop("NBSR_CONNECTOR_GO_TEST", None)
++                else:
++                    os.environ["NBSR_CONNECTOR_GO_TEST"] = previous
++    return execute_profile(args.profile, args.timeout)
++
++
++def execute_profile(profile: str, seconds: int) -> int:
++    commands = command_groups(profile)
+     results = []
+     destination = ROOT / "ci-results"
+     destination.mkdir(exist_ok=True)
+     for cmd in commands:
+         print(f"Running {cmd.name}", flush=True)
+         try:
+-            result = run_command(cmd.name, cmd.argv, ROOT / cmd.cwd, args.timeout)
++            result = run_command(cmd.name, cmd.argv, ROOT / cmd.cwd, seconds)
+         except (OSError, subprocess.SubprocessError):
+             result = {"check": cmd.name, "exit_code": 125, "timed_out": False}
+         results.append(result)
+-        (destination / f"{args.profile}.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
++        (destination / f"{profile}.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
+         if result["exit_code"]:
+             return 1
+     return 0
+diff --git a/tests/ci/test_ci.py b/tests/ci/test_ci.py
+index b8444017..0a006b34 100644
+--- a/tests/ci/test_ci.py
++++ b/tests/ci/test_ci.py
+@@ -14,7 +14,7 @@ def test_quick_profiles_are_bounded_and_do_not_run_ignored_soak():
+         commands = command_groups(profile)
+         assert commands
+         assert all("--ignored" not in cmd.argv for cmd in commands)
+-    assert len([cmd for cmd in command_groups("go") if cmd.name.endswith("test")]) == 5
++    assert len([cmd for cmd in command_groups("go") if cmd.name.endswith("test")]) == 6
+     assert "--ignored" in command_groups("soak")[0].argv
+ 
+ 
+@@ -151,3 +151,77 @@ def test_federation_v2_commands_opt_in_explicitly():
+         index = command.argv.index("--version")
+         assert command.argv[index + 1] == "federation-v0.1-development-v2"
+         assert command.argv[-1].endswith("vectors/federation-v0.1-development-v2")
++
++
++def test_connector_offline_suites_are_selected():
++    core = command_groups("python-core")[0].argv
++    for name in ("control_model", "federation_model", "registration_authority_offline", "authority_timer_offline"):
++        assert f"tests/test_connector_{name}.py" in core
++    assert "deploy/single-instance/test_validate_config.py" in core
++    rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
++    for target in ("connector_control", "connector_registration", "connector_loopback"):
++        assert target in rust.argv
++    for kind in ("test", "vet"):
++        go = next(c for c in command_groups("go") if c.name == f"go-connector-{kind}")
++        assert "connector_development" in go.argv and "./connector" in go.argv
++    assert any("scripts/verify_connector_registration_vectors.mjs" in c.argv for c in command_groups("node"))
++
++
++def test_gateway_cli_process_contract_is_selected_with_its_neighbors():
++    core = command_groups("python-core")[0].argv
++    for name in ("cli", "plan", "profile", "verify", "journal"):
++        assert core.count(f"tests/test_gateway_{name}.py") == 1
++
++
++def test_native_signature_slice_and_python_oracle_are_selected_without_activation():
++    rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
++    assert rust.argv.count("connector_signature") == 1
++    oracle = next(c for c in command_groups("python-protocol") if c.name == "connector-signature-fixtures")
++    assert oracle.argv[1:] == ("scripts/extract_connector_signature_fixtures.py", "--check")
++    registry = json.loads(Path("docs/protocol/registries/connector-registration-development-v1.json").read_text())
++    assert registry["runtime_authorized"] is False
++    assert registry["live_trust_authorized"] is False
++
++
++def test_connector_loopback_is_manual_and_prebuilt():
++    commands = command_groups("connector-loopback")
++    assert "--no-run" in commands[0].argv
++    assert "-c" in commands[1].argv
++    assert "--ignored" in commands[2].argv and "--exact" in commands[2].argv
++    workflow = json.loads(Path(".github/workflows/extended.yml").read_text())
++    assert "connector-loopback" in workflow["on"]["workflow_dispatch"]["inputs"]["suite"]["options"]
++    steps = workflow["jobs"]["extended"]["steps"]
++    setup = next(s for s in steps if s.get("uses", "").startswith("actions/setup-go@"))
++    assert setup["if"] == "inputs.suite == 'connector-loopback'"
++    assert setup["with"]["go-version"] == "1.26.5"
++
++
++@pytest.mark.parametrize("build_code,live_code", [(7, 0), (0, 124), (0, 0)])
++def test_loopback_worker_is_owned_and_environment_restored(monkeypatch, tmp_path, build_code, live_code):
++    from scripts.ci import check
++
++    calls = []
++    monkeypatch.setattr(check.tempfile, "tempdir", str(tmp_path.resolve()))
++    monkeypatch.setattr(check, "ROOT", tmp_path)
++    monkeypatch.setattr(sys, "argv", ["check.py", "connector-loopback"])
++    monkeypatch.setenv("NBSR_CONNECTOR_GO_TEST", "prior-worker")
++
++    def run(name, argv, cwd, seconds):
++        calls.append((name, argv, seconds))
++        if name == "connector-loopback-build":
++            return {"exit_code": 0}
++        if name == "connector-worker-build":
++            worker = Path(argv[argv.index("-o") + 1])
++            worker.write_text("synthetic worker")
++            return {"exit_code": build_code}
++        assert Path(os.environ["NBSR_CONNECTOR_GO_TEST"]).exists()
++        assert "--exact" in argv and "--ignored" in argv
++        return {"exit_code": live_code}
++
++    monkeypatch.setattr(check, "run_command", run)
++    assert check.main() == int(bool(build_code or live_code))
++    assert len(calls) == (2 if build_code else 3)
++    assert os.environ["NBSR_CONNECTOR_GO_TEST"] == "prior-worker"
++    worker = Path(calls[1][1][calls[1][1].index("-o") + 1])
++    assert not worker.parent.exists()
++    assert all(c[2] == 90 for c in calls)

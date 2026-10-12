@@ -1,0 +1,30 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-go-retained-build",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "-c",
+    "-o",
+    "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-stage3-connector-final.test.exe"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 1.63,
+  "disk_start": 12084760576,
+  "disk_end": 12079538176,
+  "ram_end": 4494774272,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "7e1c88b7352c757e65708a44251cb2e2c6d772f82569c93c313e2ff283d463e4",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

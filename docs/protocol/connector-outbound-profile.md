@@ -1,9 +1,52 @@
 # Outbound connector control profile — stage 1 review draft
 
-**Status: PROPOSED protocol; approved mock-only slice implemented, runtime NOT implemented.** This document defines a
+## Current status — counter amendment
+
+D1–D3 and the session-bound counter amendment are approved for the offline
+profile only. Draft 2 is implemented in `nbsr/connector_registration_offline.py`;
+current artifacts are in `vectors/connector-registration-v1-counter/`. The old
+package and earlier progress sections are historical snapshots. A subsequently
+approved separate development registry now assigns the code-only fixture profile
+`connector-registration-development-v1`, ALPN `nbsr-connector-dev-1`, independent
+envelope version 1, messages 24576..24581 and connector-local register/renew action
+24576. See `registries/connector-registration-development-v1.json` and
+`../../interop/nbsr-go-peer/connector/README.md`. Production allocations and live
+authenticated transport/authority remain unimplemented. The approved Stage 1
+ownership selection and corrected stage boundaries are at the top of
+`docs/superpowers/plans/2026-10-10-single-instance-operator-package.md`.
+
+A request ID is exactly 16 bytes: the first eight session-ID bytes followed by
+an unsigned big-endian 64-bit operation counter. Counters start at one, increase
+by exactly one for new operations, and never wrap. Full session, peer, service
+and profile binding remains mandatory; the prefix is not authentication.
+Operation counters are independent of each direction's envelope sequence.
+
+Keep at most four completed outcomes and one pending operation, plus constant-size
+high-water/current-acceptance state. A structurally valid, session-bound new
+operation consumes its counter before authority validation; a request rejected
+because another operation is pending does not consume the next counter. Exact
+retained retries preserve original body, challenge and deadline. Changed bodies,
+skipped counters, wrong prefixes and evicted counters reject without execution.
+Retained success is returned only while its original eligibility remains valid.
+All pending-clear paths enforce the four-result bound. Eviction never withdraws
+an owner or separately admitted work; current acceptance digest survives eviction
+so subsequent renewal remains possible. Successful renewal does not extend an
+independently bounded work deadline. Exhaustion fails closed, with no implicit
+wrap, reconnect or takeover policy.
+
+Independent Node validation covers canonical bytes/exporter derivation and 34
+counter/cache transitions, not all authenticated lifecycle or live-wire behavior.
+The previous interface paragraph deferring production component selection to
+Stage 3 is superseded: choose ownership in Stage 1, implement it in Stage 3.
+The proposed Python gateway reference is an oracle, not the runtime owner.
+
+
+**Status: Stage 1 contract accepted; development-only fixtures implemented; live runtime NOT implemented.** This document defines a
 review boundary, not a wire standard, new trust root or authority overlay. It
-does not allocate message IDs, ALPN values, signer-purpose identifiers,
-credentials, numeric lease limits or deployment permissions. Existing frozen
+does not change frozen message IDs, ALPN values, signer-purpose identifiers,
+credentials or deployment permissions. Only the separate approved development
+registry assigns the connector-local fixture identifiers. The later CRP-1 section proposes bounded
+lease values for review without allocating or activating them. Existing frozen
 contracts win over this draft. No runtime behavior changes accompany it.
 
 Scope: one origin-side connector, one explicitly authorized Service Identity,
@@ -519,7 +562,7 @@ These are accepted-history references supplied by the parent, not a claim of an
 independent reread of the full chats here. The bounded repository inspection
 confirmed the quoted distinctions in current docs/code; tests were not rerun.
 
-### Precise model gap and minimal next proposal
+### Historical model gap and minimal next proposal (before lifetime correction)
 
 `Permission.expires` currently serves both new-use checking and ongoing-work
 validity. `_permission()` returns None at expiry, and poll then terminates the
@@ -552,3 +595,519 @@ Documentation check: current roadmap remains 10 stages; no stage completion was
 added. Prior 109-test evidence and manifests remain untouched historical snapshots.
 This synchronization changes only this profile and the operator plan; model and
 test hashes are checked against the active-work manifest. No runtime tests rerun.
+
+
+### Implemented mock lifetime correction — current local checkpoint
+
+This section supersedes the historical Permission.expires/lease_bounds_active
+model description above. The isolated fake Permission now explicitly names
+admission_expires, active_expires and CompletionGrace(profile, seconds). These
+are model inputs, not new signed fields, approved connector defaults or proof
+that any real credential has been mapped. The former boolean fixture switch is
+removed; an ongoing authority limit can explicitly equal a lease when appropriate,
+but the model no longer infers that relationship from registration alone.
+
+Registration/admission expiry withdraws new use and starts finite drain at the
+actual expiry instant. Late polling and repeated denial cannot restart the clock.
+Work remains bounded by its requested deadline, its ongoing authority and any
+started drain. Same-profile shorter verified grace narrows from the original
+drain start; longer fresh grace cannot extend an existing drain. A changed profile
+is unsupported and fails closed, not silently rebound to a new policy.
+
+renew_work explicitly refreshes ongoing authorization on the same work object,
+owner and session before its old bound, only while new-use eligibility remains
+valid. Registration renewal alone does not extend work. The caller's request
+bound remains fixed. No replay, rebind, resurrection or implicit authorization
+occurs. Reauthorization during drain is not implemented; this limited mock path
+is not a normative prohibition on a future profile-authorized mechanism.
+Deny-new retains only bounded work; terminate-active immediately cancels it and
+still requires confirmed close before releasing ownership. None/exception from
+the verifier still means invalid/unsupported input, not ordinary outage policy.
+
+Local verification: 125 passed (88 model, 13 frozen-state, 24 federation
+revocation), zero skips; Ruff check and format pass. Independent review identified
+two defects, reproduced and fixed: ignored grace narrowing and a renewal clock
+boundary that incorrectly terminated admission-expired work. Review completion
+and exact retained evidence are in docs/reviews/2026-10-10-connector-lifetime-separation.md
+and .json. This local patch has not been committed or published.
+
+Separately, published c7abbc4423a9ad05cea9cdf6678c231a34cafd59 passed hosted run
+38067741432 with all seven jobs successful. That run predates this local patch.
+Stage 1 remains partial; real authority/credential/wire mapping and F93 outage
+handling remain unresolved integration work. No other package stage advanced.
+
+
+### Offline federation adapter — later local checkpoint
+
+The lifetime slice above remains historical 125-test evidence. A separate offline
+adapter now consumes the existing AuthenticatedBilateralContext and complete
+source/destination AuthorizationEvidence through BilateralAuthorizer. No bare
+FederationResult is trusted. Existing FederationState.apply supplies the
+existing-context outage outcome; no federation verifier, state semantics, registry
+or frozen contract changes. Explicit fixture association preserves exact context,
+dependencies, owner and session, without defining connector identity mapping.
+
+A temporary Permission.new_use gate suppresses selection and new-use operations
+without cancelling independently valid work. Ordinary outage is no longer
+represented as verifier None. Existing-context ACCEPT/RESTRICTED-REAUTHENTICATE/
+DRAIN are exercised using the development profile's explicit timing fixture;
+independent signer/proof/context expiry still dominates cache freshness. Recovery
+requires complete fresh verification of the same context before the old drain
+boundary; repeated outage cannot extend deadlines or replay work.
+
+B10 now has bounded outage adapter tests, not production outage integration.
+B8/B9 remain limited: exact enums and DependencyIndex-based incident dispatch are
+tested, but simulate_dependency_event is caller-supplied fake cause data, not
+verified revocation transport or signed target/scope delivery. Real credential
+mapping, authority/deadline provenance and shared-transport ownership remain
+blocked for runtime. The one-owner adapter has no reconnect/rotation or durable
+replay/tombstone store. Unknown profile/real integration choices are not approved.
+
+Verification: 174 local tests pass (21 adapter, 88 model, 65 existing authorization,
+outage, revocation and frozen-state neighbors), zero skips; Ruff/format pass.
+Self/independent boundary review led to two reproduced fixes: duplicate rejected
+transport cleanup and rechecking old expiry before committing recovery. Independent
+final narrow review found no remaining blocker. Actual Ed25519/COSE verification
+uses existing deterministic public test seeds; no issuance, persistent keys,
+network or deployment occurred. See docs/reviews/2026-10-10-connector-federation-adapter.md
+and .json. No new commit/push. Published c7abbc44's successful seven-job CI remains
+a separate earlier result. Stage 1 is partial, with no new milestone completion.
+
+
+### Stage-1 test closure checkpoint
+
+A test-only follow-up adds 13 focused cases for destination/proof expiry, two-owner
+dependency isolation, changed same-time evidence and timed semantic fixtures.
+187 local tests pass (34 adapter+88 model+65 neighbors), zero skips; model code is
+unchanged from the 174-test adapter snapshot. Timed fixture scheduling is not
+authenticated event delivery. Exact results and the remaining five identity,
+acceptance-proof, deadline, ownership and event-delivery bindings are recorded in
+`docs/reviews/2026-10-10-connector-stage1-checkpoint.md` and .json. Stage 1 remains
+partial; work stops at this review checkpoint without commit, push or next task.
+
+
+## CRP-1: concrete versioned registration profile proposal
+
+**Status: DRAFT FOR APPROVAL, 2026-10-10.** This section supersedes earlier
+unspecified registration recommendations, not inherited policy or historical
+187-test evidence. Proposal identifier `connector-registration-v1-draft1` is a
+document identifier, not a negotiated protocol value. This is a control-only
+profile; it cannot carry origin/application data or authorize stage-5 relay.
+No registry, authority pin, credential, source/test or runtime changes accompany it.
+
+### Inherited contract versus proposed binding
+
+Inherited: D7 owner/delegated service authority; F61 resolution through the same
+Name Plane; exact-purpose key authorization and non-widening delegation; independent
+per-flow destination approval; frozen ConnectorState; V3 section 14/F93/P2D and
+Tranche5/6 continuity, revocation and narrow dependency effects. Core RouteGrant,
+FederationAuthorizationContext and existing exporter profile bytes remain unchanged.
+
+New and proposed here: a registration-only delegation right, an exact local
+principal restriction, connector control exchange and dedicated exporter context,
+lease/idempotency/owner rules, and typed internal verification interfaces.
+The existing bilateral context belongs to per-flow authorization; it is NOT
+mandatory registration evidence and cannot be repurposed as startup authority.
+The offline adapter's bilateral fixture is evidence of mechanism reuse only.
+
+Allocation ledger (all unresolved and unusable on live wire):
+
+| Item | Proposal marker | Rule |
+| --- | --- | --- |
+| Registration action | `UNALLOCATED_CONNECTOR_REGISTER_ACTION` | Means maintain this exact service's registration at this exact gateway; excludes publication, route grants, delegation and application admission. No numeric value selected. |
+| Capability/profile discriminator and carrier | `UNALLOCATED_CONNECTOR_PROFILE` | Recommend a separate versioned connector control profile and dedicated negotiated ALPN, reusing transport primitives rather than Core source-role message meanings. Registry/carrier review remains mandatory; never infer support from Core v2 alone. |
+| Envelope message codes | `UNALLOCATED_REQUEST`, `UNALLOCATED_CHALLENGE`, `UNALLOCATED_PROOF`, `UNALLOCATED_ACCEPT`, `UNALLOCATED_REJECT`, `UNALLOCATED_WITHDRAW` | Symbolic proposal names only; no alias to HELLO/ROUTE/STREAM codes. |
+| ALPN | `UNALLOCATED_IF_REQUIRED` | Recommend a separately assigned connector ALPN for explicit role separation. Its exact token remains unallocated; existing Core ALPN is not a fallback or implementation constant. |
+
+The numeric body keys below are **candidate local field mappings**, not assigned
+registry/message IDs. Approval of prose alone does not authorize implementation
+or turn the allocation markers into interoperable bytes.
+
+### Authority rule and internal principal restriction
+
+Authorize registration only if all of these hold:
+
+1. The existing verified ownership/delegation chain grants the proposed
+   registration action to the connector Operator ID for the exact Service Identity
+   and destination Operator, without widening name/service/tenant/region scope.
+2. The mutually authenticated peer key matches an ACTIVE, unrevoked
+   KeyAuthorizationRecord for that Operator, exact key ID/public key and existing
+   FEDERATION_TRANSPORT purpose 14. Delegation signatures retain purpose 6;
+   bilateral authorization retains purpose 11. No extra signing purpose is borrowed.
+3. Gateway local policy additionally pins `(connector_id, connector_operator_id,
+   transport_key_id, transport_key_thumbprint, service_id, gateway_id)` exactly.
+   This allowlist only narrows signed delegation; it cannot create missing authority.
+   Its canonical configuration digest is `registration_policy_digest`. Stage 2
+   validates this configuration; this draft neither provisions it nor signs a
+   new object. Unknown/missing pin rejects, with no operator-wide fallback.
+4. Complete relevant lineage, freshness, trust and revocation checks pass.
+   Digests in a request merely identify evidence; the verifier supplies the full
+   verified chain from existing authority providers. Missing evidence rejects
+   this attempt; control parsing never creates authority or starts discovery.
+
+This is the recommended narrow first mapping. Registration action allocation is
+still required; the current generic action integer parser is not evidence that
+any arbitrary action number is authorized.
+
+### Types, canonical bytes and exchange
+
+Use existing bounded deterministic CBOR implementation/profile: preferred encoding,
+closed numeric-key maps, unique keys, exact types (bool is not uint), no floats,
+indefinite lengths, unsupported tags or trailing data. Framing reuses shortest-form
+QUIC varint length plus 1..65,536 CBOR bytes, subject to carrier approval. The
+request below is capped at 16,384 bytes; depth 8; dependency/ref lists at 64 entries.
+No origin locator, credential private material or application payload appears.
+
+Types: `id16` = nonzero 16-byte bstr; `nonce32` = nonzero unpredictable 32-byte bstr;
+`digest32` = 32-byte SHA-256 bstr; `operator32/service32` = the existing federation
+32-byte identifier, NOT a cast from Core textual IDs; `text64` = 1..64 ASCII bytes
+matching the existing identifier grammar; `uint64` = 1..2^64-1;
+`time` = uint Unix seconds 0..253402300799. Overflow rejects before arithmetic.
+Core/federation identity conversion must use the existing validated identity
+provider, never string hashing or truncation.
+
+Carrier metadata MUST include nonzero `session_id:id16`, `request_id:id16` and
+strictly increasing per-direction sequence. Session ID is connector-generated
+fresh per authenticated connection; request ID fresh per new operation. The
+connector is the QUIC client and opens the first bidirectional stream (0) after
+mutual TLS completion. The gateway responds on that stream. Exactly one control
+stream; no second control stream, 0-RTT, datagrams or application streams in CRP-1.
+Future relay stream initiation is a separate stage-5 profile, not reversed Core
+STREAM_OPEN semantics. A control-only success proves registration, not a download.
+
+`REQUEST` body (all keys required, closed):
+
+| Key | Named field | Type / constraint |
+| ---: | --- | --- |
+| 0 | body_version | uint exactly 1 |
+| 1 | operation | text exactly `register` or `renew` |
+| 2 | connector_id | text64; exact local principal pin |
+| 3 | service_id | service32; exact delegated service |
+| 4 | connector_operator_id | operator32; exact authenticated peer authority |
+| 5 | gateway_operator_id | operator32; exact authenticated destination |
+| 6 | gateway_id | text64; exact authenticated destination identity |
+| 7 | transport_key_id | bstr 1..64, exact peer key authorization |
+| 8 | transport_key_thumbprint | digest32, SHA-256 of authorized raw Ed25519 public key |
+| 9 | key_authorization_digest | digest32, existing federation canonical-record digest |
+| 10 | authority_refs | sorted unique array of 1..64 `[object_type:uint(existing registry), record_digest:digest32]`; includes ownership/delegation and relevant policy/trust references |
+| 11 | dependency_digest | digest32, SHA-256 of deterministic CBOR authority_refs; verifier checks completeness, not only matching hash |
+| 12 | registration_policy_digest | digest32, exact accepted restrictive local configuration |
+| 13 | requested_lease_seconds | uint 1..60 for this proposed bounded profile |
+| 14 | sent_at | time, inside selected authenticated clock-skew policy |
+| 15 | previous_accept_digest | null for register; digest32 of current ACCEPT for renew |
+
+`request_digest = SHA-256(CBOR(REQUEST body))`; evidence digests use each existing
+object's defined digest domain, not an arbitrary hash of a COSE wrapper. Existing
+object generation/sequence floors are checked from verified objects; no second
+connector authority-generation counter is invented.
+
+`CHALLENGE` keys: 0 body_version=1; 1 request_digest:digest32;
+2 gateway_nonce:nonce32; 3 challenge_expires_at:time. It echoes carrier session
+and request IDs. An exact pending REQUEST retry returns the identical CHALLENGE body
+and original expiry; it never generates a replacement nonce or restarts the timer.
+One outstanding challenge per connection, valid at most 5s and
+never past authority/connection validity. It is bound internally to this exact
+peer, REQUEST bytes and live connection. Receipt grants no registration.
+
+Reuse the existing TLS 1.3 exporter primitive (`quinn_adapter.rs` and the WP4
+exporter conformance mechanism), with a **new proposed domain**, never the frozen
+Service Channel label/context. Proposed label ASCII:
+`EXPORTER-NBSR-Connector-Registration-v1`; output exactly 32 bytes. Context is the
+exact deterministic CBOR array:
+
+```text
+["NBSR-CONNECTOR-REGISTRATION-CONTEXT-v1", 1,
+ session_id, request_id, request_digest, gateway_nonce,
+ connector_operator_id, gateway_operator_id, gateway_id,
+ transport_key_thumbprint, registration_policy_digest]
+```
+
+`PROOF` keys: 0 body_version=1; 1 request_digest:digest32;
+2 gateway_nonce:nonce32; 3 channel_binding:digest32 (the exporter output).
+The gateway computes and compares the same output on this live TLS connection,
+then consumes the challenge once. The binding is not a signature, independent
+credential or publication authority; it is sent only inside the protected control
+channel and must not be logged/exported as audit evidence. No application key,
+new key type or custom KDF is added. Exporter unavailable means unsupported;
+there is no TLS-success-only fallback. Exact derivation/domain review and vectors
+are mandatory before enabling this new use of the established primitive.
+
+### Serialized acceptance, ownership and renewal
+
+At proof commit, recheck all authority/dependencies, challenge expiry, connection
+liveness, restrictive configuration digest and one-owner availability. Gateway
+owns the atomic table entry keyed by `(service_id, gateway_id)`. No takeover.
+Rejecting a different attempt must not close the existing owner's connection.
+
+`ACCEPT` keys (closed): 0 body_version=1; 1 request_digest:digest32;
+2 registration_id:id16 (gateway-generated); 3 gateway_epoch:id16 (fresh per gateway
+process incarnation); 4 owner_generation:uint64 (strictly increasing within epoch,
+no wrap); 5 accepted_at:time; 6 lease_expires_at:time; 7 renewal_due_at:time;
+8 dependency_digest:digest32; 9 registration_policy_digest:digest32.
+Define acceptance digest exactly as:
+
+```text
+accept_digest = SHA-256(CBOR([
+ "NBSR-CONNECTOR-ACCEPT-DIGEST-v1", 1,
+ session_id, request_id, ACCEPT_body
+]))
+```
+
+The existing deterministic CBOR profile applies; the body is the complete closed
+map above. Envelope sequence/framing are excluded, so a retransmission can advance
+the sequence without changing this digest. `previous_accept_digest` and
+`current_accept_digest` both use this definition. "Identical ACCEPT" means identical
+canonical body bytes and correlation IDs, not identical envelope sequence bytes.
+Client validation requires a positive bounded interval, nonfuture accepted_at
+beyond the permitted skew, and `now < lease_expires_at`; an already expired
+response never makes READY.
+
+All carrier correlation and request/dependency/policy digests must match. The
+connector becomes READY only after validating this response on the same connection.
+An owner handle is `(live connection, session_id, registration_id, epoch, generation)`.
+Epoch is correlation, NOT identity/authority generation or a substitute for durable
+federation floors. Restart loses live ownership; old acceptances never authorize a
+new connection. Cleanup compares the complete handle and releases only confirmed
+resources. Failed close retains terminal ownership; it cannot report a free slot.
+
+`lease_expires_at = min(accepted_at + requested_lease_seconds, verified admission
+authority/freshness ceiling, live transport deadline if one applies)`; result must exceed now.
+`renewal_due_at = accepted_at + floor((lease_expires_at-accepted_at)/2)`; if the
+interval is one second, renewal_due_at equals accepted_at and no extension is
+promised. Proposed default request is 60s, not a protocol-wide transfer lifetime.
+Renew uses the same exchange with a new request ID and previous_accept_digest.
+It requires the exact current owner, fresh proof and full revalidation before the
+old lease expires. It retains registration_id/epoch/generation and replaces the
+acceptance; it does not replay application work or extend active-work authority.
+
+Exact duplicate PROOF/REQUEST on the same connection, with retained request ID
+and byte-identical digest returns the same canonical ACCEPT body only if it is
+still the CURRENT acceptance of that exact live, eligible owner and its lease
+has not expired. No second commit, generation increment or deadline reset.
+A superseded acceptance (including an old register result after renewal), denied,
+revoked, withdrawn, disconnected or expired owner cannot return success from the
+cache. Use REPLAY for superseded correlation and the applicable authority/lifecycle
+rejection for invalidated ownership; never reauthorize from a cached response. A conflicting digest is replay.
+Keep at most four completed correlation results plus one pending request; expired
+results can be evicted while retaining the monotonic sequence watermark. A result
+no longer retained is rejected, never recomputed from an old request. Repeated
+wire retransmission uses a new envelope sequence but the same request ID/body.
+Same sequence is replay. Cross-connection copies fail live exporter/correlation.
+
+`WITHDRAW` keys: 0 body_version=1; 1 registration_id:id16; 2 gateway_epoch:id16;
+3 owner_generation:uint64; 4 current_accept_digest:digest32. Same live owner only;
+withdraw eligibility immediately, then follow the applicable bounded drain/close
+policy. No replacement owner until cleanup confirms release.
+
+### Categorized deadlines and verified event boundary
+
+The verifier returns explicit categorized deadlines with provenance references:
+
+| Category | Source and enforcement |
+| --- | --- |
+| Admission authority/freshness ceiling | Earliest applicable verified key/delegation/policy registration validity and freshness restriction. It EXCLUDES the existing registration lease. The lease is separately bounded by this ceiling; renewal must commit before the old lease expires but may extend the new lease up to the freshly verified ceiling. Neither value is an ongoing hard limit unless another applicable profile independently makes it one. |
+| Ongoing hard deadline | For later flows, the applicable approved RouteGrant/channel/session and federation context policy. The verifier identifies which dependencies remain required throughout use. CRP-1 has no application work and does not invent an ongoing grant at startup. |
+| Drain cutoff | Earliest existing ongoing hard limit and `drain_start + applicable profile bound`. Reuse WP4's 0..30s only for WP4 channel drain, or the explicitly selected development-profile bound. Origin/mapping TTL does not become a universal active-transfer cutoff. |
+
+Current registration lease is a separate owner property, not verifier authority.
+Each internal authority/drain deadline carries `(category, expires_at, governing_profile,
+verified_record_refs)`. Missing/ambiguous provenance rejects the requested new
+operation rather than guessing. Earlier valid work follows its already accepted
+policy. Clock skew never increases a hard deadline. Use existing record/profile
+inclusive/exclusive rules in their validators; select only while `now < lease_expires_at`.
+
+A runtime dispatcher may consume ONLY an internal verified event from the existing
+authority subsystem: `(record_digest, issuer/authority validation receipt,
+exact typed target+target_digest, scope, effective_at, validity, lineage,
+EnforcementMode, affected_dependency_closure, accepted_state_revision)`.
+These are internal fields, not a new signed object or proof substitute. Derive
+closure through DependencyIndex and recheck revision at serialized dispatch.
+Future-effective events wait without effect; stale/unrelated events cannot affect
+an owner. Repeated drain never resets its original cutoff. Terminate overrides
+grace and cancels only dependent resources; transport-key compromise covers all
+owners dependent on that transport. Deny-new stops new admissions/renewal and
+preserves independently valid bounded work. Fresh outage recovery revalidates
+before restoring new-use eligibility; it never clears terminal tombstones.
+
+No raw FederationResult, parser success, caller boolean or unauthenticated network
+event can create the receipt. Existing semantic revocation thresholds remain
+unchanged. Because threshold transport packaging is unfrozen, this receipt's
+real producer is a **runtime blocker**, not implemented by CRP-1. Pure/vector
+fixtures may explicitly synthesize it and must be labelled as such.
+
+### Rejection, failure states and resource bounds
+
+`REJECT` keys: 0 body_version=1; 1 request_digest:digest32;
+2 protocol_error: existing frozen ProtocolError. Carrier request/session correlation
+must match. If the request cannot be safely decoded/correlated, use the approved
+carrier's generic error behavior after carrier selection; no partial ACCEPT.
+No origin details, raw credentials or exporter values in errors. Proposed mapping:
+malformed/unsupported -> PROFILE_UNSUPPORTED; absent/untrusted authority ->
+RECORD_UNTRUSTED; stale -> RECORD_STALE; revoked -> RECORD_REVOKED; wrong role/scope
+-> ROUTE_DENIED; bad binding -> PROOF_INVALID; reused/conflicting correlation ->
+REPLAY; occupied owner/pending capacity -> OVER_CAPACITY; cleanup/internal failure
+-> INTERNAL with eligibility withdrawn. Names refer to existing frozen errors,
+not new codes; mapping itself needs profile approval. Specificity never leaks keys.
+
+Proposal limits: one accepted owner per service/gateway; one outstanding operation
+per connection; zero waiting registrations; four retained operation results;
+5s challenge/registration exchange deadline including response; three connect
+attempts per explicit start with 1s then 2s backoff, no hidden infinite retry;
+60s maximum requested registration lease. Authority/scope/revocation failures do
+not auto-retry. Transient connect failures may consume the remaining bounded
+attempt budget. Any stricter governing transport/authority bound wins. Connection
+rejection/timeout closes only task-owned attempt resources; cleanup failure is visible.
+
+Failed pre-READY attempts use a separate terminal attempt result. Do not fabricate
+AUTHENTICATED/READY or add frozen lifecycle edges to reach DRAINING. Successful
+READY owners use the legal DRAINING -> DISCONNECTED path after confirmed cleanup.
+This separation is the recommended explicit design choice requiring approval;
+all application replay, takeover and automatic resurrection remain excluded.
+
+### Accepted component interfaces and implementation/test inventory
+
+Future runtime paths below are selected but not created in this offline slice.
+Existing Go internal packages must not be imported across module boundaries.
+
+The user approved the Rust destination gateway / Go origin connector / Python
+reference division. This inventory supersedes the earlier Python gateway-location
+proposal and selects component placement, not permission to activate wire traffic.
+
+| Location | Responsibility / interface | Stage |
+| --- | --- | --- |
+| `nbsr/connector_registration_offline.py`, `tests/protocol/test_connector_registration_vectors.py` | Existing serialized reference oracle: request/proof/withdraw, revision guard, typed invalidation, timers and ownership. Fixtures are not authenticated producers. Replaces the proposed `services/connector_registration.py`; do not create a duplicate coordinator. | 1 evidence |
+| `scripts/generate_connector_registration_vectors.py`, `scripts/verify_connector_registration_vectors.mjs`, `vectors/connector-registration-v1-counter/manifest.json` | Existing deterministic draft-2 bytes, 24 scenario mappings, independent transcript/exporter and counter/cache checks. Original package/proposal remain historical. | 1 evidence |
+| `client/nbsr-go-client/internal/connector/profile.go`, `profile_test.go` | Pure registration types, closed parsing, response/correlation validation against the accepted profile. No networking or key creation. | 3 implementation |
+| `client/nbsr-go-client/internal/connector/authority.go`, `authority_test.go` | Inject existing authority evidence and validate response bindings; never grants destination publication itself. Exact principal/service/policy/dependency/deadline references cross the seam. | 3 implementation |
+| `client/nbsr-go-client/internal/connector/lifecycle.go`, `lifecycle_test.go` | Go origin owns attempts, retry/correlation and renewal. Separate terminal failed-attempt outcomes; no implicit takeover or work replay. | 3, then 4 |
+| `crates/nbsr-transport/src/connector_registration.rs`, `crates/nbsr-transport/tests/connector_registration.rs` | Rust destination owns service-keyed registration table, `TryCommit(candidate, expectedRevision)`, `Renew(owner, expectedAccept)`, `Withdraw(owner)`, `ApplyVerifiedEvent(event)`, accepted handles, quotas/dependencies and confirmed transport cleanup. Destination authority validation remains independent. | 3, then 4 |
+| `client/nbsr-go-client/internal/adapter/connector_control.go`, `connector_control_test.go`; `crates/nbsr-transport/src/connector_control.rs`, `crates/nbsr-transport/tests/connector_control.rs` | Narrow `AuthenticatedPeer`, control send/receive, `ExportBinding(label, context, 32)` and `CloseOwner` adapters over existing transport primitives. They do not manufacture authority. | 3 implementation after pre-wire approvals |
+
+No Go internal-package imports across module boundaries, second crypto stack or
+new gateway daemon is selected. The logical gateway is the destination role;
+Stage 2 supplies its configured endpoint, Stage 7 packages it, Stage 10 approves
+actual placement. Wire allocation and any pinned-source authority change require
+their separately reviewed gate before Stage 3 activation. Real producer/clock/
+transport integration and independent wire conformance are not claimed by Stage 1.
+
+### Service-keyed extensibility without widening the first slice
+
+User direction accepted the narrow first slice and requires easy later addition
+of services. Implement no service-name switches, fixed global service ID or
+service-specific identity logic in framing, verifier adapters or lifecycle code.
+Use `ServiceRegistrationConfig` entries keyed by `(service_id, gateway_id)`, each
+holding the exact principal restriction, authority-policy references, lease/quota
+limits and an origin target reference kept only in origin-side configuration.
+The first version validates exactly one enabled entry; this is an outer capacity
+policy, not a different identity algorithm or hardcoded singleton inside the core.
+
+Every owner, accepted work reference, quota reservation and dependency-index entry
+carries its service key and exact owner handle. Core operations take that key;
+no lookup by connector display name alone. Service-specific authorization remains
+mandatory even if two services share one Operator or a future transport. A global
+resource ceiling bounds the sum; each service has its own lower quota. A transport
+dependency is explicitly shared, never implicitly merged with service dependencies.
+
+Future additional configuration entries may reuse unchanged REQUEST fields and
+per-service ownership logic only after the carrier advertises/approves the larger
+capacity and existing total/per-service limits are enforced. Adding a service
+must not change canonical bytes for existing service A. A new wire field, new
+operation/right, altered proof domain or changed acceptance semantics requires a
+new reviewed profile version; unknown versions/fields reject without fallback.
+No plugin system, dynamic handler discovery, multi-tenant control plane or generic
+framework is required. Origin protocol expansion belongs to the later relay stage.
+
+Testable design criterion: run the same coordinator/verifier interfaces with two
+explicit fixture service keys A and B and independent authority/dependency/quota
+inputs. Filling, rejecting, renewing, withdrawing or revoking A must not mutate
+B's owner generation, eligibility, quota or deadline. A transport-wide compromise
+must affect both only when both explicitly depend on that transport. The first
+runtime configuration still rejects two enabled services until separately approved.
+Vector CRP-24 below is a pure coordinator extensibility test, not permission to
+activate multiple services or evidence that shared-transport isolation exists today.
+
+### Vector proposal and approval gate
+
+The accompanying JSON enumerates **24 finite cases** with exact expected ownership
+and eligibility outcomes. It is a design manifest, not a conformance package.
+After allocation/profile approval, each case must identify canonical inputs,
+full fixture authority, connection/exporter fixture, expected outputs/error,
+owner counters, byte lengths and hashes. Require one independent decoder/verifier;
+no expected signature/exporter value is self-certified solely by its generator.
+
+Three concrete decisions for profile review (the user has accepted the narrow,
+service-extensible direction; exact wire/allocation approval remains separate):
+
+- **D1 — authority:** approve registration-only delegated operator authority PLUS
+  exact gateway-local key/principal restriction; no new root/key type and no
+  operator-wide implicit registration. Tradeoff: key changes require explicit
+  verified/configured binding updates instead of convenience fallback.
+- **D2 — exchange/ownership:** approve the dedicated proposed TLS-exporter context,
+  control-only stream roles, one owner/no takeover, exact idempotency and separate
+  failed-attempt outcome. Tradeoff: bounded availability during cleanup; no claim
+  of relay interoperability until its later profile. This authorizes finishing
+  allocation/conformance review, not live transport use.
+- **D3 — bounded profile:** approve the proposed 60s lease/5s exchange/three-attempt
+  limits and provenance-based deadlines; retain inherited continuity/F93 policy.
+  Tradeoff: conservative startup/retry behavior; active transfers are not assigned
+  a universal 60s/30s timeout.
+
+Stage-1 checklist: inherited-policy reconciliation PASS; 187-test model evidence
+PASS (historical, unchanged); concrete proposed fields/transcript/inventory PRESENT;
+D1-D3 approval PENDING; carrier/action/message allocation PENDING; executable
+success/negative vectors and independent conformance verification PENDING; final
+profile/interface acceptance PENDING. Stage 1 remains partial, 0/10 complete.
+No profile approval, runtime authorization or publication is inferred from this draft.
+
+## CRP-1 offline implementation checkpoint (2026-10-10)
+
+The user subsequently approved D1-D3 for **offline specification and executable
+vectors only** (approval relayed from Sentinel_f51491cf36dc8191b41de0964dbf6622).
+The preceding proposal and its review hashes remain historical. This approval
+does not assign action, message, profile or ALPN identifiers and does not activate
+runtime authority, credentials, networking or publication.
+
+Implemented `nbsr/connector_registration_offline.py`: bounded candidate body
+schemas, framing, exporter context, ACCEPT digest/client validation, service-keyed
+restrictive pins, single-owner registration/renewal, exact current retries,
+withdrawal, explicit candidate/owner cleanup and dependency-denial fixtures.
+The synthetic authority receipt is bound to request, connection, session,
+admission ceiling/provenance and revision. A read-only revision snapshot and a
+final clock sample guard serialized commit. It is not an authenticated receipt
+producer. No application work or transfer deadline is introduced in this module.
+
+`vectors/connector-registration-v1/manifest.json` maps all 24 proposal scenarios
+to executable pytest nodes. Eighteen retained byte artifacts plus the manifest
+include canonical bodies, framed REQUEST, public deterministic TLS exporter
+input/output, transcript, ACCEPT digest and negative encodings. Existing
+connector model/adapter tests explicitly supply the continuity, outage and
+semantic-event scenarios. They remain distinct from the new registration codec:
+no claim of an integrated live download or cryptographic registration-action
+proof follows from the mapping. CRP-09 exercises verifier rejection/revision
+guards, not a new durable registration lineage implementation.
+
+The independent Node implementation checks artifact integrity, canonical
+transcript, TLS 1.3 SHA-256 exporter derivation, framing, ACCEPT digest and selected
+negative fixtures. It does not independently execute all 24 stateful scenarios.
+Final scoped Python result: **338 passed, zero failed/skipped** (83 new CRP tests,
+the previous 187-test scope freshly rerun, and 68 strict-CBOR neighbors). See
+`docs/reviews/2026-10-10-connector-registration-offline.md` and its manifest for
+commands, failed attempts, source hashes and resource/cleanup evidence.
+
+### Remaining Stage 1 gates
+
+The four-result cache exposed an unresolved long-lived replay question: after a
+random request ID is evicted, an increasing envelope sequence alone cannot tell
+an old operation from a new one. The offline model conservatively retains four
+operation slots and rejects further operations. It does not implement eviction,
+unlimited renewal, automatic reconnect or takeover. A reviewed bounded replay
+strategy is required before a long-lived runtime; no new wire choice is made here.
+Explicit `poll()` drives fixture expiry/cleanup; there is no asynchronous timer
+or authenticated event dispatcher. Clock skew zero and the additional unowned
+candidate slot are labelled local fixture choices, not production allocations.
+
+Stage 1 remains **partial; 0/10 stages complete**. D1-D3 offline approval and
+bounded offline scenarios are complete. Registry/carrier allocations, complete
+authenticated registration-chain vectors, safe long-lived replay retention,
+production clock/deadline policy, real event-receipt producer, independent
+stateful/wire conformance and final profile/interface acceptance remain open.

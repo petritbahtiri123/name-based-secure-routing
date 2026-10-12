@@ -1,0 +1,560 @@
+{
+  "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "Stage 1 offline contract and Stage 2 offline configuration gates complete; 2/10",
+  "report": "docs/reviews/2026-10-10-single-instance-preflight.md",
+  "manifest": "docs/reviews/2026-10-10-single-instance-preflight.json",
+  "tests": {
+    "preflight": 62,
+    "crp": 103,
+    "model_federation": 187,
+    "cbor": 68,
+    "total": 420,
+    "failed": 0,
+    "skipped": 0
+  },
+  "review": "two findings fixed and independently rereviewed; no remaining scoped blockers",
+  "next_gate": "separate reviewed pre-wire allocations/authority before Stage 3 authenticated runtime activation",
+  "cleanup": "10 supervised children reaped, no abort; no task-created containers/background workers",
+  "publication": "none; changes uncommitted, index empty",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 15975,
+      "sha256": "ae316c15219066580b07c77be24a3fce3084dd8033239b011eeffa9c4539aed2"
+    },
+    {
+      "path": "deploy/single-instance/config.example.json",
+      "bytes": 1824,
+      "sha256": "815360a6776836f4adca9f37bebad1afc79f973822dc7b8c30467e4112e8b5ea"
+    },
+    {
+      "path": "deploy/single-instance/config.schema.json",
+      "bytes": 8780,
+      "sha256": "bdf7db38b012419a78533899740749a1e7bf781f0ecae305b052bd994ed56de9"
+    },
+    {
+      "path": "deploy/single-instance/README.md",
+      "bytes": 3764,
+      "sha256": "57ceed252fa1a6faf6b02d438a715539de60e56d086895b273adca1227deac14"
+    },
+    {
+      "path": "deploy/single-instance/test_validate_config.py",
+      "bytes": 11923,
+      "sha256": "aeb87b5eb7b00b363231b92e876c932eb2557a20d4813a73bec186a081604d70"
+    },
+    {
+      "path": "deploy/single-instance/validate_config.py",
+      "bytes": 9677,
+      "sha256": "b87d39028df454e0c4e32cf71418589811b12abb757080d28ebb3ced3e42bc62"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+      "bytes": 36367,
+      "sha256": "a951fa3b571533b42f5252c6269f09d881be74aec39320a48f4c65c6d5adf99d"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "bytes": 39551,
+      "sha256": "ebd59f9c010f0f1017686bf47a1aea55fe36d49c01ffab4eabdf50a5a4da3c62"
+    },
+    {
+      "path": "docs/protocol/connector-outbound-profile.md",
+      "bytes": 83274,
+      "sha256": "9e32aa9bd98dd2f91f6ab8351d3f09feef686cfb1708dd7fab94fbf44133195a"
+    },
+    {
+      "path": "docs/protocol/status.md",
+      "bytes": 31713,
+      "sha256": "c55356c7bf6cce8c0a55d3761a58b3a1829bec88fa7f8687224abd184df4c909"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-single-instance-preflight.md",
+      "bytes": 6302,
+      "sha256": "3053f43286576977a6ffec5f06a59bc5378b3950dd22059e63e44d383d2cafd7"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 59718,
+      "sha256": "7db24f4b7a01e683e4f49ad566c740fb353743410c729d92b72c943b766458ae"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/config.example.json.snapshot",
+      "bytes": 1824,
+      "sha256": "815360a6776836f4adca9f37bebad1afc79f973822dc7b8c30467e4112e8b5ea"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/config.schema.json.snapshot",
+      "bytes": 8780,
+      "sha256": "bdf7db38b012419a78533899740749a1e7bf781f0ecae305b052bd994ed56de9"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/README.md.snapshot",
+      "bytes": 3764,
+      "sha256": "57ceed252fa1a6faf6b02d438a715539de60e56d086895b273adca1227deac14"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-cli.json",
+      "bytes": 414,
+      "sha256": "6e61a093dbf0418f30d6828507d874c99db2a24e047568e384138d7f2c8885af"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-cli.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-cli.stdout.log",
+      "bytes": 102,
+      "sha256": "25e121e07693f51c5f23458c362084d3ba3a4471a55f40d52596a305b3b5b527"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-final.json",
+      "bytes": 865,
+      "sha256": "0ffe1abba5bfab2f68b640db66130c06b82a6b2bd83e885b16c964320c10507e"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-final.stdout.log",
+      "bytes": 507,
+      "sha256": "7fbb360f7b517ccd597dc9d55bb351d2d20022642dfb49e5b9938679ea9c1d16"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-format.json",
+      "bytes": 465,
+      "sha256": "14bf280bf35efad6a3ce98674c46f14c315a1bdbf7dfa4e7759da05bd3f4cc1e"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-format.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-format.stdout.log",
+      "bytes": 26,
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-green.json",
+      "bytes": 432,
+      "sha256": "b52d9302bb333b39c9b3d48e051857ad63acdf5301c67925bf79d464b717b50f"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-green.stdout.log",
+      "bytes": 272315,
+      "sha256": "27f34d9a6c2a819b83d4f1ec87c81432356712716282866b136bdc17960817c6"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-green2.json",
+      "bytes": 505,
+      "sha256": "e44cafb0285ad12481ab4275733e36741c9cc2743aff7d6eebf8d21f665a4d64"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-green2.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-green2.stdout.log",
+      "bytes": 101,
+      "sha256": "6f11641843cbf6a7b1fb671fd0ae81e1d538ab548fb928b4084efeeed711422e"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-lint.json",
+      "bytes": 465,
+      "sha256": "d724c5dab0555c3e5f139a7f82aae98c2910831162f7f8d182447fd4fe5ebedb"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-lint.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-lint.stdout.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-red.json",
+      "bytes": 479,
+      "sha256": "c8234a680bb08c31d74ac5dfb566f93badb70b56e6607e756decbbb376d6f2ae"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-red.stdout.log",
+      "bytes": 1235,
+      "sha256": "0128593004ca04d740a145e891cd2000dbbccc54f9c3f67a53c578263527b440"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-review-green.json",
+      "bytes": 517,
+      "sha256": "a3445047b045adb0973c730100c60e666195b464b60c364240dc7b69f4680336"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-review-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-review-green.stdout.log",
+      "bytes": 101,
+      "sha256": "01ab28c66c47359e0d4be9b0803960dd468a891be609dfbd1e795e928abb5ad6"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-review-red.json",
+      "bytes": 568,
+      "sha256": "9694139282b9f275cf2ccf165c3cc54039b2c6fd5e1113a98b433f8734a87abb"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-review-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-review-red.stdout.log",
+      "bytes": 4805,
+      "sha256": "ee397244638e7922aad1231a9f2b7d969f979a148feb13b6639cc3d73c814860"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-schema-red.json",
+      "bytes": 594,
+      "sha256": "99915f28a9f2ed55eca55e07dffac9b5528cfc558d49349aae9dc8b4b527210e"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-schema-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/stage2-schema-red.stdout.log",
+      "bytes": 867,
+      "sha256": "588ef62e84ffd144290dc5a628b9605b4d9321f453d0f791fa3a98e6f92b6ebf"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/test_validate_config.py.snapshot",
+      "bytes": 11923,
+      "sha256": "aeb87b5eb7b00b363231b92e876c932eb2557a20d4813a73bec186a081604d70"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/validate_config.py.snapshot",
+      "bytes": 9677,
+      "sha256": "b87d39028df454e0c4e32cf71418589811b12abb757080d28ebb3ced3e42bc62"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/working-tree-status.txt",
+      "bytes": 4207,
+      "sha256": "b49e0df3acc76def95d839f827fd18fc2e92ac898844cf0d60c89491b612f78f"
+    },
+    {
+      "path": "evidence/single-instance-preflight/2026-10-10/working-tree-tracked.patch",
+      "bytes": 103113,
+      "sha256": "7a9fe3c36d2187ca66f03653793e20b2fd2c21ccea7d69ab70532adc7f278d08"
+    }
+  ],
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-cli",
+      "argv": [
+        "python",
+        "-B",
+        "deploy/single-instance/validate_config.py",
+        "deploy/single-instance/config.example.json"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.61,
+      "disk_start": 12184567808,
+      "disk_end": 12184567808,
+      "ram_end": 4926193664,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-stage2-final",
+        "deploy/single-instance/test_validate_config.py",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "tests/test_connector_federation_model.py",
+        "tests/test_connector_control_model.py",
+        "tests/federation/test_authorization.py",
+        "tests/federation/test_outage.py",
+        "tests/federation/test_revocation.py",
+        "tests/protocol/test_states.py",
+        "tests/protocol/test_cbor.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.42,
+      "disk_start": 12184662016,
+      "disk_end": 12184641536,
+      "ram_end": 4855562240,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-format",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "deploy/single-instance/validate_config.py",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12184629248,
+      "disk_end": 12184633344,
+      "ram_end": 4929064960,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 3.22,
+      "disk_start": 12189929472,
+      "disk_end": 12189655040,
+      "ram_end": 5466234880,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-green2",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-stage2-green2",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.62,
+      "disk_start": 12189372416,
+      "disk_end": 12189298688,
+      "ram_end": 5471379456,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-lint",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "deploy/single-instance/validate_config.py",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 12184629248,
+      "disk_end": 12184629248,
+      "ram_end": 4927954944,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "deploy/single-instance/test_validate_config.py",
+        "-k",
+        "valid_config_is_not_readiness"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 1.81,
+      "disk_start": 12190027776,
+      "disk_end": 12190023680,
+      "ram_end": 5478805504,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-review-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-stage2-review-green",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.42,
+      "disk_start": 12184772608,
+      "disk_end": 12184748032,
+      "ram_end": 4749131776,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-review-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-stage2-review-red",
+        "deploy/single-instance/test_validate_config.py",
+        "-k",
+        "oversized_integer or reparse_parent"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.42,
+      "disk_start": 12184862720,
+      "disk_end": 12184842240,
+      "ram_end": 4700631040,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "stage2-schema-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-stage2-schema-red",
+        "deploy/single-instance/test_validate_config.py",
+        "-k",
+        "schema_backoff or numeric_types or origin_scope or cli_import"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 5.03,
+      "disk_start": 12189278208,
+      "disk_end": 12185477120,
+      "ram_end": 5483388928,
+      "direct_child_reaped": true
+    }
+  ],
+  "unchanged_prior_artifacts": [
+    "evidence/connector-registration-v1/2026-10-10-counter/connector_registration_offline.py.snapshot",
+    "evidence/connector-registration-v1/2026-10-10-counter/counter-amendment.patch",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-artifacts-check.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-artifacts-check.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-artifacts-check.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-green.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-green.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-green.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-red.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-red.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-counter-red.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-final.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-final.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-final.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-focused.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-focused.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-focused.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-format.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-format.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-format.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-generate.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-generate.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-generate.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-lint.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-lint.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-lint.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-node.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-node.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-node.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-renew-red.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-renew-red.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-renew-red.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-green.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-green.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-green.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-red.json",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-red.stderr.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/crp2-trim-red.stdout.log",
+    "evidence/connector-registration-v1/2026-10-10-counter/generate_connector_registration_vectors.py.snapshot",
+    "evidence/connector-registration-v1/2026-10-10-counter/test_connector_registration_vectors.py.snapshot",
+    "evidence/connector-registration-v1/2026-10-10-counter/verify_connector_registration_vectors.mjs.snapshot",
+    "nbsr/connector_registration_offline.py",
+    "scripts/generate_connector_registration_vectors.py",
+    "scripts/verify_connector_registration_vectors.mjs",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "vectors/connector-registration-v1-counter/accept-digest.bin",
+    "vectors/connector-registration-v1-counter/accept.cbor",
+    "vectors/connector-registration-v1-counter/challenge.cbor",
+    "vectors/connector-registration-v1-counter/context.cbor",
+    "vectors/connector-registration-v1-counter/counter-traces.json",
+    "vectors/connector-registration-v1-counter/exporter.bin",
+    "vectors/connector-registration-v1-counter/fixture-exporter-master.bin",
+    "vectors/connector-registration-v1-counter/invalid-bool-lease.cbor",
+    "vectors/connector-registration-v1-counter/invalid-duplicate.cbor",
+    "vectors/connector-registration-v1-counter/invalid-exporter.bin",
+    "vectors/connector-registration-v1-counter/invalid-indefinite.cbor",
+    "vectors/connector-registration-v1-counter/invalid-nonpreferred.cbor",
+    "vectors/connector-registration-v1-counter/invalid-trailing.cbor",
+    "vectors/connector-registration-v1-counter/invalid-unknown-key.cbor",
+    "vectors/connector-registration-v1-counter/manifest.json",
+    "vectors/connector-registration-v1-counter/proof.cbor",
+    "vectors/connector-registration-v1-counter/reject.cbor",
+    "vectors/connector-registration-v1-counter/request.cbor",
+    "vectors/connector-registration-v1-counter/request.frame",
+    "vectors/connector-registration-v1-counter/withdraw.cbor"
+  ],
+  "index_empty": true,
+  "source_snapshots": "final only; failed run logs retained",
+  "_publication_derivative": {
+    "original_sha256": "313cbed3fa1c18848fa83272b10dede8fd88f3c13d3cdf664cd0cc4704ef9518",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

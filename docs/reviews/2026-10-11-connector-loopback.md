@@ -1,0 +1,5 @@
+# Overnight loopback checkpoint
+
+Fresh execution of the previously approved, unchanged loopback harness passed all 19 cases in one Rust test (16.91 seconds; supervisor 17.46 seconds). The current Go worker was rebuilt from cached dependencies. All 19 reaps were confirmed; the 20 observed PIDs and their UDP endpoints were absent afterward, with no forced kill. The new temporary Go worker was hashed and removed; the older worker was preserved. TLS/exporter and control interoperability are real; authority, revocation and logical time remain fixtures. Ephemeral PKI stayed in memory/private stdin, with no secret files. Both changed coordinators were independently reviewed; the unchanged harness retains its earlier review. This does not establish real authority/timers or Stage 3 closure.
+
+Exact commands, failures, resource measurements, source snapshots and SHA-256 hashes are retained in the adjacent JSON and evidence directory. All supervised children were reaped, with no resource abort. Changes remain uncommitted and unpublished. Historical evidence is preserved.

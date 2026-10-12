@@ -25,9 +25,20 @@ class Binding:
 
 
 @dataclass(frozen=True)
+class CompletionGrace:
+    """Explicit fake profile context, not a protocol constant or signed record."""
+
+    profile: str
+    seconds: int
+
+
+@dataclass(frozen=True)
 class Permission:
     binding: Binding
-    expires: int
+    admission_expires: int
+    active_expires: int
+    completion_grace: CompletionGrace
+    new_use: bool = True
 
 
 class Transport(Protocol):
@@ -58,6 +69,9 @@ class ActiveWork:
 
     owner: Attempt
     deadline: int
+    requested_deadline: int
+    completion_grace: CompletionGrace
+    drain_started: int | None = None
     cancelled: bool = False
     completed: bool = False
 
@@ -91,6 +105,7 @@ class Model:
         self._current: Attempt | None = None
         self._acceptance: Acceptance | None = None
         self._work: ActiveWork | None = None
+        self._new_use = False
 
     def _time(self) -> int | None:
         try:
@@ -115,8 +130,14 @@ class Model:
         if (
             not isinstance(permission, Permission)
             or permission.binding != self.binding
-            or type(permission.expires) is not int
-            or permission.expires <= now
+            or type(permission.new_use) is not bool
+            or type(permission.admission_expires) is not int
+            or type(permission.active_expires) is not int
+            or type(permission.completion_grace) is not CompletionGrace
+            or not isinstance(permission.completion_grace.profile, str)
+            or not permission.completion_grace.profile
+            or type(permission.completion_grace.seconds) is not int
+            or permission.completion_grace.seconds <= 0
         ):
             return None
         return permission
@@ -155,18 +176,20 @@ class Model:
         if now is None:
             return None
         permission = self._permission(attempt, now)
-        if permission is None:
+        if permission is None or now >= permission.admission_expires:
             self._halted = True
             self.stop(attempt)
             return None
-        ticket = Acceptance(attempt, attempt.session, min(now + self.lease, permission.expires))
+        if not permission.new_use:
+            return None
+        ticket = Acceptance(attempt, attempt.session, min(now + self.lease, permission.admission_expires))
         self._acceptance = ticket
         attempt.phase = "registered"
         return ticket
 
     def confirm(self, attempt: Attempt, ticket: Acceptance) -> bool:
         self.poll()
-        if attempt is not self._current or ticket is not self._acceptance or ticket.owner is not attempt:
+        if not self._new_use or attempt is not self._current or ticket is not self._acceptance or ticket.owner is not attempt:
             return False
         attempt.phase = "ready"
         return True
@@ -179,18 +202,24 @@ class Model:
         if now is None:
             return None
         if now >= ticket.expires:
-            self._expire_registration(attempt, now)
+            self._expire_registration(attempt, ticket.expires)
             return None
         permission = self._permission(attempt, now)
         if permission is None:
             self._halted = True
             self.stop(attempt)
             return None
-        renewed = Acceptance(attempt, attempt.session, min(now + self.lease, permission.expires))
+        if now >= permission.admission_expires:
+            self._expire_registration(attempt, permission.admission_expires)
+            return None
+        if not permission.new_use:
+            return None
+        renewed = Acceptance(attempt, attempt.session, min(now + self.lease, permission.admission_expires))
         self._acceptance = renewed
         return renewed
 
     def poll(self) -> None:
+        self._new_use = False
         now = self._time()
         attempt = self._current
         if attempt is None or now is None or attempt.phase == "terminal":
@@ -198,36 +227,54 @@ class Model:
         if attempt.transport.closed:
             self.stop(attempt)
             return
-        if self._permission(attempt, now) is None:
+        permission = self._permission(attempt, now)
+        if permission is None:
             self._halted = True
             self.stop(attempt)
             return
-        if self._work is not None and now >= self._work.deadline:
-            self._work.cancelled = True
-            self._work = None
+        self._new_use = permission.new_use
+        if self._work is not None:
+            if permission.completion_grace.profile != self._work.completion_grace.profile:
+                self._halted = True
+                self.stop(attempt)
+                return
+            if permission.completion_grace.seconds < self._work.completion_grace.seconds:
+                self._work.completion_grace = permission.completion_grace
+            if self._work.drain_started is not None:
+                self._work.deadline = min(
+                    self._work.deadline,
+                    self._work.drain_started + self._work.completion_grace.seconds,
+                )
+            # Fresh input may narrow authority but never implicitly renew it.
+            self._work.deadline = min(self._work.deadline, permission.active_expires)
+            if now >= self._work.deadline:
+                self._work.cancelled = True
+                self._work = None
         ticket = self._acceptance
-        if ticket is not None and now >= ticket.expires:
-            self._expire_registration(attempt, now)
+        if ticket is not None and now >= min(ticket.expires, permission.admission_expires):
+            self._expire_registration(attempt, min(ticket.expires, permission.admission_expires))
+        elif now >= permission.admission_expires and attempt.phase != "draining":
+            self._expire_registration(attempt, permission.admission_expires)
         if attempt.phase == "draining" and self._work is None:
             self.stop(attempt)
 
-    def _expire_registration(self, attempt: Attempt, now: int) -> None:
+    def _expire_registration(self, attempt: Attempt, started: int) -> None:
         self._acceptance = None
         attempt.phase = "draining"
-        if self._work is not None and now >= self._work.deadline:
-            self._work.cancelled = True
-            self._work = None
+        if self._work is not None:
+            previous = self._work.drain_started
+            self._work.drain_started = started if previous is None else min(previous, started)
+            self._work.deadline = min(self._work.deadline, self._work.drain_started + self._work.completion_grace.seconds)
+            if self._last_time is not None and self._last_time >= self._work.deadline:
+                self._work.cancelled = True
+                self._work = None
         if self._work is None:
             self.stop(attempt)
 
-    def admit_work(self, attempt: Attempt, *, deadline: int, lease_bounds_active: bool) -> ActiveWork | None:
-        """Explicit fixture policy: caller chooses whether lease also caps work.
-
-        Both choices remain bounded by admission-time permission and caller
-        deadline. Renewal never extends an already admitted request's deadline.
-        """
-        if type(deadline) is not int or type(lease_bounds_active) is not bool:
-            raise ValueError("explicit integer deadline and boolean fixture policy required")
+    def admit_work(self, attempt: Attempt, *, deadline: int) -> ActiveWork | None:
+        """Admit one fake request under separately named ongoing authority."""
+        if type(deadline) is not int:
+            raise ValueError("explicit integer request deadline required")
         self.poll()
         if attempt is not self._current or attempt.phase != "ready" or self._work is not None:
             return None
@@ -236,18 +283,59 @@ class Model:
         if now is None or ticket is None:
             return None
         if now >= ticket.expires:
-            self.stop(attempt)
+            self._expire_registration(attempt, ticket.expires)
             return None
         permission = self._permission(attempt, now)
         if permission is None:
             self._halted = True
             self.stop(attempt)
             return None
-        bounded = min(deadline, permission.expires, ticket.expires if lease_bounds_active else permission.expires)
+        if now >= permission.admission_expires:
+            self._expire_registration(attempt, permission.admission_expires)
+            return None
+        if not permission.new_use:
+            return None
+        bounded = min(deadline, permission.active_expires)
         if bounded <= now:
             return None
-        self._work = ActiveWork(attempt, bounded)
+        self._work = ActiveWork(attempt, bounded, deadline, permission.completion_grace)
         return self._work
+
+    def renew_work(self, work: ActiveWork) -> bool:
+        """Explicit fake reauthorization of the same work; no replay or rebinding.
+
+        This slice permits renewal only while still eligible, before the old
+        work bound. It does not implement reauthorization while draining.
+        """
+        self.poll()
+        attempt = self._current
+        if work is not self._work or attempt is None or attempt.phase != "ready" or self._halted:
+            return False
+        now = self._time()
+        ticket = self._acceptance
+        if now is None or ticket is None:
+            return False
+        if now >= work.deadline or now >= ticket.expires:
+            self.poll()
+            return False
+        permission = self._permission(attempt, now)
+        if permission is None:
+            self._halted = True
+            self.stop(attempt)
+            return False
+        if now >= permission.admission_expires:
+            self._expire_registration(attempt, permission.admission_expires)
+            return False
+        if permission.completion_grace.profile != work.completion_grace.profile:
+            return False
+        if not permission.new_use:
+            return False
+        bounded = min(work.requested_deadline, permission.active_expires)
+        if bounded <= now:
+            return False
+        work.deadline = bounded
+        work.completion_grace = permission.completion_grace
+        return True
 
     def finish_work(self, work: ActiveWork) -> None:
         self.poll()
@@ -258,7 +346,7 @@ class Model:
         if self._current is not None and self._current.phase == "draining":
             self.stop(self._current)
 
-    def enforce(self, attempt: Attempt, mode: EnforcementMode) -> None:
+    def enforce(self, attempt: Attempt, mode: EnforcementMode, *, effective_at: int | None = None) -> None:
         """Apply an already-verified fake event; no parsing or trust is provided.
 
         Exact enum type is required: Core mode 2 must not become federation
@@ -269,6 +357,14 @@ class Model:
             raise ValueError("unsupported semantic enforcement mode")
         if attempt is not self._current:
             return
+        if effective_at is not None:
+            if type(effective_at) is not int or effective_at < 0:
+                raise ValueError("invalid effective time")
+            now = self._time()
+            if now is None:
+                return
+            if effective_at > now:
+                raise ValueError("future enforcement must wait")
         # Match before polling: expiry/disconnect cleanup must not swallow a
         # revocation addressed to the current owner at this event boundary.
         self._halted = True
@@ -279,13 +375,14 @@ class Model:
         if mode is EnforcementMode.TERMINATE_ACTIVE_USE or attempt.phase == "terminal":
             self.stop(attempt)
             return
-        attempt.phase = "draining"
-        if self._work is None:
-            self.stop(attempt)
+        if self._last_time is not None:
+            # Delayed fixture dispatch retains the cause's original boundary;
+            # observing it later must not grant a fresh completion grace.
+            self._expire_registration(attempt, self._last_time if effective_at is None else effective_at)
 
     def select(self) -> Attempt | None:
         self.poll()
-        if self._current is not None and self._current.phase == "ready":
+        if self._new_use and self._current is not None and self._current.phase == "ready":
             return self._current
         return None
 

@@ -1,0 +1,79 @@
+{
+  "decision_id": "KAR-COMPOSED-POSITIVE-01",
+  "status": "proposal only; signing and implementation not performed",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "source_sha256": {
+    "tests/federation/test_cose_authority.py": "63904931e6dfea5fa07c7279a2a1ce82a4f08da64becc62307ca5aa47a7f7449",
+    "vectors/federation-v0.1-schema-proposal/literal-fixtures.json": "47af31ea9d1bad21f425e2174e9fefaf36116ca0134b75365a2770185f0d80c8",
+    "crates/nbsr-transport/src/connector_kar.rs": "358795868f77e65b4e7283df1a281256606c4a4b409cd27c6a433b7636a8349d",
+    "crates/nbsr-transport/src/connector_signature.rs": "c0e67b67d86dd7918573864c434af9fcd5d3f3f3825ef1f04e1df1e4af28f2b6",
+    "docs/reviews/2026-10-11-kar-genesis-implementation.json": "b5971d6f6752c2a47602bc884dabc07162bf3f5fcc08aced0c3dd7b48e584a7f"
+  },
+  "proposed_new_signed_records": 1,
+  "proposed_artifact": "crates/nbsr-transport/tests/fixtures/connector-kar-genesis-positive.json",
+  "fixture_id": "test-only-kar-genesis-purpose3-positive-v1",
+  "payload_source": "vectors/federation-v0.1-schema-proposal/literal-fixtures.json",
+  "payload_fixture_id": "valid-root-authorized-genesis",
+  "payload_sha256": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed",
+  "payload_modifications": [],
+  "supplied_root": {
+    "operator_hex": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f",
+    "kid_hex": "726f6f742d6b6964",
+    "public_key_hex": "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8",
+    "existing_public_seed_recipe": "bytes(range(32)); tests/federation/test_cose_authority.py",
+    "purpose": 1,
+    "lifecycle": 2,
+    "generation": 1,
+    "sequence": 1,
+    "not_before": 900,
+    "expires_at": 2100,
+    "revoked": false
+  },
+  "subject": {
+    "operator_hex": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f",
+    "kid_hex": "6f7065726174696f6e616c2d6b6964",
+    "public_key_hex": "4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b",
+    "purpose": 3,
+    "lifecycle": 2,
+    "generation": 1,
+    "sequence": 1,
+    "not_before": 1000,
+    "expires_at": 2000,
+    "revoked": false,
+    "previous_digest": "absent",
+    "recovery_transition_digest": "absent",
+    "revocation_reference": null
+  },
+  "purpose12": {
+    "positive_mapping": null,
+    "required_result_with_this_record": "reject exact-purpose mismatch",
+    "normal_roster_integration": false,
+    "reason": "separate authorization mapping not needed to close existing composed-positive gap"
+  },
+  "purpose14": {
+    "required_result_with_this_record": "reject exact-purpose mismatch"
+  },
+  "accept_times": [
+    1000,
+    1500,
+    2000
+  ],
+  "reject_times": [
+    999,
+    2001
+  ],
+  "signature_encoding": {
+    "tag": 18,
+    "algorithm": -8,
+    "protected_kid": "root-kid",
+    "unprotected": {},
+    "attached_exact_payload": true,
+    "external_aad_hex": ""
+  },
+  "review": "connector_model_review recommends exactly this one unchanged purpose3 payload/signature; defer positive12 mappings",
+  "new_keys_generated": 0,
+  "signatures_generated_in_design": 0,
+  "runtime_enabled": false,
+  "registration_ready": false,
+  "decision_requested": "Approve deterministic signing of this one unchanged payload using the existing public test root, retention in the named test fixture artifact, and bounded composed acceptance/rejection verification. No additional signed records or mappings."
+}

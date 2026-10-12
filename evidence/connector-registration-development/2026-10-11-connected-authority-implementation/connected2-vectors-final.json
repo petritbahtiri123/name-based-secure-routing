@@ -1,0 +1,17 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-vectors-final",
+  "argv": [
+    "python",
+    "-m",
+    "scripts.check_connected_authority_vectors",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 1.01,
+  "disk_start": 11665166336,
+  "disk_end": 11665166336,
+  "ram_end": 3743092736,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "persistence-expanded",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_inclusion_persistence.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.02,
+  "disk_start": 11936264192,
+  "disk_end": 11936264192,
+  "ram_end": 3359612928,
+  "direct_child_reaped": true
+}

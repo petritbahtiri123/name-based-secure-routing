@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp1-review-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "-k",
+    "closed_connections or withheld_proof or authority_revision"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 12223139840,
+  "disk_end": 12223135744,
+  "ram_end": 5328551936,
+  "direct_child_reaped": true
+}

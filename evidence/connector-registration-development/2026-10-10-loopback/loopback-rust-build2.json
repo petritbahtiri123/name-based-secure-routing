@@ -1,0 +1,26 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "loopback-rust-build2",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_loopback",
+    "--no-run"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 4.42,
+  "disk_start": 11997442048,
+  "disk_end": 11900862464,
+  "ram_end": 4664590336,
+  "direct_child_reaped": true
+}

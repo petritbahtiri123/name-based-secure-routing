@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected-native-red",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_authority"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 16.49,
+  "disk_start": 11888533504,
+  "disk_end": 11886690304,
+  "ram_end": 2837708800,
+  "direct_child_reaped": true
+}

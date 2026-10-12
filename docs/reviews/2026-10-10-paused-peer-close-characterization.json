@@ -1,0 +1,131 @@
+{
+  "base": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+  "status": "test-only characterization; uncommitted",
+  "result": "1 test passed with two variants: observed ApplicationClosed while paused retains4096byte quota; explicit abort or ownerDrop without drive releases to0; final Weak shared stream cannot upgrade. Contract matches; no new runtime defect.",
+  "review": "full_delta_review: initial moved-value compile blocker fixed; subsequent no blocker; redundant assertion before cleanup removed and exact test rerun PASS",
+  "checks": [
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "paused-close-characterization",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--lib",
+        "paused_owned_send_peer_close_retains_quota_until_abort_or_drop_without_repoll",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "abort": null,
+      "elapsed_seconds": 1.42,
+      "disk_start": 12353269760,
+      "disk_end": 12447678464,
+      "ram_end": 6117785600,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\paused-close-characterization.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\paused-close-characterization.stderr.log",
+          "sha256": "76489fe8638350d0d414ac20c0afd8c434b4577a930e189953199f69789db291"
+        }
+      ]
+    },
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "paused-close-characterization-corrected",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--lib",
+        "paused_owned_send_peer_close_retains_quota_until_abort_or_drop_without_repoll",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.83,
+      "disk_start": 12449611776,
+      "disk_end": 12390051840,
+      "ram_end": 6059552768,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\paused-close-characterization-corrected.stdout.log",
+          "sha256": "c1fc727f6fcf0df6c53db5eca94e3fd9dc7c83b0bc968267edb36f69fbd1fff6"
+        },
+        {
+          "path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\paused-close-characterization-corrected.stderr.log",
+          "sha256": "5dffd13ec6d6a9a4dcb4b988f4c3ee9c18d42773d3dc3fc7dda1b94539d99ab7"
+        }
+      ]
+    },
+    {
+      "commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+      "label": "paused-close-characterization-final",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--lib",
+        "paused_owned_send_peer_close_retains_quota_until_abort_or_drop_without_repoll",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 4.42,
+      "disk_start": 12390047744,
+      "disk_end": 12404318208,
+      "ram_end": 6121795584,
+      "direct_child_reaped": true,
+      "logs": [
+        {
+          "path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\paused-close-characterization-final.stdout.log",
+          "sha256": "c1fc727f6fcf0df6c53db5eca94e3fd9dc7c83b0bc968267edb36f69fbd1fff6"
+        },
+        {
+          "path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\paused-close-characterization-final.stderr.log",
+          "sha256": "3b9294c0155a330490e0b2551a91d276e08c27d7de9f03c2d9f5480992ebe230"
+        }
+      ]
+    }
+  ],
+  "source_sha256": "472851ad26b93620547e5000cd7964e022a8f25e443d19994fd878934efa559e",
+  "patch_sha256": "9e8c5b29b38b941a3ae754937f76e79db8ad4bcc4efbbd373b337431bf1245e3",
+  "patch_path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-owned-revoke-evidence\\paused-close-final.patch",
+  "limitations": "Only focused test rerun, not full library/hosted. No runtime or authority change. Initial compile failure retained.",
+  "cleanup": "All supervised children reaped; no containers created.",
+  "_publication_derivative": {
+    "original_sha256": "5c5ce6b4bfd6c5009a8f67064f28bc58bd73b58e3d8584c5e02d356a64e355e9",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

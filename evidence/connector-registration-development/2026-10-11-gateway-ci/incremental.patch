@@ -1,0 +1,26 @@
+--- before/scripts/ci/check.py
++++ after/scripts/ci/check.py
+@@ -22,7 +22,7 @@
+     "test_name_registry", "test_name_relay", "test_name_security", "test_originset",
+     "test_resolution_state", "test_route_registry", "test_secure_files", "test_security",
+     "test_service_tls", "test_services", "test_synthetic", "test_verifier",
+-    "test_gateway_plan", "test_gateway_profile", "test_gateway_verify", "test_gateway_journal",
++    "test_gateway_plan", "test_gateway_profile", "test_gateway_verify", "test_gateway_journal", "test_gateway_cli",
+     "test_wp6_continuity_state", "test_wp6_failover", "test_wp6_replication",
+     "test_wp7_admission", "test_wp7_limits", "test_wp7_operator_model", "test_wp7_review_fixes",
+     "test_connector_control_model", "test_connector_federation_model",
+--- before/tests/ci/test_ci.py
++++ after/tests/ci/test_ci.py
+@@ -167,6 +167,12 @@
+     assert any("scripts/verify_connector_registration_vectors.mjs" in c.argv for c in command_groups("node"))
+ 
+ 
++def test_gateway_cli_process_contract_is_selected_with_its_neighbors():
++    core = command_groups("python-core")[0].argv
++    for name in ("cli", "plan", "profile", "verify", "journal"):
++        assert core.count(f"tests/test_gateway_{name}.py") == 1
++
++
+ def test_connector_loopback_is_manual_and_prebuilt():
+     commands = command_groups("connector-loopback")
+     assert "--no-run" in commands[0].argv

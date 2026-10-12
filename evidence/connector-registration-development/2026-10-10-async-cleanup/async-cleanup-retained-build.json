@@ -1,0 +1,30 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "async-cleanup-retained-build",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "-c",
+    "-o",
+    "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-async-cleanup-final.test.exe"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 1.41,
+  "disk_start": 12070969344,
+  "disk_end": 12065677312,
+  "ram_end": 4710715392,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "7eca73fbe7e7df18ccc51e32926bb74ad790fae02a6a7aee48b04e0848853d80",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

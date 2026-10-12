@@ -1,0 +1,32 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "day-zero-revision-clippy",
+  "argv": [
+    "cargo",
+    "clippy",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_control",
+    "--test",
+    "connector_registration",
+    "--test",
+    "connector_loopback",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.01,
+  "disk_start": 12199284736,
+  "disk_end": 12199092224,
+  "ram_end": 4120932352,
+  "direct_child_reaped": true
+}

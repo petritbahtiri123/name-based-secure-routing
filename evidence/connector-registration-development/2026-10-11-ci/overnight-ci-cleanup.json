@@ -1,0 +1,32 @@
+{
+  "confirmed_reaps": 19,
+  "removed_empty_failed_test_directories": [],
+  "remaining_udp_endpoints": [],
+  "remaining_processes": [
+    15040
+  ],
+  "case_pass_count": 19,
+  "observed_pids": [
+    3452,
+    3932,
+    4376,
+    4836,
+    5108,
+    6108,
+    8996,
+    9360,
+    10048,
+    11856,
+    12936,
+    14784,
+    15040,
+    15288,
+    15332,
+    16440,
+    16812,
+    17048,
+    17424,
+    18280
+  ],
+  "remaining_worker_directories": []
+}

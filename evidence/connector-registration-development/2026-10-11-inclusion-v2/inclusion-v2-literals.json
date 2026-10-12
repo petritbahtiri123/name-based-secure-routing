@@ -1,0 +1,17 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "inclusion-v2-literals",
+  "argv": [
+    "python",
+    "-m",
+    "scripts.revocation_inclusion_v2",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.81,
+  "disk_start": 11965718528,
+  "disk_end": 11965718528,
+  "ram_end": 2992717824,
+  "direct_child_reaped": true
+}

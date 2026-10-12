@@ -1,0 +1,1 @@
+Independent review: release failure after completed writes initially bypassed uncertainty latch; three RED regressions then fix. Followup inspected release and reentrant-operation fixes and reported both resolved, no new blocker. Reviewer did not rerun tests. Memory-only scope; no filesystem durability/ACL validation.

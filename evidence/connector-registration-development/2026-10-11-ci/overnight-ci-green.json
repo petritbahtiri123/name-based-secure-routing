@@ -1,0 +1,29 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-ci-green",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/ci",
+    "--basetemp",
+    "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-ci-20261011-tests"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 4.63,
+  "disk_start": 11652861952,
+  "disk_end": 11652833280,
+  "ram_end": 4666720256,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "186ab9078dc169ee35bfbb9795c731c152ff4fb81dfeb6794c61ecb9fd808fab",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

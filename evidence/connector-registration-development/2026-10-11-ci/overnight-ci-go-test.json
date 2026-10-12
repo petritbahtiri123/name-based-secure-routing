@@ -1,0 +1,25 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-ci-go-test",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-mod=readonly",
+    "-p=2",
+    "-tags",
+    "connector_development",
+    "-timeout=90s",
+    "-parallel=2",
+    "-count=1",
+    "./connector"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.01,
+  "disk_start": 11651514368,
+  "disk_end": 11650990080,
+  "ram_end": 4706295808,
+  "direct_child_reaped": true
+}

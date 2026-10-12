@@ -1,0 +1,612 @@
+{
+  "python-core": [
+    {
+      "name": "python-core",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci",
+        "tests/test_control_plane.py",
+        "tests/test_destination_policy.py",
+        "tests/test_dns_stub.py",
+        "tests/test_name_node.py",
+        "tests/test_name_registry.py",
+        "tests/test_name_relay.py",
+        "tests/test_name_security.py",
+        "tests/test_originset.py",
+        "tests/test_resolution_state.py",
+        "tests/test_route_registry.py",
+        "tests/test_secure_files.py",
+        "tests/test_security.py",
+        "tests/test_service_tls.py",
+        "tests/test_services.py",
+        "tests/test_synthetic.py",
+        "tests/test_verifier.py",
+        "tests/test_gateway_plan.py",
+        "tests/test_gateway_profile.py",
+        "tests/test_gateway_verify.py",
+        "tests/test_gateway_journal.py",
+        "tests/test_wp6_continuity_state.py",
+        "tests/test_wp6_failover.py",
+        "tests/test_wp6_replication.py",
+        "tests/test_wp7_admission.py",
+        "tests/test_wp7_limits.py",
+        "tests/test_wp7_operator_model.py",
+        "tests/test_wp7_review_fixes.py",
+        "tests/test_connector_control_model.py",
+        "tests/test_connector_federation_model.py",
+        "tests/test_connector_registration_authority_offline.py",
+        "tests/test_connector_authority_timer_offline.py",
+        "deploy/single-instance/test_validate_config.py"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "python-dependencies",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "python-protocol": [
+    {
+      "name": "python-protocol",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol",
+        "--ignore=tests/federation/test_independent_wire_peer.py"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "python-federation",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation",
+        "--ignore=tests/federation/test_independent_wire_peer.py"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "python-correctness-lint",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "--select",
+        "E9,F63,F7,F82",
+        "nbsr",
+        "services",
+        "gateway",
+        "scripts",
+        "tests"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "ci-lint",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "scripts/ci",
+        "tests/ci"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "repository-privacy",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/verify_wp8_repository_safety.py",
+        "privacy",
+        "."
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "core-vectors",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/generate_core_v02_vectors.py",
+        "--check",
+        "vectors/core-v0.2"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "federation-v2-vectors",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/generate_federation_v01_vectors.py",
+        "--version",
+        "federation-v0.1-development-v2",
+        "--check",
+        "vectors/federation-v0.1-development-v2"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "exporter-vectors",
+      "argv": [
+        "@LOCAL_USER_ROOT@\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+        "scripts/generate_wp4_exporter_vectors.py",
+        "--check"
+      ],
+      "cwd": "."
+    }
+  ],
+  "rust": [
+    {
+      "name": "rust-format",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--check"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "rust-default",
+      "argv": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "2",
+        "--lib"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "rust-library",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--lib"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "rust-transport",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--test",
+        "handshake",
+        "--test",
+        "stream_credit_integration",
+        "--test",
+        "drain",
+        "--test",
+        "config"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "rust-codec",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--test",
+        "p2a_benchmark",
+        "frame"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "rust-connector",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_control",
+        "--test",
+        "connector_registration",
+        "--test",
+        "connector_loopback"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "rust-doc",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--doc"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "rust-clippy",
+      "argv": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": "."
+    }
+  ],
+  "go": [
+    {
+      "name": "go-0-test",
+      "argv": [
+        "go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-timeout=90s",
+        "-parallel=2",
+        "./..."
+      ],
+      "cwd": "client/nbsr-go-client"
+    },
+    {
+      "name": "go-0-vet",
+      "argv": [
+        "go",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "./..."
+      ],
+      "cwd": "client/nbsr-go-client"
+    },
+    {
+      "name": "go-1-test",
+      "argv": [
+        "go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-timeout=90s",
+        "-parallel=2",
+        "./..."
+      ],
+      "cwd": "client/nbsr-go-client/demo"
+    },
+    {
+      "name": "go-1-vet",
+      "argv": [
+        "go",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "./..."
+      ],
+      "cwd": "client/nbsr-go-client/demo"
+    },
+    {
+      "name": "go-2-test",
+      "argv": [
+        "go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-timeout=90s",
+        "-parallel=2",
+        "./..."
+      ],
+      "cwd": "interop/nbsr-go-peer"
+    },
+    {
+      "name": "go-2-vet",
+      "argv": [
+        "go",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "./..."
+      ],
+      "cwd": "interop/nbsr-go-peer"
+    },
+    {
+      "name": "go-3-test",
+      "argv": [
+        "go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-timeout=90s",
+        "-parallel=2",
+        "./..."
+      ],
+      "cwd": "verifiers/federation-go"
+    },
+    {
+      "name": "go-3-vet",
+      "argv": [
+        "go",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "./..."
+      ],
+      "cwd": "verifiers/federation-go"
+    },
+    {
+      "name": "go-4-test",
+      "argv": [
+        "go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-timeout=90s",
+        "-parallel=2",
+        "./..."
+      ],
+      "cwd": "deploy/isp-federation-poc/adapter"
+    },
+    {
+      "name": "go-4-vet",
+      "argv": [
+        "go",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "./..."
+      ],
+      "cwd": "deploy/isp-federation-poc/adapter"
+    },
+    {
+      "name": "go-connector-test",
+      "argv": [
+        "go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-tags",
+        "connector_development",
+        "-timeout=90s",
+        "-parallel=2",
+        "-count=1",
+        "./connector"
+      ],
+      "cwd": "interop/nbsr-go-peer"
+    },
+    {
+      "name": "go-connector-vet",
+      "argv": [
+        "go",
+        "vet",
+        "-mod=readonly",
+        "-p=2",
+        "-tags",
+        "connector_development",
+        "./connector"
+      ],
+      "cwd": "interop/nbsr-go-peer"
+    },
+    {
+      "name": "go-federation-v2",
+      "argv": [
+        "go",
+        "run",
+        "-mod=readonly",
+        "-p=2",
+        "./cmd/verify",
+        "--version",
+        "federation-v0.1-development-v2",
+        "../../vectors/federation-v0.1-development-v2"
+      ],
+      "cwd": "verifiers/federation-go"
+    }
+  ],
+  "node": [
+    {
+      "name": "node-connector-vectors",
+      "argv": [
+        "node",
+        "scripts/verify_connector_registration_vectors.mjs"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "node-core-tests",
+      "argv": [
+        "node",
+        "--test",
+        "test/verifier.test.mjs"
+      ],
+      "cwd": "tools/core-v02-node-verifier"
+    },
+    {
+      "name": "node-core-vectors",
+      "argv": [
+        "node",
+        "verify.mjs",
+        "../../vectors/core-v0.2"
+      ],
+      "cwd": "tools/core-v02-node-verifier"
+    },
+    {
+      "name": "node-federation-tests",
+      "argv": [
+        "node",
+        "--test",
+        "test\\cose.test.js",
+        "test\\full.test.js",
+        "test\\json.test.js",
+        "test\\manifest.test.js",
+        "test\\mutations.test.js",
+        "test\\oracle-independence.test.js",
+        "test\\primitives.test.js"
+      ],
+      "cwd": "verifiers/federation-node"
+    },
+    {
+      "name": "node-federation-vectors",
+      "argv": [
+        "node",
+        "src/verifier.js",
+        "../../vectors/federation-v0.1"
+      ],
+      "cwd": "verifiers/federation-node"
+    },
+    {
+      "name": "node-federation-v2",
+      "argv": [
+        "node",
+        "src/verifier.js",
+        "--version",
+        "federation-v0.1-development-v2",
+        "../../vectors/federation-v0.1-development-v2"
+      ],
+      "cwd": "verifiers/federation-node"
+    },
+    {
+      "name": "node-exporter",
+      "argv": [
+        "node",
+        "scripts/verify_wp4_exporter_vectors.mjs",
+        "vectors/core-v0.2/wp4-exporter"
+      ],
+      "cwd": "."
+    }
+  ],
+  "connector-loopback": [
+    {
+      "name": "connector-loopback-build",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_loopback",
+        "--no-run"
+      ],
+      "cwd": "."
+    },
+    {
+      "name": "connector-worker-build",
+      "argv": [
+        "go",
+        "test",
+        "-mod=readonly",
+        "-p=2",
+        "-tags",
+        "connector_development",
+        "-c",
+        "-o",
+        "<task-owned-worker>",
+        "./connector"
+      ],
+      "cwd": "interop/nbsr-go-peer"
+    },
+    {
+      "name": "connector-loopback",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_loopback",
+        "isolated_go_rust_control_registration",
+        "--",
+        "--ignored",
+        "--exact",
+        "--nocapture"
+      ],
+      "cwd": "."
+    }
+  ],
+  "_publication_derivative": {
+    "original_sha256": "cf120c8a5ae5562a586aac5babdc6b3371489d47c7a6e443578ed1154ee21631",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

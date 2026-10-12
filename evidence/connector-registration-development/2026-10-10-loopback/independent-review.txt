@@ -1,0 +1,1 @@
+Independent reviewer /root/connector_model_review: original three findings resolved; exact rejection assertions prevent synthetic authority fallback masking ownership/session gates; cancellation evidence limited to worker join and retained owner. No remaining blocking findings. Inspection only, no independent test rerun.

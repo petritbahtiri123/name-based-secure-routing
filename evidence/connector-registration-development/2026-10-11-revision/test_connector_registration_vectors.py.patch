@@ -1,0 +1,38 @@
+--- before/tests/protocol/test_connector_registration_vectors.py
++++ after/tests/protocol/test_connector_registration_vectors.py
+@@ -493,6 +493,35 @@
+     assert rig[1].counts()["owned"] == 0
+ 
+ 
++@pytest.mark.parametrize("operation", ["register", "renew"])
++def test_challenge_revision_change_requires_fresh_exchange(rig, operation):
++    api, gateway, authority, clock, transport, body = rig
++    counter, sequence = 1, 1
++    previous = None
++    if operation == "renew":
++        previous = accepted(rig)[3]
++        clock.now = 130
++        body = body | {1: "renew", 14: 130, 15: api.accept_digest(transport.session, rid(1), previous)}
++        counter, sequence = 2, 3
++    owner = gateway.handle(transport)
++    proof = start(rig, rid(counter), sequence, body)[2]
++    authority.revision += 1
++    with error(ErrorCode.NBSR_E_RECORD_STALE):
++        gateway.prove(transport, rid(counter), sequence + 1, proof)
++    assert gateway.handle(transport) is owner
++    assert gateway.counts()["pending"] == 0
++    if previous is not None:
++        assert gateway.connections[id(transport)].expires == previous[6]
++        assert gateway.eligible(transport)
++    # Same consumed operation cannot be retried into success; a new one can.
++    with error(ErrorCode.NBSR_E_RECORD_STALE):
++        gateway.prove(transport, rid(counter), sequence + 2, proof)
++    successor = start(rig, rid(counter + 1), sequence + 3, body)[2]
++    result = gateway.prove(transport, rid(counter + 1), sequence + 4, successor)
++    assert result[6] == clock.now + 60
++    assert gateway.counts()["owned"] == 1
++
++
+ @pytest.mark.parametrize("size", [1, 63, 64, 16383, 16384, 65536])
+ def test_crp23_frame_boundaries(api, size):
+     raw = b"x" * size

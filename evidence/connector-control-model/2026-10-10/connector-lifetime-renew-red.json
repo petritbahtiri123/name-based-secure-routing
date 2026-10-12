@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connector-lifetime-renew-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_control_model.py",
+    "-k",
+    "registration_renewal_crossing"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.42,
+  "disk_start": 12311093248,
+  "disk_end": 12311089152,
+  "ram_end": 4601217024,
+  "direct_child_reaped": true
+}

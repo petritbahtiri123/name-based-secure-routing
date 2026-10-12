@@ -1,0 +1,33 @@
+{
+  "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "proposal only; awaiting exact approval and allocations",
+  "files": [
+    {
+      "path": "docs/protocol/connector-outbound-profile.md",
+      "bytes": 76596,
+      "sha256": "5751fd648498dfbe4ca7fb37af1548c1e74bdf1c3646cf0edd26a7de19320ae0"
+    },
+    {
+      "path": "docs/protocol/connector-registration-v1-vector-proposal.json",
+      "bytes": 10729,
+      "sha256": "ba18188b488a72c43b62b2c2b1ce1cd1de56b9eec68d10aebac033806f197c26"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 52511,
+      "sha256": "e6948ea789875307ce19dab70c8ece9369ddad0e4e6fa468bc11b645db8ee22b"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-profile-proposal-review.md",
+      "bytes": 2531,
+      "sha256": "b9a00d3c25f9ea9c0f1b1ac9ea098d99e0d2452e69512f53c2f77aff6f8aa70d"
+    }
+  ],
+  "vector_design_cases": 24,
+  "executable_vectors": "not generated",
+  "model_test_baseline": 187,
+  "runtime_tests_rerun": false,
+  "source_test_hashes_unchanged": true,
+  "review": "three design issues corrected; narrow independent rereview no blockers",
+  "publication": "none"
+}

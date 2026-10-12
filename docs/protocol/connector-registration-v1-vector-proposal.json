@@ -1,0 +1,227 @@
+{
+  "proposal": "connector-registration-v1-draft1",
+  "status": "design inventory only; no executable vectors or assigned wire IDs",
+  "allocation_markers": [
+    "UNALLOCATED_CONNECTOR_REGISTER_ACTION",
+    "UNALLOCATED_CONNECTOR_PROFILE",
+    "UNALLOCATED_REQUEST",
+    "UNALLOCATED_CHALLENGE",
+    "UNALLOCATED_PROOF",
+    "UNALLOCATED_ACCEPT",
+    "UNALLOCATED_REJECT",
+    "UNALLOCATED_WITHDRAW",
+    "UNALLOCATED_IF_REQUIRED"
+  ],
+  "runtime_authorized": false,
+  "case_count": 24,
+  "cases": [
+    {
+      "id": "CRP-01",
+      "name": "register_success",
+      "input_condition": "exact verified service/key/policy; fresh live exporter proof",
+      "expected_outcome": "one eligible owner; correlated bounded ACCEPT",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-02",
+      "name": "renew_success",
+      "input_condition": "same owner; new request and current previous_accept_digest before lease expiry",
+      "expected_outcome": "same registration/epoch/generation; replaced bounded ACCEPT; no work replay",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-03",
+      "name": "exact_retry",
+      "input_condition": "identical retained request/proof on same connection with fresh envelope sequence",
+      "expected_outcome": "identical canonical ACCEPT body only for current eligible owner; no lease/generation increase; superseded result rejects",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation",
+      "variants": [
+        "current result retry returns exact body with new envelope sequence",
+        "old register request after renewal rejects as superseded",
+        "old renewal request after successor renewal rejects as superseded",
+        "pending request retry returns same challenge and original expiry"
+      ]
+    },
+    {
+      "id": "CRP-04",
+      "name": "withdraw",
+      "input_condition": "exact current handle and acceptance digest",
+      "expected_outcome": "ineligible then confirmed cleanup; zero owned",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-05",
+      "name": "wrong_peer_or_key",
+      "input_condition": "valid signature but wrong pinned peer/operator/key/purpose",
+      "expected_outcome": "reject; no new owner",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-06",
+      "name": "missing_registration_right",
+      "input_condition": "transport authority valid; missing exact registration action/service delegation",
+      "expected_outcome": "reject; no authority inferred from TLS",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-07",
+      "name": "scope_widening",
+      "input_condition": "wrong service/destination/tenant/region or policy digest",
+      "expected_outcome": "reject; no owner",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-08",
+      "name": "expired_or_revoked_authority",
+      "input_condition": "expired/revoked relevant chain at commit",
+      "expected_outcome": "reject; no acceptance",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-09",
+      "name": "stale_generation",
+      "input_condition": "chain below retained generation/sequence floor or conflicting equal-version digest",
+      "expected_outcome": "reject; no rollback/equivocation acceptance",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-10",
+      "name": "cross_connection",
+      "input_condition": "valid old proof/ACCEPT copied to another TLS connection/session",
+      "expected_outcome": "reject; no replay",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-11",
+      "name": "bad_exporter",
+      "input_condition": "one mutation of label/context/order/type/length/output or nonce",
+      "expected_outcome": "reject proof; no fallback",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-12",
+      "name": "challenge_expiry",
+      "input_condition": "proof at/after challenge deadline or consumed nonce for different operation",
+      "expected_outcome": "reject; no commit",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-13",
+      "name": "conflicting_retry",
+      "input_condition": "same request_id with different canonical body digest",
+      "expected_outcome": "replay rejection; existing owner unchanged",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-14",
+      "name": "duplicate_owner",
+      "input_condition": "different live attempt for occupied service/gateway",
+      "expected_outcome": "capacity rejection; existing owner/transport unaffected",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-15",
+      "name": "late_renewal",
+      "input_condition": "old lease expires between verify and commit",
+      "expected_outcome": "reject renewal; no deadline reset; applicable drain",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-16",
+      "name": "lost_acceptance",
+      "input_condition": "commit succeeds; response lost; exact retry or connection loss",
+      "expected_outcome": "same result while live/valid; no second owner; loss cleanup bounded",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-17",
+      "name": "stale_cleanup",
+      "input_condition": "old epoch/generation/registration handle reaches successor",
+      "expected_outcome": "no successor mutation or resource release",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-18",
+      "name": "failed_cleanup",
+      "input_condition": "close throws or stays open",
+      "expected_outcome": "eligibility withdrawn; ownership retained; no takeover",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-19",
+      "name": "admission_vs_active",
+      "input_condition": "admission-only expiry with separately valid ongoing fixture",
+      "expected_outcome": "new use stops; bounded valid work preserved; no invented extension",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-20",
+      "name": "deny_and_terminate",
+      "input_condition": "verified-event fixture targets matching dependency; repeated deny then terminate",
+      "expected_outcome": "deny preserves only bounded work; terminate immediate; repeated drain never resets",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation",
+      "variants": [
+        "deny preserves independently authorized bounded work",
+        "terminate cancels immediately",
+        "repeated drain does not reset cutoff",
+        "cached request retried after deny/revocation cannot return ACCEPT"
+      ]
+    },
+    {
+      "id": "CRP-21",
+      "name": "outage_and_recovery",
+      "input_condition": "ordinary outage within cached policy then exact fresh revalidation",
+      "expected_outcome": "bounded continuation; no expansion; restore only before applicable cutoff",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-22",
+      "name": "invalid_or_future_event",
+      "input_condition": "bad issuer/scope/target/revision or future-effective verified-event fixture",
+      "expected_outcome": "no unauthorized/premature effect; narrow dispatch at valid effective boundary",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-23",
+      "name": "parser_and_resource_bounds",
+      "input_condition": "unknown key/version; bool-as-int; duplicate/noncanonical/trailing bytes; oversized request; second control/data stream; exhausted pending/retry budget",
+      "expected_outcome": "bounded rejection; no owner/queue leak; no 0-RTT/data accepted",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    },
+    {
+      "id": "CRP-24",
+      "name": "second_service_isolation_design",
+      "input_condition": "two explicit pure-coordinator fixture service keys and separate quotas/dependencies; explicit shared transport variant",
+      "expected_outcome": "A operations cannot change B; shared compromise affects exactly dependent owners; runtime still single-enabled-service",
+      "artifact_status": "PENDING profile/allocation approval and fixture generation"
+    }
+  ],
+  "future_artifact_requirements": [
+    "canonical input bytes and exact request/response correlation",
+    "existing full deterministic fixture authority and provenance",
+    "labelled exporter fixture, never production secret",
+    "expected response/error and ownership/dependency/cleanup counters",
+    "length and SHA-256 for every artifact",
+    "independent verifier result; generated expectations alone are insufficient"
+  ],
+  "limits_proposed": {
+    "max_request_bytes": 16384,
+    "max_frame_bytes": 65536,
+    "max_refs": 64,
+    "max_depth": 8,
+    "max_lease_seconds": 60,
+    "max_exchange_seconds": 5,
+    "max_connect_attempts": 3,
+    "backoff_seconds": [
+      1,
+      2
+    ],
+    "pending_per_connection": 1,
+    "completed_results_per_connection": 4,
+    "waiting_registrations": 0,
+    "enabled_services_first_slice": 1
+  },
+  "accept_digest_definition": "SHA-256(deterministic CBOR([\"NBSR-CONNECTOR-ACCEPT-DIGEST-v1\",1,session_id,request_id,ACCEPT_body])); envelope sequence/framing excluded",
+  "renewal_deadline_rule": "fresh verifier admission authority/freshness ceiling excludes old lease; commit requires old lease live; new lease may extend only to fresh ceiling",
+  "carrier_recommendation": "separate versioned connector control profile with dedicated ALPN; exact carrier/message/action/ALPN allocations remain pending"
+}

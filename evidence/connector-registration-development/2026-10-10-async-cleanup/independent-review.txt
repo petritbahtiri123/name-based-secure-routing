@@ -1,0 +1,1 @@
+Independent reviewer /root/connector_model_review found no ownership/concurrency blocker under the prompt fixture backend and serialized owner/start contract. Requested cancellation-after-wait coverage; controlled Done-entry cancellation/deadline tests added and rereviewed. No remaining blocker; reviewer did not rerun tests or claim real backend completion bounds.

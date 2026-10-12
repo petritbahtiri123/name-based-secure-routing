@@ -1,0 +1,28 @@
+#![allow(dead_code)]
+#[path = "../src/connector_control.rs"]
+mod codec;
+#[path = "../src/connector_signature.rs"]
+mod signature;
+
+// RED baseline: existing cryptographic/codec primitives have no KAR semantics.
+mod kar {
+    use crate::{codec, signature};
+    #[derive(Clone)]
+    struct SuppliedTestRoot {
+        operator: [u8; 32], kid: Vec<u8>, key: [u8; 32], purpose: u64,
+        lifecycle: u64, generation: u64, sequence: u64,
+        not_before: u64, expires: u64, revoked: bool,
+    }
+    #[derive(Clone)]
+    struct ExpectedKey {
+        operator: [u8; 32], kid: Vec<u8>, key: [u8; 32], purpose: u64,
+        terminal_ids: Vec<Vec<u8>>,
+    }
+    fn semantics(payload: &[u8], _: &SuppliedTestRoot, _: &ExpectedKey, _: u64) -> codec::Result<()> {
+        codec::decode_value(payload).map(|_| ())
+    }
+    fn verify_genesis(wire: &[u8], payload: &[u8], root: &SuppliedTestRoot, _: &ExpectedKey, _: u64) -> codec::Result<()> {
+        signature::verify_exact(wire, payload, &root.kid, &root.key).map(|_| ())
+    }
+    include!("support/connector_kar.rs");
+}

@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "inclusion-v2-lint",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "scripts/revocation_inclusion_v2.py",
+    "scripts/verify_federation_threshold_container_fixtures.py",
+    "tests/federation/test_revocation_inclusion_v2.py",
+    "scripts/ci/check.py",
+    "tests/ci/test_ci.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 11965726720,
+  "disk_end": 11965726720,
+  "ram_end": 2997063680,
+  "direct_child_reaped": true
+}

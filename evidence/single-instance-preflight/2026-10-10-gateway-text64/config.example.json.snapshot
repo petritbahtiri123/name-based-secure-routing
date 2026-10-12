@@ -1,0 +1,56 @@
+{
+  "schema_version": "nbsr-single-instance-config-v1",
+  "mode": "offline",
+  "client": {
+    "service_id": "1111111111111111111111111111111111111111111111111111111111111111",
+    "gateway_id": "gateway.fixture",
+    "proxy": {
+      "host": "127.0.0.1",
+      "port": 18080
+    },
+    "identity_ref": "ref:client-identity"
+  },
+  "gateway": {
+    "gateway_id": "gateway.fixture",
+    "endpoint": {
+      "host": "gateway.example.test",
+      "port": 4433
+    },
+    "trust_ref": "ref:gateway-trust",
+    "registration_policy_ref": "ref:registration-policy"
+  },
+  "origin": {
+    "identity_ref": "ref:connector-identity",
+    "services": [
+      {
+        "service_id": "1111111111111111111111111111111111111111111111111111111111111111",
+        "gateway_id": "gateway.fixture",
+        "operator_id": "3333333333333333333333333333333333333333333333333333333333333333",
+        "connector_principal": "4444444444444444444444444444444444444444444444444444444444444444",
+        "registration_authority_ref": "ref:registration-authority",
+        "target": {
+          "scheme": "http",
+          "host": "private-origin.example.test",
+          "port": 8080,
+          "method": "GET",
+          "path": "/",
+          "max_request_bytes": 4096,
+          "max_response_bytes": 4096
+        }
+      }
+    ]
+  },
+  "registration": {
+    "requested_lease_seconds": 60,
+    "exchange_timeout_seconds": 5,
+    "connect_attempts": 3,
+    "backoff_seconds": [
+      1,
+      2
+    ],
+    "owners_per_service": 1,
+    "pending_per_connection": 1,
+    "completed_results_per_connection": 4,
+    "waiting_registrations": 0
+  }
+}

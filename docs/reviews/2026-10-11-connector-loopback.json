@@ -1,0 +1,102 @@
+{
+  "timestamp_utc": "2026-10-10T21:09:59.960874+00:00",
+  "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "summary": "Fresh execution of the previously approved, unchanged loopback harness passed all 19 cases in one Rust test (16.91 seconds; supervisor 17.46 seconds). The current Go worker was rebuilt from cached dependencies. All 19 reaps were confirmed; the 20 observed PIDs and their UDP endpoints were absent afterward, with no forced kill. The new temporary Go worker was hashed and removed; the older worker was preserved. TLS/exporter and control interoperability are real; authority, revocation and logical time remain fixtures. Ephemeral PKI stayed in memory/private stdin, with no secret files. Both changed coordinators were independently reviewed; the unchanged harness retains its earlier review. This does not establish real authority/timers or Stage 3 closure.",
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-loopback-build",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "-c",
+        "-o",
+        "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-loopback-go-2026-10-11.test.exe",
+        "./connector"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 11666620416,
+      "disk_end": 11655335936,
+      "ram_end": 4613054464,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-loopback-live",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--features",
+        "benchmark-harness",
+        "--jobs",
+        "2",
+        "--test",
+        "connector_loopback",
+        "--",
+        "--ignored",
+        "--nocapture"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 17.46,
+      "disk_start": 11655335936,
+      "disk_end": 11655319552,
+      "ram_end": 4723826688,
+      "direct_child_reaped": true
+    }
+  ],
+  "source_sha256": {
+    "interop/nbsr-go-peer/connector/coordinator.go": "fd8bb45a3c96c3a1b6386769e628bf8d26ed604a7b067c48ff3bec151a428508",
+    "interop/nbsr-go-peer/connector/coordinator_test.go": "b7a5070e04e918c3d606370a9ebf85b9af507537fec710abecc03afdda7d02d4",
+    "crates/nbsr-transport/src/connector_registration.rs": "2325912b381e897985092203327b6bcdb5b68b57b132ff3fdc2966733f8d322f",
+    "crates/nbsr-transport/tests/connector_registration.rs": "1a363322653c15994657ccb746ffd74f0a71262df9e0d4fa281bf29761fd82d2",
+    "crates/nbsr-transport/tests/connector_loopback.rs": "f1fd000296d07a6071898ffb38a23f320cd90a11a45dcd5249ae3818f7b24bda",
+    "crates/nbsr-transport/tests/support/connector_loopback.rs": "8717426268581c3ca013ebd9121c51f0fb97d0775991c2b772d1f03928dd2403",
+    "interop/nbsr-go-peer/connector/loopback_test.go": "6703b242a3e56062a256cf3c2b6a23cee8417e2fc700102fcda99cf1fb066805"
+  },
+  "hashes": {
+    "docs/reviews/2026-10-11-connector-loopback.md": "3be2b432b2127f4b8469f33fa9b91ceb9dc82732e898bb84b271872f0e77918f",
+    "evidence/connector-registration-development/2026-10-11-loopback/0-coordinator.go.snapshot": "fd8bb45a3c96c3a1b6386769e628bf8d26ed604a7b067c48ff3bec151a428508",
+    "evidence/connector-registration-development/2026-10-11-loopback/1-coordinator_test.go.snapshot": "b7a5070e04e918c3d606370a9ebf85b9af507537fec710abecc03afdda7d02d4",
+    "evidence/connector-registration-development/2026-10-11-loopback/2-connector_registration.rs.snapshot": "2325912b381e897985092203327b6bcdb5b68b57b132ff3fdc2966733f8d322f",
+    "evidence/connector-registration-development/2026-10-11-loopback/3-connector_registration.rs.snapshot": "1a363322653c15994657ccb746ffd74f0a71262df9e0d4fa281bf29761fd82d2",
+    "evidence/connector-registration-development/2026-10-11-loopback/4-connector_loopback.rs.snapshot": "f1fd000296d07a6071898ffb38a23f320cd90a11a45dcd5249ae3818f7b24bda",
+    "evidence/connector-registration-development/2026-10-11-loopback/5-connector_loopback.rs.snapshot": "8717426268581c3ca013ebd9121c51f0fb97d0775991c2b772d1f03928dd2403",
+    "evidence/connector-registration-development/2026-10-11-loopback/6-loopback_test.go.snapshot": "6703b242a3e56062a256cf3c2b6a23cee8417e2fc700102fcda99cf1fb066805",
+    "evidence/connector-registration-development/2026-10-11-loopback/nbsr-ci-clean-check.py": "f14d97f2153e7b507161a446a1ae86b7bf7f4bdcc280b7cd5a8ad73fcef558ca",
+    "evidence/connector-registration-development/2026-10-11-loopback/nbsr-owned-revoke-check.py": "36a829667b4ca77eb76deb6a027ee1475c14f6197687d117b7682f5e421e0410",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-build.json": "5b8e69c2489abc09fa0fd5fc32a0325ed9502b9c1dedcf1cecdedcbb67787cff",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-build.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-build.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-cleanup.json": "79f0f5d717ba8de93f274760ddefce21d34956ea0f480bb3dd4a922cd38a8d19",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-live.json": "5a27a8603f15ad99c0720e8b9f4e55c2d24848ae3121e537e7c656eda34a5f2b",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-live.stderr.log": "982a0cdaf97e3f307366010aa611c0759aeaf59913fb2ccca7ad2b07fa2a18cf",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-live.stdout.log": "b69436d2bc154a802fcd887d00c4cea07cdb6816cfbd65454d7c3dfe88e600f3",
+    "evidence/connector-registration-development/2026-10-11-loopback/overnight-loopback-worker-cleanup.json": "70053e62631383e1a209ad3f73f6436d09f0d37d9d0c921c0edca8f5feec2f1b"
+  },
+  "unchanged_harness": {
+    "crates/nbsr-transport/tests/connector_loopback.rs": true,
+    "crates/nbsr-transport/tests/support/connector_loopback.rs": true,
+    "interop/nbsr-go-peer/connector/loopback_test.go": true
+  },
+  "rust_binary_sha256": {
+    "@LOCAL_USER_ROOT@\\Documents\\Codex\\2026-10-04\\task\\nbsr-handshake-target\\debug\\deps\\connector_loopback-5cf0973b22824dc4.exe": "ed58a094678583ce0db00fad69eaf4260977d75f5d31a86dc4451a153071dfab"
+  },
+  "_publication_derivative": {
+    "original_sha256": "8a500e00bd24a06e4908af333409507a9e5ee08cd3c442bdf92a37d5352267d1",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "kar-fixture-check",
+  "argv": [
+    "python",
+    "scripts/extract_connector_signature_fixtures.py",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.41,
+  "disk_start": 15154302976,
+  "disk_end": 15154302976,
+  "ram_end": 8178823168,
+  "direct_child_reaped": true
+}

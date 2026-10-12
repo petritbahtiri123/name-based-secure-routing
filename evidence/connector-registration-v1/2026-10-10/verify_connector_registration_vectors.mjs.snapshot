@@ -1,0 +1,87 @@
+// Independent Node byte/transcript verification, not runtime/wire authority.
+import assert from 'node:assert/strict';
+import {createHash, createHmac} from 'node:crypto';
+import {readFileSync} from 'node:fs';
+import {resolve, dirname, sep} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {decodeDeterministic, encodeDeterministic} from '../tools/core-v02-node-verifier/lib/cbor.mjs';
+
+const root = resolve(process.argv[2] ?? resolve(dirname(fileURLToPath(import.meta.url)), '../vectors/connector-registration-v1'));
+const manifest = JSON.parse(readFileSync(resolve(root, 'manifest.json'), 'utf8'));
+const hash = b => createHash('sha256').update(b).digest();
+function load(name) {
+  const path = resolve(root, name);
+  assert(path.startsWith(root + sep));
+  const data = readFileSync(path);
+  assert.equal(data.length, manifest.artifacts[name].bytes, `length ${name}`);
+  assert.equal(hash(data).toString('hex'), manifest.artifacts[name].sha256, `hash ${name}`);
+  return data;
+}
+const limits = {maxTotalBytes: 16384, maxDepth: 8, maxArrayItems: 64, maxMapPairs: 16,
+  maxTextBytes: 64, maxByteStringBytes: 64};
+const decode = name => decodeDeterministic(load(name));
+const enc = value => encodeDeterministic(value);
+assert.equal(manifest.runtime_authorized, false);
+assert.equal(manifest.case_count, 24);
+assert.equal(new Set(manifest.cases.map(c => c.id)).size, 24);
+assert(manifest.allocation_markers.every(s => s.startsWith('UNALLOCATED_')));
+for (const name of Object.keys(manifest.artifacts)) load(name);
+const requestRaw = load('request.cbor');
+const request = decodeDeterministic(requestRaw, {limits});
+const session = Buffer.from(manifest.session_id_hex, 'hex');
+const rid = Buffer.from(manifest.request_id_hex, 'hex');
+const challenge = decode('challenge.cbor');
+const proof = decode('proof.cbor');
+const accept = decode('accept.cbor');
+const get = (map, key) => map.get(key);
+assert.deepEqual([...request.keys()], Array.from({length: 16}, (_, i) => i));
+assert.equal(get(request, 0), 1);
+assert.equal(get(request, 1), 'register');
+assert.equal(get(request, 13), 60);
+assert.equal(get(request, 14), 100);
+assert.equal(get(request, 15), null);
+assert.deepEqual(get(request, 11), hash(enc(get(request, 10))));
+assert.deepEqual(get(challenge, 1), hash(requestRaw));
+assert.equal(get(challenge, 3), 105);
+const context = enc(['NBSR-CONNECTOR-REGISTRATION-CONTEXT-v1', 1, session, rid,
+  hash(requestRaw), get(challenge, 2), get(request, 4), get(request, 5), get(request, 6), get(request, 8), get(request, 12)]);
+assert.deepEqual(load('context.cbor'), context);
+function expand(secret, label, context) {
+  const full = Buffer.from('tls13 ' + label, 'ascii');
+  const info = Buffer.concat([Buffer.from([0, 32, full.length]), full, Buffer.from([context.length]), context]);
+  return createHmac('sha256', secret).update(Buffer.concat([info, Buffer.from([1])])).digest();
+}
+const derived = expand(load('fixture-exporter-master.bin'), 'EXPORTER-NBSR-Connector-Registration-v1', hash(Buffer.alloc(0)));
+const exported = expand(derived, 'exporter', hash(context));
+assert.deepEqual(load('exporter.bin'), exported);
+assert.deepEqual(get(proof, 3), exported);
+assert.notDeepEqual(load('invalid-exporter.bin'), exported);
+assert.deepEqual(get(proof, 1), hash(requestRaw));
+assert.deepEqual(get(proof, 2), get(challenge, 2));
+assert.equal(get(accept, 4), 1);
+assert.equal(get(accept, 5), 100);
+assert.equal(get(accept, 6), 160);
+assert.equal(get(accept, 7), 130);
+assert.deepEqual(get(accept, 1), hash(requestRaw));
+assert.deepEqual(get(accept, 8), get(request, 11));
+assert.deepEqual(get(accept, 9), get(request, 12));
+const ad = hash(enc(['NBSR-CONNECTOR-ACCEPT-DIGEST-v1', 1, session, rid, accept]));
+assert.deepEqual(load('accept-digest.bin'), ad);
+assert.deepEqual(get(decode('withdraw.cbor'), 4), ad);
+const reject = decode('reject.cbor');
+assert.deepEqual(get(reject, 1), hash(requestRaw));
+assert.equal(get(get(reject, 2), 1), 3);
+assert.deepEqual(get(get(reject, 2), 2), rid);
+const framed = load('request.frame');
+const width = 1 << (framed[0] >> 6);
+let length = framed[0] & 63;
+for (let i = 1; i < width; i++) length = length * 256 + framed[i];
+assert.equal(length, requestRaw.length);
+assert.equal(width, length < 64 ? 1 : length < 16384 ? 2 : 4);
+assert.deepEqual(framed.subarray(width), requestRaw);
+for (const name of ['invalid-trailing.cbor', 'invalid-duplicate.cbor', 'invalid-nonpreferred.cbor', 'invalid-indefinite.cbor']) {
+  assert.throws(() => decodeDeterministic(load(name), {limits}), name);
+}
+assert.equal(typeof get(decode('invalid-bool-lease.cbor'), 13), 'boolean');
+assert.equal(decode('invalid-unknown-key.cbor').size, 17);
+console.log('PASS: 18 artifact hashes, canonical transcript, TLS13 SHA256 exporter, ACCEPT digest, framing and negative fixtures; 24 scenario mappings. Not live interoperability.');

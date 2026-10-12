@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp1-core-green",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 12223324160,
+  "disk_end": 12223291392,
+  "ram_end": 5282009088,
+  "direct_child_reaped": true
+}

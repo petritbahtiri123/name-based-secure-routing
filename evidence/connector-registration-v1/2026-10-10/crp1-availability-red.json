@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp1-availability-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py::test_offline_profile_available"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.42,
+  "disk_start": 12223315968,
+  "disk_end": 12223311872,
+  "ram_end": 4901851136,
+  "direct_child_reaped": true
+}

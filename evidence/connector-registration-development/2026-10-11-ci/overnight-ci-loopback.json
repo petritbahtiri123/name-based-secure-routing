@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-ci-loopback",
+  "argv": [
+    "python",
+    "scripts/ci/check.py",
+    "connector-loopback"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 21.48,
+  "disk_start": 11652567040,
+  "disk_end": 11651842048,
+  "ram_end": 4523978752,
+  "direct_child_reaped": true
+}

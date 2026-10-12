@@ -1,0 +1,374 @@
+{
+  "decision_id": "KAR-GENESIS-SEMANTICS-01",
+  "status": "design only; implementation not authorized by this record",
+  "source_sha256": {
+    "vectors/federation-v0.1/signed-vectors.json": "5de292601052fd716d339bd418a0fa5d401852a176d8f4a49fb94e0bca2ed816",
+    "vectors/federation-v0.1-development-v2/signed-vectors.json": "5de292601052fd716d339bd418a0fa5d401852a176d8f4a49fb94e0bca2ed816",
+    "vectors/federation-v0.1-schema-proposal/literal-fixtures.json": "47af31ea9d1bad21f425e2174e9fefaf36116ca0134b75365a2770185f0d80c8",
+    "tests/federation/test_cose_authority.py": "63904931e6dfea5fa07c7279a2a1ce82a4f08da64becc62307ca5aa47a7f7449",
+    "tests/test_connector_registration_authority_offline.py": "b3e76609c242e699aaf399271cb4feebe7e34bc1e7f3c6a5d11b2d945bd4e857",
+    "nbsr/federation/cose.py": "35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba",
+    "nbsr/federation/fields.py": "e6cf23d2e852fc67781eed61808ad1e21edb7599e000a2dbd8e35925ec6731e1",
+    "nbsr/federation/registry.py": "8a16276f12d87291019cc249f9fbbf5ee61b9d1162411aab636b189274dff9d8",
+    "scripts/federation_v01_vectors/package.py": "586c73dd397d7184c37862e7cb9414bc34f1c46fb9ff261076c6f4a22a774444",
+    "scripts/render_federation_threshold_container.py": "a05b0dbd78f34e3280cbf84b9c68288392fdd1705d50d7dd8ce1062f6636e1b1",
+    "crates/nbsr-transport/src/connector_authority.rs": "b99687e969b95fb9abcbf73f282cb02412db2c7baa16ae30750a165745675fd1",
+    "crates/nbsr-transport/src/connector_signature.rs": "c0e67b67d86dd7918573864c434af9fcd5d3f3f3825ef1f04e1df1e4af28f2b6",
+    "vectors/connector-authority-local-v1/cases.json": "3d255c15f853980b88ee505a1db461e01c2425f6b984542419847d344493698c"
+  },
+  "retained_signed_kar_inventory": [
+    {
+      "id": "signed-04-valid-root-authorized-genesis",
+      "wire_sha256": "aa290a4701147011ff54a2fee9e59488569134868b9791b3dd66738e12c133ad",
+      "payload_sha256": "4579a78bbb542abbb0a51f4ee121237b012adb1d51628417ce0afc2d81fbf7ad",
+      "payload": {
+        "1": 2,
+        "2": 1,
+        "3": {
+          "1": 1,
+          "2": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f",
+          "3": "726f6f742d6b6964",
+          "4": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f"
+        },
+        "4": 1,
+        "5": 1,
+        "6": 1000,
+        "7": 2000,
+        "32": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+        "33": "6f7065726174696f6e616c2d6b6964",
+        "34": "4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b",
+        "35": 3,
+        "36": 2,
+        "37": {
+          "1": 1,
+          "2": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+          "3": "35af110c331839bc",
+          "4": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6"
+        },
+        "38": false,
+        "39": null
+      },
+      "historical_expected": "ACCEPT",
+      "historical_time": 1900000000
+    },
+    {
+      "id": "signed-05-valid-rotation-update",
+      "wire_sha256": "a90e95bead26e3710e8f682f5c39715bc9490df71bb62a11956b05b92ad6c1af",
+      "payload_sha256": "7f67a5443d5142830b5da4d543837bcb594d769ec5b654ae56db98ff02e1ecee",
+      "payload": {
+        "1": 2,
+        "2": 1,
+        "3": {
+          "1": 1,
+          "2": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f",
+          "3": "726f6f742d6b6964",
+          "4": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f"
+        },
+        "4": 1,
+        "5": 2,
+        "6": 1000,
+        "7": 2000,
+        "8": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed",
+        "32": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+        "33": "6f7065726174696f6e616c2d6b6964",
+        "34": "4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b",
+        "35": 3,
+        "36": 3,
+        "37": {
+          "1": 1,
+          "2": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+          "3": "35af110c331839bc",
+          "4": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6"
+        },
+        "38": false,
+        "39": null
+      },
+      "historical_expected": "ACCEPT",
+      "historical_time": 1900000000
+    },
+    {
+      "id": "signed-06-valid-recovery-authorized-new-generation",
+      "wire_sha256": "3cecc40ecd4861a5cf7ece762e7a5363967ca9fc44ffc2d21d83d295a3e485b0",
+      "payload_sha256": "a45bc4b052deb7f769f5781b804145f84094ef9006de9405b92e3e5a93ffff91",
+      "payload": {
+        "1": 2,
+        "2": 1,
+        "3": {
+          "1": 2,
+          "2": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f",
+          "3": "7265636f766572792d6b6964",
+          "4": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f"
+        },
+        "4": 2,
+        "5": 1,
+        "6": 1000,
+        "7": 2000,
+        "8": "06b273ec47d7d8176b3980ebbd151c96b5656d9e6334ed51ed10e94afab4b33c",
+        "32": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+        "33": "7265636f76657265642d6b6964",
+        "34": "4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e4e",
+        "35": 3,
+        "36": 1,
+        "37": {
+          "1": 2,
+          "2": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+          "3": "88f14e4a0775dca1",
+          "4": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6"
+        },
+        "38": false,
+        "39": null,
+        "40": "5252525252525252525252525252525252525252525252525252525252525252"
+      },
+      "historical_expected": "ACCEPT",
+      "historical_time": 1900000000
+    },
+    {
+      "id": "signed-negative-invalid-signature",
+      "wire_sha256": "24787b3fe9f97c3b69e4de02717fae083a18983e5a074e1b9bd7127396610b62",
+      "payload_sha256": "e8ff6c6e91288bb747257da918b60cb74a467e296bc5c39e4781531edbd42bc3",
+      "payload": {
+        "0": 2
+      },
+      "historical_expected": "REJECT",
+      "historical_time": 1900000000
+    },
+    {
+      "id": "signed-negative-wrong-key-purpose",
+      "wire_sha256": "03d97b0db73ec9523ec0d7f5b61ddf574c7390fbafe3662cdca105db55f9c38b",
+      "payload_sha256": "4579a78bbb542abbb0a51f4ee121237b012adb1d51628417ce0afc2d81fbf7ad",
+      "payload": {
+        "1": 2,
+        "2": 1,
+        "3": {
+          "1": 1,
+          "2": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f",
+          "3": "726f6f742d6b6964",
+          "4": "4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f"
+        },
+        "4": 1,
+        "5": 1,
+        "6": 1000,
+        "7": 2000,
+        "32": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+        "33": "6f7065726174696f6e616c2d6b6964",
+        "34": "4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b4b",
+        "35": 3,
+        "36": 2,
+        "37": {
+          "1": 1,
+          "2": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+          "3": "35af110c331839bc",
+          "4": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6"
+        },
+        "38": false,
+        "39": null
+      },
+      "historical_expected": "REJECT",
+      "historical_time": 1900000000
+    }
+  ],
+  "schema_recipe_inventory": [
+    {
+      "id": "valid-root-authorized-genesis",
+      "payload_sha256": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed",
+      "expected": "ACCEPT",
+      "validation_context": {
+        "signer": "root",
+        "protected_kid": "root-kid"
+      }
+    },
+    {
+      "id": "valid-rotation-update",
+      "payload_sha256": "06b273ec47d7d8176b3980ebbd151c96b5656d9e6334ed51ed10e94afab4b33c",
+      "expected": "ACCEPT",
+      "validation_context": {
+        "signer": "root",
+        "protected_kid": "root-kid",
+        "current_generation": 1,
+        "current_sequence": 1,
+        "current_digest": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed"
+      }
+    },
+    {
+      "id": "valid-recovery-authorized-new-generation",
+      "payload_sha256": "fbfd3782e7668c7673a59960acab82ba293c842756b2021b16b19aec9cdaa091",
+      "expected": "ACCEPT",
+      "validation_context": {
+        "signer": "recovery-threshold",
+        "protected_kid": "recovery-kid",
+        "recovery_transition": "5252525252525252525252525252525252525252525252525252525252525252",
+        "current_generation": 1,
+        "current_sequence": 2,
+        "current_digest": "06b273ec47d7d8176b3980ebbd151c96b5656d9e6334ed51ed10e94afab4b33c"
+      }
+    },
+    {
+      "id": "wrong-key-purpose",
+      "payload_sha256": "21479c7a110466542881976947ab65ee64983ee49ae47c53e5a165390bb046ec",
+      "expected": "REJECT",
+      "validation_context": {}
+    },
+    {
+      "id": "cross-purpose-signer",
+      "payload_sha256": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed",
+      "expected": "REJECT",
+      "validation_context": {
+        "signer_purpose": "ENDPOINT_DISCOVERY"
+      }
+    },
+    {
+      "id": "bad-kid",
+      "payload_sha256": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed",
+      "expected": "REJECT",
+      "validation_context": {
+        "protected_kid": "unknown-kid"
+      }
+    },
+    {
+      "id": "expired",
+      "payload_sha256": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed",
+      "expected": "REJECT",
+      "validation_context": {
+        "validation_time": 2001
+      }
+    },
+    {
+      "id": "predecessor-mismatch",
+      "payload_sha256": "6ee6bda9e7ec21c6ab40c8c0172eb59207c10e1b3cef1cdc10e323c560aca8eb",
+      "expected": "REJECT",
+      "validation_context": {
+        "current_digest": "714ff7bebf0d29c5ba596e486913fcfdba97d61ece00bf114b26d2f4c839afed"
+      }
+    },
+    {
+      "id": "terminal-key-id-reuse",
+      "payload_sha256": "1d394c74b3ea42c7e0029b1ec4dd33885daf58e1d20bedca02b76a8798c2c7c7",
+      "expected": "REJECT",
+      "validation_context": {
+        "terminal_key_ids": [
+          "7465726d696e616c2d6b6964"
+        ]
+      }
+    },
+    {
+      "id": "compromised-signer",
+      "payload_sha256": "06b273ec47d7d8176b3980ebbd151c96b5656d9e6334ed51ed10e94afab4b33c",
+      "expected": "REJECT",
+      "validation_context": {
+        "signer_lifecycle": "REVOKED"
+      }
+    },
+    {
+      "id": "unknown-critical-extension",
+      "payload_sha256": "afc5ab8f8722caaf6b36bf1892079040a70b1a0a0a0e19318b14216b3e0e47ad",
+      "expected": "REJECT",
+      "validation_context": {}
+    }
+  ],
+  "retained_root": {
+    "authority_class": 1,
+    "expires_at": 1900000001,
+    "generation": 1,
+    "genesis_public_key": "9d96bf07ca573d8ab4dcd1db8a4b1e51c806bb1132f335be12ac9ca3b609dd32",
+    "key_lifecycle": 2,
+    "key_purpose": 1,
+    "kid": "35af110c331839bc",
+    "not_before": 1700000000,
+    "operator_id": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6",
+    "record_id": "identity-root",
+    "revoked": false,
+    "sequence": 1,
+    "signing_public_key": "cd11562f8355595a682aba6aa80c28793814990fed3bacbe4209733cf4bd3e89",
+    "subject_id": "14c91af85f7f74aa66ea52eb9ec57e4117c35cea03c7b70082fa8887b41707d6"
+  },
+  "normal_roster": [
+    {
+      "active": true,
+      "class": 4,
+      "control": "accepted-control-1",
+      "expires": 1900000000,
+      "id": "df4645b4e2a40cd00a2a410d75ee2507ce1282cc2a99c81dd156363f7e201136",
+      "key": "f8092cdbe7ca57af62afbaa9032322d18e1004231a057274496ba80f2ee8db2a",
+      "kid": "63342d6b31",
+      "not_before": 1700000000,
+      "organization": "8b201b9d336865ac896fa9606e9e5d8a",
+      "purpose": 12,
+      "revoked": false
+    },
+    {
+      "active": true,
+      "class": 4,
+      "control": "accepted-control-2",
+      "expires": 1900000000,
+      "id": "4af60436eac6970cd3f76d2c82a06d56b3af6571c7149c6975d5a366ac9d5216",
+      "key": "07c0750a68e2b87c6706fc7790603b34b8ccc764b899fc85f3b1bfafc7c92f29",
+      "kid": "63342d6b32",
+      "not_before": 1700000000,
+      "organization": "cdb5fb7882ede3fc257b7c7a969357e2",
+      "purpose": 12,
+      "revoked": false
+    },
+    {
+      "active": true,
+      "class": 4,
+      "control": "accepted-control-3",
+      "expires": 1900000000,
+      "id": "01b130fd1da8a83b385ae4300faa3a80fe9a8a21bcf10343235d95aed6581281",
+      "key": "e647afc6415d5d9b61d5980f6c591917ab82d005c25cfed1527da6ded8b2b5d1",
+      "kid": "63342d6b33",
+      "not_before": 1700000000,
+      "organization": "d17d36b70517f3cf108ac9e00c62c6de",
+      "purpose": 12,
+      "revoked": false
+    },
+    {
+      "active": true,
+      "class": 4,
+      "control": "accepted-control-4",
+      "expires": 1900000000,
+      "id": "78a4bf51e9e3ae22c15379f54212e145e3897073cb98b9f9c47c6e921e5c6dcb",
+      "key": "38d9637a169cfbc72c99026193c46cbb70a1439df2c7102c863bb5af4ef2096c",
+      "kid": "63342d6b34",
+      "not_before": 1700000000,
+      "organization": "765507984496e6d62435350dd1773499",
+      "purpose": 12,
+      "revoked": false
+    },
+    {
+      "active": true,
+      "class": 4,
+      "control": "accepted-control-5",
+      "expires": 1900000000,
+      "id": "dab48f7da3107e964a1b0807d50b2b068c49671b215a7ff3212f87aaa3a0ea83",
+      "key": "3baa39dfb2f95cf512825910158e2dd990222183bd29807ef565057f1e89b465",
+      "kid": "63342d6b35",
+      "not_before": 1700000000,
+      "organization": "9676a81ee3cac8139d498c4a0f113ad3",
+      "purpose": 12,
+      "revoked": false
+    }
+  ],
+  "recipe_root_public_key": "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8",
+  "normal_roster_matching_retained_purpose12_kar_count": 0,
+  "scope_of_zero_match": "selected signed-vectors v1/v2 packages and reviewed existing KAR test recipes; no global production inventory claim",
+  "smallest_slice": "native genesis KAR semantic verification of existing purpose3 recipe under supplied root; purpose12 request rejects; no normal owner integration",
+  "unresolved_decision": "approve isolated genesis slice or first approve new purpose12 fixture records plus explicit root/operator/key mappings using existing public deterministic keys",
+  "review": "Independent source review agrees isolated genesis gate is smallest defensible slice; no retained mapping safely replaces normal roster assertions. No execution by reviewer.",
+  "restrictions": {
+    "implementation": false,
+    "builds": false,
+    "new_keys": false,
+    "new_signatures_created": false,
+    "runtime_enabled": false,
+    "registration_ready": false
+  },
+  "lookup_note": "vectors/federation-v0.1-development-v1 does not exist; default package is vectors/federation-v0.1. Both actual signed-vector files were read and have the same hash.",
+  "final_review_correction": "Draft half-open validity corrected to existing inclusive expiry after independent review; expiry+1 rejects. No implementation.",
+  "cleanup_recheck": {
+    "incremental_cache_absent": true,
+    "builds_run": 0,
+    "tests_run": 0,
+    "signatures_created": 0,
+    "keys_created": 0
+  }
+}

@@ -1,0 +1,10 @@
+ M AGENTS.md
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md
+ M docs/protocol/status.md
+ M docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+?? crates/nbsr-transport/tests/connector_loopback.rs
+?? crates/nbsr-transport/tests/support/connector_loopback.rs
+?? docs/reviews/2026-10-10-connector-loopback.md
+?? interop/nbsr-go-peer/connector/README.md
+?? interop/nbsr-go-peer/connector/loopback_test.go

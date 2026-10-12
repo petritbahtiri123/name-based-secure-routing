@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "gateway-text64-lint",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "deploy/single-instance/validate_config.py",
+    "deploy/single-instance/test_validate_config.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 12174114816,
+  "disk_end": 12174114816,
+  "ram_end": 4745101312,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,18 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "kar-format",
+  "argv": [
+    "cargo",
+    "fmt",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.05,
+  "disk_start": 15154298880,
+  "disk_end": 15154298880,
+  "ram_end": 8205967360,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-ci-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/ci/test_ci.py::test_connected_authority_local_vectors_and_target_are_selected"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 11696476160,
+  "disk_end": 11696472064,
+  "ram_end": 4489646080,
+  "direct_child_reaped": true
+}

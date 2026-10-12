@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "normal-conformance-review-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_normal_revocation_conformance.py",
+    "-k",
+    "unsigned"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.21,
+  "disk_start": 12108304384,
+  "disk_end": 12108165120,
+  "ram_end": 4995186688,
+  "direct_child_reaped": true
+}

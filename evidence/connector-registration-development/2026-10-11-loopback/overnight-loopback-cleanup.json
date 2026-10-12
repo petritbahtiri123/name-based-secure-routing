@@ -1,0 +1,30 @@
+{
+  "observed_pids": [
+    952,
+    3088,
+    4144,
+    5628,
+    6444,
+    8576,
+    9012,
+    10160,
+    10796,
+    13360,
+    14068,
+    14708,
+    15092,
+    15276,
+    15296,
+    16944,
+    17036,
+    17120,
+    18092,
+    18156
+  ],
+  "remaining_processes": [],
+  "remaining_udp_endpoints": [],
+  "case_pass_count": 19,
+  "confirmed_reaps": 19,
+  "socket_query": "netstat -ano -p udp",
+  "forced_kill_used": false
+}

@@ -1,0 +1,36 @@
+{
+  "scope": "Design-only registration runtime-provider recommendation; no behavior or registry change",
+  "base_commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "working_tree": "Existing dirty and untracked work preserved; no commit or staging",
+  "files_sha256": {
+    "docs\\reviews\\2026-10-11-registration-provider-contract-proposal.md": "f1c2ac2b631ab80db8c1d814c597907e3c37ec5d8dc9b032a72d85075850798f",
+    "docs/reviews/2026-10-11-stage3-runtime-decision.md": "76d5ed5a027cc73c05be4a52c31f15466486943a7220821a5328ee26d20eb1df",
+    "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md": "40dd2c238bec7075786d92cea291297604533f8518150eaa8bc7080892ba53c4"
+  },
+  "review": {
+    "reviewer": "connector_model_review",
+    "initial_findings": [
+      "Separate queued generation from effective authority revision",
+      "Use earliest plausible UTC for effective_at dispatch"
+    ],
+    "disposition": "Both clarified; follow-up review found no remaining blocking ambiguity in scoped design"
+  },
+  "validation": {
+    "git_diff_check": "passed with existing line-ending warnings",
+    "runtime_tests": "not run: documentation-only proposal",
+    "runtime_activation": false,
+    "scoped_whitespace": "passed using explicit UTF-8; first default-cp1252 check failed decoding an existing linked document, then corrected"
+  },
+  "remaining_decisions": [
+    "Controller-only development profile approval",
+    "Opaque provider seam and configured bootstrap snapshot trust approval",
+    "One-second clock uncertainty and 64-event lifetime bound approval",
+    "Later exact activation metadata and affected source overlay approval"
+  ],
+  "unresolved_evidence": [
+    "Actual operator bootstrap and freshness source",
+    "Historical runtime threshold-container approval"
+  ],
+  "cleanup": "No build, child worker, container, socket or credential created by this design task"
+}

@@ -1,0 +1,1 @@
+Independent read-only review found no safe drop-in integration. Separate bounded state projection, event-binding retention/capacity and atomic recovery contract required; genuine rollback-resistant restart additionally requires an independently accepted floor/provenance mechanism. No tests independently rerun.

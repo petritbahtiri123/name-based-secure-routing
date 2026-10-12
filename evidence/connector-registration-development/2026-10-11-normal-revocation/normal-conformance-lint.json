@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "normal-conformance-lint",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "scripts/normal_revocation_conformance.py",
+    "tests/federation/test_normal_revocation_conformance.py",
+    "scripts/ci/check.py",
+    "tests/ci/test_ci.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 12108427264,
+  "disk_end": 12108427264,
+  "ram_end": 4996612096,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "kar-red",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "1",
+    "--test",
+    "connector_kar"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 2.42,
+  "disk_start": 15189557248,
+  "disk_end": 15170088960,
+  "ram_end": 8130039808,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,619 @@
+# Overnight robustness work: October 9-10, 2026
+
+Latest checkpoint: October 10 10:57 UTC; body-pending coverage follow-up is local and uncommitted. Baseline: `e245bc357379b44449bb22f53a1c6a1c723fc1cc`.
+Morning report target: October 10 09:00 Europe/Skopje (07:00 UTC); work cutoff
+06:30 UTC. This checkpoint is an early completed iteration, not work left running.
+All changes are local. No commit, push, bypass, downloads or system changes.
+
+## Iteration 1: composite cancellation contract
+
+Read the design, implementation and all six non-test `send_and_receive` call sites
+in `perf_rust_source.rs`, plus representative integration/demo callers. They perform
+one exchange per stream. The design explicitly disallows whole-composite restart,
+but the method lacked API-local cancellation documentation.
+
+A bounded characterization uses one authenticated loopback pair and three streams.
+It observes request FIN and exactly six retained response-prefix bytes before
+cancellation, avoiding timing guesses. The seven-byte request and six-byte prefix
+retain 13 quota bytes. Restarting the whole method reaches the finished send
+direction, returns ApplicationStreamFailed, resets the stream, clears the prefix,
+and returns quota to zero. No duplicate request bytes arrive. Continuing only
+receive_payload returns the exact 13-byte response, holding 20 bytes with the request
+until explicit release. A fresh normal sibling also completes and releases quota.
+
+This establishes no protocol defect, duplicate request, or quota leak. The smallest
+justified improvement is rustdoc explaining the one-shot API, send-versus-receive
+cancellation, unsupported restart, explicit send/receive phase management, the
+original absolute deadline, and quota ownership. Runtime behavior is unchanged.
+Callers cannot infer the active phase merely from a composite timeout; split the
+operations when phase-aware continuation is needed. No new API was introduced.
+
+## Actual validation
+
+| Run | Passed | Failed | Ignored | Duration |
+| --- | ---: | ---: | ---: | ---: |
+| composite-response-characterization (carried into this iteration) | 1 | 0 | 0 | 0.16 s |
+| overnight-composite-library | 101 | 0 | 1 | 6.05 s |
+| overnight-composite-doc | 16 | 0 | 0 | 1.03 s |
+
+Commands used the existing cached Cargo target, locked/offline dependencies,
+benchmark-harness feature, two jobs and the existing bounded resource supervisor.
+The one ignored test is the pre-existing ten-minute soak. Doc-tests are the crate's
+existing 16 compile-fail examples; they do not by themselves prove prose accuracy.
+Final formatting and whitespace checks passed. No integration suite, demo workload,
+or benchmark was repeated for this documentation-only runtime change.
+
+Independent read-only review found the characterization sound and requested a
+precision correction: a retry resets only if it reaches the finished send direction;
+size/channel-quota preflight rejection can leave response state intact. The final
+rustdoc includes that qualification. An initial text replacement missed CRLF;
+a checked normalized edit applied it, and the reviewer confirmed the final text.
+The final prose correction followed tests but changed no executable code or examples.
+No remaining review blocker or failed test is known for this iteration.
+
+## Scope, resources and cleanup
+
+Exact changed files relative to baseline:
+
+- crates/nbsr-transport/src/quinn_adapter.rs (rustdoc only)
+- crates/nbsr-transport/src/control_read_tests.rs (one characterization)
+- docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md (this report)
+- docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json (evidence manifest)
+
+Existing unrelated untracked files remain untouched. Local log basenames are
+`control-read-composite-response-characterization`, `control-read-overnight-composite-library`
+and `control-read-overnight-composite-doc`, each with stdout/stderr suffixes; raw logs
+remain outside the repository. The JSON manifest records source and report hashes.
+
+Disk headroom was 14.88 GiB at the start and 14.84 GiB at the checkpoint. Final free
+RAM was 6.87 GiB, above the 2 GiB stop reserve. A sandboxed CIM read was unavailable;
+a permitted read obtained actual RAM, and no zero-RAM interpretation was used.
+All invoked test processes exited successfully. The final process inventory found
+zero instances of the owned library test executable. No containers were created;
+no container or unrelated-process cleanup was performed. No background load remains.
+
+## Iteration 1 next decisions
+
+No further justified production fix was established in this composite investigation.
+Retain the characterization and documentation for review. Material phase-resumable
+composite/echo APIs remain deferred for explicit design input. Benchmark framing is
+not a demonstrated production issue and was not expanded into speculative work.
+Return this completed checkpoint to the parent for the morning report; do not keep
+processes running or invent changes merely to fill the overnight window.
+
+
+## Iteration 2: benchmark-frame revocation wakeup
+
+Read the P2A established-data-plane design and actual send/read loops before changing
+anything. Benchmark frame cancellation/restart is not a resumable API: callers finish
+or invalidate the repeat, with no replacement stream. Ordinary partial-frame retry
+was therefore not labeled a new defect. No new framing protocol, quota policy, or
+phase-resume API was introduced.
+
+A concrete separate gap was reproduced: benchmark frame methods held the async
+stream mutex while awaiting I/O, but did not observe the shared revocation Notify.
+force_reset marked the stream cancelled but could not acquire that mutex. Both a
+pending frame read and a backpressured frame write remained pending until the
+250 ms test deadline despite revocation. The write case proved the 4096-byte length
+prefix had reached the peer. The existing initial-state checks also did not return
+consistent ApplicationStreamRejected after revocation.
+
+The first diagnostic used the ordinary two-byte-prefix fixture; the reproduced
+suite then used only 64-byte loopback windows. Each final test owns one connection
+pair at a time, with bounded payloads and cleanup. Normal empty and nonempty frames
+continue on the same stream without FIN. No benchmark workload was run.
+
+The minimal fix is confined to benchmark-harness methods: register Notify before
+waiting for the mutex, check cancellation before I/O, select revocation across the
+whole frame length/body future, and check cancellation again before returning a
+result. A named, unarmed existing cleanup guard is declared before the stream lock;
+if the stream has been revoked, it finishes reset after unlocking, including when
+the pending future is dropped without repolling. It does not reset healthy streams
+on ordinary caller cancellation. Such cancellation remains unsupported for resume:
+abandon the stream and invalidate the repeat. No changes to normal FIN behavior,
+framing bounds, default-build runtime behavior, or benchmark quota accounting.
+
+Four regressions now cover blocked read, blocked write, normal persistent framing
+plus revoked reuse, and revocation followed by future Drop in both directions.
+The latter verifies peer-visible reset while keeping the stream owner alive, later
+read/write rejection, and zero payload reservations. A small test-fixture factory
+adds optional window configuration while leaving all existing callers unchanged.
+
+| Actual run | Passed | Failed | Ignored | Duration |
+| --- | ---: | ---: | ---: | ---: |
+| overnight-frame-revoke-red (initial diagnostic) | 0 | 1 | 0 | 0.41 s |
+| overnight-frame-tiny-red | 0 | 3 | 0 | 0.57 s |
+| overnight-frame-green | 3 | 0 | 0 | 0.29 s |
+| overnight-frame-library (includes fourth regression) | 105 | 0 | 1 | 6.28 s |
+| overnight-frame-codec | 6 | 0 | 0 | 0.03 s |
+
+The codec run filters to six frame tests and excludes runtime-scaling tests.
+Default-feature library cargo check passed (5.10 s); all-target Clippy with warnings
+denied passed (8.60 s). Formatting and diff whitespace checks passed. All commands
+used locked/offline cached dependencies, at most two jobs and unchanged resource
+limits. The only ignored library test remains the existing ten-minute soak.
+
+Independent review found no blocker: notification covers length and body I/O,
+pre/post checks prevent revoked success, reset runs after unlocking, and ordinary
+cancellation/FIN/quota behavior remains unchanged. Optional finer coverage of a
+provably body-pending read was noted; the deterministic blocked-read regression
+uses an incomplete length, and the encompassing select covers the body by code
+inspection. No test or assertion was weakened to obtain a pass.
+
+Final resources at 22:35 UTC: 14.83 GiB disk free and 6.79 GiB RAM free. Final process
+inventory found zero instances of either owned library or P2A codec test executables.
+All runner processes completed; no containers were created and no background work
+remains. There were no resource-cutoff aborts or dependency downloads.
+
+The exact changed-file set remains the same four files listed above: two Rust files
+plus this report and its JSON manifest. The composite documentation/characterization
+from iteration 1 is preserved. Baseline e245bc35 is unchanged; no staging, commit,
+push, rule changes, or unrelated cleanup occurred. Known red attempts are preserved
+in local logs and the manifest; no unresolved regression failure remains.
+
+Next step: review the combined small local diff. Keep material composite/echo resume
+APIs and ordinary benchmark-frame restart out of scope. This iteration establishes
+revocation robustness only, not performance, capacity, or new delivery guarantees.
+
+## Iteration 3: untracked stream-admission boundary
+
+The baseline and branch were verified unchanged. The `.agents` directory is empty;
+no nested AGENTS.md or SKILL.md was found under crates or docs. The B3 admission
+record concerns connection acceptance, distinct from this stream-level inspection.
+Reviewed credited open/accept, terminal admission cleanup, tracking/reset, and
+session credit allocation/authority checks, then the existing integration tests.
+
+Existing coverage already tests dropping a timed-out source admission, retaining
+consumed credit/replay history, admitting a distinct sibling, exhaustion/refill,
+and rejecting revocation before destination commit. These were not duplicated.
+A new one-stream deterministic characterization polls an accept before a peer
+stream exists, commits destination revocation, and polls again. It remains pending:
+there is no tracked ApplicationStream to receive a revocation notification yet.
+Peer progress then resolves both ends as ApplicationStreamRejected. The source
+permit is unavailable after terminal cleanup; destination authority also rejects
+its permit. This checks permit availability, not a direct count of quota entries.
+
+This is a confirmed delayed-revocation boundary, not a demonstrated stale admission
+or payload quota leak. Code inspection finds the same pre-tracking interval while
+source open_bi waits for transport credit and while destination reads a preface.
+Those two cases were NOT dynamically reproduced in this iteration. Source credit
+allocation and destination authorization recheck authority after their waits.
+No application payload reservation occurs in these pre-admission waits.
+
+The smallest change is API rustdoc requiring a caller-owned whole-operation
+deadline and describing cancellation ownership and retained replay history. No
+runtime behavior or permanent control-stream claim changed. Automatic revocation
+wakeup before a stream exists needs a broader channel/session cancellation design;
+that material API/ownership decision is deferred, not represented as fixed. This
+characterization must be updated if such a design is approved later.
+
+Validation used the existing offline cache with two jobs and the copied existing
+95-second resource supervisor. The exact regression passed 1/1 in 0.18 seconds
+(build 3.73 seconds), followed by all 12 stream_credit_integration tests passing
+in 1.59 seconds (build 25.49 seconds), zero failed/ignored. Formatting and diff
+whitespace checks passed. No library suite, Clippy, benchmark or large workload
+was repeated for this documentation/characterization-only iteration. `rg` was not
+installed; PowerShell source reads were used. No build/test attempt failed.
+
+Logs and runner are retained in the private local evidence directory, with basenames
+control-read-overnight-untracked-accept and control-read-overnight-admission-suite.
+The manifest records commands, source/binary/log hashes and an exact dirty patch.
+Final observed headroom: 14.81 GiB disk, 6.04 GiB RAM; zero matching owned test
+processes. Both supervised invocations exited 0. No containers were created.
+
+This iteration additionally changes tests/stream_credit_integration.rs; earlier
+changes in both Rust source files remain intact. No staging, commit, push,
+download, system setting change, or unrelated cleanup occurred. Root guidance
+remains applicable unchanged. Independent read-only scoped review found no correctness/security blocker. It confirmed the caller-deadline wording and deferred architectural decision, and identified the same explicit dynamic-coverage and permit-versus-counter limits recorded above.
+
+
+## Iteration 4: owned-send and partial-receive teardown review
+
+Bounded static review found no new concrete retained-quota leak, stale operation,
+or unintended reuse requiring a reproduction or patch. Read the approved owned-send
+contract and WP4 accounting/lifecycle decision before examining owned_send.rs,
+SharedApplicationStream, PayloadReceiveState, ChannelByteReservation, tracking,
+reset, close and Drop paths, plus existing ownership tests. No code/test file changed.
+
+Ownership findings:
+
+- OwnedSendOperation holds the strong state reference and an exclusive stream
+  borrow. The stream registers only a Weak state reference; tracking registers
+  only Weak stream/quota references. No strong-reference cycle was found.
+- Unfinished operation Drop calls force_reset, clearing owned payload/reservation,
+  retained receive state and completed reservations. Completed operation Drop
+  preserves FIN and leaves completed quota with the stream, as designed.
+- A terminal write error observed by drive aborts before returning. Repeated drive
+  cannot revive an aborted operation. Revocation and enforced-drain resets reach paused state
+  through the weak registration without requiring its drive future to be repolled.
+- Partial-receive reservations belong to the stream state; cancelling a receive
+  future retains them intentionally. Terminal read error discards that state and
+  sets failed. Further payload reads and begin_owned_send reject failed state.
+  Final shared-stream Drop drops the reservation vectors and releases quota.
+- Receiving a QUIC reset does not by itself establish a whole-stream cancellation
+  policy for the opposite send direction. The documented terminal-read guarantee
+  concerns further payload reads. No blanket reset/half-close policy was invented.
+
+Existing coverage inspected, not rerun: payload_reset_discards_partial_state_and_fails_closed;
+payload_stream_drop_releases_unfinished_reservations;
+payload_revocation_releases_idle_and_pending_cancelled_receive;
+owned_send_abort_drop_and_revocation_release_partial_send;
+owned_send_peer_close_releases_paused_ownership;
+owned_send_completion_racing_revocation_cannot_resurrect_quota;
+owned_send_completed_fin_ack_and_terminal_quota_ownership; and owned-send bounds,
+operation-mismatch and prior-write tests. These cover the concrete branches sought,
+so no duplicate abort/revocation test was added.
+
+Important evidence limit: the peer-close test resumes drive before checking quota.
+A peer close/reset while the owner remains deliberately paused is not an eager
+application-state cleanup notification. AuthenticatedConnection::close closes Quinn
+but does not itself sweep retained application ownership. The approved contract
+creates no background watcher: the owner must resume to observe terminal I/O, or
+abort/drop at its existing absolute deadline. Retained accounted state with a live
+owner is not evidence of a leak. No new promise of autonomous cleanup is made.
+
+Actual checks this iteration: code hashes match the iteration-3 checkpoint; static
+ownership/contract review only. Zero test/build commands, zero new pass/fail counts,
+zero workloads. Historical validation counts remain historical. At 22:49 UTC disk
+free was 14.81 GiB; matching library and stream-credit test process inventories were
+both zero. No processes/containers were created. RAM was not remeasured because no
+build/trial ran; the last measured value remains iteration 3's 6.04 GiB at 22:46 UTC.
+Independent read-only scoped review found no new ownership blocker and confirmed the limits above, including that initiating drain alone is not enforced terminal cleanup. No guidance update is needed: workflow,
+resource limits, setup and protocol semantics are unchanged.
+
+
+## Final consolidated handoff
+
+Fresh independent aggregate review compared the complete code diff against
+`e245bc357379b44449bb22f53a1c6a1c723fc1cc` and reviewed this report/manifest. It found
+no correctness/security blocker: full-frame notification coverage, pre/post cancel
+checks and cleanup-after-unlock ordering interact correctly with existing guards;
+ordinary frame cancellation remains unchanged. The reviewer confirmed deterministic
+phase checkpoints and documentation limitations. Its minor report correction to
+Europe/Skopje is applied; the requested report target remains October 10 09:00
+local / 07:00 UTC. No further justified low-risk patch identified.
+
+Final validation was split into bounded offline groups against final code contents:
+
+| Check | Passed | Failed | Ignored | Test duration | Build/check duration |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Final library suite | 105 | 0 | 1 | 6.25 s | 6.01 s |
+| Final documentation tests | 16 | 0 | 0 | 1.05 s | 0.27 s |
+| Final all-target Clippy, warnings denied | n/a | 0 | n/a | n/a | 7.61 s |
+| Stream-credit integration, exact unchanged final code (iteration 3) | 12 | 0 | 0 | 1.59 s | 25.49 s |
+| Frame codec, unchanged runtime (iteration 2) | 6 | 0 | 0 | 0.03 s | 15.09 s |
+
+The intentional ignored test remains
+`channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand`, the
+existing evidence-only ten-minute soak. Nothing newly ignored. The 16 doc-tests
+are existing compile-fail examples; prose correctness is supported by review.
+Formatting and diff whitespace checks passed. The earlier default-feature check
+passed before later rustdoc/test-only changes; no new default runtime code changed.
+Final Clippy newly covers the integration characterization. The final library run
+consolidates the interacting guards on final source; the unchanged integration and
+codec suites were not repeated. No broader benchmark/deployment gate is claimed.
+Historical red attempts remain retained; there is no unresolved failed regression.
+
+Exact final task-owned changed files (superseding historical per-iteration lists):
+
+- crates/nbsr-transport/src/quinn_adapter.rs
+- crates/nbsr-transport/src/control_read_tests.rs
+- crates/nbsr-transport/tests/stream_credit_integration.rs
+- docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md
+- docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json
+
+One runtime fix is limited to benchmark-harness frame revocation. Composite and
+admission improvements are characterization/documentation; ownership review was a
+negative finding. Material composite/echo resumability and pre-tracking admission
+wakeup architecture remain deferred. Ordinary frame cancellation still abandons
+the stream/repeat. No explicit body-pending read checkpoint, exhausted-open-credit
+or partial-preface dynamic test was added; inspection-only limits remain. Retained
+paused ownership requires its documented owner actions. No performance, capacity,
+production-readiness or delivery guarantee follows from these local tests.
+
+The manifest contains final source, binary and log hashes, exact cached/offline
+commands and dirty patch identity. Raw final logs use control-read-overnight-final-
+{library,doc,clippy} basenames under the private local evidence directory. Manifest
+self-checksum is retained separately there to avoid a self-referential hash.
+At 22:52:55 UTC free disk was 14.78 GiB and free RAM 6.07 GiB. Observed library,
+stream-credit and codec test process counts were all zero; every final supervised
+runner exited 0. No containers or background work remain from this task.
+
+Safe handoff: all five task files remain uncommitted on codex/nbsr-v3-wp0-wp1;
+HEAD is unchanged. Unrelated tracked/untracked work is preserved. No staging,
+commit, push, downloads, setting changes or unrelated cleanup occurred. Root
+guidance remains applicable without modification. Work is stopped rather than
+held open until morning; the parent retains the scheduled report responsibility.
+
+
+## October 10 local publication preparation
+
+The user subsequently authorized committing these five scoped files locally.
+Earlier no-commit statements describe the overnight checkpoints. Source hashes
+still match the reviewed final code, and the aggregate review remains applicable.
+No new implementation changes were introduced in this publication step.
+
+Publication reruns used the same verified cache, locked/offline dependencies,
+two jobs and bounded resource supervisor: library 105 passed / 0 failed / 1 existing
+ignored soak (6.43 s; build 4.84 s), stream-credit integration 12 passed / 0 failed /
+0 ignored (1.27 s; build 1.39 s), and all-target Clippy with warnings denied passed
+(1.17 s). Formatting and whitespace checks passed. The unchanged final-content
+16 doc-tests and six frame-codec tests were not repeated without a code change.
+
+Publishability review found machine-specific absolute evidence paths; these have
+been replaced by local artifact labels. The original private records and raw logs
+are retained outside the repository. `local-evidence/` and `cached-target/` in the
+manifest identify retained local artifacts, not committed directories or portable
+paths. No raw logs, binaries, private keys, tokens or machine usernames are included
+in this five-file publication. Historical failed attempts and limitations remain.
+SHA-256 source hashes identify tested working-tree bytes; staged Git blob IDs also
+identify commit content despite Windows newline normalization.
+
+At 07:44:05 UTC, free disk was 14.40 GiB and RAM 6.44 GiB, with zero matching library
+or integration test processes. All supervised checks exited 0; no containers were
+created. No architecture or resource-policy changes were made.
+
+Push is withheld. A read-only GitHub check found the remote branch still at the
+baseline and protected by active ruleset `protect nbsr` (22457059), applying to all
+refs. It restricts updates and requires signed commits, alongside deletion and
+non-fast-forward restrictions. The legacy branch-protection endpoint returned 404;
+the branch rules endpoint and ruleset detail confirmed current protection. Direct
+update therefore requires a ruleset bypass actor; an unsigned local commit also
+requires bypass of the signature rule. No push, rule change, force push or bypass
+has been attempted. A fresh specific push approval remains necessary.
+
+## Post-publication follow-up: body-pending frame revocation
+
+Commit 8e548588c6ff636bb7a29a8202adb9a37e5110c1 was subsequently published to
+codex/nbsr-v3-wp0-wp1 using the specifically approved update/signature bypass.
+The exact remote SHA was verified; GitHub reported zero workflow runs, check runs
+and commit statuses for that SHA. This is absent CI, not passing CI. The following
+new work remains local, with no additional commit or push.
+
+Added benchmark_frame_body_pending_revocation_resets_and_releases_ownership.
+One authenticated loopback connection uses 64-byte windows and a single application
+stream. The peer sends a complete length of eight plus one body byte, without FIN
+or the remaining seven bytes. A cfg(test)-only atomic checkpoint is stored after
+length validation and body allocation, immediately before read_exact of the body.
+The same poll returning Pending with checkpoint eight proves body I/O is pending;
+timeouts bound failures rather than establish the phase. This does not assert that
+the first body byte was consumed. The checkpoint field is also benchmark-feature
+gated, and is absent from non-test builds. No public API or runtime behavior changed.
+
+After force_reset, the test observes ApplicationStreamRejected, released stream
+mutex, strict peer ReadError::Reset before connection cleanup, and rejected reuse.
+It checks zero payload quota and empty retained receive/completed reservation state.
+After dropping the fixture, its Weak shared-stream reference cannot upgrade and
+quota remains zero. Benchmark framing does not charge payload reservations; these
+checks do not claim allocator-wide accounting of the temporary eight-byte buffer.
+
+The FIRST run against existing revocation behavior passed: 1/0/0 in 0.15 s (build
+10.83 s). This is added regression coverage, not a new runtime fix. The library
+suite then passed 106/0/1 in 6.30 s (build 0.25 s), with only the same existing
+10-minute soak ignored. Independent review caught a test failure-path issue: an
+unexpected Ready at the checkpoint would be repolled before cleanup. The test now
+skips that repoll and reaches cleanup before asserting failure. Reviewer confirmed
+no remaining blocker. Final focused rerun passed 1/0/0 in 0.16 s (build 4.14 s).
+All-target Clippy with warnings denied passed in 10.66 s; formatting and whitespace
+checks passed. Broad library results precede only that diagnostic-path correction;
+no broad suite was needlessly repeated. No tests failed and no assertions were
+weakened. Integration, codec and doc suites were not repeated for test-only code.
+
+This closes the earlier body-pending inspection-only limitation. Pre-tracking
+admission wakeup and composite/echo resumability remain deferred; no new runtime
+defect or architecture decision was established. Ordinary frame cancellation still
+requires abandoning the stream/repeat.
+
+Changed locally: quinn_adapter.rs (test-only checkpoint), control_read_tests.rs
+(one regression), this report and its manifest. Raw logs are retained privately
+under control-read-frame-body-{first,library,reviewed,clippy} names. At 10:56:50 UTC,
+free disk was 14.30 GiB and RAM 6.12 GiB; zero matching library test processes,
+all supervised exits 0, no containers created and no background work. Offline
+cached dependencies, at most two jobs and unchanged 95-second guards were used.
+No new commit/push, settings change, dependency download or unrelated-file change.
+Root guidance remains applicable unchanged.
+
+## Later authority activation checkpoint
+
+See `docs/reviews/2026-10-10-authority-activation.md` and its JSON for the later
+approved additive source-authority work over `8afe21f2`. The implementation is
+uncommitted and publication remains paused. Corrected raw-Git authority and
+historical ACK tests passed 59 cases; the current-source gate passed 4. A
+neighboring run passed 545 and failed 2 because tracked skip-worktree packet
+manifests are absent locally. The full federation suite is not green.
+All negative attempts and the discovered archive newline-conversion discrepancy
+are retained. Independent review found no technical blocker in the corrected
+validator and hashes. No ACK runtime fix was started; that remains separate
+reviewed versioned-authority work. No build/download, commit/push, container,
+settings change, or unrelated-file cleanup occurred in this activation.
+
+Follow-up: read-only inspection confirmed explicit sparse-checkout exclusions,
+with exact evidence blobs available locally. Materializing the unchanged packet
+test/script and four evidence blobs from `8afe21f2` in a fresh temporary directory
+passed all 3 packet tests (0.68 s; supervised 1.81 s). Original 545/2 results remain
+retained. Independent review verified all six blobs and approved scoped local
+commit readiness. No sparse settings or working-tree evidence were changed.
+The user subsequently authorized preparing the scoped authority commit locally;
+publication remains paused. Full-suite and hosted CI success are not claimed.
+
+Later explicit authorization published the four-commit range through `d4ca54eb`
+with the existing update/signature bypass; exact remote SHA was verified. Both
+hosted workflow records ended in validation failure before creating jobs because
+`runner.temp` was unavailable in job-level environment expressions. See
+`docs/reviews/2026-10-10-hosted-ci-d4ca54eb.md` and JSON for links and exact results.
+A scoped local correction passed 16 CI regressions after a retained sandbox
+process-cleanup failure and justified retry. It remains uncommitted/unpublished;
+another publication requires approval. No ACK source changes were started.
+
+The next explicitly authorized correction was committed/published as `9ac925df`;
+remote SHA was verified. Real hosted run `38053615382` completed at 12:57:55 UTC
+after 4m39s: Rust Ubuntu/Windows and Python Windows passed; Python Ubuntu,
+Go Ubuntu/Windows and Node/policy failed. See the `hosted-ci-9ac925df` review
+report/JSON for exact counts and diagnosis. A reviewed Node runtime dependency
+setup fix is prepared locally with regression coverage, but remains uncommitted
+and unpublished. Other failures remain diagnosis-only. ACK changes, deployments,
+manual extended runs and further bypass publication remain deferred.
+
+The requested coherent local portability patch now addresses all four failures:
+Node runtime setup, semantic F75 alias rejection, the approved Linux Go fixture
+path, and exact protected ACL provisioning on test-owned Windows directories.
+See `docs/reviews/2026-10-10-ci-portability.md` and JSON. Focused checks and the
+full affected Windows authority package pass; 17 CI regressions pass. Independent
+review found no blocker. Production validation/authority pins are unchanged.
+Native Linux and hosted rerun remain unverified. Local commit is authorized;
+publication still requires fresh approval. No ACK work was started.
+
+The subsequently authorized publication of 2251ea95 was verified on origin. Hosted run 38054824820 is terminal: five passed, two Go jobs failed, none running. See docs/reviews/2026-10-10-hosted-ci-2251ea95.md and JSON. Linux exposes the previously documented federation authority/version blocker; Windows idempotency constructor rejection remains unresolved because logs omit the underlying path/OS cause. No gate, pin, production source or test was changed in this diagnosis. Further publication requires fresh authorization; ACK work remains deferred.
+
+Targeted Go follow-up: exact federation registry/lock/manifest delta is recorded in docs/reviews/2026-10-10-go-hosted-diagnosis.md and JSON. A Windows short-temp-path fixture failure was reproduced RED and corrected GREEN without production changes; the affected authority package passes locally. Hosted equivalence remains unconfirmed. Independent review found no blocker. All changes remain local and uncommitted; authority policy and ACK remain deferred.
+
+Approved federation version split is implemented and independently reviewed: exact immutable v1 preserved, separately pinned v2 requires explicit selection, archived authority has no fallback, purposes 15/16 remain distinct. Python/CI41, finalNode29, Go verifier87 and Go client909 test/subtest events passed; CLI opt-in/denial matrix, vet, formatting, lint and workflow contracts passed. See docs/reviews/2026-10-10-federation-version-implementation.json for commands, hashes, negative attempts and limits. Scoped local commit is authorized; publication is not. No ACK source changes.
+
+Specifically authorized c822a0dd publication was accepted and remote SHA verified. Hosted run38057636484 completed:6passed/1failed. Linux Go federation and Windows Go client authority failures cleared; the later Windows demo module now exposes23 top-level error24 failures. Full evidence/limits: docs/reviews/2026-10-10-hosted-ci-c822a0dd.md and JSON. No further implementation/publication or ACK work occurred.
+
+Windows demo follow-up: deterministic short-TMP RED/GREEN, complete demo suite 73 passing test events / 4 prerequisite skips, vet PASS, independent review clean. Local unpublished correction and exact evidence: `docs/reviews/2026-10-10-demo-windows-fixtures.md` and `.json`. Hosted c822 remains 6 pass / 1 fail; no new publication or ACK work.
+
+Hosted b6afdcdf run 38058799631: all seven jobs PASS, including Windows Go demo tests/vet and remaining Go checks. Exact outcomes, retained log hashes and coverage limits: `docs/reviews/2026-10-10-hosted-ci-b6afdcdf.md` / `.json`. Evidence-only monitoring; no ACK work.
+
+Receive/ACK revoke-then-drop gap reproduced and minimally corrected locally. RED 2 failures; GREEN 2; library 111 passed/1 existing ignored; integration 4+12; Clippy/default/fmt/diff pass; independent review clean. Evidence: `docs/reviews/2026-10-10-receive-ack-revocation-drop.md` and JSON. Authority pins untouched; separately approved version required. No commit/push; stopped at user budget request.
+
+Approved receive/ACK successor implemented for exact source2cc01bed:103 focused tests pass/zero skips, independent review clean, historical bindings preserved. Initial sandbox-temp failures retained. See `docs/reviews/2026-10-10-receive-ack-authority-implementation.md` and JSON. Scoped local commit authorized; no push/bypass.
+
+Authority committed locally fb587d76 (source2cc01bed); no publication. Paused peer-close characterization:1test/two variants PASS, contract-consistent4096retained then0 on abort/drop without repoll; no new bug. Test/evidence uncommitted, reviewed; see paused-peer-close-characterization report. Read-only cleanup proposal in task temp; no deletions.
+
+Approved connector control mock slice: 49 model + 13 frozen-state tests PASS; focused Ruff check/format PASS. Four independent-review findings reproduced and corrected; final review no blocker in mock scope. Exact failures/hashes/limits: `docs/reviews/2026-10-10-connector-control-model.md` and `.json`. No wire/runtime/credential/authority change or publication. Stage 1 protocol decisions remain open. Every test child reaped; CIM inventory denied, subsequent Get-Process found zero visible Python processes.
+
+Approved active-work mock extension:109 tests PASS (72model/13state/24revocation), zero skips; Ruff check/format PASS. Two independent-review boundary findings reproduced and corrected. Deny-new versus terminate is explicit; real lease/work policy remains open. Report and hashes: `docs/reviews/2026-10-10-connector-active-work.md` / `.json`. No runtime/trust/wire/network changes or publication; all direct children reaped, zero visible Python processes.
+
+
+## Connector lifetime separation after published baseline
+
+Published c7abbc4423a9ad05cea9cdf6678c231a34cafd59 passed CI run 38067741432,
+all seven jobs. A separate uncommitted mock correction now names admission expiry,
+ongoing authority and finite profile grace; explicit renewal keeps the same work
+without replay. 125 local tests pass (88+13+24); two review findings were reproduced
+and fixed, final narrow review clear. Ruff/format and scoped diff checks pass.
+See docs/reviews/2026-10-10-connector-lifetime-separation.md and .json for retained
+failed attempts, exact final hashes, limits and cleanup. Stage 1 remains partial,
+0/10 complete. No new commit/push or next stage; unrelated paused-peer work remains.
+
+
+## Offline federation adapter checkpoint
+
+Existing bilateral authentication/authorization and federation outage decisions
+now feed a fixture-only adapter with exact context/owner/session association.
+174 local tests pass (21 adapter+88 model+65 neighbors); two deterministic
+boundary failures were fixed, independent review clear, Ruff/format pass.
+See docs/reviews/2026-10-10-connector-federation-adapter.md and .json for limits,
+failed runs, hashes and cleanup. Incident delivery remains simulated; no real
+identity/deadline/ownership mapping, credentials, network or production authority.
+No new commit/push or stage advancement; original 125-test lifetime evidence retained.
+
+
+## Stage 1 review stop
+
+187 local tests pass after a 13-case test-only increment (34 adapter+88 model+65
+neighbors). Both model sources remain byte-identical to the 174-pass snapshot;
+independent test review clear, Ruff/format pass. Exact files, commands, final
+hashes and five remaining bindings are in
+`docs/reviews/2026-10-10-connector-stage1-checkpoint.md` and .json. Historical
+174-pass evidence retained. Stage 1 partial, 0/10 complete; no new task/commit/push.
+
+
+## Approved CRP-1 offline vector checkpoint
+
+The approved offline slice now has a strict codec/pure coordinator, 24 executable
+scenario mappings and 18 byte artifacts plus manifest. Final scoped result: 338
+passed, zero failed/skipped (83 CRP + prior 187 freshly rerun + 68 CBOR). Node
+independently checks transcript/exporter/framing bytes, not all lifecycle scenarios.
+Independent review defects and all failed attempts are retained in
+`docs/reviews/2026-10-10-connector-registration-offline.md` and `.json`.
+Stage 1 remains partial, 0/10 complete; long-lived replay retention and runtime
+authority/allocation/conformance gates remain. No commit/push or live activation.
+
+
+## Approved counter amendment and corrected milestone alignment
+
+The four-operation lifetime ceiling is resolved by the approved draft-2 counter
+profile. Final scoped result: 358 passed, zero failed/skipped; independent Node
+checks 19 artifact hashes and 34 counter/cache transitions. All 12 supervised
+children reaped without abort. See `docs/reviews/2026-10-10-connector-counter-amendment.md` and its JSON manifest.
+Earlier counts and blockers above remain historical. Stage 1 is partial (0/10):
+component ownership selection remains, with Rust destination gateway / Go origin
+connector recommendation documented in the plan. Runtime implementation stays
+in Stage 3; strict side-effect-free configuration is the next Stage 2 slice.
+No commit, push or runtime activation.
+
+
+## Approved ownership closure and Stage 2 offline configuration
+
+Stages 1 and 2 meet their scoped contract/offline gates (2/10). The approved
+Rust destination / Go origin / Python oracle inventory is reconciled. Offline
+preflight validates one service without resolving references or claiming READY.
+Final scoped tests: 420 passed, zero failed/skipped; both independent-review
+findings were fixed and rereviewed. Ten supervised runs reaped without abort.
+See `docs/reviews/2026-10-10-single-instance-preflight.md` and `.json` for exact
+commands, failures, hashes and input-path assumptions. Prior counts above are
+historical. Stage 3 pre-wire allocations and runtime authority remain gated.
+No commit/push, credentials, live trust or deployment.
+
+
+## Stage 2 gateway identifier correction
+
+The old hex gateway ID passed preflight but failed approved REQUEST text64
+validation. All three roles now preserve canonical text64 unchanged; the example
+is covered by an actual registration-body regression. 459 scoped tests passed,
+zero failed/skipped; independent review found no blockers. Stage 2 offline closure
+is restored (2/10). See `docs/reviews/2026-10-10-gateway-text64-correction.md` and JSON for retained red/green evidence.
+No allocations, credentials or live activation in this correction.
+
+
+## Incomplete connector development handoff
+
+At 19:15 UTC the original overnight cutoff had elapsed. Existing Stage 3
+development-only work was preserved, not declared complete. The last retained
+Rust owner run reports 4 passed / 2 failed; subsequent owner edits are untested.
+The Go coordinator implementation still needs substantive tests and review.
+Earlier codec passes do not validate this final source state. Exact source
+snapshots, all 11 retained Stage 3 run records, failures and remaining checks:
+`docs/reviews/2026-10-10-connector-development-handoff.json`.
+No additional build, commit, push, activation or cleanup deletion at handoff.
+No visible Python/Cargo/rustc/Go processes in the read-only cleanup check.
+
+
+## Approved evening development slice completed
+
+The incomplete handoff above is superseded by renewed user-authorized evening
+work. Final scoped validation: 462 Python tests, 14 Rust tests, 58 Go connector
+and 10 CBOR passing test/subtest events; lint/format/vet, source-preservation and
+independent review pass. All failed attempts and exact final source/binary hashes
+are retained in `docs/reviews/2026-10-10-connector-development.md` and `.json`.
+No resource abort; supervised children reaped and no visible relevant processes
+at cleanup. Development-only registry/fixtures are complete; real authenticated
+Stage 3 remains partial (2/10 stages complete). No commit/push or live activation.
+
+
+## Bounded asynchronous cleanup fixture adapter
+
+Go CleanupPeer preserves the existing close/ownership contract across async
+confirmation, wait cancellation/timeout and stale callbacks. Seven new tests;
+final 67 connector + 10 CBOR passing test/subtest events, vet/format/static checks
+and independent review pass. All seven supervised runs retained, including
+missing-API red; no abort or residual process. See
+`docs/reviews/2026-10-10-connector-async-cleanup.md` and `.json`.
+No lifetime policy, frozen source/registry, live trust or network change; Rust
+async composition and real bounded backend completion remain. Stage 3 partial,
+2/10 complete; no commit/push or Stage 4 expansion.
+
+
+## Consolidated code-only Stage 3 checkpoint
+
+Rust ticket/owner async composition completed: fresh 19 tests pass (five new),
+Clippy/rustfmt and scoped preservation checks pass; independent review clear.
+Go 67+10 test/subtest events and Python462 are retained prior passes for unchanged
+sources, not rerun claims. Both cleanup layers remain synthetic; no real backend
+completion, authenticated provider composition or live registration is proven.
+41 development package files plus shared docs/evidence remain uncommitted.
+See `docs/reviews/2026-10-10-connector-stage3-code-checkpoint.md` and JSON for
+exact inventory, failures/not-run and next provider/security authorization boundary.
+Six latest children reaped; no abort/residual process, commit/push or live activation.

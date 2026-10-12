@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-go-final",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "./internal/cbor",
+    "-count=1",
+    "-json"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 1.61,
+  "disk_start": 12092928000,
+  "disk_end": 12092055552,
+  "ram_end": 5430132736,
+  "direct_child_reaped": true
+}

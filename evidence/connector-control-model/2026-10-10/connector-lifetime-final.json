@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connector-lifetime-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_control_model.py",
+    "tests/protocol/test_states.py",
+    "tests/federation/test_revocation.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 12310224896,
+  "disk_end": 12310224896,
+  "ram_end": 4591374336,
+  "direct_child_reaped": true
+}

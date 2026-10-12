@@ -1,0 +1,21 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp2-format",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "nbsr/connector_registration_offline.py",
+    "scripts/generate_connector_registration_vectors.py",
+    "tests/protocol/test_connector_registration_vectors.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 12202467328,
+  "disk_end": 12202467328,
+  "ram_end": 4505731072,
+  "direct_child_reaped": true
+}

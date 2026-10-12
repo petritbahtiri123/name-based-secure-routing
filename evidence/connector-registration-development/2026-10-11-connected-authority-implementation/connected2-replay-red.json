@@ -1,0 +1,24 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-replay-red",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "1",
+    "--test",
+    "connector_authority",
+    "fresh_event_for_same_record_retains_binding_without_reapplying_effect"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 11699957760,
+  "disk_end": 11699937280,
+  "ram_end": 4152123392,
+  "direct_child_reaped": true
+}

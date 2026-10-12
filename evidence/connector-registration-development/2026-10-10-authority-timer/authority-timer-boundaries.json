@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "authority-timer-boundaries",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_authority_timer_offline.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 11721072640,
+  "disk_end": 11721072640,
+  "ram_end": 4458901504,
+  "direct_child_reaped": true
+}

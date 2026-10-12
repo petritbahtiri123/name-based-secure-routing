@@ -1,0 +1,25 @@
+{
+  "status": "proposal awaiting approval; design only",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "design": "docs/reviews/2026-10-11-inclusion-persistence-design.md",
+  "design_sha256": "d38a10cf0883431b5cfdd90d81e8d651936b7d7bc771f1c227c3682d486e2dfa",
+  "review": "Independent read-only review found one source attribution error: existing bounded readers do not establish Windows ancestor-reparse/alias safety. Corrected to require a fresh prevalidated canonical root and explicit additional checks. Otherwise no blocking contradiction; no independent tests or ACL operations.",
+  "tests_run": 0,
+  "behavior_changed": false,
+  "acl_changes": false,
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "sources": {
+    "nbsr/federation/store.py": "cf3877b1fbb02b9505c216b51f52f1e7ae9e5cb6a9d6544c5c6cb63da472eef9",
+    "nbsr/secure_files.py": "822cf16c1f48198a51a838342cdc59acdce3782c8873cce38c9c801a8bce9237",
+    "nbsr/continuity.py": "223cba2aff02dc9056ce7b5e6290e4204a4830210551a732e197fd21cb127e72",
+    "scripts/revocation_inclusion_v2.py": "0ea06835a551b3985894b8391e9d0efbe515e0dead30a05f5e53ba85362a5066"
+  },
+  "approval_scope": "versioned local persistence experiment only; Windows ACL execution requires separate action-time authorization",
+  "remaining_production_gates": [
+    "independent governing configuration and rollback-resistant floor provenance",
+    "platform power-loss durability",
+    "production identity/storage/ACL provisioning",
+    "all-mode live composition and final audit"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-go-clock-vet",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "vet",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "./internal/cbor"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.81,
+  "disk_start": 11674882048,
+  "disk_end": 11674886144,
+  "ram_end": 4627734528,
+  "direct_child_reaped": true
+}

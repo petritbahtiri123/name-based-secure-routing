@@ -1,0 +1,27 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp1-neighbors-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "tests/test_connector_federation_model.py",
+    "tests/test_connector_control_model.py",
+    "tests/federation/test_authorization.py",
+    "tests/federation/test_outage.py",
+    "tests/federation/test_revocation.py",
+    "tests/protocol/test_states.py",
+    "tests/protocol/test_cbor.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.62,
+  "disk_start": 12213100544,
+  "disk_end": 12213100544,
+  "ram_end": 4414058496,
+  "direct_child_reaped": true
+}

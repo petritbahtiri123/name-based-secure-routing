@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "normal-conformance-review-green",
+  "argv": [
+    "python",
+    "-m",
+    "scripts.normal_revocation_conformance"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.81,
+  "disk_start": 12108021760,
+  "disk_end": 12108001280,
+  "ram_end": 5006602240,
+  "direct_child_reaped": true
+}

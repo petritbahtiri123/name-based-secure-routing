@@ -1,0 +1,27 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "kar-final-rust",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "1",
+    "--test",
+    "connector_kar",
+    "--test",
+    "connector_signature",
+    "--test",
+    "connector_control"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 2.01,
+  "disk_start": 15158063104,
+  "disk_end": 15156834304,
+  "ram_end": 8155754496,
+  "direct_child_reaped": true
+}

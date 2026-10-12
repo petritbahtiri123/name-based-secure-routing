@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "loopback-go-neighbors",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "./internal/cbor",
+    "-count=1",
+    "-json"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.43,
+  "disk_start": 11858821120,
+  "disk_end": 11856568320,
+  "ram_end": 4658081792,
+  "direct_child_reaped": true
+}

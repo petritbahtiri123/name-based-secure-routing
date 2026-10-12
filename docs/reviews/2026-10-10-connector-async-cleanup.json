@@ -1,0 +1,282 @@
+{
+  "timestamp_utc": "2026-10-10T19:34:17.183093+00:00",
+  "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "bounded Go asynchronous cleanup fixture adapter complete; real Stage 3 partial; 2/10",
+  "tests": {
+    "new_cleanup_top_level": 7,
+    "new_cleanup_subtests": 2,
+    "go_top_level": {
+      "cbor": 3,
+      "connector": 19
+    },
+    "go_pass_events": {
+      "cbor": 10,
+      "connector": 67
+    },
+    "failed": 0,
+    "skipped": 0,
+    "race_detector": "not run"
+  },
+  "review": "Independent reviewer /root/connector_model_review found no ownership/concurrency blocker under the prompt fixture backend and serialized owner/start contract. Requested cancellation-after-wait coverage; controlled Done-entry cancellation/deadline tests added and rereviewed. No remaining blocker; reviewer did not rerun tests or claim real backend completion bounds.",
+  "report": "docs/reviews/2026-10-10-connector-async-cleanup.md",
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "async-cleanup-api-red",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "TestAsyncCleanup",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 0.61,
+      "disk_start": 12073484288,
+      "disk_end": 12073476096,
+      "ram_end": 4602101760,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "async-cleanup-final",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "./internal/cbor",
+        "-count=1",
+        "-json"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.61,
+      "disk_start": 12072079360,
+      "disk_end": 12071174144,
+      "ram_end": 4698169344,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "async-cleanup-green",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "TestAsyncCleanup",
+        "-count=1",
+        "-v"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.41,
+      "disk_start": 12073476096,
+      "disk_end": 12072214528,
+      "ram_end": 4502810624,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "async-cleanup-retained-build",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-c",
+        "-o",
+        "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-async-cleanup-final.test.exe"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.41,
+      "disk_start": 12070969344,
+      "disk_end": 12065677312,
+      "ram_end": 4710715392,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "async-cleanup-retained-test",
+      "argv": [
+        "python",
+        "-c",
+        "import os,subprocess,sys; os.chdir('interop/nbsr-go-peer/connector'); sys.exit(subprocess.call(['@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-async-cleanup-final.test.exe','-test.v','-test.count=1']))"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.41,
+      "disk_start": 12065673216,
+      "disk_end": 12065660928,
+      "ram_end": 4837232640,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "async-cleanup-static",
+      "argv": [
+        "python",
+        "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-async-cleanup-static.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.43,
+      "disk_start": 12070969344,
+      "disk_end": 12065677312,
+      "ram_end": 4828794880,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "async-cleanup-vet",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "vet",
+        "-tags",
+        "connector_development",
+        "./connector"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.61,
+      "disk_start": 12070973440,
+      "disk_end": 12070969344,
+      "ram_end": 4708732928,
+      "direct_child_reaped": true
+    }
+  ],
+  "cleanup": "7 supervised children reaped; no abort; zero visible relevant processes; no task containers or background workers",
+  "publication": "none; index empty; uncommitted",
+  "remaining": [
+    "real backend bounded completion",
+    "Rust asynchronous cleanup composition",
+    "authenticated transport/authority and revocation providers",
+    "independent live Go/Rust conformance"
+  ],
+  "next_authorization_boundary": "real authenticated providers/live activation or new lifetime/security policy; none selected",
+  "unchanged_prior_sources": {
+    "crates/nbsr-transport/src/connector_control.rs": "a23e987bfa0153938dcb582c9d345330b2a7282032ebf0d311fdfb2e63d11ee5",
+    "crates/nbsr-transport/src/connector_registration.rs": "84d48b63b8e45d4066b9324674d3c64b7bf778fb094ce8265d563351daedde7e",
+    "crates/nbsr-transport/tests/connector_control.rs": "a63845e6f076cbce3ed7e8b4f6347608be89347812897823254d6ddd3e3c4a4d",
+    "crates/nbsr-transport/tests/connector_registration.rs": "bf3574fb46af8b4b014c1435ee82666d3f11f181b1540a8a9c2be9b868138536",
+    "docs/protocol/registries/connector-registration-development-v1.json": "333b5d6ce7bfed4d2cbf4d0067514bdcdf0f198f65d97c91b4c1ba3c70473d07",
+    "interop/nbsr-go-peer/connector/codec.go": "4b6eedfbc2502764dcbb8c628f4ed4adffd687285b305155190f51bf0e3e315c",
+    "interop/nbsr-go-peer/connector/codec_test.go": "93e127c226deff1a070b89ab913c437793d81f9ab6b62312d0d94be79c96c9c3",
+    "interop/nbsr-go-peer/connector/coordinator.go": "ef72be324e85a9a7f5f636ea53b45f0453803f992a8e961ef54e30b0ffb3097d",
+    "interop/nbsr-go-peer/connector/coordinator_test.go": "29247d997f74dcc80be549c65c6982d8149d1c9a31daba2cffe0951cb72cd52f",
+    "scripts/generate_connector_development_vectors.py": "9b84f11966fec7c31013d6a57a46980b5bf6acba6141e240f11d3410b942e7f4",
+    "tests/protocol/test_connector_development_vectors.py": "d399fe235596da03796534bcad347b985be11a08ffb8025e41c295f571fbca95",
+    "vectors/connector-registration-development-v1/accept.cbor": "5549d7fc4a2be732239a6f5ad7620d561317a2fa104762ddd0cdc084241bfa81",
+    "vectors/connector-registration-development-v1/bad-request-prefix.cbor": "183ab2b2da86863d3412781c291842052c3fa0fc32c4a6f2d4535438fb3f6320",
+    "vectors/connector-registration-development-v1/bool-lease.cbor": "e311384ff89a421be25cecc9353c10df2d1630911898195d082a9cb5b1503fbb",
+    "vectors/connector-registration-development-v1/bool-sequence.cbor": "7cd385a1f3483f1378283a64d002a582aae980482daa89b2067324d1b341d5c4",
+    "vectors/connector-registration-development-v1/challenge.cbor": "01ddc7e9a18031a6adb3283c22f3ff1b4883336096ba0235d288a3d41d2e9006",
+    "vectors/connector-registration-development-v1/core-message.cbor": "b02363323d8d4a77fe7786e7cd7097fedda703bef6030a1ef11c2dbc9aae9f0b",
+    "vectors/connector-registration-development-v1/extra-key.cbor": "db888537e912b613346ea3b636e694702bdcf071cc6868c17b501ba1ce5f9a41",
+    "vectors/connector-registration-development-v1/indefinite.cbor": "f01dc723c0700d2eb2c0eaf40c6dcfbf0874dada30f8eb4340c51d29eacb015f",
+    "vectors/connector-registration-development-v1/long-lease.cbor": "1c569934b74110e4c451d47ef7cf753ba810699c180ae9348d774780149fe6fb",
+    "vectors/connector-registration-development-v1/manifest.json": "631ccde254715cbf0cce549eb3b58f9f57031d12289b654b1ac54abeb5d66a32",
+    "vectors/connector-registration-development-v1/missing-authority-refs.cbor": "b1c303994812dea3b2434e4d48bdba85c240b1e46950dbe4d24786d9a111bdcb",
+    "vectors/connector-registration-development-v1/nonpreferred.cbor": "95acbd9193f476e833682aaa3a94de310dd76ddbfd1d71d813c5fa9296271766",
+    "vectors/connector-registration-development-v1/proof.cbor": "113f3159686d6c5ea4e41934de11cdc1c3910c0d4d445b4b863c11e6efca2f9b",
+    "vectors/connector-registration-development-v1/reject-correlation.cbor": "437a055b515f99f5364aa87db035cabeb0c84d377449c1a2dbf42fffb4c198b5",
+    "vectors/connector-registration-development-v1/reject-forbidden-retry.cbor": "ddf032b8ba21e8930c84747abbc1d059f8478dcf29bbe3c726fdd9c56a78e2df",
+    "vectors/connector-registration-development-v1/reject-zero-retry.cbor": "1ea998348bf9ab7a87454d01b78751035cfe18e862c31eea29e965b0d587d6cd",
+    "vectors/connector-registration-development-v1/reject.cbor": "6f02308fbc4520383595c89ae1da6adf8947df6cb3b010a5fc35af798d368eb3",
+    "vectors/connector-registration-development-v1/request.cbor": "6f0cfca054c669b9cd83194840b476aebf1e81f5bc32df2dc014452195e10ebe",
+    "vectors/connector-registration-development-v1/trailing.cbor": "1f311a4e0db10523a4c822d60c521af9ab059de916e0bebf6b32243ada313bf0",
+    "vectors/connector-registration-development-v1/unknown-message.cbor": "77f127f3592a3e22e5a5e142f3bc543a468408e1697437e10471e4ed823167eb",
+    "vectors/connector-registration-development-v1/unknown-version.cbor": "d0e416668035d04dc0f16b64abfc0f7455f658eb874b0acb41a1eedb8e977d58",
+    "vectors/connector-registration-development-v1/withdraw.cbor": "518df42d865e2a5ff0ae16f2c86f4239e3f5922277c08babc6769c6170c32a27",
+    "vectors/connector-registration-development-v1/wrong-alpn.cbor": "6f0cfca054c669b9cd83194840b476aebf1e81f5bc32df2dc014452195e10ebe",
+    "vectors/connector-registration-development-v1/wrong-gateway.cbor": "276026af5eae71e1a68d70aaec66e4936bbdd3d5cae2c6bc4ef4653f8035a606",
+    "vectors/connector-registration-development-v1/zero-counter.cbor": "574ea45025e235f2797f75ef2f5aad4093a9ebe3b14ea39fd0fa2e6313ceba6a",
+    "vectors/connector-registration-development-v1/zero-sequence.cbor": "5d27242120f2eaaa3a706085eb114e9f04050646d6b056d87062299b88ed777c"
+  },
+  "source_sha256": {
+    "AGENTS.md": "e45303fccce574609c4b3aa4a492bc2c91541ead467959853cb966807fa36f0a",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json": "7efe1f431b1b9592fbbfc34d4f4501a795c782040bfc9603e9840d066620e22c",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md": "703d6177c0cfa017bf2fc46e03b7331a1c2b7d5c324a52222b6659bfe4950295",
+    "docs/protocol/status.md": "eaea25c907c11e3c43538ef998a5bf0106072e91e95d6e91d586a9cd2aa412d1",
+    "docs/reviews/2026-10-10-connector-async-cleanup.md": "929a0fdf6665857556f6baf00346708971b90433754743378372d50f6b879c77",
+    "interop/nbsr-go-peer/connector/README.md": "4d88affa4a57317303e92a7fdc783c655ffeb397ead8c34c2a323e3088ed8e84",
+    "interop/nbsr-go-peer/connector/cleanup.go": "16ac6e4867677c14c9c49047bd87359809802f73b65aadbbd1e8abca22f4ec4c",
+    "interop/nbsr-go-peer/connector/cleanup_test.go": "92b8c469d7b241579aa3b1f9e8481f637e7bc81f44b947ec462ad44361a9a367",
+    "interop/nbsr-go-peer/connector/codec.go": "4b6eedfbc2502764dcbb8c628f4ed4adffd687285b305155190f51bf0e3e315c",
+    "interop/nbsr-go-peer/connector/codec_test.go": "93e127c226deff1a070b89ab913c437793d81f9ab6b62312d0d94be79c96c9c3",
+    "interop/nbsr-go-peer/connector/coordinator.go": "ef72be324e85a9a7f5f636ea53b45f0453803f992a8e961ef54e30b0ffb3097d",
+    "interop/nbsr-go-peer/connector/coordinator_test.go": "29247d997f74dcc80be549c65c6982d8149d1c9a31daba2cffe0951cb72cd52f"
+  },
+  "binary_sha256": {
+    "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-async-cleanup-final.test.exe": "c7247999dbe96710ecf0a894edf01ff09e588d8fa92d76c7c1f699a45067e811"
+  },
+  "evidence_sha256": {
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-api-red.json": "e8d6545ef2292a69d6bcb1efe52fbed0fbae4e21dbf30a035d0c3ec6980cb560",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-api-red.stderr.log": "de78df85c8a98de731868865379c4f014abffbee89d6c05fabc82194f0418d7e",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-api-red.stdout.log": "a0a47df22f82d2cc486ebb301f35816033af29af04accab0ca034a9573c7292d",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-final.json": "597899c14231b45da02e767998a8389c3fcd8572da50e09ccd5be56b0e99c757",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-final.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-final.stdout.log": "088a206e9d30809db5b2b2aae532279e4b594ac49a5134115527744c97297a41",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-green.json": "a260923f668dd27490607795ec443759435ea26c1f9284ac661e53ccfb6a7e1c",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-green.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-green.stdout.log": "39a50f1fa2f2e82cab7ebe78ca4cad1f4286db35705931db613fba418b9b09a2",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-retained-build.json": "7eca73fbe7e7df18ccc51e32926bb74ad790fae02a6a7aee48b04e0848853d80",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-retained-build.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-retained-build.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-retained-test.json": "d6ebaae667c3ea42a81f4eafe4a68bbf27d756bbae2388f4556be326aa9b5963",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-retained-test.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-retained-test.stdout.log": "ee30e78f962300aef8e00f85ebe3d9983650c5d0379cc85a3ce17bc4b52999a4",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-static.json": "4cf6d8035f7c877db27d935b2b741aedffdbcf4ffc64110c8a678fced1fb3abc",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-static.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-static.stdout.log": "5b5419665aaa932b8c6c497cf7dde8663bb554e45a489f7b0a8076ea91c18e51",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-vet.json": "cd583ea1bde70570d11d5429494772259fd854d986d9ede987f52d1d58bcb852",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-vet.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/async-cleanup-vet.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/independent-review.txt": "459efbc6df62edf84fc8b10d7b3ddf112c044f61c29f7801236abeb9188db31b",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/AGENTS.md": "e45303fccce574609c4b3aa4a492bc2c91541ead467959853cb966807fa36f0a",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/interop/nbsr-go-peer/connector/cleanup.go": "16ac6e4867677c14c9c49047bd87359809802f73b65aadbbd1e8abca22f4ec4c",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/interop/nbsr-go-peer/connector/cleanup_test.go": "92b8c469d7b241579aa3b1f9e8481f637e7bc81f44b947ec462ad44361a9a367",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/interop/nbsr-go-peer/connector/codec.go": "4b6eedfbc2502764dcbb8c628f4ed4adffd687285b305155190f51bf0e3e315c",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/interop/nbsr-go-peer/connector/codec_test.go": "93e127c226deff1a070b89ab913c437793d81f9ab6b62312d0d94be79c96c9c3",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/interop/nbsr-go-peer/connector/coordinator.go": "ef72be324e85a9a7f5f636ea53b45f0453803f992a8e961ef54e30b0ffb3097d",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/interop/nbsr-go-peer/connector/coordinator_test.go": "29247d997f74dcc80be549c65c6982d8149d1c9a31daba2cffe0951cb72cd52f",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/interop/nbsr-go-peer/connector/README.md": "4d88affa4a57317303e92a7fdc783c655ffeb397ead8c34c2a323e3088ed8e84",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json": "7efe1f431b1b9592fbbfc34d4f4501a795c782040bfc9603e9840d066620e22c",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md": "703d6177c0cfa017bf2fc46e03b7331a1c2b7d5c324a52222b6659bfe4950295",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/docs/protocol/status.md": "eaea25c907c11e3c43538ef998a5bf0106072e91e95d6e91d586a9cd2aa412d1",
+    "evidence/connector-registration-development/2026-10-10-async-cleanup/source/docs/reviews/2026-10-10-connector-async-cleanup.md": "929a0fdf6665857556f6baf00346708971b90433754743378372d50f6b879c77"
+  },
+  "resource_summary": {
+    "max_seconds": 5.43,
+    "minimum_end_ram_bytes": 4502810624,
+    "minimum_start_disk_bytes": 12065673216,
+    "max_disk_growth_bytes": 5292032
+  },
+  "_publication_derivative": {
+    "original_sha256": "ce58714848893ebabeeb428f53375e601bb514a0e63fd5c01d89260b2b36e843",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

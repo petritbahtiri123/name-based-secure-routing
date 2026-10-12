@@ -1,0 +1,148 @@
+{
+  "timestamp_utc": "2026-10-10T20:59:43.384410+00:00",
+  "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "checkpoint": {
+    "slice": "go-clock-floor",
+    "report": "docs/reviews/2026-10-11-connector-go-clock.md",
+    "manifest": "docs/reviews/2026-10-11-connector-go-clock.json",
+    "go_counts": {
+      "nbsr.local/interop/nbsr-go-peer/internal/cbor": {
+        "pass_events": 10,
+        "pass_top_level": 3
+      },
+      "nbsr.local/interop/nbsr-go-peer/connector": {
+        "pass_events": 77,
+        "pass_top_level": 25,
+        "skip_events": 1,
+        "skip_top_level": 1
+      }
+    },
+    "review": "clear",
+    "cleanup": "all children reaped; no visible relevant workers; no sockets/containers",
+    "reproduced_failures": 3
+  },
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-clock-green",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "TestExpiredPendingCannotRecover|TestAuthorityCallbackClockRollback|TestClockRollbackBeforeExpiry",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.41,
+      "disk_start": 11679383552,
+      "disk_end": 11677003776,
+      "ram_end": 4621852672,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-clock-neighbors",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "./internal/cbor",
+        "-count=1",
+        "-json"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.41,
+      "disk_start": 11676864512,
+      "disk_end": 11674882048,
+      "ram_end": 4632268800,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-clock-red",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "TestExpiredPendingCannotRecover|TestAuthorityCallbackClockRollback|TestClockRollbackBeforeExpiry",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.41,
+      "disk_start": 11681472512,
+      "disk_end": 11679383552,
+      "ram_end": 4613636096,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-clock-vet",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "vet",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "./internal/cbor"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.81,
+      "disk_start": 11674882048,
+      "disk_end": 11674886144,
+      "ram_end": 4627734528,
+      "direct_child_reaped": true
+    }
+  ],
+  "hashes": {
+    "AGENTS.md": "5fcd7f7545d9ae72cb4f83f16a44a1cb8eabddea2dd56cefe7aeda059d5814c0",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.json": "fea65907f7ed3fb9e69b0478177e9829aca632fa73de746403387e507e125f5b",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md": "d15820b7cfbd9bc982eca43ce112d48fa5f028387472541ee26d83c8a5afd341",
+    "docs/reviews/2026-10-11-connector-go-clock.md": "091438a5208e6a9148e438f6b60d897c10cc81137027dcbccc9a377d76999cbc",
+    "evidence/connector-registration-development/2026-10-11-go-clock/coordinator.go.patch": "6281789eebfa3d86849cf327f0bbdfb4a200166a13156bef335710aa1ee8fa25",
+    "evidence/connector-registration-development/2026-10-11-go-clock/coordinator.go.snapshot": "fd8bb45a3c96c3a1b6386769e628bf8d26ed604a7b067c48ff3bec151a428508",
+    "evidence/connector-registration-development/2026-10-11-go-clock/coordinator_test.go.patch": "53bd07948455d5979502ec203ec5443bd1e8a8ee1ea5713b84cca330007d0578",
+    "evidence/connector-registration-development/2026-10-11-go-clock/coordinator_test.go.snapshot": "b7a5070e04e918c3d606370a9ebf85b9af507537fec710abecc03afdda7d02d4",
+    "evidence/connector-registration-development/2026-10-11-go-clock/nbsr-ci-clean-check.py": "f14d97f2153e7b507161a446a1ae86b7bf7f4bdcc280b7cd5a8ad73fcef558ca",
+    "evidence/connector-registration-development/2026-10-11-go-clock/nbsr-go-clock-before-test.go": "8f5391cf72c7b8c572f1e083b6ff10b384a7b70bdbc99503453bac4c36af2b78",
+    "evidence/connector-registration-development/2026-10-11-go-clock/nbsr-go-clock-before.go": "6c6a20688b68e9fff64a5b7c19d03b45a44c3910a0f4ac9bca0c6ebb7f6b7694",
+    "evidence/connector-registration-development/2026-10-11-go-clock/nbsr-owned-revoke-check.py": "36a829667b4ca77eb76deb6a027ee1475c14f6197687d117b7682f5e421e0410",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-green.json": "1f522b9365d505fd12aa363de1598442134a2649292ff1a150528d0f554b0ee0",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-green.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-green.stdout.log": "f7879841d11254740b175ca31660faf193e875a3e698d045fdbee8c50c4d1591",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-neighbors.json": "e51ae40de4fd20efcaf90abe6c9cd40f4e4db035c5b661544e3523881e8ad5b3",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-neighbors.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-neighbors.stdout.log": "325b46089f5fdfad14b73a3fde79b9d3fd6786f42e7dfcf91b885b707845b136",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-red.json": "8994c61b0d00255fa98ae12d3b822dc869ea608f138adb1b556326224b96a380",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-red.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-red.stdout.log": "66b1bf30a35620c90bb847fe136ad2777d5b1c895863e401e2e3f1f921201441",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-vet.json": "93b5efa0d8a7d3791d161c1e39dae9e26979e5659ff0d6f1a7d7698912fee844",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-vet.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-clock/overnight-go-clock-vet.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-clock/review.txt": "fabffe892ab148fae743f5e99c0aee15bda01c46d4356abcf5d0688f1eb56d1b",
+    "interop/nbsr-go-peer/connector/coordinator.go": "fd8bb45a3c96c3a1b6386769e628bf8d26ed604a7b067c48ff3bec151a428508",
+    "interop/nbsr-go-peer/connector/coordinator_test.go": "b7a5070e04e918c3d606370a9ebf85b9af507537fec710abecc03afdda7d02d4",
+    "interop/nbsr-go-peer/connector/README.md": "7229b35453fc3ee51cebbe457cbf50ec301ca2c10f133813aab901925b1dd5da",
+    "interop/nbsr-go-peer/go.mod": "a213be88bea938c0a6954762f7d86cd36583be721ee67f6dd3a8fa2fca33fd7f",
+    "interop/nbsr-go-peer/go.sum": "ae98d0b5699ee49aac22fae53a0eb50a7184dbc64c84b1ff46e3e015390cc6cb"
+  }
+}

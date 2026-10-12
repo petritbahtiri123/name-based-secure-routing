@@ -1,0 +1,270 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "authorization": "INCLUSION-PERSISTENCE-01 implementation and non-ACL local tests only",
+  "report": "docs/reviews/2026-10-11-inclusion-persistence-implementation.md",
+  "evidence": "evidence/connector-registration-development/2026-10-11-inclusion-persistence",
+  "sources": {
+    "scripts/inclusion_persistence.py": {
+      "sha256": "c31c5d271cf26e7d3a478046602e355d9caa5d290d1f58c2930f04edec6208db",
+      "snapshot": "00-inclusion_persistence.py.snapshot"
+    },
+    "tests/federation/test_inclusion_persistence.py": {
+      "sha256": "fd87ad26a76cf012f2556b1b1c17203fb99df8ce18ae29e2082463426a6c3c3e",
+      "snapshot": "01-test_inclusion_persistence.py.snapshot"
+    },
+    "scripts/ci/check.py": {
+      "sha256": "98a4649370762bae12818b00871902f41d9c1fa1db01ba6a0a8655f2bda115fe",
+      "snapshot": "02-check.py.snapshot"
+    },
+    "tests/ci/test_ci.py": {
+      "sha256": "bb34ad51f0140a60a7a850ac0cc05587bda7ed65d344ea441b4589a0396883fa",
+      "snapshot": "03-test_ci.py.snapshot"
+    },
+    "AGENTS.md": {
+      "sha256": "0dcb54227de83e57f6948345390ead45e0d2150dac1ebf04f12f0d4e48879f11",
+      "snapshot": "04-AGENTS.md.snapshot"
+    },
+    "docs/CI.md": {
+      "sha256": "b636edcb95c67a1dfcc2694adc80262b17cca956305efda608097c816e7353e4",
+      "snapshot": "05-CI.md.snapshot"
+    },
+    "docs/reviews/2026-10-11-registration-full-model-acceptance.md": {
+      "sha256": "3b621b0465ddb3a143f280266432b199167a611319a1be4945f268a2bb993c2a",
+      "snapshot": "06-2026-10-11-registration-full-model-acceptance.md.snapshot"
+    },
+    "docs/reviews/2026-10-11-inclusion-persistence-implementation.md": {
+      "sha256": "96c21a071d3d616efeb0b2104817a024f1d5aacbdef68dda4b9a2c04680c5257",
+      "snapshot": "07-2026-10-11-inclusion-persistence-implementation.md.snapshot"
+    },
+    "docs/reviews/2026-10-11-inclusion-persistence-design.md": {
+      "sha256": "d38a10cf0883431b5cfdd90d81e8d651936b7d7bc771f1c227c3682d486e2dfa",
+      "snapshot": "08-2026-10-11-inclusion-persistence-design.md.snapshot"
+    }
+  },
+  "tracked_patch_sha256": "5351456e3741a72e2298d7f817bc88691e8023d232bc20b81510dfbb86c9b69d",
+  "patch_scope": "Full tracked dirty context for selected paths includes earlier authorized changes; new untracked source snapshots retained separately.",
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py"
+      ],
+      "exit_code": 2,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 11944017920,
+      "disk_end": 11944013824,
+      "ram_end": 3513745408,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-first-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 3.22,
+      "disk_start": 11938590720,
+      "disk_end": 11936407552,
+      "ram_end": 3094609920,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.61,
+      "disk_start": 11936464896,
+      "disk_end": 11936464896,
+      "ram_end": 3087163392,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-expanded",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.02,
+      "disk_start": 11936264192,
+      "disk_end": 11936264192,
+      "ram_end": 3359612928,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-release-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py",
+        "-k",
+        "post_write_release"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.62,
+      "disk_start": 11936124928,
+      "disk_end": 11935801344,
+      "ram_end": 3410903040,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-release-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py",
+        "tests/ci/test_ci.py::test_inclusion_persistence_ci_is_memory_only"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.22,
+      "disk_start": 11935334400,
+      "disk_end": 11935338496,
+      "ram_end": 3382464512,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-reentrant-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py",
+        "-k",
+        "reentrant"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.42,
+      "disk_start": 11935264768,
+      "disk_end": 11935326208,
+      "ram_end": 3411873792,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_inclusion_persistence.py",
+        "tests/federation/test_revocation_inclusion_v2.py",
+        "tests/federation/test_normal_revocation_witness_integration.py",
+        "tests/federation/test_normal_revocation_conformance.py",
+        "tests/federation/test_witness_thresholds.py",
+        "tests/federation/test_transparency.py",
+        "tests/federation/test_threshold_container_supplement.py",
+        "tests/federation/test_revocation.py",
+        "tests/federation/test_store.py::test_canonical_snapshot_round_trip_contains_only_bounded_safety_state",
+        "tests/federation/test_store.py::test_fresh_node_does_not_accept_first_seen_authority_without_current_proof",
+        "tests/federation/test_store.py::test_snapshot_rejects_invalid_semantics_and_limit_plus_one",
+        "tests/ci/test_ci.py::test_inclusion_persistence_ci_is_memory_only",
+        "tests/ci/test_ci.py::test_revocation_inclusion_v2_selection_stays_local"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 6.85,
+      "disk_start": 11935113216,
+      "disk_end": 11935186944,
+      "ram_end": 3407204352,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "persistence-lint",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "scripts/inclusion_persistence.py",
+        "tests/federation/test_inclusion_persistence.py",
+        "scripts/ci/check.py",
+        "tests/ci/test_ci.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 11930480640,
+      "disk_end": 11930480640,
+      "ram_end": 2802020352,
+      "direct_child_reaped": true
+    }
+  ],
+  "final_passed": 255,
+  "persistence_passed": 51,
+  "skipped": 0,
+  "deselected": 0,
+  "review": "Independent review: release failure after completed writes initially bypassed uncertainty latch; three RED regressions then fix. Followup inspected release and reentrant-operation fixes and reported both resolved, no new blocker. Reviewer did not rerun tests. Memory-only scope; no filesystem durability/ACL validation.",
+  "initial_lint_failure": "Four E731 test lambda assignments; corrected; final retained lint passed",
+  "additional_checks": [
+    "2 new files Ruff format check passed",
+    "git diff --check passed with line-ending warnings",
+    "visible Python/Cargo/rustc/Go processes empty after validation"
+  ],
+  "not_run": [
+    "filesystem adapter/private writes",
+    "Windows ACL/path/real lock validation",
+    "fsync/partial disk write/power-loss tests",
+    "hosted CI",
+    "whole repository suite"
+  ],
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "cleanup": "All 9 supervised direct children reaped; no resource abort. No sockets or containers created. No visible relevant workers at final check.",
+  "stage3": "partial; unchanged"
+}

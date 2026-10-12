@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "full-model-python-neighbors",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_registration_authority_offline.py",
+    "tests/federation/test_revocation.py",
+    "tests/federation/test_threshold_container_supplement.py",
+    "tests/ci/test_ci.py"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 3.82,
+  "disk_start": 12136394752,
+  "disk_end": 12136386560,
+  "ram_end": 5025112064,
+  "direct_child_reaped": true
+}

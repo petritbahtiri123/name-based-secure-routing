@@ -1,0 +1,52 @@
+{
+  "status": "decision required before persistence behavior changes",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "passed": 3,
+  "skipped": 0,
+  "deselected": 0,
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "implementation_changed": false,
+  "source_sha256": {
+    "nbsr/federation/store.py": "cf3877b1fbb02b9505c216b51f52f1e7ae9e5cb6a9d6544c5c6cb63da472eef9",
+    "nbsr/federation/state.py": "3cd9d045121e890d367159b8c4327fd103f8820b549c3cbbf7d4966d4eaeb81a",
+    "nbsr/secure_files.py": "822cf16c1f48198a51a838342cdc59acdce3782c8873cce38c9c801a8bce9237",
+    "nbsr/connector_federation_model.py": "fab7cf4c047bceb46e23f141260c9fe59c9889600b4e79604e7bac83b8810703",
+    "scripts/revocation_inclusion_v2.py": "0ea06835a551b3985894b8391e9d0efbe515e0dead30a05f5e53ba85362a5066",
+    "tests/federation/test_store.py": "bd72dfb452915212b5a75601a722cca81ed56695e6aa5048e7b4975fe61b4393",
+    "docs/protocol/wp6-replicated-continuity-state-decision.md": "be6558ae5602bde161612cb836467f730bb71c982937146e98cd39a9aa332939"
+  },
+  "run": {
+    "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "label": "restart-store-pure",
+    "argv": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "tests/federation/test_store.py::test_canonical_snapshot_round_trip_contains_only_bounded_safety_state",
+      "tests/federation/test_store.py::test_fresh_node_does_not_accept_first_seen_authority_without_current_proof",
+      "tests/federation/test_store.py::test_snapshot_rejects_invalid_semantics_and_limit_plus_one"
+    ],
+    "exit_code": 0,
+    "abort": null,
+    "elapsed_seconds": 2.02,
+    "disk_start": 11953475584,
+    "disk_end": 11953483776,
+    "ram_end": 3475566592,
+    "direct_child_reaped": true
+  },
+  "evidence": "evidence/connector-registration-development/2026-10-11-restart-boundary",
+  "review": "Independent read-only review found no safe drop-in integration. Separate bounded state projection, event-binding retention/capacity and atomic recovery contract required; genuine rollback-resistant restart additionally requires an independently accepted floor/provenance mechanism. No tests independently rerun.",
+  "not_tested": [
+    "filesystem restart and interrupted writes",
+    "Windows private ACL write/repair",
+    "inclusion persistence",
+    "independent trusted bootstrap or joint-file rollback"
+  ],
+  "cleanup": "supervised direct child reaped; no resource abort; no sockets or containers created",
+  "report": "docs/reviews/2026-10-11-revocation-restart-boundary.md"
+}

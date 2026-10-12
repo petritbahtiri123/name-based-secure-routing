@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "async-cleanup-static",
+  "argv": [
+    "python",
+    "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-async-cleanup-static.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 5.43,
+  "disk_start": 12070969344,
+  "disk_end": 12065677312,
+  "ram_end": 4828794880,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "4cf6d8035f7c877db27d935b2b741aedffdbcf4ffc64110c8a678fced1fb3abc",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

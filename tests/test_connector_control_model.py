@@ -47,14 +47,14 @@ class Verifier:
         self.calls += 1
         if not self.fresh or self.revoked or binding != self.permission.binding:
             return None
-        return self.permission if now < self.permission.expires else None
+        return self.permission
 
 
 @pytest.fixture
 def rig(api):
     binding = api.Binding("connector", "service", "gateway", "operator", "issuer", 3, "register")
     clock = Clock()
-    verifier = Verifier(api.Permission(binding, 30))
+    verifier = Verifier(api.Permission(binding, 30, 30, api.CompletionGrace("legacy-fixture", 30)))
     model = api.Model(binding, verifier, clock, lease=8, attempts=3, retry_delay=2)
     return api, model, clock, verifier, binding
 
@@ -374,11 +374,11 @@ def test_renewal_cannot_cross_expiry_between_clock_samples(rig):
     assert attempt.transport.closed
 
 
-def active(rig, *, deadline=25, lease_bounds_active=False):
+def active(rig, *, deadline=25):
     _, model, _, _, _ = rig
     attempt, ticket = ready(rig)
     assert hasattr(model, "admit_work"), "active-work model is missing"
-    work = model.admit_work(attempt, deadline=deadline, lease_bounds_active=lease_bounds_active)
+    work = model.admit_work(attempt, deadline=deadline)
     assert work is not None
     return attempt, ticket, work
 
@@ -391,7 +391,7 @@ def test_deny_blocks_new_use_but_keeps_authorized_active_work(rig):
     assert not model.renew(attempt, ticket)
     assert model.register(attempt) is None
     assert not model.confirm(attempt, ticket)
-    assert model.admit_work(attempt, deadline=26, lease_bounds_active=False) is None
+    assert model.admit_work(attempt, deadline=26) is None
     assert model.begin(Transport(), binding) is None
     clock.now = 24
     model.poll()
@@ -405,10 +405,11 @@ def test_deny_blocks_new_use_but_keeps_authorized_active_work(rig):
     assert model.begin(Transport(), binding) is None
 
 
-@pytest.mark.parametrize("lease_bounds_active,expected", [(False, 25), (True, 18)])
-def test_active_deadline_policy_is_explicit_and_never_extended(rig, lease_bounds_active, expected):
-    _, model, clock, _, _ = rig
-    attempt, ticket, work = active(rig, lease_bounds_active=lease_bounds_active)
+@pytest.mark.parametrize("authority_deadline,expected", [(30, 25), (18, 18)])
+def test_registration_renewal_does_not_extend_work_authority(rig, authority_deadline, expected):
+    _, model, clock, verifier, _ = rig
+    verifier.permission = replace(verifier.permission, active_expires=authority_deadline)
+    attempt, ticket, work = active(rig)
     assert work.deadline == expected
     clock.now = 15
     assert model.renew(attempt, ticket)
@@ -506,7 +507,7 @@ def test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes(rig, mode):
 def test_one_active_slot_and_early_completion(rig):
     _, model, _, _, _ = rig
     attempt, _, work = active(rig)
-    assert model.admit_work(attempt, deadline=22, lease_bounds_active=False) is None
+    assert model.admit_work(attempt, deadline=22) is None
     model.finish_work(work)
     assert work.completed and not work.cancelled
     assert model.select() is attempt
@@ -548,5 +549,172 @@ def test_renewal_at_lease_boundary_preserves_independently_bounded_work(rig):
     assert model.select() is None
     model.clock = clock
     clock.now = 25
+    model.poll()
+    assert work.cancelled and attempt.transport.closed
+
+
+@pytest.fixture
+def lifetime_rig(api):
+    assert hasattr(api, "CompletionGrace"), "explicit completion-grace context is missing"
+    binding = api.Binding("connector", "service", "gateway", "operator", "issuer", 3, "register")
+    clock = Clock()
+    permission = api.Permission(
+        binding, admission_expires=16, active_expires=40, completion_grace=api.CompletionGrace("fixture-profile", 6)
+    )
+    verifier = LifetimeVerifier(permission)
+    model = api.Model(binding, verifier, clock, lease=8, attempts=3, retry_delay=2)
+    return api, model, clock, verifier, binding
+
+
+class LifetimeVerifier(Verifier):
+    def __call__(self, binding, session, now):
+        self.calls += 1
+        return self.permission if self.fresh and not self.revoked and binding == self.permission.binding else None
+
+
+def lifetime_active(rig, deadline=50):
+    _, model, _, _, _ = rig
+    attempt, ticket = ready(rig)
+    work = model.admit_work(attempt, deadline=deadline)
+    assert work is not None
+    return attempt, ticket, work
+
+
+def test_admission_only_expiry_preserves_active_until_finite_grace(lifetime_rig):
+    _, model, clock, _, _ = lifetime_rig
+    attempt, ticket, work = lifetime_active(lifetime_rig)
+    assert work.deadline == 40
+    clock.now = 16
+    model.poll()
+    assert not work.cancelled and not attempt.transport.closed
+    assert model.select() is None and model.renew(attempt, ticket) is None
+    assert model.admit_work(attempt, deadline=30) is None
+    assert work.deadline == 22
+    clock.now = 21
+    model.poll()
+    assert not work.cancelled
+    clock.now = 22
+    model.poll()
+    assert work.cancelled and attempt.transport.closed and model.health()["owned"] == 0
+
+
+def test_late_poll_cannot_restart_expiry_grace(lifetime_rig):
+    _, model, clock, _, _ = lifetime_rig
+    attempt, _, work = lifetime_active(lifetime_rig)
+    clock.now = 23
+    model.poll()
+    assert work.cancelled and attempt.transport.closed
+
+
+def test_valid_work_renewal_preserves_owner_session_and_request_bound(lifetime_rig):
+    _, model, clock, verifier, _ = lifetime_rig
+    attempt, ticket, work = lifetime_active(lifetime_rig, deadline=45)
+    owner, session = work.owner, work.owner.session
+    clock.now = 15
+    verifier.permission = replace(verifier.permission, admission_expires=35, active_expires=60)
+    renewed = model.renew(attempt, ticket)
+    assert renewed is not None
+    assert work.deadline == 40  # Registration renewal alone grants no extra work time.
+    assert model.renew_work(work)
+    assert work.deadline == 45 and work.owner is owner and work.owner.session is session
+    assert model.admit_work(attempt, deadline=60) is None
+    model.finish_work(work)
+    assert work.completed and not work.cancelled
+    assert not model.renew_work(work)
+
+
+@pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
+def test_enforcement_overrides_work_renewal_and_grace(lifetime_rig, mode):
+    _, model, clock, _, _ = lifetime_rig
+    attempt, _, work = lifetime_active(lifetime_rig)
+    model.enforce(attempt, mode)
+    assert not model.renew_work(work)
+    if mode is EnforcementMode.DENY_NEW_USE:
+        assert work.deadline == 16 and not work.cancelled
+        clock.now = 14
+        model.enforce(attempt, mode)
+        assert work.deadline == 16
+        model.enforce(attempt, EnforcementMode.TERMINATE_ACTIVE_USE)
+    assert work.cancelled and attempt.transport.closed and model.health()["owned"] == 0
+
+
+def test_grace_cannot_extend_ongoing_authority(lifetime_rig):
+    _, model, clock, verifier, _ = lifetime_rig
+    verifier.permission = replace(verifier.permission, active_expires=18)
+    attempt, _, work = lifetime_active(lifetime_rig)
+    clock.now = 16
+    model.poll()
+    assert work.deadline == 18
+    clock.now = 18
+    model.poll()
+    assert work.cancelled and attempt.transport.closed
+
+
+def test_work_cannot_renew_after_its_authority_expired(lifetime_rig):
+    _, model, clock, verifier, _ = lifetime_rig
+    verifier.permission = replace(verifier.permission, active_expires=14)
+    attempt, _, work = lifetime_active(lifetime_rig)
+    clock.now = 14
+    verifier.permission = replace(verifier.permission, active_expires=50)
+    assert not model.renew_work(work)
+    assert work.cancelled
+
+
+def test_work_renewal_rejects_changed_profile(lifetime_rig):
+    api, model, _, verifier, _ = lifetime_rig
+    _, _, work = lifetime_active(lifetime_rig)
+    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("different", 60))
+    assert not model.renew_work(work)
+    assert work.deadline <= 40
+
+
+@pytest.mark.parametrize("seconds", [0, -1, True, 1.5])
+def test_invalid_grace_is_not_authority(lifetime_rig, seconds):
+    api, model, _, verifier, binding = lifetime_rig
+    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("fixture-profile", seconds))
+    attempt = model.begin(Transport(), binding)
+    assert not model.authenticate(attempt)
+    assert model.health()["owned"] == 0
+
+
+@pytest.mark.parametrize("narrow_at", [15, 17])
+def test_fresh_shorter_grace_narrows_from_original_drain_start(lifetime_rig, narrow_at):
+    api, model, clock, verifier, _ = lifetime_rig
+    attempt, _, work = lifetime_active(lifetime_rig)
+    if narrow_at == 17:
+        clock.now = 16
+        model.poll()
+        assert work.deadline == 22
+    clock.now = narrow_at
+    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("fixture-profile", 2))
+    model.poll()
+    clock.now = 18
+    model.poll()
+    assert work.cancelled and attempt.transport.closed
+
+
+def test_larger_fresh_grace_does_not_extend_started_drain(lifetime_rig):
+    api, model, clock, verifier, _ = lifetime_rig
+    attempt, _, work = lifetime_active(lifetime_rig)
+    clock.now = 16
+    model.poll()
+    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("fixture-profile", 60))
+    clock.now = 22
+    model.poll()
+    assert work.cancelled and attempt.transport.closed
+
+
+def test_registration_renewal_crossing_admission_expiry_preserves_grace(lifetime_rig):
+    _, model, clock, verifier, _ = lifetime_rig
+    verifier.permission = replace(verifier.permission, admission_expires=30)
+    attempt, ticket, work = lifetime_active(lifetime_rig)
+    verifier.permission = replace(verifier.permission, admission_expires=16)
+    samples = iter((15, 16))
+    model.clock = lambda: next(samples, 16)
+    assert model.renew(attempt, ticket) is None
+    assert not work.cancelled and not attempt.transport.closed
+    assert work.deadline == 22
+    model.clock = clock
+    clock.now = 22
     model.poll()
     assert work.cancelled and attempt.transport.closed

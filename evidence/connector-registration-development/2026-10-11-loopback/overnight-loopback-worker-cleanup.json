@@ -1,0 +1,13 @@
+{
+  "path": "@LOCAL_USER_ROOT@\\AppData\\Local\\Temp\\nbsr-loopback-go-2026-10-11.test.exe",
+  "sha256": "5b6057969370788959d275243df1570f1f64bac9c673e7f707d7af315652fe92",
+  "removed": true,
+  "retained_old_worker_untouched": true,
+  "_publication_derivative": {
+    "original_sha256": "70053e62631383e1a209ad3f73f6436d09f0d37d9d0c921c0edca8f5feec2f1b",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

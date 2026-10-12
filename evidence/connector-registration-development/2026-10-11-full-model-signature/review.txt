@@ -1,0 +1,1 @@
+Independent reviewer connector_model_review: no signature/parser bypass found. Required correction of purpose/lifecycle/validity claim and extra encoding negatives. Both corrected; follow-up found no remaining blocking scoped findings. Review was read-only; no independent test rerun. Neither full-model equivalence nor runtime authority/support is established.

@@ -149,7 +149,17 @@ def _valid_authority_row(row: object) -> bool:
     )
 
 
-def classify(raw: bytes, envelope: object, validation: dict[str, Any], profile: dict[str, Any]) -> tuple[str, str, bool]:
+def classify(
+    raw: bytes,
+    envelope: object,
+    validation: dict[str, Any],
+    profile: dict[str, Any],
+    *,
+    expected_profile_id: str = "nbsr-federation-dev-v1",
+) -> tuple[str, str, bool]:
+    # Explicit local-conformance selector, never inferred from wire data.
+    if expected_profile_id not in {"nbsr-federation-dev-v1", "nbsr-federation-revocation-inclusion-dev-v1"}:
+        return result("REJECT", "ERR_VERSION")
     limits = profile["resource_limits"]
     if type(envelope) is not dict:
         return result("REJECT", "ERR_SCHEMA")
@@ -166,7 +176,7 @@ def classify(raw: bytes, envelope: object, validation: dict[str, Any], profile: 
         return result("REJECT", "ERR_DOWNGRADE")
     if validation.get("selected_core_version") != 2 or validation.get("agreed_federation_version") != 1:
         return result("REJECT", "ERR_VERSION")
-    if validation.get("agreed_profile_id") != "nbsr-federation-dev-v1":
+    if validation.get("agreed_profile_id") != expected_profile_id:
         return result("REJECT", "ERR_VERSION")
     negotiated = validation.get("negotiated_capabilities", [])
     authenticated = validation.get("authenticated_capabilities", [])
@@ -211,7 +221,7 @@ def classify(raw: bytes, envelope: object, validation: dict[str, Any], profile: 
         return result("REJECT", extension_error)
     if set(envelope) - set(range(1, 11)) or not set(range(1, 10)) <= set(envelope):
         return result("REJECT", "ERR_SCHEMA")
-    if type(envelope[1]) is not int or envelope[1] != 1 or envelope[2] != "nbsr-federation-dev-v1":
+    if type(envelope[1]) is not int or envelope[1] != 1 or envelope[2] != expected_profile_id:
         return result("REJECT", "ERR_VERSION")
     if type(envelope[4]) is not bytes or len(envelope[4]) != 32 or type(envelope[6]) is not bytes or len(envelope[6]) != 32:
         return result("REJECT", "ERR_SCHEMA")
@@ -423,7 +433,12 @@ def classify(raw: bytes, envelope: object, validation: dict[str, Any], profile: 
 
 
 def verify_literal(
-    raw: bytes, validation: dict[str, Any], profile: dict[str, Any], *, decoder: Any = decode_deterministic
+    raw: bytes,
+    validation: dict[str, Any],
+    profile: dict[str, Any],
+    *,
+    decoder: Any = decode_deterministic,
+    expected_profile_id: str = "nbsr-federation-dev-v1",
 ) -> tuple[str, str, bool]:
     if len(raw) > profile["resource_limits"]["max_encoded_container_bytes"]:
         return result("REJECT", "ERR_RESOURCE_LIMIT")
@@ -433,7 +448,7 @@ def verify_literal(
         return result("REJECT", "ERR_PARSE")
     if encode_deterministic(envelope) != raw:
         return result("REJECT", "ERR_NON_CANONICAL")
-    return classify(raw, envelope, validation, profile)
+    return classify(raw, envelope, validation, profile, expected_profile_id=expected_profile_id)
 
 
 def main() -> int:

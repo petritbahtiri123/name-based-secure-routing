@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-go-vet",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "vet",
+    "-tags",
+    "connector_development",
+    "./connector"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 4.03,
+  "disk_start": 12085391360,
+  "disk_end": 12084764672,
+  "ram_end": 4613746688,
+  "direct_child_reaped": true
+}

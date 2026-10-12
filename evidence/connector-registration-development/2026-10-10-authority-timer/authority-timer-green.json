@@ -1,0 +1,21 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "authority-timer-green",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_authority_timer_offline.py",
+    "tests/test_connector_control_model.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.02,
+  "disk_start": 11721736192,
+  "disk_end": 11721195520,
+  "ram_end": 4657422336,
+  "direct_child_reaped": true
+}

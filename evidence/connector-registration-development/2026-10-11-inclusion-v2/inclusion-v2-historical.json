@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "inclusion-v2-historical",
+  "argv": [
+    "python",
+    "scripts/verify_federation_threshold_container_fixtures.py",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 11965722624,
+  "disk_end": 11965722624,
+  "ram_end": 3000795136,
+  "direct_child_reaped": true
+}

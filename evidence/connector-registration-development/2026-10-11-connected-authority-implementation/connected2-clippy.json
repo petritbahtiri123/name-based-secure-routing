@@ -1,0 +1,26 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-clippy",
+  "argv": [
+    "cargo",
+    "clippy",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "1",
+    "--test",
+    "connector_authority",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 5.42,
+  "disk_start": 11728326656,
+  "disk_end": 11705348096,
+  "ram_end": 7245656064,
+  "direct_child_reaped": true
+}

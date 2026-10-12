@@ -1,0 +1,150 @@
+{
+  "timestamp_utc": "2026-10-10T21:09:59.960874+00:00",
+  "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "summary": "Two deterministic red cases showed True and 1.0 accepted as revision 1. The callback is now sampled once and checked with the existing strict positive-integer validator before comparison or ownership mutation. Both regressions pass; final Python scope: 436 passed, no failures, skips or deselections. Ruff and format checks pass. Independent connector_model_review found no blocking findings; review did not rerun tests. Pending challenge is consumed and no owner is created after rejection. This is offline fixture validation, not authenticated authority delivery.",
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-revision-type-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "tests/test_connector_control_model.py",
+        "tests/test_connector_federation_model.py",
+        "tests/test_connector_registration_authority_offline.py",
+        "tests/test_connector_authority_timer_offline.py",
+        "tests/protocol/test_cbor.py",
+        "tests/protocol/test_states.py",
+        "tests/federation/test_revocation.py",
+        "tests/federation/test_authorization.py",
+        "tests/federation/test_outage.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 5.63,
+      "disk_start": 11648131072,
+      "disk_end": 11648126976,
+      "ram_end": 4507860992,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-revision-type-format",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "nbsr/connector_registration_offline.py",
+        "tests/protocol/test_connector_registration_vectors.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.41,
+      "disk_start": 11648126976,
+      "disk_end": 11648122880,
+      "ram_end": 4526419968,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-revision-type-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "-k",
+        "current_revision_snapshot"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.21,
+      "disk_start": 11654823936,
+      "disk_end": 11654823936,
+      "ram_end": 4757602304,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-revision-type-lint",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "nbsr/connector_registration_offline.py",
+        "tests/protocol/test_connector_registration_vectors.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.21,
+      "disk_start": 11648122880,
+      "disk_end": 11648122880,
+      "ram_end": 4516888576,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-revision-type-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/protocol/test_connector_registration_vectors.py",
+        "-k",
+        "current_revision_snapshot"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.62,
+      "disk_start": 11654836224,
+      "disk_end": 11654832128,
+      "ram_end": 4745166848,
+      "direct_child_reaped": true
+    }
+  ],
+  "source_sha256": {
+    "nbsr/connector_registration_offline.py": "eb392e37b5d23f76e3e2c9ccd5148c24d9f7c2a008b83e2c55fda5802903a774",
+    "tests/protocol/test_connector_registration_vectors.py": "becf2cd1978bbb62b4367eaff26309fe49a30a84ac49f6e4c2f64c709ee73ae6"
+  },
+  "hashes": {
+    "docs/reviews/2026-10-11-connector-revision-type.md": "e506aefe0a1739e782a87e17bca4f9543c78f02382bf90d1d19e165b4606ccf1",
+    "evidence/connector-registration-development/2026-10-11-revision-type/0-connector_registration_offline.py.snapshot": "eb392e37b5d23f76e3e2c9ccd5148c24d9f7c2a008b83e2c55fda5802903a774",
+    "evidence/connector-registration-development/2026-10-11-revision-type/1-test_connector_registration_vectors.py.snapshot": "becf2cd1978bbb62b4367eaff26309fe49a30a84ac49f6e4c2f64c709ee73ae6",
+    "evidence/connector-registration-development/2026-10-11-revision-type/connector_registration_offline.py.patch": "4d503e81b6335c227cdd54f8d54e09af4a3f62bfe3ba43158c2ae0683d24752c",
+    "evidence/connector-registration-development/2026-10-11-revision-type/nbsr-ci-clean-check.py": "f14d97f2153e7b507161a446a1ae86b7bf7f4bdcc280b7cd5a8ad73fcef558ca",
+    "evidence/connector-registration-development/2026-10-11-revision-type/nbsr-owned-revoke-check.py": "36a829667b4ca77eb76deb6a027ee1475c14f6197687d117b7682f5e421e0410",
+    "evidence/connector-registration-development/2026-10-11-revision-type/nbsr-revision-type-before-test.py": "cb870c3ea7ecfeaa57359e0012a1590d831e5ffc43ab2f523c92eb55a8d08d28",
+    "evidence/connector-registration-development/2026-10-11-revision-type/nbsr-revision-type-before.py": "b7cd9c51e0a4d6836c8656bd47104ddeeda96ddc3f123baaad3f1c36eb3ce7ea",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-final.json": "bcdc443b781142f969e800cc0c05e2ccb223d43f4655e5b211b88a2d6a69c951",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-final.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-final.stdout.log": "c08f4d13887c611a2b5ccee485384e63e3bbe32e66509335e49c7e5e3e4455bb",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-format.json": "e12635107536deb2f0b4b9d0371156bb59bbe1361a16c1fd8fc00d150bc1b8c9",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-format.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-format.stdout.log": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-green.json": "501c4da2af35bc6f8edfbf1ecc9778a9b5fdc0d4cd09e07e5321721a0bc1f535",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-green.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-green.stdout.log": "cf030f756166da8739c5675654b3ab1f353de259e73f3df4ad331ca6d7d75375",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-lint.json": "111ac01687545dadcb2ce7e9fb98cb8fe80f6833449581b79ec292fc016d09a5",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-lint.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-lint.stdout.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-red.json": "0648c581bc737fa8a56bf1320aae99649caa68a6a71558c4a51fd04cdd10c4de",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-red.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-revision-type/overnight-revision-type-red.stdout.log": "30dbcbaceb01e9ecdd8b5d98ec2e2acf73afeb3519b58422fcf2c3222b093e16",
+    "evidence/connector-registration-development/2026-10-11-revision-type/test_connector_registration_vectors.py.patch": "22b88c7310dd56f341b713eb16a0ffb77d4250f7ebb99780839259ea8de6afa4"
+  }
+}

@@ -1,0 +1,1 @@
+Independent connector_model_review: no blocking findings. Guard rejects changed challenge revision before ownership/lease mutation. Tests cover consumed pending, failed proof reuse and next-counter success; renewal preserves old owner/lease. Review only; no independent rerun.

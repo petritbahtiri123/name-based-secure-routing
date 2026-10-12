@@ -1,0 +1,7 @@
+Independent scoped review: connector_model_review.
+Initial finding: receipt issued at 1000 accepted time rollback after 1699;
+failed expiry at 1700 could be retried successfully at 1000.
+Both deterministic regressions failed before fix. Retained observed-time floor
+now precedes authority validation and survives failed expiry/revision changes.
+Final rereview: no remaining blocking findings. Reviewer did not rerun tests.
+Scope: offline signed-fixture verification, not live authority/revocation delivery.

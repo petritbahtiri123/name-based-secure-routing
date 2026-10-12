@@ -1,0 +1,36 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "gateway-text64-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-text64-final",
+    "deploy/single-instance/test_validate_config.py",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "tests/test_connector_federation_model.py",
+    "tests/test_connector_control_model.py",
+    "tests/federation/test_authorization.py",
+    "tests/federation/test_outage.py",
+    "tests/federation/test_revocation.py",
+    "tests/protocol/test_states.py",
+    "tests/protocol/test_cbor.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 6.63,
+  "disk_start": 12174155776,
+  "disk_end": 12174118912,
+  "ram_end": 4771553280,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "aad7b6130f9ca532b617920c4186fdae47c65a18d95d10f597d2c50cbbb50d66",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

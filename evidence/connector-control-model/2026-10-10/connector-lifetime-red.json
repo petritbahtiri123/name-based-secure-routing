@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connector-lifetime-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_control_model.py",
+    "-k",
+    "admission_only or late_poll or valid_work_renewal or enforcement_overrides or grace_cannot or work_cannot or changed_profile or invalid_grace"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.82,
+  "disk_start": 12310867968,
+  "disk_end": 12310790144,
+  "ram_end": 4547690496,
+  "direct_child_reaped": true
+}

@@ -10,12 +10,12 @@ without installing a YAML parser.
 
 | Job | Platforms | Checks |
 | --- | --- | --- |
-| Python | Ubuntu 24.04, Windows 2025 | Explicit runtime, gateway, security, admission and CI tests; `pip check` |
+| Python | Ubuntu 24.04, Windows 2025 | Explicit runtime, gateway, security, admission, connector model/authority/timer, offline config and CI tests; `pip check` |
 | Python protocol | Ubuntu 24.04 | Protocol, vectors and federation tests except independent wire-peer builds; deterministic vector regeneration; privacy check; correctness lint |
-| Rust | Ubuntu 24.04, Windows 2025 | Format, default library check, benchmark-feature library, handshake/credit/drain/config, frame codec, doc-tests, all-target Clippy |
-| Go | Ubuntu 24.04, Windows 2025 | Test and vet all five modules, including the nested client demo and ISP adapter |
-| Node and policy | Ubuntu 24.04 | Core/federation independent verifier tests and vectors, exporter vectors, OPA policy tests |
-| Manual extended | Ubuntu 24.04 | All nonignored Rust integration tests, or the existing ignored replay-history soak |
+| Rust | Ubuntu 24.04, Windows 2025 | Format, default library check, benchmark-feature library, handshake/credit/drain/config, frame codec, connector integration targets (live ignored), doc-tests, all-target Clippy |
+| Go | Ubuntu 24.04, Windows 2025 | Test and vet all five modules, plus explicit `connector_development` test/vet in the interop module |
+| Node and policy | Ubuntu 24.04 | Core/federation independent verifier tests and vectors, exporter and connector registration vectors, OPA policy tests |
+| Manual extended | Ubuntu 24.04 | All nonignored Rust integration tests, existing ignored replay-history soak, or explicitly selected isolated connector loopback |
 
 Python uses 3.13.14, Rust 1.97.1, Go 1.26.5 and Node 24.19.0. These are explicit
 pins, not a claim of coverage for every version allowed by package metadata.
@@ -73,7 +73,7 @@ python -m ruff check --no-cache scripts/ci tests/ci
 ```
 
 Profiles are `python-core`, `python-protocol`, `rust`, `go`, `node`,
-`rust-extended` and `soak`. Local commands default to 90 seconds each; larger
+`rust-extended`, `connector-loopback` and `soak`. Local commands default to 90 seconds each; larger
 timeouts are reserved for hosted CI. This runner does not install dependencies
 or enforce the laptop's disk/RAM guards: local build/test supervision must still
 follow `AGENTS.md`. Set the verified `CARGO_TARGET_DIR` and offline Go/Cargo
@@ -99,6 +99,45 @@ The structural validator checks selected security contracts, not GitHub's full
 workflow schema. Local Windows checks cannot establish Linux success. CI status
 is pending until a published commit has actual workflow/check results; an empty
 check list is not a pass.
+
+### Connector selection audit, October 11
+
+Before this local correction, `tests/protocol` already discovered both connector
+vector suites and `tests/federation` covered their existing neighbors. Four
+root-level connector suites and the adjacent offline config suite were omitted.
+Default Go `./...` excluded the build-tagged connector package. Quick Rust did
+not execute its new integration targets; manual `rust-extended` executed their
+nonignored tests but still ignored the live test. The Node connector verifier
+was also absent. Earlier local connector pass counts are not hosted CI results.
+
+The explicit selections above close these invocation gaps. The manual-only
+`connector-loopback` choice prebuilds Rust, builds a Go worker in a fresh owned
+temporary directory, and invokes exactly `isolated_go_rust_control_registration`.
+Each command is directly supervised with a 90-second execution timeout plus
+the existing bounded cleanup; this is not a 90-second cumulative job claim.
+The worker directory is removed on normal completion or command failure, and
+any prior worker environment value is restored. No wrapper launches a second
+supervision layer. Hosted cancellation still depends on runner teardown.
+
+The existing pinned Go version and module lockfiles are reused only when this
+manual choice is selected; no dependency versions, permissions, secrets, runner
+selection or branch safeguards change. The helper uses real loopback TLS with
+ephemeral in-memory test PKI and synthetic authority/revocation inputs. It does
+not establish live authority, real timers, application traffic or Stage 3 closure.
+Local use still requires explicit socket/test-PKI authorization, provisioned
+caches, and the laptop's cleanup-inclusive resource supervisor.
+
+Local Windows selection/security regressions and the exact loopback profile
+passed; hosted schema validation, Linux execution and the published matrix remain
+unrun for this change. See `docs/reviews/2026-10-11-connector-ci-selection.md`.
+
+The subsequent role/reuse audit adds the existing `tests/test_gateway_cli.py`
+to `python-core` on both platforms, alongside its four gateway library suites.
+Its seven tests exercise real CLI subprocesses for deterministic plans, unchanged
+inputs, verification exit codes, resolver-last rollback plans, bounded/redacted
+input rejection, explicit paths and the example profile. This is offline planning
+and simulated verification, not privileged installation, service startup or live
+rollback. See `docs/reviews/2026-10-11-gateway-cli-ci.md` and the role inventory.
 
 ## Release boundary
 
@@ -188,3 +227,57 @@ registry; v2 uses the already approved current registry. See
 `docs/reviews/2026-10-10-federation-version-approval-scope.md` and its implementation
 JSON for pins, exact verification and limits. Local success does not establish a
 hosted pass; no publication or workflow security changes are part of this change.
+
+The Rust connector group also selects `--test connector_signature`, a test-only
+exact COSE signature prerequisite with retained public single/threshold signature
+inputs. The Python protocol group runs
+`python scripts/extract_connector_signature_fixtures.py --check`; extraction uses
+existing signed bytes and generates no keys or signatures. Neither check grants
+registration authority or establishes threshold/governance acceptance. The
+development registry remains runtime/live-trust disabled. See
+`docs/reviews/2026-10-11-registration-full-model-acceptance.md` for the complete
+security obligations and unresolved runtime gates. Local results are not hosted
+CI evidence.
+
+## Normal revocation local conformance
+
+The python-protocol profile runs `python -m scripts.normal_revocation_conformance --check`
+and selects `tests/federation/test_normal_revocation_conformance.py`
+through the federation suite. It verifies the separate versioned amendment and
+retained vectors using existing public fixture material. It does not activate
+runtime trust, prove real membership/witness provenance or replace hosted results.
+
+The same federation suite selects `test_normal_revocation_witness_integration.py`,
+which composes existing signed checkpoint/consistency/witness verifiers with the
+normal record reference. It proves fixture-configured checkpoint confirmation,
+not record inclusion, real trust provisioning or durable restart protection.
+
+The separate approved v2 inclusion amendment is selected through
+`test_revocation_inclusion_v2.py` and the `revocation-inclusion-v2` command
+(`python -m scripts.revocation_inclusion_v2 --check`). It adds full-record inclusion
+under fixture configuration; historical profile defaults/literals remain unchanged.
+Real provenance, durable restart protection and runtime activation remain outside CI's local claim.
+
+The explicit `inclusion-persistence-local` command runs
+`tests/federation/test_inclusion_persistence.py` with pytest and no cache provider.
+It exercises the approved snapshot/recovery coordinator using a memory backend;
+it performs no private filesystem writes or ACL changes. It also remains selected
+by the federation suite. Successful local execution does not establish hosted
+success, real filesystem crash recovery, trusted restart floors or power-loss
+durability. Windows private-write integration requires separate authorization.
+
+The Rust connector command also selects `connector_authority`, a test-only native
+normal negative-enforcement bridge into a fixture-created owner. Python-protocol
+selects its federation test and the `connected-authority-vectors` command
+(`python -m scripts.check_connected_authority_vectors --check`). Explicit supplied
+test trust, dependency membership, same-record replay and retained cleanup are
+local conformance inputs; this adds no positive registration authority or READY.
+The retained prior anchor is identity-bound; freshness applies to the current
+containing checkpoint. Local test success is not hosted CI or runtime governance.
+
+The Rust connector command also selects `connector_kar`, the isolated test-only
+genesis KAR prerequisite. It uses existing unsigned semantic recipes and retained
+signed rejection fixtures, with no key/signature creation or live execution.
+Inclusive expiry, exact key purpose and root-authorizer binding are local checks;
+there is no successful composed positive acceptance evidence, normal-roster trust
+mapping or registration authority. Local results do not establish hosted success.

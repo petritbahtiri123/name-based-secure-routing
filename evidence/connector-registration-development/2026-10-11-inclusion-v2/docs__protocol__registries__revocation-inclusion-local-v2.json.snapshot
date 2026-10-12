@@ -1,0 +1,18 @@
+{
+  "id": "revocation-inclusion-local-v2",
+  "decision": "REVOCATION-INCLUSION-01 revision1 approved for local conformance",
+  "profile": "nbsr-federation-revocation-inclusion-dev-v1",
+  "record_version": 2,
+  "package_version": 1,
+  "leaf": "exact full canonical record payload",
+  "field39": "accepted prior checkpoint anchor; key4 null",
+  "floor_rule": "F=A forward or exact F=C reuse",
+  "maximum_package_bytes": 65536,
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "parent_sha256": {
+    "docs/protocol/registries/federation-v0.1-normal-revocation-conformance-v1.json": "792251eb0caa9b91831e8e7e2b9893be0f22756df5fb5f8ecc73774114532a0a",
+    "docs/protocol/registries/federation-v0.1-threshold-container-proposal.json": "d09e78c21a149e91a73f0da32b723a0038937da12c6543cbf1a7605c7e7acf08",
+    "docs/protocol/registries/federation-v0.1-schema-proposal.json": "de0a3e6bf7b679408974137bcbb3b642137ae1584856b21db2c0bd4852166410"
+  }
+}

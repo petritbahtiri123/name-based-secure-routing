@@ -1,0 +1,15 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "full-model-extract",
+  "argv": [
+    "python",
+    "scripts/extract_connector_signature_fixtures.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.81,
+  "disk_start": 12153303040,
+  "disk_end": 12153274368,
+  "ram_end": 4831227904,
+  "direct_child_reaped": true
+}

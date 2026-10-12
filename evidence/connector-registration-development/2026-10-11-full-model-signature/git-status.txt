@@ -1,0 +1,131 @@
+ M .github/workflows/extended.yml
+ M AGENTS.md
+ M crates/nbsr-transport/src/control_read_tests.rs
+ M docs/CI.md
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md
+ M docs/protocol/connector-outbound-profile.md
+ M docs/protocol/status.md
+ M docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+ M nbsr/connector_control_model.py
+ M scripts/ci/check.py
+ M tests/ci/test_ci.py
+ M tests/test_connector_control_model.py
+?? crates/nbsr-transport/src/connector_cleanup.rs
+?? crates/nbsr-transport/src/connector_control.rs
+?? crates/nbsr-transport/src/connector_registration.rs
+?? crates/nbsr-transport/src/connector_signature.rs
+?? crates/nbsr-transport/tests/connector_control.rs
+?? crates/nbsr-transport/tests/connector_loopback.rs
+?? crates/nbsr-transport/tests/connector_registration.rs
+?? crates/nbsr-transport/tests/connector_signature.rs
+?? crates/nbsr-transport/tests/fixtures/
+?? crates/nbsr-transport/tests/support/connector_loopback.rs
+?? deploy/single-instance/
+?? docs/benchmarks/OUTREACH_CAMPAIGN_CHECKPOINT_2026-09-30.md
+?? docs/benchmarks/OUTREACH_CAMPAIGN_CHECKPOINT_2026-10-03.md
+?? docs/benchmarks/OUTREACH_SENT_MESSAGES_2026-09-30.md
+?? docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.json
+?? docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md
+?? docs/benchmarks/RESTACK_APPLICATION_WORKING_DRAFT_2026-09-30.md
+?? docs/benchmarks/SERVER_VALIDATION_PARTNER_REQUEST_2026-09-30.md
+?? docs/protocol/connector-registration-v1-vector-proposal.json
+?? docs/protocol/registries/connector-registration-development-v1.json
+?? docs/reviews/2026-10-10-connector-async-cleanup.json
+?? docs/reviews/2026-10-10-connector-async-cleanup.md
+?? docs/reviews/2026-10-10-connector-authority-timer.json
+?? docs/reviews/2026-10-10-connector-authority-timer.md
+?? docs/reviews/2026-10-10-connector-counter-amendment.json
+?? docs/reviews/2026-10-10-connector-counter-amendment.md
+?? docs/reviews/2026-10-10-connector-development-handoff.json
+?? docs/reviews/2026-10-10-connector-development.json
+?? docs/reviews/2026-10-10-connector-development.md
+?? docs/reviews/2026-10-10-connector-federation-adapter.json
+?? docs/reviews/2026-10-10-connector-federation-adapter.md
+?? docs/reviews/2026-10-10-connector-lifetime-separation.json
+?? docs/reviews/2026-10-10-connector-lifetime-separation.md
+?? docs/reviews/2026-10-10-connector-loopback.json
+?? docs/reviews/2026-10-10-connector-loopback.md
+?? docs/reviews/2026-10-10-connector-profile-proposal-review.json
+?? docs/reviews/2026-10-10-connector-profile-proposal-review.md
+?? docs/reviews/2026-10-10-connector-registration-offline.json
+?? docs/reviews/2026-10-10-connector-registration-offline.md
+?? docs/reviews/2026-10-10-connector-signed-authority.json
+?? docs/reviews/2026-10-10-connector-signed-authority.md
+?? docs/reviews/2026-10-10-connector-stage1-checkpoint.json
+?? docs/reviews/2026-10-10-connector-stage1-checkpoint.md
+?? docs/reviews/2026-10-10-connector-stage3-code-checkpoint.json
+?? docs/reviews/2026-10-10-connector-stage3-code-checkpoint.md
+?? docs/reviews/2026-10-10-gateway-text64-correction.json
+?? docs/reviews/2026-10-10-gateway-text64-correction.md
+?? docs/reviews/2026-10-10-paused-peer-close-characterization.json
+?? docs/reviews/2026-10-10-paused-peer-close-characterization.md
+?? docs/reviews/2026-10-10-single-instance-preflight.json
+?? docs/reviews/2026-10-10-single-instance-preflight.md
+?? docs/reviews/2026-10-11-connector-challenge-revision.json
+?? docs/reviews/2026-10-11-connector-challenge-revision.md
+?? docs/reviews/2026-10-11-connector-ci-selection.json
+?? docs/reviews/2026-10-11-connector-ci-selection.md
+?? docs/reviews/2026-10-11-connector-go-clock.json
+?? docs/reviews/2026-10-11-connector-go-clock.md
+?? docs/reviews/2026-10-11-connector-go-expiry.json
+?? docs/reviews/2026-10-11-connector-go-expiry.md
+?? docs/reviews/2026-10-11-connector-loopback.json
+?? docs/reviews/2026-10-11-connector-loopback.md
+?? docs/reviews/2026-10-11-connector-revision-type.json
+?? docs/reviews/2026-10-11-connector-revision-type.md
+?? docs/reviews/2026-10-11-connector-rust-clock.json
+?? docs/reviews/2026-10-11-connector-rust-clock.md
+?? docs/reviews/2026-10-11-connector-zero-revision.json
+?? docs/reviews/2026-10-11-connector-zero-revision.md
+?? docs/reviews/2026-10-11-gateway-cli-ci.json
+?? docs/reviews/2026-10-11-gateway-cli-ci.md
+?? docs/reviews/2026-10-11-registration-full-model-acceptance.md
+?? docs/reviews/2026-10-11-registration-provider-contract-proposal.json
+?? docs/reviews/2026-10-11-registration-provider-contract-proposal.md
+?? docs/reviews/2026-10-11-role-reuse-ci-inventory.md
+?? docs/reviews/2026-10-11-stage3-runtime-decision.md
+?? evidence/connector-control-model/2026-10-10/adapter-final-connector_control_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/adapter-final-connector_federation_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/adapter-final-test_connector_federation_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/connector-adapter-boundaries.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-final.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-green.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-model-final.patch
+?? evidence/connector-control-model/2026-10-10/connector-adapter-owner-red.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-red.json
+?? evidence/connector-control-model/2026-10-10/connector-gap-final.json
+?? evidence/connector-control-model/2026-10-10/connector-gap-focused.json
+?? evidence/connector-control-model/2026-10-10/connector-gap-test.patch
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-final.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-final.patch
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-grace-red.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-green.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-red.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-renew-red.json
+?? evidence/connector-control-model/2026-10-10/lifetime-final-connector_control_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/lifetime-final-test_connector_control_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/stage1-final-test_connector_federation_model.py.snapshot
+?? evidence/connector-registration-development/
+?? evidence/connector-registration-v1/
+?? "evidence/performance/wire-overhead-b1-94a1e4a/checksums (1).sha256"
+?? "evidence/performance/wire-overhead-b1-94a1e4a/commands (1).txt"
+?? "evidence/performance/wire-overhead-b1-94a1e4a/summary (1).md"
+?? evidence/single-instance-preflight/
+?? interop/nbsr-go-peer/connector/
+?? nbsr/connector_authority_timer_offline.py
+?? nbsr/connector_federation_model.py
+?? nbsr/connector_registration_authority_offline.py
+?? nbsr/connector_registration_offline.py
+?? scripts/extract_connector_signature_fixtures.py
+?? scripts/generate_connector_development_vectors.py
+?? scripts/generate_connector_registration_vectors.py
+?? scripts/verify_connector_registration_vectors.mjs
+?? tests/protocol/test_connector_development_vectors.py
+?? tests/protocol/test_connector_registration_vectors.py
+?? tests/test_connector_authority_timer_offline.py
+?? tests/test_connector_federation_model.py
+?? tests/test_connector_registration_authority_offline.py
+?? vectors/connector-registration-development-v1/
+?? vectors/connector-registration-v1-counter/
+?? vectors/connector-registration-v1/

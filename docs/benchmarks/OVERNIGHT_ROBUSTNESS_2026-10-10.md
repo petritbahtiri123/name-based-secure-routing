@@ -1,3 +1,5 @@
+<!-- Publication derivative; original SHA-256 6a5468129357c91d224b3ca45beb8874d1707676854d1b5bff8d9413d72b091a. Personal identifiers removed. Historical hashes, results and commands refer to original local inputs; placeholder commands were not executed. Originals retained locally. -->
+
 # Overnight robustness work: October 9-10, 2026
 
 Latest checkpoint: October 10 10:57 UTC; body-pending coverage follow-up is local and uncommitted. Baseline: `e245bc357379b44449bb22f53a1c6a1c723fc1cc`.
@@ -478,3 +480,192 @@ Hosted b6afdcdf run 38058799631: all seven jobs PASS, including Windows Go demo 
 Receive/ACK revoke-then-drop gap reproduced and minimally corrected locally. RED 2 failures; GREEN 2; library 111 passed/1 existing ignored; integration 4+12; Clippy/default/fmt/diff pass; independent review clean. Evidence: `docs/reviews/2026-10-10-receive-ack-revocation-drop.md` and JSON. Authority pins untouched; separately approved version required. No commit/push; stopped at user budget request.
 
 Approved receive/ACK successor implemented for exact source2cc01bed:103 focused tests pass/zero skips, independent review clean, historical bindings preserved. Initial sandbox-temp failures retained. See `docs/reviews/2026-10-10-receive-ack-authority-implementation.md` and JSON. Scoped local commit authorized; no push/bypass.
+
+Authority committed locally fb587d76 (source2cc01bed); no publication. Paused peer-close characterization:1test/two variants PASS, contract-consistent4096retained then0 on abort/drop without repoll; no new bug. Test/evidence uncommitted, reviewed; see paused-peer-close-characterization report. Read-only cleanup proposal in task temp; no deletions.
+
+Approved connector control mock slice: 49 model + 13 frozen-state tests PASS; focused Ruff check/format PASS. Four independent-review findings reproduced and corrected; final review no blocker in mock scope. Exact failures/hashes/limits: `docs/reviews/2026-10-10-connector-control-model.md` and `.json`. No wire/runtime/credential/authority change or publication. Stage 1 protocol decisions remain open. Every test child reaped; CIM inventory denied, subsequent Get-Process found zero visible Python processes.
+
+Approved active-work mock extension:109 tests PASS (72model/13state/24revocation), zero skips; Ruff check/format PASS. Two independent-review boundary findings reproduced and corrected. Deny-new versus terminate is explicit; real lease/work policy remains open. Report and hashes: `docs/reviews/2026-10-10-connector-active-work.md` / `.json`. No runtime/trust/wire/network changes or publication; all direct children reaped, zero visible Python processes.
+
+
+## Connector lifetime separation after published baseline
+
+Published c7abbc4423a9ad05cea9cdf6678c231a34cafd59 passed CI run 38067741432,
+all seven jobs. A separate uncommitted mock correction now names admission expiry,
+ongoing authority and finite profile grace; explicit renewal keeps the same work
+without replay. 125 local tests pass (88+13+24); two review findings were reproduced
+and fixed, final narrow review clear. Ruff/format and scoped diff checks pass.
+See docs/reviews/2026-10-10-connector-lifetime-separation.md and .json for retained
+failed attempts, exact final hashes, limits and cleanup. Stage 1 remains partial,
+0/10 complete. No new commit/push or next stage; unrelated paused-peer work remains.
+
+
+## Offline federation adapter checkpoint
+
+Existing bilateral authentication/authorization and federation outage decisions
+now feed a fixture-only adapter with exact context/owner/session association.
+174 local tests pass (21 adapter+88 model+65 neighbors); two deterministic
+boundary failures were fixed, independent review clear, Ruff/format pass.
+See docs/reviews/2026-10-10-connector-federation-adapter.md and .json for limits,
+failed runs, hashes and cleanup. Incident delivery remains simulated; no real
+identity/deadline/ownership mapping, credentials, network or production authority.
+No new commit/push or stage advancement; original 125-test lifetime evidence retained.
+
+
+## Stage 1 review stop
+
+187 local tests pass after a 13-case test-only increment (34 adapter+88 model+65
+neighbors). Both model sources remain byte-identical to the 174-pass snapshot;
+independent test review clear, Ruff/format pass. Exact files, commands, final
+hashes and five remaining bindings are in
+`docs/reviews/2026-10-10-connector-stage1-checkpoint.md` and .json. Historical
+174-pass evidence retained. Stage 1 partial, 0/10 complete; no new task/commit/push.
+
+
+## Approved CRP-1 offline vector checkpoint
+
+The approved offline slice now has a strict codec/pure coordinator, 24 executable
+scenario mappings and 18 byte artifacts plus manifest. Final scoped result: 338
+passed, zero failed/skipped (83 CRP + prior 187 freshly rerun + 68 CBOR). Node
+independently checks transcript/exporter/framing bytes, not all lifecycle scenarios.
+Independent review defects and all failed attempts are retained in
+`docs/reviews/2026-10-10-connector-registration-offline.md` and `.json`.
+Stage 1 remains partial, 0/10 complete; long-lived replay retention and runtime
+authority/allocation/conformance gates remain. No commit/push or live activation.
+
+
+## Approved counter amendment and corrected milestone alignment
+
+The four-operation lifetime ceiling is resolved by the approved draft-2 counter
+profile. Final scoped result: 358 passed, zero failed/skipped; independent Node
+checks 19 artifact hashes and 34 counter/cache transitions. All 12 supervised
+children reaped without abort. See `docs/reviews/2026-10-10-connector-counter-amendment.md` and its JSON manifest.
+Earlier counts and blockers above remain historical. Stage 1 is partial (0/10):
+component ownership selection remains, with Rust destination gateway / Go origin
+connector recommendation documented in the plan. Runtime implementation stays
+in Stage 3; strict side-effect-free configuration is the next Stage 2 slice.
+No commit, push or runtime activation.
+
+
+## Approved ownership closure and Stage 2 offline configuration
+
+Stages 1 and 2 meet their scoped contract/offline gates (2/10). The approved
+Rust destination / Go origin / Python oracle inventory is reconciled. Offline
+preflight validates one service without resolving references or claiming READY.
+Final scoped tests: 420 passed, zero failed/skipped; both independent-review
+findings were fixed and rereviewed. Ten supervised runs reaped without abort.
+See `docs/reviews/2026-10-10-single-instance-preflight.md` and `.json` for exact
+commands, failures, hashes and input-path assumptions. Prior counts above are
+historical. Stage 3 pre-wire allocations and runtime authority remain gated.
+No commit/push, credentials, live trust or deployment.
+
+
+## Stage 2 gateway identifier correction
+
+The old hex gateway ID passed preflight but failed approved REQUEST text64
+validation. All three roles now preserve canonical text64 unchanged; the example
+is covered by an actual registration-body regression. 459 scoped tests passed,
+zero failed/skipped; independent review found no blockers. Stage 2 offline closure
+is restored (2/10). See `docs/reviews/2026-10-10-gateway-text64-correction.md` and JSON for retained red/green evidence.
+No allocations, credentials or live activation in this correction.
+
+
+## Incomplete connector development handoff
+
+At 19:15 UTC the original overnight cutoff had elapsed. Existing Stage 3
+development-only work was preserved, not declared complete. The last retained
+Rust owner run reports 4 passed / 2 failed; subsequent owner edits are untested.
+The Go coordinator implementation still needs substantive tests and review.
+Earlier codec passes do not validate this final source state. Exact source
+snapshots, all 11 retained Stage 3 run records, failures and remaining checks:
+`docs/reviews/2026-10-10-connector-development-handoff.json`.
+No additional build, commit, push, activation or cleanup deletion at handoff.
+No visible Python/Cargo/rustc/Go processes in the read-only cleanup check.
+
+
+## Approved evening development slice completed
+
+The incomplete handoff above is superseded by renewed user-authorized evening
+work. Final scoped validation: 462 Python tests, 14 Rust tests, 58 Go connector
+and 10 CBOR passing test/subtest events; lint/format/vet, source-preservation and
+independent review pass. All failed attempts and exact final source/binary hashes
+are retained in `docs/reviews/2026-10-10-connector-development.md` and `.json`.
+No resource abort; supervised children reaped and no visible relevant processes
+at cleanup. Development-only registry/fixtures are complete; real authenticated
+Stage 3 remains partial (2/10 stages complete). No commit/push or live activation.
+
+
+## Bounded asynchronous cleanup fixture adapter
+
+Go CleanupPeer preserves the existing close/ownership contract across async
+confirmation, wait cancellation/timeout and stale callbacks. Seven new tests;
+final 67 connector + 10 CBOR passing test/subtest events, vet/format/static checks
+and independent review pass. All seven supervised runs retained, including
+missing-API red; no abort or residual process. See
+`docs/reviews/2026-10-10-connector-async-cleanup.md` and `.json`.
+No lifetime policy, frozen source/registry, live trust or network change; Rust
+async composition and real bounded backend completion remain. Stage 3 partial,
+2/10 complete; no commit/push or Stage 4 expansion.
+
+
+## Consolidated code-only Stage 3 checkpoint
+
+Rust ticket/owner async composition completed: fresh 19 tests pass (five new),
+Clippy/rustfmt and scoped preservation checks pass; independent review clear.
+Go 67+10 test/subtest events and Python462 are retained prior passes for unchanged
+sources, not rerun claims. Both cleanup layers remain synthetic; no real backend
+completion, authenticated provider composition or live registration is proven.
+41 development package files plus shared docs/evidence remain uncommitted.
+See `docs/reviews/2026-10-10-connector-stage3-code-checkpoint.md` and JSON for
+exact inventory, failures/not-run and next provider/security authorization boundary.
+Six latest children reaped; no abort/residual process, commit/push or live activation.
+
+
+## Authorized evening loopback checkpoint
+
+Real Go/Quinn control-only mutual TLS/exporter registration and renewal now pass
+19 sequential live cases. Rust neighbors19 pass; Go connector67 + CBOR10
+pass events (19+3 top-level), with the parent worker skipped by default.
+Independent review clear; 20 final recorded PIDs reaped/absent and no owned UDP
+endpoints remain. Public certificate hashes retained; no secret material persisted.
+Authority/revocation/logical clock remain fixtures: Stage3 partial, stages1-2 2/10.
+See `docs/reviews/2026-10-10-connector-loopback.md` and JSON for all failures,
+exact commands/hashes, resource caveats, not-run gates and next authority boundary.
+No commit/push, external/origin traffic or installed trust.
+
+
+## Offline signed-authority checkpoint
+
+Explicit development-profile signed genesis fixtures now verify through existing
+COSE/ancestry checks and exact signer/digest pins. Final scoped result: 444 passed,
+5 random-key-generation neighbors deselected; 43 adapter cases. Independent
+review found clock rollback after expiry; two red regressions and the minimal
+monotonic-observation fix are retained. Final review/lint/format/diff checks pass.
+See `docs/reviews/2026-10-10-connector-signed-authority.md` and JSON for exact
+commands, nine supervised runs, failures, hashes and limitations. No live
+provider integration, authenticated revocation delivery or real timers; Stage 3
+partial, 2/10 complete. All children reaped; no visible relevant workers, new
+sockets/containers, key generation, commit or push.
+
+
+## Offline authority timer checkpoint
+
+A bounded injected-clock scheduler now dispatches labelled fixture events through
+the existing model, preserving F93/lifetime separation. Final 432 scoped tests
+pass (31 timer), no skips; lint/format/diff and independent review clear. Two
+review-found clock-sampling failures are retained with the shared-snapshot fix.
+No real timer, authenticated receipt/delivery, network provider or new policy.
+See `docs/reviews/2026-10-10-connector-authority-timer.md` and JSON for eight
+supervised runs, exact hashes and the precise remaining approval boundary.
+All children reaped, no visible relevant workers or task sockets/containers.
+Stage3 partial, 2/10; no key generation, commit/push or runtime activation.
+
+
+### Connected authority owner — incomplete checkpoint
+
+Native test-only bridge: 6 tests passed; independent Python oracle/inclusion tests: 77 passed; 11 vector cases checked. Final-apply expiry regression reproduced and fixed. Rust neighbor build stopped by RAM guard; no retry. Four independent-review blockers remain. No runtime authority, positive registration or READY; Stage 3 partial, 2/10. See [2026-10-11-connected-authority-owner-checkpoint](../reviews/2026-10-11-connected-authority-owner-checkpoint.md).
+
+
+### Connected authority owner — reviewed continuation
+
+Four review blockers and the retained-anchor parity issue were reproduced and fixed. Rust 44 passes; Python/CI 159 unique passes across focused run and targeted environment retries; all failures retained. Eighteen vector cases and two replay pairs, six historical packages, Ruff, crate format and scoped Clippy passed. Independent review found no remaining scoped blocker. Supplied test trust and synthetic owner only; no registration provider/READY/runtime authority. Stage 3 remains partial, 2/10. See [implementation report](../reviews/2026-10-11-connected-authority-owner-implementation.md). Docker has no running containers and is not needed by this active native work; read-only disk assessment (local-only evidence omitted; see publication manifest) records candidates without deletion.

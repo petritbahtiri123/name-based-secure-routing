@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-coordinator-red",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "-run",
+    "TestCoordinatorAvailable",
+    "-count=1"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 1.41,
+  "disk_start": 12113170432,
+  "disk_end": 12112883712,
+  "ram_end": 4677894144,
+  "direct_child_reaped": true
+}

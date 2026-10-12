@@ -1,0 +1,24 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-config-red",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "1",
+    "--test",
+    "connector_authority",
+    "inconsistent_supplied_configuration_is_rejected_even_when_repinned"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 2.01,
+  "disk_start": 11701157888,
+  "disk_end": 11698147328,
+  "ram_end": 5292040192,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,32 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "loopback-clippy-final",
+  "argv": [
+    "cargo",
+    "clippy",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_loopback",
+    "--test",
+    "connector_control",
+    "--test",
+    "connector_registration",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 1.21,
+  "disk_start": 11762495488,
+  "disk_end": 11756093440,
+  "ram_end": 4068749312,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "signed-authority-lint",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "nbsr/connector_registration_authority_offline.py",
+    "tests/test_connector_registration_authority_offline.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 11733082112,
+  "disk_end": 11733082112,
+  "ram_end": 4463816704,
+  "direct_child_reaped": true
+}

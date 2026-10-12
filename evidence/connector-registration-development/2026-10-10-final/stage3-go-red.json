@@ -1,0 +1,19 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-go-red",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "./connector",
+    "-count=1"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 16.87,
+  "disk_start": 12173074432,
+  "disk_end": 12176744448,
+  "ram_end": 4743598080,
+  "direct_child_reaped": true
+}

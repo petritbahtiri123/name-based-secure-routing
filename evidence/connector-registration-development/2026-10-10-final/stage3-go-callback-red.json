@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-go-callback-red",
+  "argv": [
+    "go",
+    "-C",
+    "interop/nbsr-go-peer",
+    "test",
+    "-tags",
+    "connector_development",
+    "./connector",
+    "-run",
+    "TestAuthorityCallbackCannotInstallExpiredAcceptance",
+    "-count=1"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 1.61,
+  "disk_start": 12093550592,
+  "disk_end": 12092956672,
+  "ram_end": 5242527744,
+  "direct_child_reaped": true
+}

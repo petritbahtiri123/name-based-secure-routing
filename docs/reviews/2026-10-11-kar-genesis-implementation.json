@@ -1,0 +1,311 @@
+{
+  "status": "implemented isolated test-only slice; reviewed; composed positive acceptance incomplete",
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "branch": "codex/nbsr-v3-wp0-wp1",
+  "uncommitted": true,
+  "design": "docs/reviews/2026-10-11-kar-genesis-design.json",
+  "source_sha256": {
+    "crates/nbsr-transport/src/connector_kar.rs": "358795868f77e65b4e7283df1a281256606c4a4b409cd27c6a433b7636a8349d",
+    "crates/nbsr-transport/tests/connector_kar.rs": "ecfb1f12c77baf99ef3bd51e44f36b723391d0006f5d2e0e0c56cca7deaeef57",
+    "crates/nbsr-transport/tests/support/connector_kar.rs": "f7e6185aa875e1dbb67e1862bb7a3c846a782959ee8043ba9c0a398fd7b66377",
+    "scripts/ci/check.py": "0679af819ab99a7130969df24629b13c7fc59748787add320a96a4764f964b98",
+    "tests/ci/test_ci.py": "7a5e4f92ac96f21684fec2feb8cc76e7bd600397243ae3d8b14b4911674fb4d4",
+    "AGENTS.md": "a52976a223ea95c9697f8406c4db19623d53e454366e8da775ced110f5abeff0",
+    "docs/CI.md": "3c21e3f504b638fa8868922a71a0e485012f42e1878c8e2002b9d74e0958060d",
+    "docs/protocol/status.md": "97919f42bb984985e3a9b761c698911a793064cfcce8ca7073a8d5f44857e4eb",
+    "docs/reviews/2026-10-11-registration-full-model-acceptance.md": "88091845e94e68c10ed293ea509c79c293343e8b930e2531d76f4c67436989a5"
+  },
+  "binary_sha256": {
+    "@LOCAL_USER_ROOT@\\Documents\\Codex\\2026-10-04\\task\\nbsr-handshake-target\\debug\\deps\\connector_kar-4b84b9c9708fcb2f.exe": "f9b7946fac3ca95851c23faf6c88a33a0f0b622b7c67acc9cf8cb0797c7f8195",
+    "@LOCAL_USER_ROOT@\\Documents\\Codex\\2026-10-04\\task\\nbsr-handshake-target\\debug\\deps\\connector_signature-00d0e9166debd3a0.exe": "9814d450d05b449dc1e3e1ec7591f3f9bdb64997d7f59c8ff24ac923fff3c4e5",
+    "@LOCAL_USER_ROOT@\\Documents\\Codex\\2026-10-04\\task\\nbsr-handshake-target\\debug\\deps\\connector_control-9adb903c1f925cdc.exe": "89209640fce85479b40f29ec747e0773171370afa57e28d69156fd1bea95ac1a"
+  },
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-ci-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci/test_ci.py",
+        "-k",
+        "selected or selection or quick_profiles"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.61,
+      "disk_start": 15156502528,
+      "disk_end": 15156498432,
+      "ram_end": 8159891456,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-ci-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/ci/test_ci.py::test_isolated_genesis_kar_target_selected_without_live_execution"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 15157760000,
+      "disk_end": 15157755904,
+      "ram_end": 8153841664,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-clippy",
+      "argv": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "1",
+        "--test",
+        "connector_kar",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.81,
+      "disk_start": 15156170752,
+      "disk_end": 15154311168,
+      "ram_end": 8137138176,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-final-rust",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "1",
+        "--test",
+        "connector_kar",
+        "--test",
+        "connector_signature",
+        "--test",
+        "connector_control"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 15158063104,
+      "disk_end": 15156834304,
+      "ram_end": 8155754496,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-fixture-check",
+      "argv": [
+        "python",
+        "scripts/extract_connector_signature_fixtures.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.41,
+      "disk_start": 15154302976,
+      "disk_end": 15154302976,
+      "ram_end": 8178823168,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-format",
+      "argv": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--check"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 3.05,
+      "disk_start": 15154298880,
+      "disk_end": 15154298880,
+      "ram_end": 8205967360,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-green",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "1",
+        "--test",
+        "connector_kar"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 15168827392,
+      "disk_end": 15158235136,
+      "ram_end": 8151801856,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-python-neighbor",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/federation/test_key_authorization.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.01,
+      "disk_start": 15156498432,
+      "disk_end": 15156498432,
+      "ram_end": 8152268800,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-red",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "crates/nbsr-transport/Cargo.toml",
+        "--jobs",
+        "1",
+        "--test",
+        "connector_kar"
+      ],
+      "exit_code": 101,
+      "abort": null,
+      "elapsed_seconds": 2.42,
+      "disk_start": 15189557248,
+      "disk_end": 15170088960,
+      "ram_end": 8130039808,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "kar-ruff",
+      "argv": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "scripts/ci/check.py",
+        "tests/ci/test_ci.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 0.62,
+      "disk_start": 15154282496,
+      "disk_end": 15154274304,
+      "ram_end": 8137289728,
+      "direct_child_reaped": true
+    }
+  ],
+  "unique_test_results": {
+    "rust_passed": 15,
+    "python_passed": 65,
+    "signature_cases_verified": 14,
+    "red_kar_assertion_failures": 7,
+    "red_ci_selection_failures": 1
+  },
+  "review": "connector_model_review: no remaining scoped blocker; direct unsigned purpose14->12 case added and reviewed",
+  "limitations": [
+    "No successful composed positive acceptance test: new signatures prohibited and retained root/KAR validity intervals disjoint",
+    "No normal roster assertions replaced or authorities connected",
+    "No hosted CI execution"
+  ],
+  "runtime_enabled": false,
+  "live_enabled": false,
+  "registration_ready": false,
+  "stage_status": "Stage 3 partial; 2/10 overall",
+  "new_keys": 0,
+  "new_signatures": 0,
+  "normal_roster_fixtures_created": 0,
+  "resource_guards": {
+    "start_disk_min_bytes": 8589934592,
+    "stop_disk_below_bytes": 6442450944,
+    "ram_reserve_bytes": 2147483648,
+    "per_run_disk_growth_stop_bytes": 268435456,
+    "work_deadline_seconds": 95,
+    "cleanup_inclusive_limit_seconds": 120,
+    "cargo_jobs": 1,
+    "offline": true
+  },
+  "cleanup": {
+    "all_direct_children_reaped": true,
+    "resource_aborts": [],
+    "process_inspection": "no cargo/rustc/connector_kar/connector_signature/connector_control workers observed",
+    "sockets_created": 0,
+    "containers_created": 0,
+    "protected_previous_authority_binary_unchanged": true,
+    "incremental_recreated_by_authorized_build": true,
+    "disk_free_bytes": 15151280128,
+    "ram_free_bytes": 7886815232
+  },
+  "evidence": "evidence/connector-registration-development/2026-10-11-kar-genesis-implementation",
+  "unchanged_design_source_sha256": {
+    "vectors/federation-v0.1/signed-vectors.json": "5de292601052fd716d339bd418a0fa5d401852a176d8f4a49fb94e0bca2ed816",
+    "vectors/federation-v0.1-development-v2/signed-vectors.json": "5de292601052fd716d339bd418a0fa5d401852a176d8f4a49fb94e0bca2ed816",
+    "vectors/federation-v0.1-schema-proposal/literal-fixtures.json": "47af31ea9d1bad21f425e2174e9fefaf36116ca0134b75365a2770185f0d80c8",
+    "tests/federation/test_cose_authority.py": "63904931e6dfea5fa07c7279a2a1ce82a4f08da64becc62307ca5aa47a7f7449",
+    "tests/test_connector_registration_authority_offline.py": "b3e76609c242e699aaf399271cb4feebe7e34bc1e7f3c6a5d11b2d945bd4e857",
+    "nbsr/federation/cose.py": "35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba",
+    "nbsr/federation/fields.py": "e6cf23d2e852fc67781eed61808ad1e21edb7599e000a2dbd8e35925ec6731e1",
+    "nbsr/federation/registry.py": "8a16276f12d87291019cc249f9fbbf5ee61b9d1162411aab636b189274dff9d8",
+    "scripts/federation_v01_vectors/package.py": "586c73dd397d7184c37862e7cb9414bc34f1c46fb9ff261076c6f4a22a774444",
+    "scripts/render_federation_threshold_container.py": "a05b0dbd78f34e3280cbf84b9c68288392fdd1705d50d7dd8ce1062f6636e1b1",
+    "crates/nbsr-transport/src/connector_authority.rs": "b99687e969b95fb9abcbf73f282cb02412db2c7baa16ae30750a165745675fd1",
+    "crates/nbsr-transport/src/connector_signature.rs": "c0e67b67d86dd7918573864c434af9fcd5d3f3f3825ef1f04e1df1e4af28f2b6",
+    "vectors/connector-authority-local-v1/cases.json": "3d255c15f853980b88ee505a1db461e01c2425f6b984542419847d344493698c"
+  },
+  "dependency_sha256": {
+    "crates/nbsr-transport/Cargo.toml": "5ce3ce6ce5e3fa7501158dcdb4e4799dceb8626813443661e70619078bdf9f27",
+    "crates/nbsr-transport/Cargo.lock": "976ace41027ae90bebbe2229a1575c1f0c7bc5e71b1847804f4d6d33404c21f8",
+    "crates/nbsr-transport/src/connector_control.rs": "2fcc0c875b7ef86c03954230ac31961d99a5a03b65fad3627acb8ea0a9369b98",
+    "crates/nbsr-transport/src/connector_signature.rs": "c0e67b67d86dd7918573864c434af9fcd5d3f3f3825ef1f04e1df1e4af28f2b6",
+    "crates/nbsr-transport/tests/fixtures/connector-signature-primitives.json": "60729eb480ef927ebab903c92a1414dfe3a45d9f86ec9c5714a2008e7b3afafc"
+  },
+  "_publication_derivative": {
+    "original_sha256": "b5971d6f6752c2a47602bc884dabc07162bf3f5fcc08aced0c3dd7b48e584a7f",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

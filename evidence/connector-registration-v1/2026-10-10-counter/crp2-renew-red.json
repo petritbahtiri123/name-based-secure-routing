@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp2-renew-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "-k",
+    "more_than_four"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 3.86,
+  "disk_start": 12200869888,
+  "disk_end": 12200001536,
+  "ram_end": 4433465344,
+  "direct_child_reaped": true
+}

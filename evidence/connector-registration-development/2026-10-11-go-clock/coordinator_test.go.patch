@@ -1,0 +1,86 @@
+--- before/interop/nbsr-go-peer/connector/coordinator_test.go
++++ after/interop/nbsr-go-peer/connector/coordinator_test.go
+@@ -382,6 +382,83 @@
+ 	}
+ }
+ 
++func TestExpiredPendingCannotRecoverAfterClockRollback(t *testing.T) {
++	c, p, clock, _ := fixtureSetup(t)
++	p.dropAccept = true
++	if c.Begin(fixtureRequest(t)) == nil {
++		t.Fatal("expected lost ACCEPT")
++	}
++	clock.now = 105
++	if c.Retry() == nil {
++		t.Fatal("expired pending operation retried")
++	}
++	clock.now = 104
++	before := len(p.seen)
++	if c.Retry() == nil || c.Owner() != nil || len(p.seen) != before {
++		t.Fatal("clock rollback resurrected expired pending operation")
++	}
++}
++
++func TestAuthorityCallbackClockRollbackCannotStartExchange(t *testing.T) {
++	c, p, clock, authority := fixtureSetup(t)
++	authority.after = func(int) { clock.now = 99 }
++	if c.Begin(fixtureRequest(t)) == nil || c.Owner() != nil || len(p.seen) != 0 {
++		t.Fatal("clock rollback inside authority callback reached transport")
++	}
++}
++
++func TestClockRollbackBeforeExpiryRequiresExplicitCleanup(t *testing.T) {
++	c, p, clock, _ := fixtureSetup(t)
++	if c.Begin(fixtureRequest(t)) != nil {
++		t.Fatal("registration")
++	}
++	clock.now = 120
++	if !c.Owner().Eligible {
++		t.Fatal("valid owner lost")
++	}
++	clock.now = 110
++	if c.Owner().Eligible || c.peer == nil || p.closes != 0 {
++		t.Fatal("rollback must withdraw eligibility and retain cleanup ownership")
++	}
++	p.failClose = true
++	if c.Poll() == nil || c.peer == nil {
++		t.Fatal("failed cleanup released owner")
++	}
++	p.failClose = false
++	if c.Close() != nil || c.peer != nil || c.Owner() != nil {
++		t.Fatal("explicit cleanup failed")
++	}
++}
++
++func TestOutOfRangeFixtureTimeCannotRecoverAdmission(t *testing.T) {
++	for _, owned := range []bool{false, true} {
++		t.Run(map[bool]string{false: "pending", true: "owner"}[owned], func(t *testing.T) {
++			c, p, clock, authority := fixtureSetup(t)
++			if owned {
++				if c.Begin(fixtureRequest(t)) != nil {
++					t.Fatal("registration")
++				}
++				clock.now = 253402300800
++				if c.Owner().Eligible {
++					t.Fatal("out-of-range time kept eligibility")
++				}
++			} else {
++				authority.after = func(int) { clock.now = 253402300800 }
++				if c.Begin(fixtureRequest(t)) == nil || len(p.seen) != 0 {
++					t.Fatal("out-of-range callback reached exchange")
++				}
++			}
++			clock.now = 100
++			if !c.stopped || c.Begin(fixtureRequest(t)) == nil {
++				t.Fatal("invalid time latch cleared")
++			}
++			if c.Close() != nil || c.peer != nil {
++				t.Fatal("cleanup")
++			}
++		})
++	}
++}
++
+ func TestObservedOwnerExpiryCannotResurrectAfterClockRollback(t *testing.T) {
+ 	c, p, clock, _ := fixtureSetup(t)
+ 	if err := c.Begin(fixtureRequest(t)); err != nil {

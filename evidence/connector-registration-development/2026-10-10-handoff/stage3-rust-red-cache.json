@@ -1,0 +1,25 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-rust-red-cache",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_control"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 4.42,
+  "disk_start": 12177252352,
+  "disk_end": 12172382208,
+  "ram_end": 4738523136,
+  "direct_child_reaped": true
+}

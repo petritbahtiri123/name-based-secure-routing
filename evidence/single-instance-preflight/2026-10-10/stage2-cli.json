@@ -1,0 +1,17 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage2-cli",
+  "argv": [
+    "python",
+    "-B",
+    "deploy/single-instance/validate_config.py",
+    "deploy/single-instance/config.example.json"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.61,
+  "disk_start": 12184567808,
+  "disk_end": 12184567808,
+  "ram_end": 4926193664,
+  "direct_child_reaped": true
+}

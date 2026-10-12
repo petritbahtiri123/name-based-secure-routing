@@ -1,0 +1,1 @@
+Independent reviewer /root/connector_model_review: both final deltas correct by inspection; Go rechecks ACCEPT expiry after authority callback; Rust checks supplied ALPN before authority/ownership mutation. Targeted regressions present. No remaining blockers in scoped development-only review. Reviewer did not run tests or claim live interoperability/trust.

@@ -1,0 +1,17 @@
+[
+  {
+    "check": "connector-loopback-build",
+    "exit_code": 0,
+    "timed_out": false
+  },
+  {
+    "check": "connector-worker-build",
+    "exit_code": 0,
+    "timed_out": false
+  },
+  {
+    "check": "connector-loopback",
+    "exit_code": 0,
+    "timed_out": false
+  }
+]

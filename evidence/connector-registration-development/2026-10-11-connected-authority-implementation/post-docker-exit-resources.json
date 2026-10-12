@@ -1,0 +1,12 @@
+{
+  "physical_available_bytes": 8238796800,
+  "physical_available_gib": 7.672977,
+  "physical_total_bytes": 16942501888,
+  "commit_available_bytes": 10126802944,
+  "disk_available_bytes": 11696799744,
+  "ram_guard_gib": 2,
+  "preflight_ram_pass": true,
+  "preflight_disk_pass": true,
+  "task_worker_count": 0,
+  "tests_already_finished": true
+}

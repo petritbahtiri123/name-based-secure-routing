@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "kar-ruff",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "check",
+    "--no-cache",
+    "scripts/ci/check.py",
+    "tests/ci/test_ci.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.62,
+  "disk_start": 15154282496,
+  "disk_end": 15154274304,
+  "ram_end": 8137289728,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,25 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-owner-boundaries-red",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_registration"
+  ],
+  "exit_code": 101,
+  "abort": null,
+  "elapsed_seconds": 1.42,
+  "disk_start": 12120387584,
+  "disk_end": 12114255872,
+  "ram_end": 4693909504,
+  "direct_child_reaped": true
+}

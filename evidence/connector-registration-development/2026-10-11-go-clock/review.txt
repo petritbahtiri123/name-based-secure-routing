@@ -1,0 +1,1 @@
+Independent connector_model_review: no blocking findings. All prior clock reads use retained floor; invalid/backward time disables admission and subsequent checks prevent exchange/acceptance. Peer/owner retained for explicit cleanup including close failure. Review only; no tests rerun.

@@ -1,0 +1,108 @@
+# Overnight robustness — 2026-10-11
+
+New overnight authorization received2026-10-10 20:47UTC; cutoff07:00UTC October11.
+Small evidence-led local improvements; no new trust/lifetime/registry decisions,
+persistent credentials, external traffic, push/deploy or security changes. Prior
+October10 work remains dirty and preserved; no local commits have been made.
+
+## Checkpoint1: challenge authority revision
+
+Python/Rust mismatch reproduced for registration and renewal. Python now rejects
+a proof whose current authority revision differs from its challenge snapshot;
+old owner/lease survives and next-counter recovery works. Two red regressions;
+434 final scoped passes, no exclusions. Python vector check and Node independent
+artifact/replay checks pass, lint/format/diff checks and independent review clear.
+See `docs/reviews/2026-10-11-connector-challenge-revision.md` and JSON.
+All children reaped; no task sockets/containers or visible relevant workers.
+Stage3 remains partial; no publication or runtime trust claim.
+
+## Checkpoint2: Go observed-expiry latch
+
+Three expiry-observation paths reproduced rollback resurrection and now latch
+ineligibility while preserving ownership. Go21+3 top-level passes (71+10 events),
+one parent-only loopback skip; vet/format/diff and independent review clear.
+See `docs/reviews/2026-10-11-connector-go-expiry.md` and JSON. All children reaped,
+no sockets/containers or live rerun. README updated; uncommitted/unpublished.
+Parent checkpoint notification tool returned thread-not-found; no retries.
+
+## Checkpoint3: Go observed-time floor
+
+Three rollback paths reproduced and fixed: pending ACCEPT recovery, authority
+callback and owner view before expiry. Go25+3 top-level passes (77+10 events),
+one parent-only worker skip; vet/format/diff and independent review clear.
+See `docs/reviews/2026-10-11-connector-go-clock.md` and JSON. No new real clock,
+lifetime policy, sockets/keys or live rerun; cleanup complete, uncommitted.
+
+## Checkpoint4: Rust observed-time floor
+
+Four clock failures reproduced and fixed at attach/handle/poll; retains owner
+and cleanup-ticket identity. Rust23passes/1live-ignore, Clippy/format/diff and
+review clear. See `docs/reviews/2026-10-11-connector-rust-clock.md` and JSON.
+No new live execution, sockets/keys or runtime trust. All children reaped.
+
+## Final reviewed handoff
+
+Five bounded fixes are complete: Python challenge revision binding, Go observed
+expiry retention, Go observed-time floor, Rust observed-time floor, and exact
+integer typing of Python current-revision snapshots. The last fix rejects bool
+and float values that otherwise compare equal to integer revisions.
+
+Latest focused results: Python **436 passed**, zero exclusions; Go **28 top-level
+passes** (87 pass events), one default worker skip; Rust **23 passed**, one default
+live ignore. The separately authorized fresh loopback passed **19/19 cases**.
+All five deltas received independent review. The earlier unchanged-vector checks
+passed 20 files/24 specifications and Node checked 19 hashes/34 transitions; these
+checks were not repeated at finalization. Across 29 supervised runs, six expected
+red runs retain 14 failing cases/subcases. No resource abort occurred.
+
+See [revision type evidence](../reviews/2026-10-11-connector-revision-type.md) and
+[fresh loopback evidence](../reviews/2026-10-11-connector-loopback.md).
+All supervised children were reaped; no live-test PID or UDP endpoint remained.
+The new Go worker was removed after hashing. Existing caches and older worker
+were preserved. No task containers, downloads, commits or publication occurred.
+
+Stopping at this coherent reviewed checkpoint before the cutoff, without claiming
+continuous work until morning. Stage 3 remains partial; stages 1-2 remain 2/10.
+Real authority/revocation-provider composition and real timer delivery remain open.
+A future integration should review request-ID binding at the verifier interface;
+this is a design seam, not a demonstrated vulnerability. Pure fixture assembly
+does not itself require new authorization. The parent notification tool returned
+thread-not-found; this final handoff is available through task completion.
+
+## Follow-up: connector CI selection
+
+The parent-authorized CI audit found and corrected explicit selection gaps.
+Final CI regressions: 23 passes; newly selected Python/config: 297 passes;
+tagged Go test/vet and Node verifier pass; exact new manual loopback profile
+passes 19 cases. Nine supervised runs, two retained failed attempts, no resource
+abort. Independent review clear after removal of a nested-supervisor flaw.
+See [CI selection evidence](../reviews/2026-10-11-connector-ci-selection.md).
+Hosted schema/execution remains unrun; no publication, dependency or security
+setting changes. No remaining evidenced local selection gap; next validation
+is an authorized hosted run. Earlier checkpoint hashes remain historical.
+
+## Approved local normal-revocation conformance amendment
+
+Revision 2's named policy/group mapping now has a separate pinned amendment and
+33 deterministic literal cases. Final scoped Python/CI result: 103 passed,
+3 unaffected process-supervision tests deselected. Vector check and Ruff pass;
+independent review clear after a reproduced full-roster common-control gap was
+fixed. Explicit eligible IDs are covered; accepted-context empty-descriptor lookup
+is not. See `../reviews/2026-10-11-normal-revocation-conformance.md` and `.json`.
+Historical parent policies/vectors remain unchanged. All provenance and witness
+outcomes remain fixtures; runtime/live flags false, Stage 3 partial, 2/10 complete,
+final comprehensive audit gate retained. No sockets, new keys, downloads, hosted
+CI, commit or push. All supervised children reaped; no resource abort.
+
+## Signed witness/checkpoint integration follow-up
+
+The local normal-revocation check now has a separate explicit witness-required
+entry point composing existing COSE, consistency, checkpoint-continuity and
+authenticated-witness verifiers with the record's exact checkpoint reference.
+Final scope: 123 tests passed, no skips/deselections; 31 new integration tests.
+Ruff and independent review clear. The missing-API RED result is retained.
+See `../reviews/2026-10-11-normal-revocation-witness-integration.md` and `.json`.
+This verifies checkpoint confirmation under public fixture configuration, not
+revocation-record inclusion, real governing provenance or durable restart floors.
+Those inputs are the next gate; runtime/live flags false, Stage3 partial, 2/10,
+final audit retained. No sockets, keys generated, installation, hosted CI or push.

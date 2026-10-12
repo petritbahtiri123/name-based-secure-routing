@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "signed-authority-clock-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/test_connector_registration_authority_offline.py",
+    "-k",
+    "observed_time"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.21,
+  "disk_start": 11732377600,
+  "disk_end": 11732373504,
+  "ram_end": 4649828352,
+  "direct_child_reaped": true
+}

@@ -10,6 +10,7 @@ import re
 import signal
 import subprocess
 import sys
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 GO_MODULES = (
@@ -21,9 +22,11 @@ CORE_TESTS = (
     "test_name_registry", "test_name_relay", "test_name_security", "test_originset",
     "test_resolution_state", "test_route_registry", "test_secure_files", "test_security",
     "test_service_tls", "test_services", "test_synthetic", "test_verifier",
-    "test_gateway_plan", "test_gateway_profile", "test_gateway_verify", "test_gateway_journal",
+    "test_gateway_plan", "test_gateway_profile", "test_gateway_verify", "test_gateway_journal", "test_gateway_cli",
     "test_wp6_continuity_state", "test_wp6_failover", "test_wp6_replication",
     "test_wp7_admission", "test_wp7_limits", "test_wp7_operator_model", "test_wp7_review_fixes",
+    "test_connector_control_model", "test_connector_federation_model",
+    "test_connector_registration_authority_offline", "test_connector_authority_timer_offline",
 )
 
 
@@ -40,7 +43,8 @@ def command_groups(profile: str) -> list[Command]:
              "--features", "benchmark-harness", "--jobs", "2")
     if profile == "python-core":
         return [Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
-                                       *(f"tests/{name}.py" for name in CORE_TESTS))),
+                                       *(f"tests/{name}.py" for name in CORE_TESTS),
+                                       "deploy/single-instance/test_validate_config.py")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
@@ -53,6 +57,12 @@ def command_groups(profile: str) -> list[Command]:
                 Command("repository-privacy", (py, "scripts/verify_wp8_repository_safety.py", "privacy", ".")),
                 Command("core-vectors", (py, "scripts/generate_core_v02_vectors.py", "--check", "vectors/core-v0.2")),
                 Command("federation-v2-vectors", (py, "scripts/generate_federation_v01_vectors.py", "--version", "federation-v0.1-development-v2", "--check", "vectors/federation-v0.1-development-v2")),
+                Command("connector-signature-fixtures", (py, "scripts/extract_connector_signature_fixtures.py", "--check")),
+                Command("normal-revocation-conformance", (py, "-m", "scripts.normal_revocation_conformance", "--check")),
+                Command("revocation-inclusion-v2", (py, "-m", "scripts.revocation_inclusion_v2", "--check")),
+                Command("connected-authority-vectors", (py, "-m", "scripts.check_connected_authority_vectors", "--check")),
+                Command("inclusion-persistence-local", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                                                        "tests/federation/test_inclusion_persistence.py")),
                 Command("exporter-vectors", (py, "scripts/generate_wp4_exporter_vectors.py", "--check"))]
     if profile == "rust":
         return [Command("rust-format", ("cargo", "fmt", "--manifest-path", "crates/nbsr-transport/Cargo.toml", "--check")),
@@ -62,10 +72,20 @@ def command_groups(profile: str) -> list[Command]:
                 Command("rust-transport", cargo + tuple(part for name in ("handshake", "stream_credit_integration", "drain", "config")
                                                         for part in ("--test", name))),
                 Command("rust-codec", cargo + ("--test", "p2a_benchmark", "frame")),
+                Command("rust-connector", cargo + ("--test", "connector_control", "--test", "connector_registration",
+                                                   "--test", "connector_loopback", "--test", "connector_signature",
+                                                   "--test", "connector_authority", "--test", "connector_kar")),
                 Command("rust-doc", cargo + ("--doc",)),
                 Command("rust-clippy", ("cargo", "clippy", *cargo[2:], "--all-targets", "--", "-D", "warnings"))]
     if profile == "rust-extended":
         return [Command("rust-extended", cargo + ("--tests",))]
+    if profile == "connector-loopback":
+        return [Command("connector-loopback-build", cargo + ("--test", "connector_loopback", "--no-run")),
+                Command("connector-worker-build", ("go", "test", "-mod=readonly", "-p=2", "-tags", "connector_development",
+                                                    "-c", "-o", os.environ.get("NBSR_CONNECTOR_GO_TEST", "<task-owned-worker>"),
+                                                    "./connector"), "interop/nbsr-go-peer"),
+                Command("connector-loopback", cargo + ("--test", "connector_loopback", "isolated_go_rust_control_registration",
+                                                       "--", "--ignored", "--exact", "--nocapture"))]
     if profile == "soak":
         return [Command("rust-soak", cargo + ("--lib", "channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand",
                                              "--", "--ignored", "--exact", "--test-threads=1"))]
@@ -73,9 +93,13 @@ def command_groups(profile: str) -> list[Command]:
         return [Command(f"go-{index}-{kind}", ("go", kind, "-mod=readonly", "-p=2",
                                                *(("-timeout=90s", "-parallel=2", "./...") if kind == "test" else ("./...",))), module)
                 for index, module in enumerate(GO_MODULES) for kind in ("test", "vet")] + [
+                    Command(f"go-connector-{kind}", ("go", kind, "-mod=readonly", "-p=2", "-tags", "connector_development",
+                                                    *(("-timeout=90s", "-parallel=2", "-count=1") if kind == "test" else ()),
+                                                    "./connector"), "interop/nbsr-go-peer") for kind in ("test", "vet")] + [
                     Command("go-federation-v2", ("go", "run", "-mod=readonly", "-p=2", "./cmd/verify", "--version", "federation-v0.1-development-v2", "../../vectors/federation-v0.1-development-v2"), "verifiers/federation-go")]
     if profile == "node":
-        return [Command("node-core-tests", ("node", "--test", "test/verifier.test.mjs"), "tools/core-v02-node-verifier"),
+        return [Command("node-connector-vectors", ("node", "scripts/verify_connector_registration_vectors.mjs")),
+                Command("node-core-tests", ("node", "--test", "test/verifier.test.mjs"), "tools/core-v02-node-verifier"),
                 Command("node-core-vectors", ("node", "verify.mjs", "../../vectors/core-v0.2"), "tools/core-v02-node-verifier"),
                 Command("node-federation-tests", ("node", "--test", *(str(p.relative_to(ROOT / "verifiers/federation-node")) for p in sorted((ROOT / "verifiers/federation-node/test").glob("*.test.js")))), "verifiers/federation-node"),
                 Command("node-federation-vectors", ("node", "src/verifier.js", "../../vectors/federation-v0.1"), "verifiers/federation-node"),
@@ -145,7 +169,8 @@ def validate_workflow(workflow: dict) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("profile", choices=("python-core", "python-protocol", "rust", "go", "node", "rust-extended", "soak", "validate"))
+    parser.add_argument("profile", choices=("python-core", "python-protocol", "rust", "go", "node", "rust-extended",
+                                           "connector-loopback", "soak", "validate"))
     parser.add_argument("--timeout", type=int, default=90)
     parser.add_argument("--list", action="store_true")
     args = parser.parse_args()
@@ -164,17 +189,33 @@ def main() -> int:
             print(cmd.name, cmd.cwd, *cmd.argv)
         return 0
     os.environ.update(CARGO_BUILD_JOBS="2", RUST_TEST_THREADS="2", GOFLAGS="-mod=readonly -p=2", GOMAXPROCS="2", GOTOOLCHAIN="local")
+    if args.profile == "connector-loopback":
+        previous = os.environ.get("NBSR_CONNECTOR_GO_TEST")
+        with tempfile.TemporaryDirectory(prefix="nbsr-connector-ci-") as directory:
+            try:
+                os.environ["NBSR_CONNECTOR_GO_TEST"] = str(Path(directory) / ("worker.exe" if os.name == "nt" else "worker"))
+                return execute_profile(args.profile, args.timeout)
+            finally:
+                if previous is None:
+                    os.environ.pop("NBSR_CONNECTOR_GO_TEST", None)
+                else:
+                    os.environ["NBSR_CONNECTOR_GO_TEST"] = previous
+    return execute_profile(args.profile, args.timeout)
+
+
+def execute_profile(profile: str, seconds: int) -> int:
+    commands = command_groups(profile)
     results = []
     destination = ROOT / "ci-results"
     destination.mkdir(exist_ok=True)
     for cmd in commands:
         print(f"Running {cmd.name}", flush=True)
         try:
-            result = run_command(cmd.name, cmd.argv, ROOT / cmd.cwd, args.timeout)
+            result = run_command(cmd.name, cmd.argv, ROOT / cmd.cwd, seconds)
         except (OSError, subprocess.SubprocessError):
             result = {"check": cmd.name, "exit_code": 125, "timed_out": False}
         results.append(result)
-        (destination / f"{args.profile}.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
+        (destination / f"{profile}.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
         if result["exit_code"]:
             return 1
     return 0

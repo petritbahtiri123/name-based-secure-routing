@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "inclusion-v2-event-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_revocation_inclusion_v2.py",
+    "-k",
+    "new_event"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.42,
+  "disk_start": 11966021632,
+  "disk_end": 11966013440,
+  "ram_end": 2924654592,
+  "direct_child_reaped": true
+}

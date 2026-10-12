@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "crp1-stale-operation-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/protocol/test_connector_registration_vectors.py",
+    "-k",
+    "stale_operation"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.62,
+  "disk_start": 12220600320,
+  "disk_end": 12218748928,
+  "ram_end": 5215404032,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,75 @@
+--- before/interop/nbsr-go-peer/connector/coordinator_test.go
++++ after/interop/nbsr-go-peer/connector/coordinator_test.go
+@@ -382,6 +382,72 @@
+ 	}
+ }
+ 
++func TestObservedOwnerExpiryCannotResurrectAfterClockRollback(t *testing.T) {
++	c, p, clock, _ := fixtureSetup(t)
++	if err := c.Begin(fixtureRequest(t)); err != nil {
++		t.Fatal(err)
++	}
++	old := c.Owner()
++	clock.now = old.Expires
++	if c.Owner().Eligible {
++		t.Fatal("expired owner eligible")
++	}
++	clock.now--
++	if c.Owner().Eligible {
++		t.Fatal("observed expiry resurrected after clock rollback")
++	}
++	b := fixtureRequest(t)
++	b[1], b[14], b[15] = "renew", clock.now, old.Digest[:]
++	before := len(p.seen)
++	if c.Begin(b) == nil || len(p.seen) != before {
++		t.Fatal("expired owner renewed or sent traffic after rollback")
++	}
++	if c.peer == nil || p.closes != 0 {
++		t.Fatal("observing expiry must retain ownership for explicit cleanup")
++	}
++}
++
++func TestRenewalExpiryObservationCannotBeUndoneByRollback(t *testing.T) {
++	for _, path := range []string{"begin", "retry"} {
++		t.Run(path, func(t *testing.T) {
++			c, p, clock, _ := fixtureSetup(t)
++			if err := c.Begin(fixtureRequest(t)); err != nil {
++				t.Fatal(err)
++			}
++			old := c.Owner()
++			clock.now = old.Expires - 1
++			b := fixtureRequest(t)
++			b[1], b[14], b[15] = "renew", clock.now, old.Digest[:]
++			if path == "retry" {
++				p.dropAccept = true
++				if c.Begin(b) == nil {
++					t.Fatal("expected lost renewal ACCEPT")
++				}
++			}
++			clock.now = old.Expires
++			if path == "retry" {
++				if c.Retry() == nil {
++					t.Fatal("expired renewal retry succeeded")
++				}
++			} else {
++				b[14] = clock.now
++				if c.Begin(b) == nil {
++					t.Fatal("expired renewal begin succeeded")
++				}
++			}
++			clock.now--
++			if c.Owner().Eligible {
++				t.Fatal("renewal expiry observation was forgotten")
++			}
++			before := len(p.seen)
++			b[14] = clock.now
++			if c.Begin(b) == nil || c.Retry() == nil || len(p.seen) != before {
++				t.Fatal("rollback caused renewed exchange after observed expiry")
++			}
++		})
++	}
++}
++
+ func TestAuthorityCallbackCannotInstallExpiredAcceptance(t *testing.T) {
+ 	c, _, clock, a := fixtureSetup(t)
+ 	a.after = func(call int) {

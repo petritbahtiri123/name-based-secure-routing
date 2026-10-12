@@ -1,0 +1,887 @@
+{
+  "baseline": "e245bc357379b44449bb22f53a1c6a1c723fc1cc",
+  "checkpoint_utc": "2026-10-10T10:57:34.8031725Z",
+  "status": "body_pending_coverage_complete_local_uncommitted",
+  "runtime_behavior_changed": "benchmark-harness frame revocation only; default runtime behavior unchanged",
+  "changed_files": [
+    "crates/nbsr-transport/src/quinn_adapter.rs",
+    "crates/nbsr-transport/src/control_read_tests.rs",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+    "crates/nbsr-transport/tests/stream_credit_integration.rs"
+  ],
+  "hashes": [
+    {
+      "path": "crates/nbsr-transport/src/quinn_adapter.rs",
+      "sha256": "535af60c2e0c9fdbf04d1cf44654bc1a33bb13a8bacdf1d6bef70588cc1a94c6"
+    },
+    {
+      "path": "crates/nbsr-transport/src/control_read_tests.rs",
+      "sha256": "d443f3c3f937b79e86a62ecfc1be682ba351ad124c98c2d200f5f09eb3dba6ae"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/stream_credit_integration.rs",
+      "sha256": "1329f62da0a869b9f6797c87eb3474a5fe7854fb30094d09b1b48b0c9d09e0a3"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "sha256": "5fc6eb4b0ff40a9fda58b0d8f7ee626f3abde2a85494afa2b6e1a6959fe5a82a"
+    }
+  ],
+  "runs": [
+    {
+      "label": "composite-response-characterization",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.16
+    },
+    {
+      "label": "overnight-composite-library",
+      "passed": 101,
+      "failed": 0,
+      "ignored": 1,
+      "seconds": 6.05
+    },
+    {
+      "label": "overnight-composite-doc",
+      "passed": 16,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 1.03
+    },
+    {
+      "label": "overnight-frame-revoke-red",
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "seconds": 0.41
+    },
+    {
+      "label": "overnight-frame-tiny-red",
+      "passed": 0,
+      "failed": 3,
+      "ignored": 0,
+      "seconds": 0.57
+    },
+    {
+      "label": "overnight-frame-green",
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.29
+    },
+    {
+      "label": "overnight-frame-library",
+      "passed": 105,
+      "failed": 0,
+      "ignored": 1,
+      "seconds": 6.28
+    },
+    {
+      "label": "overnight-frame-codec",
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0,
+      "seconds": 0.03
+    },
+    {
+      "ignored": 0,
+      "failed": 0,
+      "passed": 1,
+      "build_seconds": 3.73,
+      "label": "overnight-untracked-accept",
+      "seconds": 0.18
+    },
+    {
+      "ignored": 0,
+      "failed": 0,
+      "passed": 12,
+      "build_seconds": 25.49,
+      "label": "overnight-admission-suite",
+      "seconds": 1.59
+    },
+    {
+      "seconds": 6.25,
+      "passed": 105,
+      "ignored": 1,
+      "failed": 0,
+      "build_seconds": 6.01,
+      "label": "overnight-final-library"
+    },
+    {
+      "seconds": 1.05,
+      "passed": 16,
+      "ignored": 0,
+      "failed": 0,
+      "build_seconds": 0.27,
+      "label": "overnight-final-doc"
+    },
+    {
+      "build_seconds": 4.84,
+      "failed": 0,
+      "label": "overnight-publication-library",
+      "seconds": 6.43,
+      "passed": 105,
+      "ignored": 1
+    },
+    {
+      "build_seconds": 1.39,
+      "failed": 0,
+      "label": "overnight-publication-credit",
+      "seconds": 1.27,
+      "passed": 12,
+      "ignored": 0
+    }
+  ],
+  "review": "iteration1 precision correction confirmed; iteration2 no blocker; iteration3 independent read-only scoped review no blocker; coverage/counter limits recorded; iteration4 independent static ownership review no concrete gap; fresh aggregate_review against baseline: no correctness/security blocker; Europe/Skopje report label corrected",
+  "known_test_failures": [],
+  "resources": {
+    "start_free_disk_gib": 14.88,
+    "final_free_disk_gib": 14.3,
+    "final_free_ram_gib": 6.12,
+    "max_build_jobs": 2,
+    "work_cutoff_seconds_per_run": 95
+  },
+  "cleanup": {
+    "owned_library_test_processes_remaining": 0,
+    "test_containers_created": 0,
+    "background_work_running": false,
+    "owned_codec_test_processes_remaining": 0,
+    "owned_stream_credit_test_processes_remaining": 0
+  },
+  "limitations": [
+    "composite restart unsupported",
+    "no new resume API",
+    "ordinary benchmark-frame caller cancellation remains abandon/invalidate-repeat",
+    "benchmark-feature fix only; no capacity or performance claim",
+    "pre-tracking stream waits require caller-owned deadlines; revocation alone does not wake them",
+    "iteration3 exhausted-open-credit and partial-preface waits inspected only",
+    "iteration3 permit assertions do not directly measure quota entry counts",
+    "body-pending checkpoint proves body await, not exact consumed body byte count or allocator accounting"
+  ],
+  "publication": "overnight commit 8e548588 published with explicit bypass approval; body-pending follow-up uncommitted",
+  "proposed_next_step": "review local coverage-only follow-up; no new runtime defect established",
+  "iteration_1_checkpoint": {
+    "utc": "2026-10-09T22:27:34Z",
+    "runtime_behavior_changed": false,
+    "review": "final corrected wording confirmed; no remaining blocker",
+    "resources": {
+      "start_free_disk_gib": 14.88,
+      "final_free_disk_gib": 14.84,
+      "final_free_ram_gib": 6.87,
+      "max_build_jobs": 2,
+      "work_cutoff_seconds_per_run": 95
+    }
+  },
+  "checks": {
+    "default_feature_library_check": "passed,5.10s",
+    "all_target_clippy_warnings_denied": "passed,8.60s",
+    "format": "passed",
+    "diff_whitespace": "passed",
+    "final_all_target_clippy_warnings_denied": "passed,7.61s",
+    "final_format": "passed",
+    "final_diff_whitespace": "passed",
+    "publication_clippy": "passed,1.17s"
+  },
+  "historical_failed_attempts": [
+    "overnight-frame-revoke-red:pending read timed out",
+    "overnight-frame-tiny-red:read/write timed out and revoked read rejection assertion failed"
+  ],
+  "iteration_2_checkpoint": {
+    "utc": "2026-10-09T22:35:32.1335829Z",
+    "review": "iteration1 precision correction confirmed; iteration2 no blocker; optional body-pending test noted",
+    "resources": {
+      "start_free_disk_gib": 14.88,
+      "final_free_disk_gib": 14.83,
+      "final_free_ram_gib": 6.79,
+      "max_build_jobs": 2,
+      "work_cutoff_seconds_per_run": 95
+    }
+  },
+  "iteration_3": {
+    "diagnosis": "confirmed delayed wakeup before tracking, rejection after peer progress; no stale admission demonstrated",
+    "review": "independent agent admission_review: no blocker; no builds run by reviewer",
+    "failures": [],
+    "evidence": [
+      {
+        "path": "local-evidence/nbsr-overnight-iteration3.patch",
+        "sha256": "5766c2554b5ea6ba290d05dba340450eaa0084e5de505901738532ae5ed13911"
+      },
+      {
+        "path": "local-evidence/nbsr-overnight-admission-check.ps1",
+        "sha256": "baae4a9069a4b9f2c99e53acc33d96219fab5034f001e90c0a90185756eccb16"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-untracked-accept.stdout.log",
+        "sha256": "bf8863631674a9120dbb1122d44514dfd562acc841d65655116aecb8429a555b"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-untracked-accept.stderr.log",
+        "sha256": "450d72baec595bd4ac895698f60eae306e94b5e95f77915a2f49cd6da9b22794"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-admission-suite.stdout.log",
+        "sha256": "d7d6a0ffaa29147aed5897221681bc170e9422a68b3772fcfe9c8139eea0e9df"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-admission-suite.stderr.log",
+        "sha256": "43115123a20b15cd289d7105bec1be0187e5ccd8cdfd54d7aa8c1f3bac3b5514"
+      },
+      {
+        "path": "cached-target/debug/deps/stream_credit_integration-b9d8a6ae873e1653.exe",
+        "sha256": "21761ffb4d2cb11c0c0c92a0888da5b51008d93da55b3b4db7ed4b3f6c846671"
+      }
+    ],
+    "fixture": "existing authenticated loopback PKI and vectors/core-v0.2 credited sessions; one application stream",
+    "cleanup": "supervised cargo exited 0 twice; observed 0 matching stream_credit test processes; no containers created",
+    "runtime_behavior_changed": false,
+    "cargo_target_dir": "cached-target",
+    "commands": [
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --test stream_credit_integration revocation_during_untracked_accept_wait_rejects_when_peer_progresses",
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --test stream_credit_integration",
+      "cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml --check",
+      "git diff --check"
+    ]
+  },
+  "iteration_3_checkpoint": {
+    "resources": {
+      "start_free_disk_gib": 14.88,
+      "final_free_disk_gib": 14.81,
+      "final_free_ram_gib": 6.04,
+      "max_build_jobs": 2,
+      "work_cutoff_seconds_per_run": 95
+    },
+    "status": "iteration_3_complete_no_background_work",
+    "utc": "2026-10-09T22:46:54.6301582Z"
+  },
+  "iteration_4": {
+    "tests_run": 0,
+    "resources": {
+      "ram_not_remeasured": true,
+      "last_free_ram_gib": 6.04,
+      "observed_utc": "2026-10-09T22:49:23.9779664Z",
+      "free_disk_gib": 14.81,
+      "last_ram_read_utc": "2026-10-09T22:46:01.7987894Z"
+    },
+    "diagnosis": "No concrete new retained-quota leak, stale operation, or accidental reuse gap established in scoped ownership review",
+    "failures": [],
+    "review": "Independent admission_review agent found no new blocker and confirmed cleanup observation limits",
+    "source_paths": [
+      "crates/nbsr-transport/src/owned_send.rs",
+      "crates/nbsr-transport/src/quinn_adapter.rs",
+      "crates/nbsr-transport/src/control_read_tests.rs"
+    ],
+    "cleanup": {
+      "processes_created": 0,
+      "background_work_running": false,
+      "matching_library_processes": 0,
+      "matching_credit_processes": 0,
+      "containers_created": 0
+    },
+    "owned_send_sha256": "3547ec1b8df30e0104f1e6208ed83351d2de33c64259a2fdfb01dce7cfab1818",
+    "coverage_inspected": [
+      "payload_reset_discards_partial_state_and_fails_closed",
+      "payload_stream_drop_releases_unfinished_reservations",
+      "payload_revocation_releases_idle_and_pending_cancelled_receive",
+      "owned_send_abort_drop_and_revocation_release_partial_send",
+      "owned_send_peer_close_releases_paused_ownership",
+      "owned_send_completion_racing_revocation_cannot_resurrect_quota",
+      "owned_send_completed_fin_ack_and_terminal_quota_ownership"
+    ],
+    "limits": [
+      "No new dynamic reproduction or test execution",
+      "Peer close test requires drive repoll; no eager paused remote-error cleanup claim",
+      "Connection close and initiating drain do not themselves sweep retained application ownership",
+      "Read failure does not establish universal opposite-direction send prohibition"
+    ],
+    "builds_run": 0,
+    "validation": "Static source/contract review and comparison to existing tests only",
+    "code_or_tests_changed": false,
+    "runtime_behavior_changed": false
+  },
+  "final_handoff": {
+    "report_timezone": "Europe/Skopje",
+    "conclusion": "no further justified low-risk patch identified",
+    "report_target_utc": "2026-10-10T07:00:00Z",
+    "commands": [
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --lib",
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --doc",
+      "cargo clippy --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --all-targets -- -D warnings",
+      "cargo fmt --manifest-path crates/nbsr-transport/Cargo.toml --check",
+      "git diff --check"
+    ],
+    "cleanup": "All final runner exit codes 0; matching library/credit/codec process counts 0; no containers created; no background work",
+    "publication": "none",
+    "evidence": [
+      {
+        "path": "local-evidence/nbsr-overnight-final.patch",
+        "sha256": "5766c2554b5ea6ba290d05dba340450eaa0084e5de505901738532ae5ed13911"
+      },
+      {
+        "path": "cached-target/debug/deps/nbsr_transport-e50f51b665ab68fb.exe",
+        "sha256": "ae1f832920a69fc5c2227af5b33171bfae21a997675e838c84cc9b9f107bf453"
+      },
+      {
+        "path": "cached-target/debug/deps/stream_credit_integration-b9d8a6ae873e1653.exe",
+        "sha256": "21761ffb4d2cb11c0c0c92a0888da5b51008d93da55b3b4db7ed4b3f6c846671"
+      },
+      {
+        "path": "cached-target/debug/deps/p2a_benchmark-5ecf2e7e7df746f7.exe",
+        "sha256": "f50ba51a4c92ef941c7115de26b95abde24e1fd63bb043485324a7284ff24e98"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-library.stdout.log",
+        "sha256": "55123bde0964865965ce0c84b517f47789bebdb3891aa9b8401db2b1439fd1f6"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-library.stderr.log",
+        "sha256": "f5cda86eda2c42a3b1e0480e993b38dc1e35187acfd9dd746b1dd6b083323d00"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-doc.stdout.log",
+        "sha256": "b256facc4204da9cbe3fb213fc486676fe33e955330eac1256f7e0148d8931d8"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-doc.stderr.log",
+        "sha256": "d0b32caab31320b79dc4d0356d14a2f6005377849a328263ccc032550d5bb12c"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-clippy.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "local-evidence/control-read-overnight-final-clippy.stderr.log",
+        "sha256": "810f5d89f1fb8cb3fdd1a72721b770b80e13ee5537eb498dba5116053325e029"
+      }
+    ],
+    "ignored_reason": "existing P1F evidence-only ten-minute bounded-memory soak",
+    "review": "Fresh independent aggregate review: no blocker; minor timezone label corrected",
+    "resources_observed_utc": "2026-10-09T22:52:55.833122Z",
+    "checks_not_repeated": [
+      "iteration3 integration already covers identical final executable code",
+      "iteration2 frame codec and default-feature check cover unchanged runtime"
+    ],
+    "ignored_test": "channel_streams::tests::adversarial_soak_holds_replay_history_at_ten_thousand",
+    "manifest_checksum_path": "local-evidence/nbsr-overnight-final-manifest.sha256"
+  },
+  "publication_preparation": {
+    "staged_git_blobs": {
+      "crates/nbsr-transport/src/control_read_tests.rs": "7e8e2ee9e4ba2af0604d738a3a1bd87a5d8267fc",
+      "crates/nbsr-transport/tests/stream_credit_integration.rs": "0bb3f89706ff6bbbe061714f468b67610ccde8b5",
+      "crates/nbsr-transport/src/quinn_adapter.rs": "621275770f05247d64dbe8b3b9481894ed4af01b"
+    },
+    "review": "Code hashes unchanged from independent aggregate review; private absolute paths removed from report/manifest; no raw secrets found in scoped content",
+    "remote_ruleset": {
+      "id": 22457059,
+      "remote_head": "e245bc357379b44449bb22f53a1c6a1c723fc1cc",
+      "enforcement": "active",
+      "all_refs": true,
+      "restricts_updates": true,
+      "rules_changed": false,
+      "push_attempted": false,
+      "legacy_protection_endpoint": "404; ruleset protection independently confirmed",
+      "name": "protect nbsr",
+      "requires_signatures": true
+    },
+    "hash_basis": "SHA256 tested working-tree bytes; Git blob IDs identify staged newline-normalized source",
+    "cleanup": {
+      "containers_created": 0,
+      "observed_utc": "2026-10-10T07:44:05.6791879Z",
+      "library": 0,
+      "credit": 0
+    },
+    "logs": [
+      {
+        "sha256": "35f89b181548a9bbb21816d89c58c4c201cbeb10e4fbe3a5dec3cb0a9b0ad765",
+        "path": "local-evidence/control-read-overnight-publication-library.stdout.log"
+      },
+      {
+        "sha256": "96a37b86123ac651086f940d7d6e496b64ed3020092c61eb2da94d8b37241f98",
+        "path": "local-evidence/control-read-overnight-publication-library.stderr.log"
+      },
+      {
+        "sha256": "3920a80346ddc40e564274e0bbe707d2c8ff662abcde35750267df8c0ee32b0b",
+        "path": "local-evidence/control-read-overnight-publication-credit.stdout.log"
+      },
+      {
+        "sha256": "0d89dddea2ac2eb5bf21d69a63f930523ccdc6ba0172d07bcf3a4cc311937918",
+        "path": "local-evidence/control-read-overnight-publication-credit.stderr.log"
+      },
+      {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path": "local-evidence/control-read-overnight-publication-clippy.stdout.log"
+      },
+      {
+        "sha256": "1f6e5b099ee1be7e5e3d7ea3fb77ee37fc650b9917dfa96d7c65be7b13778b70",
+        "path": "local-evidence/control-read-overnight-publication-clippy.stderr.log"
+      }
+    ],
+    "artifact_labels": "local-evidence and cached-target denote private retained artifacts, not committed paths"
+  },
+  "body_pending_followup": {
+    "runtime_behavior_changed": false,
+    "clippy": "all targets, warnings denied, passed 10.66s",
+    "changed_files": [
+      "crates/nbsr-transport/src/quinn_adapter.rs",
+      "crates/nbsr-transport/src/control_read_tests.rs",
+      "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json"
+    ],
+    "test": "quinn_adapter::control_read_tests::benchmark_frame_body_pending_revocation_resets_and_releases_ownership",
+    "baseline": "8e548588c6ff636bb7a29a8202adb9a37e5110c1",
+    "review": "independent aggregate_review: diagnostic repoll issue corrected and confirmed; no remaining blocker",
+    "runs": [
+      {
+        "failed": 0,
+        "seconds": 0.15,
+        "label": "frame-body-first",
+        "build_seconds": 10.83,
+        "passed": 1,
+        "ignored": 0
+      },
+      {
+        "failed": 0,
+        "seconds": 6.3,
+        "label": "frame-body-library",
+        "build_seconds": 0.25,
+        "scope": "before diagnostic-only review repair",
+        "passed": 106,
+        "ignored": 1
+      },
+      {
+        "failed": 0,
+        "seconds": 0.16,
+        "label": "frame-body-reviewed",
+        "build_seconds": 4.14,
+        "passed": 1,
+        "ignored": 0
+      }
+    ],
+    "cleanup": {
+      "background_work": false,
+      "utc": "2026-10-10T10:56:50.5705019Z",
+      "containers_created": 0,
+      "library_processes": 0
+    },
+    "commands": [
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --lib benchmark_frame_body_pending_revocation_resets_and_releases_ownership",
+      "cargo test --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --lib",
+      "cargo clippy --locked --offline --manifest-path crates/nbsr-transport/Cargo.toml --features benchmark-harness --jobs 2 --all-targets -- -D warnings"
+    ],
+    "evidence": [
+      {
+        "sha256": "136e9de797dee7a32a8790b742ccbfade9e84bef14831316eee65bbd00058663",
+        "path": "local-evidence/nbsr-frame-body-followup.patch"
+      },
+      {
+        "sha256": "8d514a686013d71910c2c8411313bc52b8b04da28221c496fe90834afdc526cc",
+        "path": "local-evidence/control-read-frame-body-first.stdout.log"
+      },
+      {
+        "sha256": "41de2051f3fae67b8f11eda08ec472c296f4b443fbb1321fd0758562f41ab216",
+        "path": "local-evidence/control-read-frame-body-first.stderr.log"
+      },
+      {
+        "sha256": "cf089a2115a2791e5f5590a1e7041321b750245a4dd7dec5759c28293b924b2c",
+        "path": "local-evidence/control-read-frame-body-library.stdout.log"
+      },
+      {
+        "sha256": "7cd7ec4222c0f546f8736f1346b7d361db0f667d3e0afdbabf2090149a818d94",
+        "path": "local-evidence/control-read-frame-body-library.stderr.log"
+      },
+      {
+        "sha256": "9fde56a63b8e5eb652623927a3172472e3db6643d6af27f6bdab7b559771103f",
+        "path": "local-evidence/control-read-frame-body-reviewed.stdout.log"
+      },
+      {
+        "sha256": "04cf25bd10bfc8b4fcebe2f9d5e49a7fb9dcdc9b025b25fc625e4be4b1b951ac",
+        "path": "local-evidence/control-read-frame-body-reviewed.stderr.log"
+      },
+      {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path": "local-evidence/control-read-frame-body-clippy.stdout.log"
+      },
+      {
+        "sha256": "7bcaaaa32e9e639d9f79a52702b0ea1d177b58e6f83f936976fd3d7fb50f6c1d",
+        "path": "local-evidence/control-read-frame-body-clippy.stderr.log"
+      },
+      {
+        "sha256": "35221942a50a1e4eca0fb0e2db85a6e0c6c1cbe530feea5f72cd23aee18b216e",
+        "path": "cached-target/debug/deps/nbsr_transport-e50f51b665ab68fb.exe"
+      }
+    ]
+  },
+  "authority_activation_checkpoint": {
+    "report": "docs/reviews/2026-10-10-authority-activation.md",
+    "manifest": "docs/reviews/2026-10-10-authority-activation.json",
+    "state": "uncommitted; publication paused",
+    "focused_passed": 63,
+    "neighbor_passed": 545,
+    "neighbor_failed": 2,
+    "blocker": "absent skip-worktree packet manifests",
+    "ack_runtime_work": "deferred; requires separate reviewed versioned authority",
+    "packet_resolution": {
+      "classification": "explicit sparse exclusions; exact blobs present locally",
+      "temporary_exact_blob_test_passed": 3,
+      "original_failures_preserved": true
+    }
+  },
+  "hosted_ci_checkpoint": {
+    "published_sha": "d4ca54eb438df3a9f5ff1c7259059382bdf50ba0",
+    "report": "docs/reviews/2026-10-10-hosted-ci-d4ca54eb.md",
+    "hosted": "2 terminal workflow validation failures; zero jobs",
+    "local_fix": "uncommitted and unpublished; 16 CI tests passed after sandbox cleanup retry",
+    "ack": "deferred"
+  },
+  "hosted_corrective_checkpoint": {
+    "sha": "9ac925dfa71f3bdf1641106610d0fd528e658cff",
+    "run": 38053615382,
+    "status": "completed/failure",
+    "jobs_passed": 3,
+    "jobs_failed": 4,
+    "report": "docs/reviews/2026-10-10-hosted-ci-9ac925df.md",
+    "node_followup": "uncommitted/unpublished",
+    "ack": "deferred"
+  },
+  "ci_portability_checkpoint": {
+    "report": "docs/reviews/2026-10-10-ci-portability.md",
+    "all_four_local_corrections": "verified and reviewed; hosted pending",
+    "production_security_and_authority": "unchanged",
+    "push": "not authorized",
+    "ack": "deferred"
+  },
+  "hosted_portability_checkpoint": {
+    "sha": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+    "run": 38054824820,
+    "url": "https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/38054824820",
+    "status": "completed",
+    "conclusion": "failure",
+    "updated_at": "2026-10-10T13:16:50Z",
+    "jobs": [
+      {
+        "name": "node-policy",
+        "id": 114221014684,
+        "conclusion": "success",
+        "completed_at": "2026-10-10T13:13:22Z"
+      },
+      {
+        "name": "go (ubuntu-24.04)",
+        "id": 114221014829,
+        "conclusion": "failure",
+        "completed_at": "2026-10-10T13:13:46Z"
+      },
+      {
+        "name": "rust (ubuntu-24.04)",
+        "id": 114221014844,
+        "conclusion": "success",
+        "completed_at": "2026-10-10T13:14:18Z"
+      },
+      {
+        "name": "go (windows-2025)",
+        "id": 114221014848,
+        "conclusion": "failure",
+        "completed_at": "2026-10-10T13:14:15Z"
+      },
+      {
+        "name": "python (ubuntu-24.04)",
+        "id": 114221014871,
+        "conclusion": "success",
+        "completed_at": "2026-10-10T13:13:48Z"
+      },
+      {
+        "name": "rust (windows-2025)",
+        "id": 114221014910,
+        "conclusion": "success",
+        "completed_at": "2026-10-10T13:16:49Z"
+      },
+      {
+        "name": "python (windows-2025)",
+        "id": 114221014936,
+        "conclusion": "success",
+        "completed_at": "2026-10-10T13:14:00Z"
+      }
+    ],
+    "passed": 5,
+    "failed": 2,
+    "running": 0,
+    "diagnosis": {
+      "go_linux": "Known authority/package-version blocker; see FEDERATION_PACKAGE_AUTHORITY_BLOCK.md. No pin change authorized.",
+      "go_windows": "Idempotency/runtime constructor ErrStoragePathRejected (24); exact underlying path/OS cause absent from logs, unresolved. Enrollment ACL failures no longer appear."
+    },
+    "changes": "Evidence only; no further production/test fixes, commits or pushes",
+    "ack": "deferred"
+  },
+  "go_followup_checkpoint": {
+    "report": "docs/reviews/2026-10-10-go-hosted-diagnosis.md",
+    "manifest": "docs/reviews/2026-10-10-go-hosted-diagnosis.json",
+    "windows": "local RED/GREEN and authority package PASS; hosted unconfirmed",
+    "linux": "exact authority delta traced; explicit version/compatibility decision required",
+    "publication": "not authorized; uncommitted",
+    "ack": "deferred"
+  },
+  "federation_version_implementation": {
+    "manifest": "docs/reviews/2026-10-10-federation-version-implementation.json",
+    "base_commit": "2251ea9529fcef54f4e40d3fe5ccc27597126d4e",
+    "status": "verified/reviewed for authorized scoped local commit; unpublished",
+    "python": 41,
+    "node_final": 29,
+    "go_verifier_test_events": 87,
+    "go_client_test_events": 909,
+    "independent_review": "clean after Node unverified-map correction",
+    "hosted": "pending later authorized publication",
+    "ack": "unchanged"
+  },
+  "hosted_c822_checkpoint": {
+    "sha": "c822a0dd75a137f94482420a225e5f81c845fe60",
+    "run": 38057636484,
+    "url": "https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/38057636484",
+    "status": "completed/failure",
+    "passed": 6,
+    "failed": 1,
+    "report": "docs/reviews/2026-10-10-hosted-ci-c822a0dd.md",
+    "remaining": "Windows Go demo storage fixture group; client module fixed; Linux Go fixed",
+    "next_publication": "requires new authorization",
+    "ack": "unchanged"
+  },
+  "demo_windows_fixture_checkpoint": {
+    "report": "docs/reviews/2026-10-10-demo-windows-fixtures.md",
+    "manifest": "docs/reviews/2026-10-10-demo-windows-fixtures.json",
+    "pass_test_events": 73,
+    "skipped_tests": 4,
+    "vet": "PASS",
+    "review": "no blocking findings",
+    "publication": "authorized scoped local commit; unpublished; publication requires specific approval",
+    "hosted": "6 pass / Windows Go demo fail; local correction not hosted yet",
+    "ack": "unchanged"
+  },
+  "hosted_b6af_checkpoint": {
+    "sha": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+    "run": 38058799631,
+    "status": "completed/success",
+    "passed": 7,
+    "failed": 0,
+    "report": "docs/reviews/2026-10-10-hosted-ci-b6afdcdf.md",
+    "manifest": "docs/reviews/2026-10-10-hosted-ci-b6afdcdf.json",
+    "windows_demo": "hosted module tests/vet PASS",
+    "limits": "real-process prerequisites remain outside demonstrated coverage; existing soak ignored",
+    "ack": "unchanged"
+  },
+  "receive_ack_drop_checkpoint": {
+    "base": "b6afdcdfe6daa85f50d633461df050d0e870ee7f",
+    "report": "docs/reviews/2026-10-10-receive-ack-revocation-drop.md",
+    "manifest": "docs/reviews/2026-10-10-receive-ack-revocation-drop.json",
+    "status": "reviewed local uncommitted correction; no publication",
+    "tests": "RED 2 fail; GREEN 2; library111/1ignored; integration4+12; Clippy/default/fmt/diff PASS",
+    "review": "no blocking findings",
+    "authority": "existing pins untouched; new version approval required",
+    "cleanup": "zero matching processes; all supervised children reaped",
+    "next": "stop; no further work or publication"
+  },
+  "receive_ack_authority_checkpoint": {
+    "source": "2cc01bede62b43535ef5f69e241e8d9e79bc9b26",
+    "authority": "NBSR-RECEIVE-ACK-DROP-2026-10-10",
+    "status": "approved implemented reviewed; scoped local commit authorized; no publication",
+    "tests": "103 pass, zero skip; prior temp errors retained",
+    "review": "no blocking findings",
+    "report": "docs/reviews/2026-10-10-receive-ack-authority-implementation.md",
+    "publication": "not authorized"
+  },
+  "paused_peer_close_checkpoint": {
+    "authority_commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+    "status": "test-only characterization; uncommitted",
+    "result": "1 test passed with two variants: observed ApplicationClosed while paused retains4096byte quota; explicit abort or ownerDrop without drive releases to0; final Weak shared stream cannot upgrade. Contract matches; no new runtime defect.",
+    "report": "docs/reviews/2026-10-10-paused-peer-close-characterization.md",
+    "publication": "no push/bypass",
+    "cleanup_inventory": "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-repository-cleanup-proposal.md; read-only; no deletion"
+  },
+  "connector_control_model_checkpoint": {
+    "base": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+    "status": "approved mock-only slice implemented, reviewed, uncommitted; stage1 protocol decisions still open",
+    "tests": "49 model plus 13 frozen-state tests pass; focused Ruff check/format pass; failed attempts retained",
+    "review": "four findings reproduced and fixed; independent final inspection no blocking findings",
+    "report": "docs/reviews/2026-10-10-connector-control-model.md",
+    "manifest": "docs/reviews/2026-10-10-connector-control-model.json",
+    "cleanup": "all supervised children reaped; CIM denied (not zero evidence); Get-Process zero visible Python",
+    "publication": "no commit/push/bypass; no network/credentials/deployment"
+  },
+  "connector_active_work_checkpoint": {
+    "status": "approved mock-only extension complete, uncommitted; stage1 remains partial",
+    "tests": "109 pass:72 model+13 frozen-state+24 federation revocation; zero skips; Ruff check/format pass",
+    "review": "two boundary findings reproduced and fixed; final narrow inspection no blocker",
+    "report": "docs/reviews/2026-10-10-connector-active-work.md",
+    "manifest": "docs/reviews/2026-10-10-connector-active-work.json",
+    "limits": "explicit lease/work fixture policy; no real trust/IO/wire or durable revocation",
+    "cleanup": "all direct test children reaped; zero visible Python processes; no containers created",
+    "publication": "no commit/push/bypass"
+  },
+  "connector_lifetime_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "mock lifetime separation complete, reviewed, uncommitted; stage1 partial",
+    "tests": "125 passed:88 model+13 frozen-state+24 federation revocation; zero skips; Ruff check/format pass",
+    "review": "two findings reproduced and fixed; independent narrow rereview no remaining blocker",
+    "report": "docs/reviews/2026-10-10-connector-lifetime-separation.md",
+    "manifest": "docs/reviews/2026-10-10-connector-lifetime-separation.json",
+    "published_baseline_ci": {
+      "run": 38067741432,
+      "result": "success",
+      "jobs": 7,
+      "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59"
+    },
+    "publication": "new local patch not committed/pushed; baseline was published under prior exact authorization",
+    "cleanup": "all test children reaped; no visible Python processes; no containers created"
+  },
+  "connector_federation_adapter_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "offline mock adapter implemented and independently reviewed; uncommitted; stage1 partial",
+    "tests": "174 passed, zero skips:21 adapter+88 model+65 neighbors; Ruff check/format pass",
+    "review": "duplicate cleanup and recovery-clock-boundary regressions retained and fixed; independent review no remaining blocker",
+    "report": "docs/reviews/2026-10-10-connector-federation-adapter.md",
+    "manifest": "docs/reviews/2026-10-10-connector-federation-adapter.json",
+    "limitations": [
+      "fixture identity association only",
+      "simulated revocation incidents, not authenticated delivery",
+      "no durable replay/revocation store",
+      "real deadline and ownership provenance unresolved"
+    ],
+    "publication": "no new commit/push/bypass",
+    "cleanup": "all supervised test children reaped; zero visible Python after tests; no containers"
+  },
+  "connector_stage1_review_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "stage1 review checkpoint; test-only increment complete; stage1 partial;0/10 complete",
+    "tests": "187 passed:34 adapter+88 model+65 neighbors; zero skips; Ruff and format pass",
+    "review": "independent narrow test review no blockers; no model code changed",
+    "report": "docs/reviews/2026-10-10-connector-stage1-checkpoint.md",
+    "manifest": "docs/reviews/2026-10-10-connector-stage1-checkpoint.json",
+    "publication": "uncommitted; no push/bypass or next task",
+    "remaining_bindings": [
+      "identity/registration right",
+      "live acceptance proof",
+      "ongoing authority/deadline provenance",
+      "dependency ownership",
+      "authenticated event delivery"
+    ],
+    "cleanup": "all supervised children reaped; no visible Python after tests; no containers"
+  },
+  "connector_registration_offline_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "offline CRP-1 vectors implemented; Stage 1 partial; 0/10 stages complete",
+    "tests": "338 passed, zero failed/skipped:83 CRP+187 previous scope rerun+68 CBOR",
+    "review": "independent narrow review found four defects, fixed and rereviewed; final callback/deadline fix reviewed",
+    "report": "docs/reviews/2026-10-10-connector-registration-offline.md",
+    "manifest": "docs/reviews/2026-10-10-connector-registration-offline.json",
+    "publication": "none; no runtime trust or allocation",
+    "remaining": [
+      "safe long-lived replay retention",
+      "registry/carrier allocation",
+      "authenticated registration-chain vectors and event producer",
+      "production clock/transport deadline policy",
+      "independent stateful/wire conformance",
+      "final profile/interface acceptance"
+    ],
+    "cleanup": "15 supervised children reaped; no abort; no task-created containers/background workers"
+  },
+  "connector_counter_amendment_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "counter amendment implemented; Stage 1 partial; 0/10 complete",
+    "tests": "358 passed, zero failed/skipped",
+    "report": "docs/reviews/2026-10-10-connector-counter-amendment.md",
+    "manifest": "docs/reviews/2026-10-10-connector-counter-amendment.json",
+    "remaining_stage1": "approve Go/Rust ownership seam and destination gateway location; final contract acceptance",
+    "next_stage": "Stage 2 strict schema/configuration and side-effect-free preflight after selection",
+    "cleanup": "12 supervised children reaped, no abort; no task-created containers/background workers",
+    "publication": "none"
+  },
+  "single_instance_preflight_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "Stage 1 offline contract and Stage 2 offline configuration gates complete; 2/10",
+    "report": "docs/reviews/2026-10-10-single-instance-preflight.md",
+    "manifest": "docs/reviews/2026-10-10-single-instance-preflight.json",
+    "tests": {
+      "preflight": 62,
+      "crp": 103,
+      "model_federation": 187,
+      "cbor": 68,
+      "total": 420,
+      "failed": 0,
+      "skipped": 0
+    },
+    "review": "two findings fixed and independently rereviewed; no remaining scoped blockers",
+    "next_gate": "separate reviewed pre-wire allocations/authority before Stage 3 authenticated runtime activation",
+    "cleanup": "10 supervised children reaped, no abort; no task-created containers/background workers",
+    "publication": "none; changes uncommitted, index empty"
+  },
+  "gateway_text64_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "Stage 2 offline closure restored after canonical gateway text64 correction; 2/10",
+    "report": "docs/reviews/2026-10-10-gateway-text64-correction.md",
+    "manifest": "docs/reviews/2026-10-10-gateway-text64-correction.json",
+    "tests": {
+      "configuration": 101,
+      "crp": 103,
+      "neighbors": 187,
+      "cbor": 68,
+      "total": 459,
+      "failed": 0,
+      "skipped": 0
+    },
+    "review": "independent narrow review: no blockers",
+    "cleanup": "5 supervised children reaped, no abort; no containers/background workers",
+    "uncommitted": true
+  },
+  "connector_development_incomplete_handoff": {
+    "timestamp_utc": "2026-10-10T19:15:00Z",
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "INCOMPLETE development-only work; preserved without further implementation after elapsed overnight cutoff",
+    "last_owner_run": "4 passed, 2 failed; later edits untested",
+    "go_coordinator": "implementation written after expected availability failure; substantive tests and review pending",
+    "remaining": [
+      "Run current Rust owner regressions; add stale-proof, freshness, timeout cleanup, and authority-deadline boundary coverage",
+      "Replace Go coordinator availability test with deterministic lifecycle/negative fixtures; inspect reconnect/session reuse and pre-send counter consumption",
+      "Complete independent review, source-pin checks, formatting, registry/vector validation and scope documentation",
+      "No live transport/authenticated authority conformance established"
+    ],
+    "cleanup": "Read-only Get-Process found no visible python/cargo/rustc/go processes at handoff; no resources started in handoff turn",
+    "publication": "none; existing dirty and untracked work preserved",
+    "manifest": "docs/reviews/2026-10-10-connector-development-handoff.json"
+  },
+  "connector_development_final_checkpoint": {
+    "timestamp_utc": "2026-10-10T19:27:12.207286+00:00",
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "approved code-only development slice completed; Stage 3 partial; 2/10 complete",
+    "tests": {
+      "python": 462,
+      "rust_codec": 1,
+      "rust_owner": 13,
+      "go_top_level": {
+        "connector": 12,
+        "cbor": 3
+      },
+      "go_pass_events": {
+        "connector": 58,
+        "cbor": 10
+      },
+      "final_failed": 0,
+      "final_skipped": 0
+    },
+    "report": "docs/reviews/2026-10-10-connector-development.md",
+    "publication": "none; uncommitted; index empty",
+    "cleanup": "all supervised direct children reaped; no abort; zero visible relevant processes at final read-only check; no task containers or background workers",
+    "remaining_real_stage3": [
+      "production client integration",
+      "authenticated Go/Rust transport and authority composition",
+      "real exporter and revocation provenance",
+      "async timers/cancellation and cleanup",
+      "independent live conformance and READY acceptance"
+    ],
+    "manifest": "docs/reviews/2026-10-10-connector-development.json"
+  },
+  "_publication_derivative": {
+    "original_sha256": "c6f62e6f8173d6dc6cb4c63df41186cf90b97d20a953476d0bc169d19ab6b2e9",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

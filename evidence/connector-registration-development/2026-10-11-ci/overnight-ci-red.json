@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-ci-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/ci/test_ci.py",
+    "-k",
+    "connector"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.02,
+  "disk_start": 11653214208,
+  "disk_end": 11653144576,
+  "ram_end": 4681297920,
+  "direct_child_reaped": true
+}

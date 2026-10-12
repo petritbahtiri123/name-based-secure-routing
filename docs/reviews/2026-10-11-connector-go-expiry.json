@@ -1,0 +1,199 @@
+{
+  "timestamp_utc": "2026-10-10T20:56:09.902775+00:00",
+  "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "checkpoint": {
+    "slice": "go-observed-expiry",
+    "report": "docs/reviews/2026-10-11-connector-go-expiry.md",
+    "manifest": "docs/reviews/2026-10-11-connector-go-expiry.json",
+    "go_counts": {
+      "nbsr.local/interop/nbsr-go-peer/internal/cbor": {
+        "pass_events": 10,
+        "pass_top_level": 3
+      },
+      "nbsr.local/interop/nbsr-go-peer/connector": {
+        "pass_events": 71,
+        "pass_top_level": 21,
+        "skip_events": 1,
+        "skip_top_level": 1
+      }
+    },
+    "review": "clear",
+    "cleanup": "all children reaped; no visible relevant workers; no sockets/containers",
+    "limits": "observed owner expiry only, not general monotonic clock"
+  },
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-expiry-green",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "^TestObservedOwnerExpiryCannotResurrectAfterClockRollback$",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.61,
+      "disk_start": 11704336384,
+      "disk_end": 11702480896,
+      "ram_end": 4609957888,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-expiry-neighbors",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "./internal/cbor",
+        "-count=1",
+        "-json"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.41,
+      "disk_start": 11686219776,
+      "disk_end": 11686154240,
+      "ram_end": 4669636608,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-expiry-paths-green",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "TestObservedOwnerExpiry|TestRenewalExpiryObservation",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.61,
+      "disk_start": 11700473856,
+      "disk_end": 11698577408,
+      "ram_end": 4582805504,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-expiry-paths-red",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "^TestRenewalExpiryObservationCannotBeUndoneByRollback$",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.61,
+      "disk_start": 11702468608,
+      "disk_end": 11700539392,
+      "ram_end": 4678078464,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-expiry-red",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "test",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "-run",
+        "^TestObservedOwnerExpiryCannotResurrectAfterClockRollback$",
+        "-count=1"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.61,
+      "disk_start": 11706695680,
+      "disk_end": 11704320000,
+      "ram_end": 4617670656,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "overnight-go-expiry-vet",
+      "argv": [
+        "go",
+        "-C",
+        "interop/nbsr-go-peer",
+        "vet",
+        "-tags",
+        "connector_development",
+        "./connector",
+        "./internal/cbor"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 1.01,
+      "disk_start": 11686154240,
+      "disk_end": 11686154240,
+      "ram_end": 4686995456,
+      "direct_child_reaped": true
+    }
+  ],
+  "hashes": {
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.json": "4d86a055d47c64613dd11cecc11f766677f166912ab66f5c0089affc7a56f24d",
+    "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-11.md": "e6f702e09f60f06f85c44f9c3f959fc8462ebfec1d897c3e90a94bebdb2e0ddc",
+    "docs/reviews/2026-10-11-connector-go-expiry.md": "ca56b79f5b8122407aedeefef2ce51dfec3707a202483af952c4c00accae1575",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/coordinator.go.patch": "42ba64fbd19593360f7fb6f2c8ab2bd4b56783a40e5c7e34afa28bd8edceae7f",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/coordinator.go.snapshot": "6c6a20688b68e9fff64a5b7c19d03b45a44c3910a0f4ac9bca0c6ebb7f6b7694",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/coordinator_test.go.patch": "2a0b79eaef3fdede6c4f5d9faa947c23fb0837fa9522f0905f8f626a520090fb",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/coordinator_test.go.snapshot": "8f5391cf72c7b8c572f1e083b6ff10b384a7b70bdbc99503453bac4c36af2b78",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/nbsr-ci-clean-check.py": "f14d97f2153e7b507161a446a1ae86b7bf7f4bdcc280b7cd5a8ad73fcef558ca",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/nbsr-go-expiry-before-test.go": "29247d997f74dcc80be549c65c6982d8149d1c9a31daba2cffe0951cb72cd52f",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/nbsr-go-expiry-before.go": "ef72be324e85a9a7f5f636ea53b45f0453803f992a8e961ef54e30b0ffb3097d",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/nbsr-owned-revoke-check.py": "36a829667b4ca77eb76deb6a027ee1475c14f6197687d117b7682f5e421e0410",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-green.json": "27f904c991a1bb5cb8542858dff7dab8c64f8bc5cfde28cca028f7fe818edc2d",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-green.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-green.stdout.log": "d6e4a6e680c215c73b94d30abff3aba7c224cfbc680f72d476a5692ca5747c48",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-neighbors.json": "b609cac095162180003894544fc6a13ffd20faedf8db3e3a9d12821c464a69c9",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-neighbors.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-neighbors.stdout.log": "986f27a5f47477f7ff65c5db92aeaa7faa0ab55da23c0459da738e541cee1450",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-paths-green.json": "d9f37072df260d3abc6125b3837b942ec4c3fa2e73ffef656ae3fbc2bb25fdff",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-paths-green.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-paths-green.stdout.log": "d6e4a6e680c215c73b94d30abff3aba7c224cfbc680f72d476a5692ca5747c48",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-paths-red.json": "373c3a845a622a827ac0b2c7f258d33942f9e712b9c85a37c0e7df9a1f240b37",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-paths-red.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-paths-red.stdout.log": "811b63bb414c19943fa0bab00ea0c637e880ccbfee006995840f63f4bc4b80df",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-red.json": "72a5b0a24d1b7aea6ee335d03d22b24327f46af388020052be2e196e4f276c8b",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-red.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-red.stdout.log": "34b032301ed1df27d1fb58388c861799e44c5eb4c191fd86ec82ff542ab5f12c",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-vet.json": "1ab2bd7f37d433884f7b9dc2e1df1ab1e52aef5db5d29530a41fe3c7bac908ae",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-vet.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/overnight-go-expiry-vet.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/connector-registration-development/2026-10-11-go-expiry/review.txt": "a228c34107812db882742d4fc4606f24558a04d2ccd36aff3ac86a26e8ab7dbc",
+    "interop/nbsr-go-peer/connector/coordinator.go": "6c6a20688b68e9fff64a5b7c19d03b45a44c3910a0f4ac9bca0c6ebb7f6b7694",
+    "interop/nbsr-go-peer/connector/coordinator_test.go": "8f5391cf72c7b8c572f1e083b6ff10b384a7b70bdbc99503453bac4c36af2b78",
+    "interop/nbsr-go-peer/connector/README.md": "3993389559b728d2f324ce1f91a21eeeedcb1ba39e3ef0e26724a44fe4735cd1",
+    "interop/nbsr-go-peer/go.mod": "a213be88bea938c0a6954762f7d86cd36583be721ee67f6dd3a8fa2fca33fd7f",
+    "interop/nbsr-go-peer/go.sum": "ae98d0b5699ee49aac22fae53a0eb50a7184dbc64c84b1ff46e3e015390cc6cb"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "inclusion-v2-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_revocation_inclusion_v2.py",
+    "tests/federation/test_normal_revocation_witness_integration.py",
+    "tests/federation/test_normal_revocation_conformance.py",
+    "tests/federation/test_witness_thresholds.py",
+    "tests/federation/test_transparency.py",
+    "tests/federation/test_threshold_container_supplement.py",
+    "tests/federation/test_revocation.py",
+    "tests/ci/test_ci.py::test_revocation_inclusion_v2_selection_stays_local"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 4.83,
+  "disk_start": 11965804544,
+  "disk_end": 11965808640,
+  "ram_end": 3036291072,
+  "direct_child_reaped": true
+}

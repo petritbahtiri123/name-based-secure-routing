@@ -1,0 +1,27 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected-neighbors",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_control",
+    "--test",
+    "connector_registration",
+    "--test",
+    "connector_signature"
+  ],
+  "exit_code": 1,
+  "abort": "RAM guard",
+  "elapsed_seconds": 4.22,
+  "disk_start": 11814203392,
+  "disk_end": 11745234944,
+  "ram_end": 2437328896,
+  "direct_child_reaped": true
+}

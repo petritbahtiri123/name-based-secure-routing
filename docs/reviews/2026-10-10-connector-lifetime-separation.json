@@ -1,0 +1,278 @@
+{
+  "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "status": "mock lifetime separation complete, reviewed, uncommitted; stage1 partial",
+  "tests": "125 passed:88 model+13 frozen-state+24 federation revocation; zero skips; Ruff check/format pass",
+  "review": "two findings reproduced and fixed; independent narrow rereview no remaining blocker",
+  "report": "docs/reviews/2026-10-10-connector-lifetime-separation.md",
+  "manifest": "docs/reviews/2026-10-10-connector-lifetime-separation.json",
+  "published_baseline_ci": {
+    "run": 38067741432,
+    "result": "success",
+    "jobs": 7,
+    "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59"
+  },
+  "publication": "new local patch not committed/pushed; baseline was published under prior exact authorization",
+  "cleanup": {
+    "direct_children_reaped": true,
+    "visible_python_processes_after_tests": 0,
+    "containers_created": 0
+  },
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 12361,
+      "sha256": "e0bbbc34ba5462ee7caa438a0b2f1eadb77c5a4426ab709453c9c3dd3d571675"
+    },
+    {
+      "path": "nbsr/connector_control_model.py",
+      "bytes": 15180,
+      "sha256": "1416063afb2a55861034422fdbd026ac0e0c6218af774904aa6040edc7717498"
+    },
+    {
+      "path": "tests/test_connector_control_model.py",
+      "bytes": 25692,
+      "sha256": "8b1e164ac2e035ded9a0b01046d6e08b62d314c7a79d3ed052c006ae65c26271"
+    },
+    {
+      "path": "docs/protocol/connector-outbound-profile.md",
+      "bytes": 46948,
+      "sha256": "0d3bd6c29ee08125ae8bc649acd2f2952537eb804c5a477119cacd992de7bb7c"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-single-instance-operator-package.md",
+      "bytes": 49524,
+      "sha256": "8f667a5906f0f448a29ecc07fc56c819f8e5e954cb87baf6ccbcd0fcb57e3923"
+    },
+    {
+      "path": "docs/reviews/2026-10-10-connector-lifetime-separation.md",
+      "bytes": 4472,
+      "sha256": "9a327a80eefedaf55fe0a64d67991a8774057478a9a4c195821eb511ff55cffc"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md",
+      "bytes": 36142,
+      "sha256": "a9d70031c4f7db53c40d8cf46054736e5acfbc09180fc50ea69cf82e04c900f7"
+    },
+    {
+      "path": "docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json",
+      "bytes": 31726,
+      "sha256": "e53fd26009ecf327daf94ef6d9ccb56d8379e4c9e273be64aa5ba2fdd5da2f90"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-final.json",
+      "bytes": 517,
+      "sha256": "4f7bd8923ca7db7636b614f1047f4cd97d7e349d80ddf4e8ba1dd2524108bac6"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-final.patch",
+      "bytes": 26764,
+      "sha256": "68f8978a718819fae00c4c334576343aee2123ca03ba310abfe40dded9466a22"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-final.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-final.stdout.log",
+      "bytes": 183,
+      "sha256": "bff4ffc8d4286447e038b773b40a7cd890683275e22b290da5b272f3c65a3f93"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-grace-red.json",
+      "bytes": 500,
+      "sha256": "9309aab6b9d7880ba2b953a6f797a0b8302f22bde93b4d0494e31f0e876ca80a"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-grace-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-grace-red.stdout.log",
+      "bytes": 3305,
+      "sha256": "7cbe847813016337a5a6e5558c89497480da1da87fa0efc9b391a2bd36b89e0e"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-green.json",
+      "bytes": 517,
+      "sha256": "f064c1f3a2da7de565935c5af115397de7667d9427bf2262125cde4e7d105de4"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-green.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-green.stdout.log",
+      "bytes": 183,
+      "sha256": "ef8330c4c52356c4bb832589ed7825e51ade63ef687f0455c0d79f9322655a01"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-red.json",
+      "bytes": 594,
+      "sha256": "a2271fe553e19a004e17a04bb5526aa83e7dedff62548b2ff821bccfa46d996e"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-red.stdout.log",
+      "bytes": 9759,
+      "sha256": "01b5a9132097963c5cd016f1f9a4dcbd87581d132dec45282a4db642828ac092"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-renew-red.json",
+      "bytes": 488,
+      "sha256": "edcdcdf2a1b2fc5c6cbdef1c191bfad0ffac567578d9c59d50bf6113dc444ab6"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-renew-red.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/connector-lifetime-renew-red.stdout.log",
+      "bytes": 1691,
+      "sha256": "b0a456caeb5c4bf13a1de7d2e42150083efd6194e909bc48266d237f1abe1045"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/lifetime-final-connector_control_model.py.snapshot",
+      "bytes": 15180,
+      "sha256": "1416063afb2a55861034422fdbd026ac0e0c6218af774904aa6040edc7717498"
+    },
+    {
+      "path": "evidence/connector-control-model/2026-10-10/lifetime-final-test_connector_control_model.py.snapshot",
+      "bytes": 25692,
+      "sha256": "8b1e164ac2e035ded9a0b01046d6e08b62d314c7a79d3ed052c006ae65c26271"
+    }
+  ],
+  "runs": [
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-lifetime-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "-k",
+        "admission_only or late_poll or valid_work_renewal or enforcement_overrides or grace_cannot or work_cannot or changed_profile or invalid_grace"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.82,
+      "disk_start": 12310867968,
+      "disk_end": 12310790144,
+      "ram_end": 4547690496,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-lifetime-green",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "tests/protocol/test_states.py",
+        "tests/federation/test_revocation.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.22,
+      "disk_start": 12310585344,
+      "disk_end": 12310585344,
+      "ram_end": 4620918784,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-lifetime-grace-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "-k",
+        "fresh_shorter_grace or larger_fresh_grace"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.42,
+      "disk_start": 12311220224,
+      "disk_end": 12311150592,
+      "ram_end": 4639055872,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-lifetime-renew-red",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "-k",
+        "registration_renewal_crossing"
+      ],
+      "exit_code": 1,
+      "abort": null,
+      "elapsed_seconds": 2.42,
+      "disk_start": 12311093248,
+      "disk_end": 12311089152,
+      "ram_end": 4601217024,
+      "direct_child_reaped": true
+    },
+    {
+      "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+      "label": "connector-lifetime-final",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_connector_control_model.py",
+        "tests/protocol/test_states.py",
+        "tests/federation/test_revocation.py"
+      ],
+      "exit_code": 0,
+      "abort": null,
+      "elapsed_seconds": 2.22,
+      "disk_start": 12310224896,
+      "disk_end": 12310224896,
+      "ram_end": 4591374336,
+      "direct_child_reaped": true
+    }
+  ],
+  "test_counts": {
+    "model": 88,
+    "states": 13,
+    "revocation": 24,
+    "total": 125,
+    "skipped": 0
+  },
+  "intermediate_source_limit": "red run source snapshots not retained; final snapshot and patch retained",
+  "reviewer": "connector_model_review",
+  "checks": {
+    "ruff": "pass",
+    "format": "pass",
+    "scoped_diff_check": "pass"
+  }
+}

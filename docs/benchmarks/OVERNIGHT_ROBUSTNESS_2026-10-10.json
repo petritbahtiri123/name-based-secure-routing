@@ -686,5 +686,365 @@
     "review": "no blocking findings",
     "report": "docs/reviews/2026-10-10-receive-ack-authority-implementation.md",
     "publication": "not authorized"
+  },
+  "paused_peer_close_checkpoint": {
+    "authority_commit": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+    "status": "test-only characterization; uncommitted",
+    "result": "1 test passed with two variants: observed ApplicationClosed while paused retains4096byte quota; explicit abort or ownerDrop without drive releases to0; final Weak shared stream cannot upgrade. Contract matches; no new runtime defect.",
+    "report": "docs/reviews/2026-10-10-paused-peer-close-characterization.md",
+    "publication": "no push/bypass",
+    "cleanup_inventory": "@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-repository-cleanup-proposal.md; read-only; no deletion"
+  },
+  "connector_control_model_checkpoint": {
+    "base": "fb587d76fe2cf691a9caa9c278f4db4da46298b4",
+    "status": "approved mock-only slice implemented, reviewed, uncommitted; stage1 protocol decisions still open",
+    "tests": "49 model plus 13 frozen-state tests pass; focused Ruff check/format pass; failed attempts retained",
+    "review": "four findings reproduced and fixed; independent final inspection no blocking findings",
+    "report": "docs/reviews/2026-10-10-connector-control-model.md",
+    "manifest": "docs/reviews/2026-10-10-connector-control-model.json",
+    "cleanup": "all supervised children reaped; CIM denied (not zero evidence); Get-Process zero visible Python",
+    "publication": "no commit/push/bypass; no network/credentials/deployment"
+  },
+  "connector_active_work_checkpoint": {
+    "status": "approved mock-only extension complete, uncommitted; stage1 remains partial",
+    "tests": "109 pass:72 model+13 frozen-state+24 federation revocation; zero skips; Ruff check/format pass",
+    "review": "two boundary findings reproduced and fixed; final narrow inspection no blocker",
+    "report": "docs/reviews/2026-10-10-connector-active-work.md",
+    "manifest": "docs/reviews/2026-10-10-connector-active-work.json",
+    "limits": "explicit lease/work fixture policy; no real trust/IO/wire or durable revocation",
+    "cleanup": "all direct test children reaped; zero visible Python processes; no containers created",
+    "publication": "no commit/push/bypass"
+  },
+  "connector_lifetime_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "mock lifetime separation complete, reviewed, uncommitted; stage1 partial",
+    "tests": "125 passed:88 model+13 frozen-state+24 federation revocation; zero skips; Ruff check/format pass",
+    "review": "two findings reproduced and fixed; independent narrow rereview no remaining blocker",
+    "report": "docs/reviews/2026-10-10-connector-lifetime-separation.md",
+    "manifest": "docs/reviews/2026-10-10-connector-lifetime-separation.json",
+    "published_baseline_ci": {
+      "run": 38067741432,
+      "result": "success",
+      "jobs": 7,
+      "head": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59"
+    },
+    "publication": "new local patch not committed/pushed; baseline was published under prior exact authorization",
+    "cleanup": "all test children reaped; no visible Python processes; no containers created"
+  },
+  "connector_federation_adapter_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "offline mock adapter implemented and independently reviewed; uncommitted; stage1 partial",
+    "tests": "174 passed, zero skips:21 adapter+88 model+65 neighbors; Ruff check/format pass",
+    "review": "duplicate cleanup and recovery-clock-boundary regressions retained and fixed; independent review no remaining blocker",
+    "report": "docs/reviews/2026-10-10-connector-federation-adapter.md",
+    "manifest": "docs/reviews/2026-10-10-connector-federation-adapter.json",
+    "limitations": [
+      "fixture identity association only",
+      "simulated revocation incidents, not authenticated delivery",
+      "no durable replay/revocation store",
+      "real deadline and ownership provenance unresolved"
+    ],
+    "publication": "no new commit/push/bypass",
+    "cleanup": "all supervised test children reaped; zero visible Python after tests; no containers"
+  },
+  "connector_stage1_review_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "stage1 review checkpoint; test-only increment complete; stage1 partial;0/10 complete",
+    "tests": "187 passed:34 adapter+88 model+65 neighbors; zero skips; Ruff and format pass",
+    "review": "independent narrow test review no blockers; no model code changed",
+    "report": "docs/reviews/2026-10-10-connector-stage1-checkpoint.md",
+    "manifest": "docs/reviews/2026-10-10-connector-stage1-checkpoint.json",
+    "publication": "uncommitted; no push/bypass or next task",
+    "remaining_bindings": [
+      "identity/registration right",
+      "live acceptance proof",
+      "ongoing authority/deadline provenance",
+      "dependency ownership",
+      "authenticated event delivery"
+    ],
+    "cleanup": "all supervised children reaped; no visible Python after tests; no containers"
+  },
+  "connector_registration_offline_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "offline CRP-1 vectors implemented; Stage 1 partial; 0/10 stages complete",
+    "tests": "338 passed, zero failed/skipped:83 CRP+187 previous scope rerun+68 CBOR",
+    "review": "independent narrow review found four defects, fixed and rereviewed; final callback/deadline fix reviewed",
+    "report": "docs/reviews/2026-10-10-connector-registration-offline.md",
+    "manifest": "docs/reviews/2026-10-10-connector-registration-offline.json",
+    "publication": "none; no runtime trust or allocation",
+    "remaining": [
+      "safe long-lived replay retention",
+      "registry/carrier allocation",
+      "authenticated registration-chain vectors and event producer",
+      "production clock/transport deadline policy",
+      "independent stateful/wire conformance",
+      "final profile/interface acceptance"
+    ],
+    "cleanup": "15 supervised children reaped; no abort; no task-created containers/background workers"
+  },
+  "connector_counter_amendment_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "counter amendment implemented; Stage 1 partial; 0/10 complete",
+    "tests": "358 passed, zero failed/skipped",
+    "report": "docs/reviews/2026-10-10-connector-counter-amendment.md",
+    "manifest": "docs/reviews/2026-10-10-connector-counter-amendment.json",
+    "remaining_stage1": "approve Go/Rust ownership seam and destination gateway location; final contract acceptance",
+    "next_stage": "Stage 2 strict schema/configuration and side-effect-free preflight after selection",
+    "cleanup": "12 supervised children reaped, no abort; no task-created containers/background workers",
+    "publication": "none"
+  },
+  "single_instance_preflight_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "Stage 1 offline contract and Stage 2 offline configuration gates complete; 2/10",
+    "report": "docs/reviews/2026-10-10-single-instance-preflight.md",
+    "manifest": "docs/reviews/2026-10-10-single-instance-preflight.json",
+    "tests": {
+      "preflight": 62,
+      "crp": 103,
+      "model_federation": 187,
+      "cbor": 68,
+      "total": 420,
+      "failed": 0,
+      "skipped": 0
+    },
+    "review": "two findings fixed and independently rereviewed; no remaining scoped blockers",
+    "next_gate": "separate reviewed pre-wire allocations/authority before Stage 3 authenticated runtime activation",
+    "cleanup": "10 supervised children reaped, no abort; no task-created containers/background workers",
+    "publication": "none; changes uncommitted, index empty"
+  },
+  "gateway_text64_checkpoint": {
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "Stage 2 offline closure restored after canonical gateway text64 correction; 2/10",
+    "report": "docs/reviews/2026-10-10-gateway-text64-correction.md",
+    "manifest": "docs/reviews/2026-10-10-gateway-text64-correction.json",
+    "tests": {
+      "configuration": 101,
+      "crp": 103,
+      "neighbors": 187,
+      "cbor": 68,
+      "total": 459,
+      "failed": 0,
+      "skipped": 0
+    },
+    "review": "independent narrow review: no blockers",
+    "cleanup": "5 supervised children reaped, no abort; no containers/background workers",
+    "uncommitted": true
+  },
+  "connector_development_incomplete_handoff": {
+    "timestamp_utc": "2026-10-10T19:15:00Z",
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "INCOMPLETE development-only work; preserved without further implementation after elapsed overnight cutoff",
+    "last_owner_run": "4 passed, 2 failed; later edits untested",
+    "go_coordinator": "implementation written after expected availability failure; substantive tests and review pending",
+    "remaining": [
+      "Run current Rust owner regressions; add stale-proof, freshness, timeout cleanup, and authority-deadline boundary coverage",
+      "Replace Go coordinator availability test with deterministic lifecycle/negative fixtures; inspect reconnect/session reuse and pre-send counter consumption",
+      "Complete independent review, source-pin checks, formatting, registry/vector validation and scope documentation",
+      "No live transport/authenticated authority conformance established"
+    ],
+    "cleanup": "Read-only Get-Process found no visible python/cargo/rustc/go processes at handoff; no resources started in handoff turn",
+    "publication": "none; existing dirty and untracked work preserved",
+    "manifest": "docs/reviews/2026-10-10-connector-development-handoff.json"
+  },
+  "connector_development_final_checkpoint": {
+    "timestamp_utc": "2026-10-10T19:27:12.207286+00:00",
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "approved code-only development slice completed; Stage 3 partial; 2/10 complete",
+    "tests": {
+      "python": 462,
+      "rust_codec": 1,
+      "rust_owner": 13,
+      "go_top_level": {
+        "connector": 12,
+        "cbor": 3
+      },
+      "go_pass_events": {
+        "connector": 58,
+        "cbor": 10
+      },
+      "final_failed": 0,
+      "final_skipped": 0
+    },
+    "report": "docs/reviews/2026-10-10-connector-development.md",
+    "publication": "none; uncommitted; index empty",
+    "cleanup": "all supervised direct children reaped; no abort; zero visible relevant processes at final read-only check; no task containers or background workers",
+    "remaining_real_stage3": [
+      "production client integration",
+      "authenticated Go/Rust transport and authority composition",
+      "real exporter and revocation provenance",
+      "async timers/cancellation and cleanup",
+      "independent live conformance and READY acceptance"
+    ],
+    "manifest": "docs/reviews/2026-10-10-connector-development.json"
+  },
+  "connector_async_cleanup_checkpoint": {
+    "timestamp_utc": "2026-10-10T19:34:17.183093+00:00",
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "bounded Go asynchronous cleanup fixture adapter complete; real Stage 3 partial; 2/10",
+    "tests": {
+      "new_cleanup_top_level": 7,
+      "new_cleanup_subtests": 2,
+      "go_top_level": {
+        "cbor": 3,
+        "connector": 19
+      },
+      "go_pass_events": {
+        "cbor": 10,
+        "connector": 67
+      },
+      "failed": 0,
+      "skipped": 0,
+      "race_detector": "not run"
+    },
+    "report": "docs/reviews/2026-10-10-connector-async-cleanup.md",
+    "cleanup": "7 supervised children reaped; no abort; zero visible relevant processes; no task containers or background workers",
+    "publication": "none; index empty; uncommitted",
+    "remaining": [
+      "real backend bounded completion",
+      "Rust asynchronous cleanup composition",
+      "authenticated transport/authority and revocation providers",
+      "independent live Go/Rust conformance"
+    ],
+    "next_authorization_boundary": "real authenticated providers/live activation or new lifetime/security policy; none selected",
+    "manifest": "docs/reviews/2026-10-10-connector-async-cleanup.json"
+  },
+  "connector_stage3_code_checkpoint": {
+    "timestamp_utc": "2026-10-10T19:42:27.675343+00:00",
+    "base": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+    "status": "Go/Rust code-only development and async cleanup fixtures complete; real Stage 3 partial; 2/10",
+    "report": "docs/reviews/2026-10-10-connector-stage3-code-checkpoint.md",
+    "fresh_tests": {
+      "rust_codec": 1,
+      "rust_owner": 18,
+      "new_async": 5,
+      "failed": 0,
+      "ignored": 0
+    },
+    "retained_tests_not_rerun": {
+      "go_top_level": {
+        "cbor": 3,
+        "connector": 19
+      },
+      "go_pass_events": {
+        "cbor": 10,
+        "connector": 67
+      },
+      "python": 462
+    },
+    "not_run": [
+      "live backend/network/credentials/trust",
+      "live Go/Rust authenticated registration",
+      "actual exporter/authority/revocation composition",
+      "real backend bounded completion",
+      "race detector",
+      "full repository suite",
+      "production/deployment/WAN/capacity"
+    ],
+    "publication": "none; uncommitted; index empty",
+    "cleanup": "all six latest supervised direct children reaped; no abort; zero visible relevant processes; no task containers/background workers",
+    "next_security_authorization": "review exact real transport/authority-provider bindings before implementation/activation; separately approve any new lifetime or forced-release policy",
+    "manifest": "docs/reviews/2026-10-10-connector-stage3-code-checkpoint.json"
+  },
+  "connector_loopback_checkpoint": {
+    "timestamp_utc": "2026-10-10T20:13:17.982023+00:00",
+    "report": "docs/reviews/2026-10-10-connector-loopback.md",
+    "manifest": "docs/reviews/2026-10-10-connector-loopback.json",
+    "live_cases_passed": 19,
+    "rust_neighbors_passed": 19,
+    "go_counts": {
+      "nbsr.local/interop/nbsr-go-peer/connector": {
+        "pass_events": 67,
+        "top_level_pass": 19,
+        "skip_events": 1,
+        "fail_events": 0
+      },
+      "nbsr.local/interop/nbsr-go-peer/internal/cbor": {
+        "pass_events": 10,
+        "top_level_pass": 3,
+        "skip_events": 0,
+        "fail_events": 0
+      }
+    },
+    "cleanup": {
+      "observed_pids": [
+        376,
+        3032,
+        3688,
+        4048,
+        4172,
+        5076,
+        6852,
+        8224,
+        10152,
+        11860,
+        11904,
+        11952,
+        12044,
+        12280,
+        16512,
+        16636,
+        17056,
+        17168,
+        18264,
+        18336
+      ],
+      "remaining_processes": [],
+      "remaining_udp_endpoints": [],
+      "socket_query": "netstat -ano -p udp",
+      "earlier_query_failure": "Get-NetUDPEndpoint CIM unavailable; first netstat attempt had no PIDs because fixture compile failed, invalid check retained separately"
+    },
+    "status": "isolated real TLS/control interoperability; synthetic authority/revocation/clock; Stage 3 partial, 2/10"
+  },
+  "signed_authority_offline_checkpoint": {
+    "report": "docs/reviews/2026-10-10-connector-signed-authority.md",
+    "manifest": "docs/reviews/2026-10-10-connector-signed-authority.json",
+    "passed": 444,
+    "deselected": 5,
+    "focused_passed": 43,
+    "status": "offline signed fixtures only; live integration, revocation delivery and real timers remain; Stage 3 partial; 2/10",
+    "review": "clear after clock rollback fix",
+    "cleanup": "all supervised direct children reaped; no visible Python/Cargo/rustc/Go workers; no sockets or containers created"
+  },
+  "authority_timer_offline_checkpoint": {
+    "report": "docs/reviews/2026-10-10-connector-authority-timer.md",
+    "manifest": "docs/reviews/2026-10-10-connector-authority-timer.json",
+    "passed": 432,
+    "timer_tests": 31,
+    "failed": 0,
+    "skipped": 0,
+    "status": "offline sampled-clock fixture adapter; Stage3 partial, 2/10",
+    "review": "clear after scripted clock regressions/fix",
+    "remaining": "real receipt packaging/threshold approval; live provider/timer scope authorization",
+    "cleanup": "all supervised children reaped; no visible relevant workers; no task sockets/containers"
+  },
+  "connected_authority_owner_checkpoint": {
+    "status": "INCOMPLETE: resource-guard stop; four independent-review blockers remain",
+    "manifest": "docs/reviews/2026-10-11-connected-authority-owner-checkpoint.json",
+    "report": "docs/reviews/2026-10-11-connected-authority-owner-checkpoint.md",
+    "native_passed": 6,
+    "python_passed": 77,
+    "rust_neighbors": "RAM guard abort; not complete",
+    "runtime_enabled": false,
+    "live_enabled": false,
+    "stage_status": "Stage 3 partial; 2/10 stages complete"
+  },
+  "connected_authority_owner_implementation": {
+    "status": "reviewed local supplied-test-trust negative-enforcement slice; four blockers resolved",
+    "report": "docs/reviews/2026-10-11-connected-authority-owner-implementation.md",
+    "manifest": "docs/reviews/2026-10-11-connected-authority-owner-implementation.json",
+    "rust_passed": 44,
+    "python_unique_passed": 159,
+    "review": "no remaining scoped blocker",
+    "stage_status": "Stage 3 partial; 2/10 overall",
+    "runtime_enabled": false,
+    "registration_ready": false,
+    "cleanup": "all supervised children reaped; exact timeout children absent; no task sockets/containers"
+  },
+  "_publication_derivative": {
+    "original_sha256": "2b766664d227acd6578bb30ff7ffde3376c306caedfc1fcd4b5d6fa4d67ceab8",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
   }
 }

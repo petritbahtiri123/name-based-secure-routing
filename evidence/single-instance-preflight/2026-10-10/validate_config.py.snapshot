@@ -1,0 +1,260 @@
+"""Strict, offline-only single-service configuration. Never resolves references."""
+
+import argparse
+from ipaddress import ip_address, ip_network
+import json
+import os
+from pathlib import Path, PureWindowsPath
+import stat
+import sys
+from typing import Annotated, Literal
+
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+
+from nbsr.protocol.fields import require_canonical_name
+from nbsr.protocol import ProtocolViolation
+
+MAX_CONFIG_BYTES = 65536
+SCHEMA_VERSION = "nbsr-single-instance-config-v1"
+
+
+class ConfigError(ValueError):
+    """Redacted configuration diagnostic; contains no input values."""
+
+
+def nonzero(value):
+    if value == "0" * 64:
+        raise ValueError("identifier must be nonzero")
+    return value
+
+
+Identifier = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$"), AfterValidator(nonzero)]
+Reference = Annotated[str, Field(min_length=5, max_length=68, pattern=r"^ref:[a-z][a-z0-9-]*$")]
+Port = Annotated[int, Field(ge=1, le=65535)]
+
+
+class Closed(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid")
+
+
+class Endpoint(Closed):
+    host: Annotated[str, Field(min_length=1, max_length=253)]
+    port: Port
+
+    @field_validator("host")
+    @classmethod
+    def canonical_host(cls, value):
+        try:
+            address = ip_address(value)
+        except ValueError:
+            # Reject noncanonical numeric IPv4 spellings as well as URL syntax.
+            if all(char in "0123456789." for char in value):
+                raise ValueError("invalid IP spelling") from None
+            try:
+                return require_canonical_name(value)
+            except ProtocolViolation:
+                raise ValueError("expected canonical hostname or IP") from None
+        if value != str(address) or address.is_unspecified or address.is_multicast or address.is_link_local or "%" in value:
+            raise ValueError("invalid endpoint IP")
+        return value
+
+
+class Proxy(Closed):
+    host: Literal["127.0.0.1", "::1"]
+    port: Port
+
+
+class Client(Closed):
+    service_id: Identifier
+    gateway_id: Identifier
+    proxy: Proxy
+    identity_ref: Reference
+
+
+class Gateway(Closed):
+    gateway_id: Identifier
+    endpoint: Endpoint
+    trust_ref: Reference
+    registration_policy_ref: Reference
+
+
+class Target(Endpoint):
+    scheme: Literal["http"]
+    method: Literal["GET"]
+    path: Literal["/"]
+    max_request_bytes: Literal[4096]
+    max_response_bytes: Literal[4096]
+
+    @field_validator("host")
+    @classmethod
+    def private_literal(cls, value):
+        try:
+            address = ip_address(value)
+        except ValueError:
+            # Hostname authorization and all resolved addresses belong to runtime.
+            return value
+        networks = ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "fc00::/7", "::1/128")
+        if not any(address in ip_network(network) for network in networks):
+            raise ValueError("origin literal must be private or loopback")
+        return value
+
+
+class Service(Closed):
+    service_id: Identifier
+    gateway_id: Identifier
+    operator_id: Identifier
+    connector_principal: Identifier
+    registration_authority_ref: Reference
+    target: Target
+
+
+class Origin(Closed):
+    identity_ref: Reference
+    services: Annotated[list[Service], Field(min_length=1, max_length=1)]
+
+
+class Registration(Closed):
+    requested_lease_seconds: Annotated[int, Field(ge=1, le=60)]
+    exchange_timeout_seconds: Annotated[int, Field(ge=1, le=5)]
+    connect_attempts: Annotated[int, Field(ge=1, le=3)]
+    backoff_seconds: Annotated[list[int], Field(min_length=2, max_length=2, json_schema_extra={"const": [1, 2]})]
+    owners_per_service: Literal[1]
+    pending_per_connection: Literal[1]
+    completed_results_per_connection: Literal[4]
+    waiting_registrations: Literal[0]
+
+    @field_validator("backoff_seconds")
+    @classmethod
+    def approved_backoff(cls, value):
+        if value != [1, 2]:
+            raise ValueError("expected approved backoff")
+        return value
+
+
+class Configuration(Closed):
+    schema_version: Literal["nbsr-single-instance-config-v1"]
+    mode: Literal["offline"]
+    client: Client
+    gateway: Gateway
+    origin: Origin
+    registration: Registration
+
+    @model_validator(mode="after")
+    def same_service_key(self):
+        service = self.origin.services[0]
+        if self.client.service_id != service.service_id:
+            raise ValueError("client.service_id must match origin.services[0].service_id")
+        if self.client.gateway_id != self.gateway.gateway_id or service.gateway_id != self.gateway.gateway_id:
+            raise ValueError("client and origin service gateway_id must match gateway.gateway_id")
+        return self
+
+
+def closed_pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ConfigError("duplicate JSON key")
+        result[key] = value
+    return result
+
+
+def reject_constant(value):
+    raise ConfigError("nonfinite JSON number")
+
+
+def check_shape(value, depth=0):
+    if depth > 16:
+        raise ConfigError("configuration nesting exceeds 16 levels")
+    # No boolean fields exist in v1. Avoid bool == 1 coercion in Literal fields.
+    if type(value) is bool or type(value) is float:
+        raise ConfigError("v1 requires integer numeric fields and no boolean fields")
+    if isinstance(value, dict):
+        for item in value.values():
+            check_shape(item, depth + 1)
+    elif isinstance(value, list):
+        for item in value:
+            check_shape(item, depth + 1)
+
+
+def configuration_schema():
+    schema = Configuration.model_json_schema()
+    schema["$schema"] = "https://json-schema.org/draft/2020-12/schema"
+    schema["description"] = (
+        "Offline structure only; validate_config.py additionally enforces canonical endpoints, "
+        "private origin literals, nonzero IDs and cross-role service-key consistency. "
+        "Named references are not opened or authenticated. Validity is not readiness."
+    )
+    return schema
+
+
+def validate_bytes(raw):
+    if len(raw) > MAX_CONFIG_BYTES:
+        raise ConfigError("configuration exceeds 65536 bytes")
+    try:
+        document = json.loads(raw.decode("utf-8"), object_pairs_hook=closed_pairs, parse_constant=reject_constant)
+        check_shape(document)
+    except ConfigError:
+        raise
+    except (ValueError, RecursionError):
+        raise ConfigError("invalid UTF-8 JSON or excessive nesting") from None
+    try:
+        Configuration.model_validate(document)
+    except ValidationError as error:
+        first = error.errors(include_url=False, include_context=False, include_input=False)[0]
+        location = list(first["loc"])
+        if first["type"] == "extra_forbidden":
+            location = location[:-1]  # Unknown field names may themselves contain secrets.
+        field = ".".join(str(part) for part in location) or "configuration"
+        raise ConfigError(f"{field}: {first['type']}; check the offline schema and service/gateway bindings") from None
+    return {"status": "CONFIG_VALID_OFFLINE", "ready": False, "references_verified": False, "service_count": 1}
+
+
+def local_input_path(name):
+    """Inspect a stable, operator-controlled local path, without following links.
+
+    Not an atomic sandbox against concurrent replacement of parent directories.
+    Non-Windows callers must additionally supply a local (not network-mounted) FS.
+    """
+    windows = PureWindowsPath(name)
+    if name.startswith(("//", "\\\\")) or windows.drive.startswith("\\\\"):
+        raise ConfigError("configuration input must be a local regular file")
+    path = Path(os.path.abspath(name))
+    if os.name == "nt":
+        import ctypes
+
+        # Fixed local drives only; reject network mappings, device paths and ADS.
+        if len(path.drive) != 2 or any(":" in part for part in path.parts[1:]):
+            raise ConfigError("configuration input must be a local regular file")
+        if ctypes.windll.kernel32.GetDriveTypeW(str(path.anchor)) != 3:
+            raise ConfigError("configuration input must be on a fixed local drive")
+    for part in [*reversed(path.parents), path]:
+        info = part.lstat()
+        # REPARSE_POINT, OFFLINE, RECALL_ON_OPEN, RECALL_ON_DATA_ACCESS.
+        if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x441400:
+            raise ConfigError("configuration input must be local, materialized and free of links")
+    if not stat.S_ISREG(info.st_mode):
+        raise ConfigError("configuration input must be a local regular file")
+    return path
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Check offline configuration only; no readiness or reference verification.")
+    parser.add_argument("config")
+    args = parser.parse_args(argv)
+    try:
+        # The only input read is the explicit local regular config file, never its refs.
+        path = local_input_path(args.config)
+        with path.open("rb") as stream:
+            result = validate_bytes(stream.read(MAX_CONFIG_BYTES + 1))
+    except OSError:
+        print("CONFIG_INVALID: configuration input unreadable", file=sys.stderr)
+        return 2
+    except ConfigError as error:
+        print(f"CONFIG_INVALID: {error}", file=sys.stderr)
+        return 2
+    print(json.dumps(result, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

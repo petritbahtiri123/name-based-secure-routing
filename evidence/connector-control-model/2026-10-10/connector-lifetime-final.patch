@@ -1,0 +1,567 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 3e2c9ab7..d57d3ca2 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -120,8 +120,11 @@ Fake verifier/clock/transport results do not establish cryptographic proof,
+ wire interoperability, asynchronous cancellation, durable identity or deployment
+ readiness. Preserve the frozen state map and keep model policy choices distinct
+ from approved protocol semantics.
+-Active-work tests explicitly choose whether the registration lease caps the
+-simulated request; neither fixture choice settles the real lifetime policy.
++Active-work fixtures name admission eligibility, ongoing authority and a finite
++profile-labelled completion grace separately. Registration expiry starts drain
++from its actual boundary; polling or repeated denial cannot restart that grace.
++Explicit work renewal preserves ownership and the request bound, and cannot
++resurrect expired work. These fake inputs do not settle real authority mapping.
+ Typed enforcement accepts the exact federation enum, never a numeric cast from
+ Core revocation modes. Failed cleanup must retain visible ownership.
+ 
+diff --git a/docs/protocol/connector-outbound-profile.md b/docs/protocol/connector-outbound-profile.md
+index 77d2d7b8..8f10d276 100644
+--- a/docs/protocol/connector-outbound-profile.md
++++ b/docs/protocol/connector-outbound-profile.md
+@@ -519,7 +519,7 @@ These are accepted-history references supplied by the parent, not a claim of an
+ independent reread of the full chats here. The bounded repository inspection
+ confirmed the quoted distinctions in current docs/code; tests were not rerun.
+ 
+-### Precise model gap and minimal next proposal
++### Historical model gap and minimal next proposal (before lifetime correction)
+ 
+ `Permission.expires` currently serves both new-use checking and ongoing-work
+ validity. `_permission()` returns None at expiry, and poll then terminates the
+@@ -552,3 +552,43 @@ Documentation check: current roadmap remains 10 stages; no stage completion was
+ added. Prior 109-test evidence and manifests remain untouched historical snapshots.
+ This synchronization changes only this profile and the operator plan; model and
+ test hashes are checked against the active-work manifest. No runtime tests rerun.
++
++
++### Implemented mock lifetime correction — current local checkpoint
++
++This section supersedes the historical Permission.expires/lease_bounds_active
++model description above. The isolated fake Permission now explicitly names
++admission_expires, active_expires and CompletionGrace(profile, seconds). These
++are model inputs, not new signed fields, approved connector defaults or proof
++that any real credential has been mapped. The former boolean fixture switch is
++removed; an ongoing authority limit can explicitly equal a lease when appropriate,
++but the model no longer infers that relationship from registration alone.
++
++Registration/admission expiry withdraws new use and starts finite drain at the
++actual expiry instant. Late polling and repeated denial cannot restart the clock.
++Work remains bounded by its requested deadline, its ongoing authority and any
++started drain. Same-profile shorter verified grace narrows from the original
++drain start; longer fresh grace cannot extend an existing drain. A changed profile
++is unsupported and fails closed, not silently rebound to a new policy.
++
++renew_work explicitly refreshes ongoing authorization on the same work object,
++owner and session before its old bound, only while new-use eligibility remains
++valid. Registration renewal alone does not extend work. The caller's request
++bound remains fixed. No replay, rebind, resurrection or implicit authorization
++occurs. Reauthorization during drain is not implemented; this limited mock path
++is not a normative prohibition on a future profile-authorized mechanism.
++Deny-new retains only bounded work; terminate-active immediately cancels it and
++still requires confirmed close before releasing ownership. None/exception from
++the verifier still means invalid/unsupported input, not ordinary outage policy.
++
++Local verification: 125 passed (88 model, 13 frozen-state, 24 federation
++revocation), zero skips; Ruff check and format pass. Independent review identified
++two defects, reproduced and fixed: ignored grace narrowing and a renewal clock
++boundary that incorrectly terminated admission-expired work. Review completion
++and exact retained evidence are in docs/reviews/2026-10-10-connector-lifetime-separation.md
++and .json. This local patch has not been committed or published.
++
++Separately, published c7abbc4423a9ad05cea9cdf6678c231a34cafd59 passed hosted run
++38067741432 with all seven jobs successful. That run predates this local patch.
++Stage 1 remains partial; real authority/credential/wire mapping and F93 outage
++handling remain unresolved integration work. No other package stage advanced.
+diff --git a/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md b/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+index a606fe98..ff9274c1 100644
+--- a/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
++++ b/docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+@@ -690,3 +690,17 @@ Historical patch numbering, child-connector topology and stale CI blocker are
+ explicitly superseded above. Milestone 8 permits labelled supplied test identity;
+ milestone 10 requires verified real providers. Optional publication is outside
+ the count. No runtime tests or deployment were performed for this roadmap edit.
++
++
++### Local lifetime correction after publication
++
++The historical Permission.expires gap described above is now corrected in the
++mock: separate admission/active bounds, explicit finite profile-labelled grace,
++and same-owner work renewal without replay. The removed lease_bounds_active
++switch is historical test evidence, not a remaining real-policy choice.
++125 local tests pass; see docs/reviews/2026-10-10-connector-lifetime-separation.md.
++This patch remains uncommitted and is distinct from published c7abbc44's seven
++successful CI jobs (run 38067741432). Stage 1 remains partial, 0/10 complete.
++Real connector proof/purpose/credential mapping, profile provenance, outage-event
++classification and runtime integration remain open. No next stage is authorized
++by a passing mock test; no publication is included in this local iteration.
+diff --git a/nbsr/connector_control_model.py b/nbsr/connector_control_model.py
+index 59839c62..54cb6e53 100644
+--- a/nbsr/connector_control_model.py
++++ b/nbsr/connector_control_model.py
+@@ -24,10 +24,20 @@ class Binding:
+     role: str
+ 
+ 
++@dataclass(frozen=True)
++class CompletionGrace:
++    """Explicit fake profile context, not a protocol constant or signed record."""
++
++    profile: str
++    seconds: int
++
++
+ @dataclass(frozen=True)
+ class Permission:
+     binding: Binding
+-    expires: int
++    admission_expires: int
++    active_expires: int
++    completion_grace: CompletionGrace
+ 
+ 
+ class Transport(Protocol):
+@@ -58,6 +68,9 @@ class ActiveWork:
+ 
+     owner: Attempt
+     deadline: int
++    requested_deadline: int
++    completion_grace: CompletionGrace
++    drain_started: int | None = None
+     cancelled: bool = False
+     completed: bool = False
+ 
+@@ -115,8 +128,13 @@ class Model:
+         if (
+             not isinstance(permission, Permission)
+             or permission.binding != self.binding
+-            or type(permission.expires) is not int
+-            or permission.expires <= now
++            or type(permission.admission_expires) is not int
++            or type(permission.active_expires) is not int
++            or type(permission.completion_grace) is not CompletionGrace
++            or not isinstance(permission.completion_grace.profile, str)
++            or not permission.completion_grace.profile
++            or type(permission.completion_grace.seconds) is not int
++            or permission.completion_grace.seconds <= 0
+         ):
+             return None
+         return permission
+@@ -155,11 +173,11 @@ class Model:
+         if now is None:
+             return None
+         permission = self._permission(attempt, now)
+-        if permission is None:
++        if permission is None or now >= permission.admission_expires:
+             self._halted = True
+             self.stop(attempt)
+             return None
+-        ticket = Acceptance(attempt, attempt.session, min(now + self.lease, permission.expires))
++        ticket = Acceptance(attempt, attempt.session, min(now + self.lease, permission.admission_expires))
+         self._acceptance = ticket
+         attempt.phase = "registered"
+         return ticket
+@@ -179,14 +197,17 @@ class Model:
+         if now is None:
+             return None
+         if now >= ticket.expires:
+-            self._expire_registration(attempt, now)
++            self._expire_registration(attempt, ticket.expires)
+             return None
+         permission = self._permission(attempt, now)
+         if permission is None:
+             self._halted = True
+             self.stop(attempt)
+             return None
+-        renewed = Acceptance(attempt, attempt.session, min(now + self.lease, permission.expires))
++        if now >= permission.admission_expires:
++            self._expire_registration(attempt, permission.admission_expires)
++            return None
++        renewed = Acceptance(attempt, attempt.session, min(now + self.lease, permission.admission_expires))
+         self._acceptance = renewed
+         return renewed
+ 
+@@ -198,36 +219,53 @@ class Model:
+         if attempt.transport.closed:
+             self.stop(attempt)
+             return
+-        if self._permission(attempt, now) is None:
++        permission = self._permission(attempt, now)
++        if permission is None:
+             self._halted = True
+             self.stop(attempt)
+             return
+-        if self._work is not None and now >= self._work.deadline:
+-            self._work.cancelled = True
+-            self._work = None
++        if self._work is not None:
++            if permission.completion_grace.profile != self._work.completion_grace.profile:
++                self._halted = True
++                self.stop(attempt)
++                return
++            if permission.completion_grace.seconds < self._work.completion_grace.seconds:
++                self._work.completion_grace = permission.completion_grace
++            if self._work.drain_started is not None:
++                self._work.deadline = min(
++                    self._work.deadline,
++                    self._work.drain_started + self._work.completion_grace.seconds,
++                )
++            # Fresh input may narrow authority but never implicitly renew it.
++            self._work.deadline = min(self._work.deadline, permission.active_expires)
++            if now >= self._work.deadline:
++                self._work.cancelled = True
++                self._work = None
+         ticket = self._acceptance
+-        if ticket is not None and now >= ticket.expires:
+-            self._expire_registration(attempt, now)
++        if ticket is not None and now >= min(ticket.expires, permission.admission_expires):
++            self._expire_registration(attempt, min(ticket.expires, permission.admission_expires))
++        elif now >= permission.admission_expires and attempt.phase != "draining":
++            self._expire_registration(attempt, permission.admission_expires)
+         if attempt.phase == "draining" and self._work is None:
+             self.stop(attempt)
+ 
+-    def _expire_registration(self, attempt: Attempt, now: int) -> None:
++    def _expire_registration(self, attempt: Attempt, started: int) -> None:
+         self._acceptance = None
+         attempt.phase = "draining"
+-        if self._work is not None and now >= self._work.deadline:
+-            self._work.cancelled = True
+-            self._work = None
++        if self._work is not None:
++            previous = self._work.drain_started
++            self._work.drain_started = started if previous is None else min(previous, started)
++            self._work.deadline = min(self._work.deadline, self._work.drain_started + self._work.completion_grace.seconds)
++            if self._last_time is not None and self._last_time >= self._work.deadline:
++                self._work.cancelled = True
++                self._work = None
+         if self._work is None:
+             self.stop(attempt)
+ 
+-    def admit_work(self, attempt: Attempt, *, deadline: int, lease_bounds_active: bool) -> ActiveWork | None:
+-        """Explicit fixture policy: caller chooses whether lease also caps work.
+-
+-        Both choices remain bounded by admission-time permission and caller
+-        deadline. Renewal never extends an already admitted request's deadline.
+-        """
+-        if type(deadline) is not int or type(lease_bounds_active) is not bool:
+-            raise ValueError("explicit integer deadline and boolean fixture policy required")
++    def admit_work(self, attempt: Attempt, *, deadline: int) -> ActiveWork | None:
++        """Admit one fake request under separately named ongoing authority."""
++        if type(deadline) is not int:
++            raise ValueError("explicit integer request deadline required")
+         self.poll()
+         if attempt is not self._current or attempt.phase != "ready" or self._work is not None:
+             return None
+@@ -236,19 +274,56 @@ class Model:
+         if now is None or ticket is None:
+             return None
+         if now >= ticket.expires:
+-            self.stop(attempt)
++            self._expire_registration(attempt, ticket.expires)
+             return None
+         permission = self._permission(attempt, now)
+         if permission is None:
+             self._halted = True
+             self.stop(attempt)
+             return None
+-        bounded = min(deadline, permission.expires, ticket.expires if lease_bounds_active else permission.expires)
++        if now >= permission.admission_expires:
++            self._expire_registration(attempt, permission.admission_expires)
++            return None
++        bounded = min(deadline, permission.active_expires)
+         if bounded <= now:
+             return None
+-        self._work = ActiveWork(attempt, bounded)
++        self._work = ActiveWork(attempt, bounded, deadline, permission.completion_grace)
+         return self._work
+ 
++    def renew_work(self, work: ActiveWork) -> bool:
++        """Explicit fake reauthorization of the same work; no replay or rebinding.
++
++        This slice permits renewal only while still eligible, before the old
++        work bound. It does not implement reauthorization while draining.
++        """
++        self.poll()
++        attempt = self._current
++        if work is not self._work or attempt is None or attempt.phase != "ready" or self._halted:
++            return False
++        now = self._time()
++        ticket = self._acceptance
++        if now is None or ticket is None:
++            return False
++        if now >= work.deadline or now >= ticket.expires:
++            self.poll()
++            return False
++        permission = self._permission(attempt, now)
++        if permission is None:
++            self._halted = True
++            self.stop(attempt)
++            return False
++        if now >= permission.admission_expires:
++            self._expire_registration(attempt, permission.admission_expires)
++            return False
++        if permission.completion_grace.profile != work.completion_grace.profile:
++            return False
++        bounded = min(work.requested_deadline, permission.active_expires)
++        if bounded <= now:
++            return False
++        work.deadline = bounded
++        work.completion_grace = permission.completion_grace
++        return True
++
+     def finish_work(self, work: ActiveWork) -> None:
+         self.poll()
+         if work is not self._work:
+@@ -279,9 +354,8 @@ class Model:
+         if mode is EnforcementMode.TERMINATE_ACTIVE_USE or attempt.phase == "terminal":
+             self.stop(attempt)
+             return
+-        attempt.phase = "draining"
+-        if self._work is None:
+-            self.stop(attempt)
++        if self._last_time is not None:
++            self._expire_registration(attempt, self._last_time)
+ 
+     def select(self) -> Attempt | None:
+         self.poll()
+diff --git a/tests/test_connector_control_model.py b/tests/test_connector_control_model.py
+index d430dc80..559b872d 100644
+--- a/tests/test_connector_control_model.py
++++ b/tests/test_connector_control_model.py
+@@ -47,14 +47,14 @@ class Verifier:
+         self.calls += 1
+         if not self.fresh or self.revoked or binding != self.permission.binding:
+             return None
+-        return self.permission if now < self.permission.expires else None
++        return self.permission
+ 
+ 
+ @pytest.fixture
+ def rig(api):
+     binding = api.Binding("connector", "service", "gateway", "operator", "issuer", 3, "register")
+     clock = Clock()
+-    verifier = Verifier(api.Permission(binding, 30))
++    verifier = Verifier(api.Permission(binding, 30, 30, api.CompletionGrace("legacy-fixture", 30)))
+     model = api.Model(binding, verifier, clock, lease=8, attempts=3, retry_delay=2)
+     return api, model, clock, verifier, binding
+ 
+@@ -374,11 +374,11 @@ def test_renewal_cannot_cross_expiry_between_clock_samples(rig):
+     assert attempt.transport.closed
+ 
+ 
+-def active(rig, *, deadline=25, lease_bounds_active=False):
++def active(rig, *, deadline=25):
+     _, model, _, _, _ = rig
+     attempt, ticket = ready(rig)
+     assert hasattr(model, "admit_work"), "active-work model is missing"
+-    work = model.admit_work(attempt, deadline=deadline, lease_bounds_active=lease_bounds_active)
++    work = model.admit_work(attempt, deadline=deadline)
+     assert work is not None
+     return attempt, ticket, work
+ 
+@@ -391,7 +391,7 @@ def test_deny_blocks_new_use_but_keeps_authorized_active_work(rig):
+     assert not model.renew(attempt, ticket)
+     assert model.register(attempt) is None
+     assert not model.confirm(attempt, ticket)
+-    assert model.admit_work(attempt, deadline=26, lease_bounds_active=False) is None
++    assert model.admit_work(attempt, deadline=26) is None
+     assert model.begin(Transport(), binding) is None
+     clock.now = 24
+     model.poll()
+@@ -405,10 +405,11 @@ def test_deny_blocks_new_use_but_keeps_authorized_active_work(rig):
+     assert model.begin(Transport(), binding) is None
+ 
+ 
+-@pytest.mark.parametrize("lease_bounds_active,expected", [(False, 25), (True, 18)])
+-def test_active_deadline_policy_is_explicit_and_never_extended(rig, lease_bounds_active, expected):
+-    _, model, clock, _, _ = rig
+-    attempt, ticket, work = active(rig, lease_bounds_active=lease_bounds_active)
++@pytest.mark.parametrize("authority_deadline,expected", [(30, 25), (18, 18)])
++def test_registration_renewal_does_not_extend_work_authority(rig, authority_deadline, expected):
++    _, model, clock, verifier, _ = rig
++    verifier.permission = replace(verifier.permission, active_expires=authority_deadline)
++    attempt, ticket, work = active(rig)
+     assert work.deadline == expected
+     clock.now = 15
+     assert model.renew(attempt, ticket)
+@@ -506,7 +507,7 @@ def test_enforcement_rejects_ambiguous_numeric_or_unsupported_modes(rig, mode):
+ def test_one_active_slot_and_early_completion(rig):
+     _, model, _, _, _ = rig
+     attempt, _, work = active(rig)
+-    assert model.admit_work(attempt, deadline=22, lease_bounds_active=False) is None
++    assert model.admit_work(attempt, deadline=22) is None
+     model.finish_work(work)
+     assert work.completed and not work.cancelled
+     assert model.select() is attempt
+@@ -550,3 +551,170 @@ def test_renewal_at_lease_boundary_preserves_independently_bounded_work(rig):
+     clock.now = 25
+     model.poll()
+     assert work.cancelled and attempt.transport.closed
++
++
++@pytest.fixture
++def lifetime_rig(api):
++    assert hasattr(api, "CompletionGrace"), "explicit completion-grace context is missing"
++    binding = api.Binding("connector", "service", "gateway", "operator", "issuer", 3, "register")
++    clock = Clock()
++    permission = api.Permission(
++        binding, admission_expires=16, active_expires=40, completion_grace=api.CompletionGrace("fixture-profile", 6)
++    )
++    verifier = LifetimeVerifier(permission)
++    model = api.Model(binding, verifier, clock, lease=8, attempts=3, retry_delay=2)
++    return api, model, clock, verifier, binding
++
++
++class LifetimeVerifier(Verifier):
++    def __call__(self, binding, session, now):
++        self.calls += 1
++        return self.permission if self.fresh and not self.revoked and binding == self.permission.binding else None
++
++
++def lifetime_active(rig, deadline=50):
++    _, model, _, _, _ = rig
++    attempt, ticket = ready(rig)
++    work = model.admit_work(attempt, deadline=deadline)
++    assert work is not None
++    return attempt, ticket, work
++
++
++def test_admission_only_expiry_preserves_active_until_finite_grace(lifetime_rig):
++    _, model, clock, _, _ = lifetime_rig
++    attempt, ticket, work = lifetime_active(lifetime_rig)
++    assert work.deadline == 40
++    clock.now = 16
++    model.poll()
++    assert not work.cancelled and not attempt.transport.closed
++    assert model.select() is None and model.renew(attempt, ticket) is None
++    assert model.admit_work(attempt, deadline=30) is None
++    assert work.deadline == 22
++    clock.now = 21
++    model.poll()
++    assert not work.cancelled
++    clock.now = 22
++    model.poll()
++    assert work.cancelled and attempt.transport.closed and model.health()["owned"] == 0
++
++
++def test_late_poll_cannot_restart_expiry_grace(lifetime_rig):
++    _, model, clock, _, _ = lifetime_rig
++    attempt, _, work = lifetime_active(lifetime_rig)
++    clock.now = 23
++    model.poll()
++    assert work.cancelled and attempt.transport.closed
++
++
++def test_valid_work_renewal_preserves_owner_session_and_request_bound(lifetime_rig):
++    _, model, clock, verifier, _ = lifetime_rig
++    attempt, ticket, work = lifetime_active(lifetime_rig, deadline=45)
++    owner, session = work.owner, work.owner.session
++    clock.now = 15
++    verifier.permission = replace(verifier.permission, admission_expires=35, active_expires=60)
++    renewed = model.renew(attempt, ticket)
++    assert renewed is not None
++    assert work.deadline == 40  # Registration renewal alone grants no extra work time.
++    assert model.renew_work(work)
++    assert work.deadline == 45 and work.owner is owner and work.owner.session is session
++    assert model.admit_work(attempt, deadline=60) is None
++    model.finish_work(work)
++    assert work.completed and not work.cancelled
++    assert not model.renew_work(work)
++
++
++@pytest.mark.parametrize("mode", [EnforcementMode.DENY_NEW_USE, EnforcementMode.TERMINATE_ACTIVE_USE])
++def test_enforcement_overrides_work_renewal_and_grace(lifetime_rig, mode):
++    _, model, clock, _, _ = lifetime_rig
++    attempt, _, work = lifetime_active(lifetime_rig)
++    model.enforce(attempt, mode)
++    assert not model.renew_work(work)
++    if mode is EnforcementMode.DENY_NEW_USE:
++        assert work.deadline == 16 and not work.cancelled
++        clock.now = 14
++        model.enforce(attempt, mode)
++        assert work.deadline == 16
++        model.enforce(attempt, EnforcementMode.TERMINATE_ACTIVE_USE)
++    assert work.cancelled and attempt.transport.closed and model.health()["owned"] == 0
++
++
++def test_grace_cannot_extend_ongoing_authority(lifetime_rig):
++    _, model, clock, verifier, _ = lifetime_rig
++    verifier.permission = replace(verifier.permission, active_expires=18)
++    attempt, _, work = lifetime_active(lifetime_rig)
++    clock.now = 16
++    model.poll()
++    assert work.deadline == 18
++    clock.now = 18
++    model.poll()
++    assert work.cancelled and attempt.transport.closed
++
++
++def test_work_cannot_renew_after_its_authority_expired(lifetime_rig):
++    _, model, clock, verifier, _ = lifetime_rig
++    verifier.permission = replace(verifier.permission, active_expires=14)
++    attempt, _, work = lifetime_active(lifetime_rig)
++    clock.now = 14
++    verifier.permission = replace(verifier.permission, active_expires=50)
++    assert not model.renew_work(work)
++    assert work.cancelled
++
++
++def test_work_renewal_rejects_changed_profile(lifetime_rig):
++    api, model, _, verifier, _ = lifetime_rig
++    _, _, work = lifetime_active(lifetime_rig)
++    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("different", 60))
++    assert not model.renew_work(work)
++    assert work.deadline <= 40
++
++
++@pytest.mark.parametrize("seconds", [0, -1, True, 1.5])
++def test_invalid_grace_is_not_authority(lifetime_rig, seconds):
++    api, model, _, verifier, binding = lifetime_rig
++    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("fixture-profile", seconds))
++    attempt = model.begin(Transport(), binding)
++    assert not model.authenticate(attempt)
++    assert model.health()["owned"] == 0
++
++
++@pytest.mark.parametrize("narrow_at", [15, 17])
++def test_fresh_shorter_grace_narrows_from_original_drain_start(lifetime_rig, narrow_at):
++    api, model, clock, verifier, _ = lifetime_rig
++    attempt, _, work = lifetime_active(lifetime_rig)
++    if narrow_at == 17:
++        clock.now = 16
++        model.poll()
++        assert work.deadline == 22
++    clock.now = narrow_at
++    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("fixture-profile", 2))
++    model.poll()
++    clock.now = 18
++    model.poll()
++    assert work.cancelled and attempt.transport.closed
++
++
++def test_larger_fresh_grace_does_not_extend_started_drain(lifetime_rig):
++    api, model, clock, verifier, _ = lifetime_rig
++    attempt, _, work = lifetime_active(lifetime_rig)
++    clock.now = 16
++    model.poll()
++    verifier.permission = replace(verifier.permission, completion_grace=api.CompletionGrace("fixture-profile", 60))
++    clock.now = 22
++    model.poll()
++    assert work.cancelled and attempt.transport.closed
++
++
++def test_registration_renewal_crossing_admission_expiry_preserves_grace(lifetime_rig):
++    _, model, clock, verifier, _ = lifetime_rig
++    verifier.permission = replace(verifier.permission, admission_expires=30)
++    attempt, ticket, work = lifetime_active(lifetime_rig)
++    verifier.permission = replace(verifier.permission, admission_expires=16)
++    samples = iter((15, 16))
++    model.clock = lambda: next(samples, 16)
++    assert model.renew(attempt, ticket) is None
++    assert not work.cancelled and not attempt.transport.closed
++    assert work.deadline == 22
++    model.clock = clock
++    clock.now = 22
++    model.poll()
++    assert work.cancelled and attempt.transport.closed

@@ -1,0 +1,30 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "gateway-text64-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=@LOCAL_USER_ROOT@/AppData/Local/Temp/nbsr-gateway-text64-red",
+    "deploy/single-instance/test_validate_config.py",
+    "-k",
+    "example_gateway_id or gateway_text64_preserved"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.62,
+  "disk_start": 12174770176,
+  "disk_end": 12174757888,
+  "ram_end": 4608950272,
+  "direct_child_reaped": true,
+  "_publication_derivative": {
+    "original_sha256": "acbd9e54da3c071c72ae418e926d70ed608a2048c61898637d0b72e479e44558",
+    "changes": [
+      "personal path roots replaced by non-executable placeholder"
+    ],
+    "meaning": "Sanitized derivative. Embedded historical hashes/results/commands describe original local inputs, not this derivative. Placeholder commands were not executed. Omitted originals remain local; consult publication manifest."
+  }
+}

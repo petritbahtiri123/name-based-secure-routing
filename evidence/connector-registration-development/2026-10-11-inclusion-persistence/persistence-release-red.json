@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "persistence-release-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_inclusion_persistence.py",
+    "-k",
+    "post_write_release"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.62,
+  "disk_start": 11936124928,
+  "disk_end": 11935801344,
+  "ram_end": 3410903040,
+  "direct_child_reaped": true
+}

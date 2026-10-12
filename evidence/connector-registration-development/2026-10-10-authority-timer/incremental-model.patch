@@ -1,0 +1,37 @@
+--- before-model
++++ after-model
+@@ -346,7 +346,7 @@
+         if self._current is not None and self._current.phase == "draining":
+             self.stop(self._current)
+ 
+-    def enforce(self, attempt: Attempt, mode: EnforcementMode) -> None:
++    def enforce(self, attempt: Attempt, mode: EnforcementMode, *, effective_at: int | None = None) -> None:
+         """Apply an already-verified fake event; no parsing or trust is provided.
+ 
+         Exact enum type is required: Core mode 2 must not become federation
+@@ -357,6 +357,14 @@
+             raise ValueError("unsupported semantic enforcement mode")
+         if attempt is not self._current:
+             return
++        if effective_at is not None:
++            if type(effective_at) is not int or effective_at < 0:
++                raise ValueError("invalid effective time")
++            now = self._time()
++            if now is None:
++                return
++            if effective_at > now:
++                raise ValueError("future enforcement must wait")
+         # Match before polling: expiry/disconnect cleanup must not swallow a
+         # revocation addressed to the current owner at this event boundary.
+         self._halted = True
+@@ -368,7 +376,9 @@
+             self.stop(attempt)
+             return
+         if self._last_time is not None:
+-            self._expire_registration(attempt, self._last_time)
++            # Delayed fixture dispatch retains the cause's original boundary;
++            # observing it later must not grant a fresh completion grace.
++            self._expire_registration(attempt, self._last_time if effective_at is None else effective_at)
+ 
+     def select(self) -> Attempt | None:
+         self.poll()

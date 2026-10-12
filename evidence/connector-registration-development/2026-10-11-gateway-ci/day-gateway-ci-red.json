@@ -1,0 +1,22 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "day-gateway-ci-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/ci/test_ci.py",
+    "-k",
+    "gateway_cli_process"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 2.21,
+  "disk_start": 12195172352,
+  "disk_end": 12195168256,
+  "ram_end": 4265947136,
+  "direct_child_reaped": true
+}

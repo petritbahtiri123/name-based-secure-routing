@@ -1,0 +1,897 @@
+--- prior/nbsr/connector_registration_offline.py
++++ current/nbsr/connector_registration_offline.py
+@@ -23,6 +23,8 @@
+ ACCEPT_DOMAIN = "NBSR-CONNECTOR-ACCEPT-DIGEST-v1"
+ ACTION = "UNALLOCATED_CONNECTOR_REGISTER_ACTION"
+ PROFILE = "UNALLOCATED_CONNECTOR_PROFILE"
++OFFLINE_PROFILE_VERSION = "connector-registration-v1-draft2"
++MAX_COUNTER = 2**64 - 1
+ MAX_TIME = 253402300799
+ LIMITS = CborLimits(65536, 8, 64, 32, 128, 16384)
+ REQUEST_LIMITS = CborLimits(16384, 8, 64, 16, 64, 64)
+@@ -50,6 +52,16 @@
+ 
+ def digest(value):
+     return sha256(canonical(value)).digest()
++
++
++def operation_counter(session_id, request_id):
++    """Profile-specific correlation, not an authority or Core ID reinterpretation."""
++    if not bstr(session_id, 16, True) or not bstr(request_id, 16, True):
++        reject("REPLAY")
++    counter = int.from_bytes(request_id[8:], "big")
++    if request_id[:8] != session_id[:8] or counter == 0:
++        reject("REPLAY")
++    return counter
+ 
+ 
+ def decode_body(kind, raw):
+@@ -115,6 +127,7 @@
+ def exporter_context(session_id, request_id, raw, challenge):
+     if not bstr(session_id, 16, True) or not bstr(request_id, 16, True):
+         reject("PROFILE_UNSUPPORTED")
++    operation_counter(session_id, request_id)
+     body = decode_body("REQUEST", raw)
+     challenge = decode_body("CHALLENGE", canonical(challenge))
+     if challenge[1] != sha256(raw).digest():
+@@ -125,6 +138,7 @@
+ def accept_digest(session_id, request_id, body):
+     if not bstr(session_id, 16, True) or not bstr(request_id, 16, True):
+         reject("PROFILE_UNSUPPORTED")
++    operation_counter(session_id, request_id)
+     decode_body("ACCEPT", canonical(body))
+     return digest([ACCEPT_DOMAIN, 1, session_id, request_id, body])
+ 
+@@ -232,10 +246,13 @@
+     transport: object
+     session: bytes
+     sequence: int = 0
++    response_sequence: int = 0
++    operation_high_water: int = 0
+     operations: dict = field(default_factory=dict)
+     pending: bytes | None = None
+     owner: OwnerHandle | None = None
+     current: bytes | None = None
++    current_digest: bytes | None = None
+     key: tuple | None = None
+     denied: bool = False
+     terminal: bool = False
+@@ -246,10 +263,9 @@
+ class Coordinator:
+     """Serialized pure coordinator, finite fixture connection set, no I/O loop.
+ 
+-    Four operation slots per connection are never recycled: random request IDs
+-    plus a sequence watermark cannot identify evicted requests. At capacity a
+-    new operation rejects. This deliberately exposes the replay-retention gap;
+-    it is not a long-lived production renewal implementation.
++    Four retained outcomes plus one pending operation; a separate monotonic
++    operation high-water mark rejects evicted identities without tombstone growth.
++    All counters belong to this full connection/session, never durable authority.
+     """
+ 
+     def __init__(
+@@ -310,6 +326,8 @@
+             reject("REPLAY")
+         if transport.closed or state.terminal:
+             reject("RECORD_STALE")
++        if state.response_sequence == MAX_COUNTER:
++            reject("OVER_CAPACITY")
+         if sequence <= state.sequence:
+             reject("REPLAY")
+         state.sequence = sequence
+@@ -339,8 +357,7 @@
+ 
+     def request(self, transport, request_id, sequence, raw):
+         now = self._now()
+-        if not bstr(request_id, 16, True):
+-            reject("PROFILE_UNSUPPORTED")
++        counter = operation_counter(transport.session, request_id)
+         body = decode_body("REQUEST", raw)
+         state = self._connection(transport, sequence, create=True)
+         if state.denied:
+@@ -354,11 +371,16 @@
+             challenge = decode_body("CHALLENGE", old.challenge)
+             if state.pending != request_id or now >= challenge[3]:
+                 if state.pending == request_id:
+-                    state.pending = None
++                    self._clear_pending(state)
+                 reject("RECORD_STALE")
+-            return challenge
+-        if state.pending is not None or len(state.operations) >= 4:
++            return self._response(state, challenge)
++        if counter != state.operation_high_water + 1:
++            reject("REPLAY")
++        if state.pending is not None:
+             reject("OVER_CAPACITY")
++        # Consume a structurally valid new operation before authority checks.
++        # Failed/evicted identities cannot be re-executed with a fresh sequence.
++        state.operation_high_water = counter
+         # sent_at describes the REQUEST, not the later proof commit time.
+         if abs(body[14] - now) > self.skew:
+             reject("RECORD_STALE")
+@@ -375,7 +397,25 @@
+         challenge = {0: 1, 1: sha256(raw).digest(), 2: nonce, 3: min(now + 5, decision.expires_at, MAX_TIME)}
+         state.operations[request_id] = Operation(raw, canonical(challenge), decision)
+         state.pending = request_id
+-        return challenge
++        self._trim(state)
++        return self._response(state, challenge)
++
++    @staticmethod
++    def _trim(state):
++        completed = [key for key in state.operations if key != state.pending]
++        for key in completed[:-4]:
++            del state.operations[key]
++
++    @classmethod
++    def _clear_pending(cls, state):
++        state.pending = None
++        cls._trim(state)
++
++    @staticmethod
++    def _response(state, body):
++        # Metadata for the unallocated carrier: never inserted into body CBOR.
++        state.response_sequence += 1
++        return body
+ 
+     def _cached(self, state, request_id, operation, now):
+         if state.denied:
+@@ -384,10 +424,11 @@
+             reject("REPLAY")
+         if not self.eligible(state.transport):
+             reject("RECORD_STALE")
+-        return decode_body("ACCEPT", operation.result)
++        return self._response(state, decode_body("ACCEPT", operation.result))
+ 
+     def prove(self, transport, request_id, sequence, raw):
+         now = self._now()
++        operation_counter(transport.session, request_id)
+         proof = decode_body("PROOF", raw)
+         state = self._connection(transport, sequence)
+         if state.denied:
+@@ -402,10 +443,10 @@
+         challenge = decode_body("CHALLENGE", operation.challenge)
+         if state.pending != request_id or now >= challenge[3]:
+             if state.pending == request_id:
+-                state.pending = None
++                self._clear_pending(state)
+             reject("RECORD_STALE")
+         # A proof attempt consumes the pending challenge, including failures.
+-        state.pending = None
++        self._clear_pending(state)
+         if proof[1] != challenge[1] or proof[2] != challenge[2]:
+             reject("PROOF_INVALID")
+         context = exporter_context(state.session, request_id, operation.raw, challenge)
+@@ -458,11 +499,12 @@
+         }
+         operation.result, operation.proof = canonical(result), raw
+         state.current, state.expires = request_id, expires
++        state.current_digest = accept_digest(state.session, request_id, result)
+         state.dependencies = frozenset(decision.verified_record_refs)
+-        return result
++        return self._response(state, result)
+ 
+     def _accept_hash(self, state):
+-        return accept_digest(state.session, state.current, decode_body("ACCEPT", state.operations[state.current].result))
++        return state.current_digest
+ 
+     def eligible(self, transport):
+         now = self._now()
+@@ -492,7 +534,7 @@
+         if state is None or state.owner != handle or state.owner is None:
+             return False
+         state.terminal = True
+-        state.pending = None
++        self._clear_pending(state)
+         try:
+             handle.connection.close()
+         except Exception:
+@@ -511,7 +553,7 @@
+             if state.pending is not None:
+                 challenge = decode_body("CHALLENGE", state.operations[state.pending].challenge)
+                 if now >= challenge[3]:
+-                    state.pending = None
++                    self._clear_pending(state)
+             if state.owner is not None:
+                 if state.transport.closed or now >= state.expires:
+                     self.close_owner(state.owner)
+@@ -524,7 +566,7 @@
+         if state is None or state.transport is not transport or state.owner is not None:
+             return False
+         state.terminal = True
+-        state.pending = None
++        self._clear_pending(state)
+         try:
+             transport.close()
+         except Exception:
+@@ -553,7 +595,7 @@
+             pending_refs = () if state.pending is None else state.operations[state.pending].decision.verified_record_refs
+             if (state.dependencies | frozenset(pending_refs)).intersection(dependencies):
+                 state.denied = True
+-                state.pending = None
++                self._clear_pending(state)
+ 
+     def counts(self):
+         return {
+--- prior/tests/protocol/test_connector_registration_vectors.py
++++ current/tests/protocol/test_connector_registration_vectors.py
+@@ -46,6 +46,10 @@
+ 
+     def close(self):
+         self.closed = True
++
++
++def rid(counter, session=b"s" * 16):
++    return session[:8] + counter.to_bytes(8, "big")
+ 
+ 
+ def request(service=b"v" * 32):
+@@ -113,18 +117,18 @@
+     return api, gateway, authority, clock, transport, body
+ 
+ 
+-def start(rig, rid=b"1" * 16, sequence=1, body=None):
++def start(rig, request_id=rid(1), sequence=1, body=None):
+     api, gateway, _, _, transport, original = rig
+     raw = encode(original if body is None else body)
+-    challenge = gateway.request(transport, rid, sequence, raw)
+-    context = api.exporter_context(transport.session, rid, raw, challenge)
++    challenge = gateway.request(transport, request_id, sequence, raw)
++    context = api.exporter_context(transport.session, request_id, raw, challenge)
+     proof = encode({0: 1, 1: sha256(raw).digest(), 2: challenge[2], 3: transport.export(api.EXPORTER_LABEL, context)})
+     return raw, challenge, proof
+ 
+ 
+ def accepted(rig):
+     raw, challenge, proof = start(rig)
+-    result = rig[1].prove(rig[4], b"1" * 16, 2, proof)
++    result = rig[1].prove(rig[4], rid(1), 2, proof)
+     return raw, challenge, proof, result
+ 
+ 
+@@ -157,13 +161,13 @@
+     assert transport.contexts[-1][0] == b"EXPORTER-NBSR-Connector-Registration-v1"
+ 
+ 
+-def renew(rig, previous, rid=b"2" * 16, sequence=3):
++def renew(rig, previous, request_id=rid(2), sequence=3):
+     api, gateway, _, clock, transport, body = rig
+-    old_rid = b"1" * 16 if rid == b"2" * 16 else b"2" * 16
++    old_rid = rid(1) if request_id == rid(2) else rid(2)
+     body = dict(body, **{})
+     body.update({1: "renew", 14: clock.now, 15: api.accept_digest(transport.session, old_rid, previous)})
+-    _, _, proof = start(rig, rid, sequence, body)
+-    return gateway.prove(transport, rid, sequence + 1, proof)
++    _, _, proof = start(rig, request_id, sequence, body)
++    return gateway.prove(transport, request_id, sequence + 1, proof)
+ 
+ 
+ def test_crp02_renew_extends_lease_preserves_handle(rig):
+@@ -178,21 +182,21 @@
+     api, gateway, _, clock, transport, body = rig
+     raw, challenge, proof = start(rig)
+     clock.now = 101
+-    assert gateway.request(transport, b"1" * 16, 2, raw) == challenge
+-    old = gateway.prove(transport, b"1" * 16, 3, proof)
+-    assert gateway.request(transport, b"1" * 16, 4, raw) == old
+-    assert gateway.prove(transport, b"1" * 16, 5, proof) == old
++    assert gateway.request(transport, rid(1), 2, raw) == challenge
++    old = gateway.prove(transport, rid(1), 3, proof)
++    assert gateway.request(transport, rid(1), 4, raw) == old
++    assert gateway.prove(transport, rid(1), 5, proof) == old
+     clock.now = 130
+     current = renew(rig, old, sequence=6)
+     with error(ErrorCode.NBSR_E_REPLAY):
+-        gateway.request(transport, b"1" * 16, 8, raw)
++        gateway.request(transport, rid(1), 8, raw)
+     assert gateway.counts()["owned"] == 1 and current[6] == 190
+ 
+ 
+ def test_crp04_withdraw(rig):
+     api, gateway, _, _, transport, _ = rig
+     result = accepted(rig)[3]
+-    body = {0: 1, 1: result[2], 2: result[3], 3: result[4], 4: api.accept_digest(transport.session, b"1" * 16, result)}
++    body = {0: 1, 1: result[2], 2: result[3], 3: result[4], 4: api.accept_digest(transport.session, rid(1), result)}
+     assert gateway.withdraw(transport, 3, encode(body))
+     assert transport.closed and gateway.counts()["owned"] == 0
+ 
+@@ -224,7 +228,7 @@
+     proof = start(rig)[2]
+     rig[2].error = code
+     with error(code):
+-        rig[1].prove(rig[4], b"1" * 16, 2, proof)
++        rig[1].prove(rig[4], rid(1), 2, proof)
+     assert rig[1].counts()["owned"] == 0
+ 
+ 
+@@ -238,7 +242,7 @@
+     proof = start(rig)[2]
+     other = Transport(b"b" * 32)
+     with error(ErrorCode.NBSR_E_REPLAY):
+-        rig[1].prove(other, b"1" * 16, 1, proof)
++        rig[1].prove(other, rid(1), 1, proof)
+     assert rig[1].counts()["owned"] == 0
+ 
+ 
+@@ -252,12 +256,12 @@
+     elif mutation == "output":
+         body[3] = b"x" * 32
+     else:
+-        context = api.exporter_context(transport.session, b"1" * 16, raw, challenge)
++        context = api.exporter_context(transport.session, rid(1), raw, challenge)
+         body[3] = transport.export(
+             b"wrong" if mutation == "label" else api.EXPORTER_LABEL, context + b"x" if mutation == "context" else context
+         )
+     with error(ErrorCode.NBSR_E_PROOF_INVALID):
+-        gateway.prove(transport, b"1" * 16, 2, encode(body))
++        gateway.prove(transport, rid(1), 2, encode(body))
+ 
+ 
+ @pytest.mark.parametrize("now", [105, 106])
+@@ -265,7 +269,7 @@
+     proof = start(rig)[2]
+     rig[3].now = now
+     with error(ErrorCode.NBSR_E_RECORD_STALE):
+-        rig[1].prove(rig[4], b"1" * 16, 2, proof)
++        rig[1].prove(rig[4], rid(1), 2, proof)
+     assert rig[1].counts()["pending"] == 0
+ 
+ 
+@@ -289,22 +293,22 @@
+     api, gateway, _, clock, transport, body = rig
+     old = accepted(rig)[3]
+     clock.now = 159
+-    body = body | {1: "renew", 14: 159, 15: api.accept_digest(transport.session, b"1" * 16, old)}
+-    proof = start(rig, b"2" * 16, 3, body)[2]
++    body = body | {1: "renew", 14: 159, 15: api.accept_digest(transport.session, rid(1), old)}
++    proof = start(rig, rid(2), 3, body)[2]
+     clock.now = 160
+     with error(ErrorCode.NBSR_E_RECORD_STALE):
+-        gateway.prove(transport, b"2" * 16, 4, proof)
++        gateway.prove(transport, rid(2), 4, proof)
+     assert gateway.counts()["eligible"] == 0
+ 
+ 
+ def test_crp16_lost_response_retry_and_disconnect(rig):
+     _, gateway, _, _, transport, _ = rig
+     raw, _, proof, result = accepted(rig)
+-    assert gateway.prove(transport, b"1" * 16, 3, proof) == result
++    assert gateway.prove(transport, rid(1), 3, proof) == result
+     handle = gateway.handle(transport)
+     assert gateway.close_owner(handle)
+     with error(ErrorCode.NBSR_E_RECORD_STALE):
+-        gateway.request(transport, b"1" * 16, 4, raw)
++        gateway.request(transport, rid(1), 4, raw)
+     assert gateway.counts()["owned"] == 0
+ 
+ 
+@@ -337,7 +341,7 @@
+     raw = accepted(rig)[0]
+     rig[1].invalidate_dependencies({b"d" * 32})
+     with error(ErrorCode.NBSR_E_RECORD_REVOKED):
+-        rig[1].request(rig[4], b"1" * 16, 3, raw)
++        rig[1].request(rig[4], rid(1), 3, raw)
+ 
+ 
+ @pytest.mark.parametrize("mutation", ["unknown", "version", "bool", "trailing", "indefinite", "oversize", "refs"])
+@@ -367,7 +371,7 @@
+     with error(ErrorCode.NBSR_E_REPLAY):
+         start(rig)
+     with error(ErrorCode.NBSR_E_OVER_CAPACITY):
+-        start(rig, b"2" * 16, 2)
++        start(rig, rid(2), 2)
+     assert rig[1].counts()["pending"] == 1
+ 
+ 
+@@ -457,18 +461,18 @@
+ @pytest.mark.parametrize("message", ["request", "proof"])
+ def test_stale_operation_cannot_clear_successor_pending(rig, message):
+     old = accepted(rig)[3]
+-    body = rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, b"1" * 16, old)}
+-    raw, _, proof = start(rig, b"2" * 16, 3, body)
++    body = rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, rid(1), old)}
++    raw, _, proof = start(rig, rid(2), 3, body)
+     bad = rig[0].decode_body("PROOF", proof) | {3: b"x" * 32}
+     with error(ErrorCode.NBSR_E_PROOF_INVALID):
+-        rig[1].prove(rig[4], b"2" * 16, 4, encode(bad))
+-    successor = start(rig, b"3" * 16, 5, body)[2]
++        rig[1].prove(rig[4], rid(2), 4, encode(bad))
++    successor = start(rig, rid(3), 5, body)[2]
+     with pytest.raises(ProtocolViolation):
+         if message == "request":
+-            rig[1].request(rig[4], b"2" * 16, 6, raw)
++            rig[1].request(rig[4], rid(2), 6, raw)
+         else:
+-            rig[1].prove(rig[4], b"2" * 16, 6, proof)
+-    assert rig[1].prove(rig[4], b"3" * 16, 7, successor)[6] == 160
++            rig[1].prove(rig[4], rid(2), 6, proof)
++    assert rig[1].prove(rig[4], rid(3), 7, successor)[6] == 160
+ 
+ 
+ def test_authority_revision_changed_before_commit_rejects(rig):
+@@ -485,7 +489,7 @@
+ 
+     rig[1].clock = changed_revision
+     with error(ErrorCode.NBSR_E_RECORD_STALE):
+-        rig[1].prove(rig[4], b"1" * 16, 2, proof)
++        rig[1].prove(rig[4], rid(1), 2, proof)
+     assert rig[1].counts()["owned"] == 0
+ 
+ 
+@@ -525,7 +529,7 @@
+     proof = start(rig)[2]
+     rig[1].invalidate_dependencies({b"d" * 32})
+     with error(ErrorCode.NBSR_E_RECORD_REVOKED):
+-        rig[1].prove(rig[4], b"1" * 16, 2, proof)
++        rig[1].prove(rig[4], rid(1), 2, proof)
+ 
+ 
+ def test_failed_candidate_cleanup_stays_bounded(rig):
+@@ -538,22 +542,27 @@
+     assert not rig[1].close_attempt(rig[4])
+ 
+ 
+-def test_four_result_bound_never_reauthorizes_evicted_request(rig):
++def test_more_than_four_renewals_evict_results_without_replaying(rig):
+     raw, _, _, body = accepted(rig)
+-    for i in range(2, 5):
+-        request_body = rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, str(i - 1).encode() * 16, body)}
+-        proof = start(rig, str(i).encode() * 16, 2 * i - 1, request_body)[2]
+-        body = rig[1].prove(rig[4], str(i).encode() * 16, 2 * i, proof)
+-    with error(ErrorCode.NBSR_E_OVER_CAPACITY):
+-        start(rig, b"5" * 16, 9)
+-    with error(ErrorCode.NBSR_E_REPLAY):
+-        rig[1].request(rig[4], b"1" * 16, 10, raw)
+-    assert rig[1].counts()["completed"] == 4
++    handle = rig[1].handle(rig[4])
++    for i in range(2, 11):
++        rig[3].now += 10
++        request_body = rig[5] | {1: "renew", 14: rig[3].now, 15: rig[0].accept_digest(rig[4].session, rid(i - 1), body)}
++        proof = start(rig, rid(i), 2 * i - 1, request_body)[2]
++        body = rig[1].prove(rig[4], rid(i), 2 * i, proof)
++        assert rig[1].handle(rig[4]) == handle
++        assert rig[1].counts()["completed"] == min(i, 4)
++    assert body[6] == 250 and rig[1].eligible(rig[4]) and not rig[4].closed
++    before_calls = rig[2].calls
++    with error(ErrorCode.NBSR_E_REPLAY):
++        rig[1].request(rig[4], rid(1), 21, raw)
++    assert rig[2].calls == before_calls
++    assert rig[1].connections[id(rig[4])].operation_high_water == 10
+ 
+ 
+ def test_crp_reject_reuses_frozen_error_schema(api):
+-    rid = b"1" * 16
+-    body = {0: 1, 1: b"d" * 32, 2: {0: 1, 1: 3, 2: rid, 3: False}}
++    request_id = rid(1)
++    body = {0: 1, 1: b"d" * 32, 2: {0: 1, 1: 3, 2: request_id, 3: False}}
+     assert api.decode_body("REJECT", encode(body)) == body
+     body[2][1] = True
+     with pytest.raises(ProtocolViolation):
+@@ -563,7 +572,7 @@
+ def test_retained_byte_vectors_execute_gateway(rig):
+     from scripts.generate_wp4_exporter_vectors import expand_label
+ 
+-    root = Path(__file__).resolve().parents[2] / "vectors/connector-registration-v1"
++    root = Path(__file__).resolve().parents[2] / "vectors/connector-registration-v1-counter"
+     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+     for name, entry in manifest["artifacts"].items():
+         data = (root / name).read_bytes()
+@@ -576,9 +585,9 @@
+ 
+     rig[4].export = export
+     raw = (root / "request.cbor").read_bytes()
+-    challenge = rig[1].request(rig[4], b"1" * 16, 1, raw)
++    challenge = rig[1].request(rig[4], rid(1), 1, raw)
+     assert encode(challenge) == (root / "challenge.cbor").read_bytes()
+-    result = rig[1].prove(rig[4], b"1" * 16, 2, (root / "proof.cbor").read_bytes())
++    result = rig[1].prove(rig[4], rid(1), 2, (root / "proof.cbor").read_bytes())
+     assert encode(result) == (root / "accept.cbor").read_bytes()
+     assert rig[1].withdraw(rig[4], 3, (root / "withdraw.cbor").read_bytes())
+ 
+@@ -595,7 +604,7 @@
+     ],
+ )
+ def test_retained_negative_bytes_reject(api, name):
+-    root = Path(__file__).resolve().parents[2] / "vectors/connector-registration-v1"
++    root = Path(__file__).resolve().parents[2] / "vectors/connector-registration-v1-counter"
+     with pytest.raises(ProtocolViolation):
+         api.decode_body("REQUEST", (root / name).read_bytes())
+ 
+@@ -604,7 +613,7 @@
+     import ast
+ 
+     root = Path(__file__).resolve().parents[2]
+-    manifest = json.loads((root / "vectors/connector-registration-v1/manifest.json").read_text(encoding="utf-8"))
++    manifest = json.loads((root / "vectors/connector-registration-v1-counter/manifest.json").read_text(encoding="utf-8"))
+     assert [case["id"] for case in manifest["cases"]] == [f"CRP-{n:02}" for n in range(1, 25)]
+     for case in manifest["cases"]:
+         assert case["pytest_nodes"]
+@@ -623,5 +632,199 @@
+ 
+     rig[1].registration_id = delayed_identifier
+     with error(ErrorCode.NBSR_E_RECORD_STALE):
+-        rig[1].prove(rig[4], b"1" * 16, 2, proof)
++        rig[1].prove(rig[4], rid(1), 2, proof)
+     assert rig[1].counts()["owned"] == 0
++
++
++@pytest.mark.parametrize("counter", [0, 2, 2**64 - 1])
++def test_counter_starts_at_one_without_skipping(rig, counter):
++    with error(ErrorCode.NBSR_E_REPLAY):
++        start(rig, rid(counter))
++    assert rig[2].calls == 0
++
++
++def test_request_prefix_is_bound_to_session(rig):
++    with error(ErrorCode.NBSR_E_REPLAY):
++        start(rig, rid(1, b"x" * 16))
++    assert rig[2].calls == 0
++
++
++def test_full_session_binding_even_when_prefix_matches(rig):
++    raw, _, proof = start(rig)
++    other = Transport(b"a" * 32)
++    other.session = b"s" * 8 + b"x" * 8
++    rig[1].request(other, rid(1), 1, raw)
++    with error(ErrorCode.NBSR_E_PROOF_INVALID):
++        rig[1].prove(other, rid(1), 2, proof)
++    assert rig[1].counts()["owned"] == 0
++
++
++def test_counter_exhaustion_preserves_owner(rig):
++    body = accepted(rig)[3]
++    state = rig[1].connections[id(rig[4])]
++    # Boundary-only state injection; not a claim that 2**64 exchanges ran.
++    state.operation_high_water = 2**64 - 2
++    request_body = rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, rid(1), body)}
++    proof = start(rig, rid(2**64 - 1), 3, request_body)[2]
++    rig[1].prove(rig[4], rid(2**64 - 1), 4, proof)
++    owner = rig[1].handle(rig[4])
++    with error(ErrorCode.NBSR_E_REPLAY):
++        start(rig, rid(0), 5, request_body)
++    with error(ErrorCode.NBSR_E_REPLAY):
++        start(rig, rid(1), 6, request_body)
++    assert rig[1].handle(rig[4]) == owner and rig[1].eligible(rig[4])
++    assert not rig[4].closed and state.operation_high_water == 2**64 - 1
++
++
++def test_pending_does_not_consume_next_operation_counter(rig):
++    raw, challenge, proof = start(rig)
++    state = rig[1].connections[id(rig[4])]
++    assert state.operation_high_water == 1
++    with error(ErrorCode.NBSR_E_OVER_CAPACITY):
++        start(rig, rid(2), 2)
++    assert state.operation_high_water == 1
++    assert rig[1].request(rig[4], rid(1), 3, raw) == challenge
++    rig[1].prove(rig[4], rid(1), 4, proof)
++
++
++def test_same_counter_changed_body_rejects_without_verifier(rig):
++    accepted(rig)
++    calls = rig[2].calls
++    with error(ErrorCode.NBSR_E_REPLAY):
++        start(rig, rid(1), 3, rig[5] | {13: 30})
++    assert rig[2].calls == calls and rig[1].counts()["owned"] == 1
++
++
++def test_new_counter_cannot_change_service(rig):
++    old = accepted(rig)[3]
++    calls = rig[2].calls
++    body = rig[5] | {1: "renew", 3: b"x" * 32, 15: rig[0].accept_digest(rig[4].session, rid(1), old)}
++    with error(ErrorCode.NBSR_E_RECORD_STALE):
++        start(rig, rid(2), 3, body)
++    assert rig[2].calls == calls and rig[1].eligible(rig[4])
++
++
++def test_envelope_directions_have_independent_sequences(rig):
++    raw, challenge, proof = start(rig, sequence=10)
++    state = rig[1].connections[id(rig[4])]
++    assert state.sequence == 10 and state.response_sequence == 1
++    assert rig[1].request(rig[4], rid(1), 20, raw) == challenge
++    assert state.sequence == 20 and state.response_sequence == 2 and state.operation_high_water == 1
++    rig[1].prove(rig[4], rid(1), 30, proof)
++    assert state.response_sequence == 3 and state.operation_high_water == 1
++
++
++@pytest.mark.parametrize("finish", ["request_expiry", "deny", "failed_close"])
++def test_pending_completion_always_trims_to_four(rig, finish):
++    body = accepted(rig)[3]
++    for i in range(2, 5):
++        req = rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, rid(i - 1), body)}
++        proof = start(rig, rid(i), 2 * i - 1, req)[2]
++        body = rig[1].prove(rig[4], rid(i), 2 * i, proof)
++    req = rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, rid(4), body)}
++    raw, _, _ = start(rig, rid(5), 9, req)
++    state = rig[1].connections[id(rig[4])]
++    assert len(state.operations) == 5 and state.pending == rid(5)
++    if finish == "request_expiry":
++        rig[3].now = 105
++        with error(ErrorCode.NBSR_E_RECORD_STALE):
++            rig[1].request(rig[4], rid(5), 10, raw)
++    elif finish == "deny":
++        rig[1].invalidate_dependencies({b"d" * 32})
++    else:
++        rig[4].close = lambda: None
++        assert not rig[1].close_owner(rig[1].handle(rig[4]))
++    assert state.pending is None and len(state.operations) == 4
++
++
++def test_failed_renewals_can_evict_result_without_losing_current_acceptance(rig):
++    body = accepted(rig)[3]
++    req = rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, rid(1), body)}
++    for i in range(2, 6):
++        proof = start(rig, rid(i), 2 * i - 1, req)[2]
++        bad = rig[0].decode_body("PROOF", proof) | {3: b"x" * 32}
++        with error(ErrorCode.NBSR_E_PROOF_INVALID):
++            rig[1].prove(rig[4], rid(i), 2 * i, encode(bad))
++    assert rid(1) not in rig[1].connections[id(rig[4])].operations
++    assert rig[1].eligible(rig[4])
++    proof = start(rig, rid(6), 11, req)[2]
++    assert rig[1].prove(rig[4], rid(6), 12, proof)[4] == body[4]
++
++
++def test_response_sequence_exhaustion_preserves_existing_owner(rig):
++    body = accepted(rig)[3]
++    state = rig[1].connections[id(rig[4])]
++    state.response_sequence = 2**64 - 1
++    with error(ErrorCode.NBSR_E_OVER_CAPACITY):
++        start(rig, rid(2), 3, rig[5] | {1: "renew", 15: rig[0].accept_digest(rig[4].session, rid(1), body)})
++    assert rig[1].eligible(rig[4]) and not rig[4].closed and state.operation_high_water == 1
++
++
++def test_cache_eviction_preserves_separately_admitted_work(rig):
++    from nbsr.connector_control_model import Binding, CompletionGrace, Model, Permission
++
++    binding = Binding("fixture", "service", "gateway", "operator", "issuer", 1, "fixture")
++    permission = Permission(binding, 1000, 500, CompletionGrace("explicit-continuity-fixture", 30))
++    model = Model(binding, lambda *args: permission, rig[3], lease=60, attempts=1, retry_delay=0)
++    attempt = model.begin(rig[4], binding)
++    assert model.authenticate(attempt)
++    ticket = model.register(attempt)
++    assert model.confirm(attempt, ticket)
++    work = model.admit_work(attempt, deadline=400)
++    body = accepted(rig)[3]
++    for i in range(2, 8):
++        rig[3].now += 10
++        req = rig[5] | {1: "renew", 14: rig[3].now, 15: rig[0].accept_digest(rig[4].session, rid(i - 1), body)}
++        proof = start(rig, rid(i), 2 * i - 1, req)[2]
++        body = rig[1].prove(rig[4], rid(i), 2 * i, proof)
++        ticket = model.renew(attempt, ticket)
++        assert ticket is not None
++        assert work.owner is attempt and work.deadline == 400 and not work.cancelled and not work.completed
++    assert not rig[4].closed and rig[1].counts()["completed"] == 4
++
++
++@pytest.mark.parametrize("trace_index", range(4))
++def test_retained_counter_traces_execute_coordinator(rig, trace_index):
++    root = Path(__file__).resolve().parents[2] / "vectors/connector-registration-v1-counter"
++    trace = json.loads((root / "counter-traces.json").read_text(encoding="utf-8"))[trace_index]
++    gateway, transport = rig[1], rig[4]
++    if int(trace["seed_high_water"]):
++        state = gateway._connection(transport, 1, create=True)
++        state.operation_high_water = int(trace["seed_high_water"])
++    requests, proofs = {}, {}
++    current = None
++    current_id = None
++    for sequence, step in enumerate(trace["steps"], 100):
++        request_id = bytes.fromhex(step["request_id_hex"])
++        if step["kind"] == "request":
++            if request_id not in requests:
++                body = rig[5].copy()
++                if current is not None:
++                    body |= {1: "renew", 15: rig[0].accept_digest(transport.session, current_id, current)}
++                requests[request_id] = encode(body)
++            raw = requests[request_id]
++            if step["changed_body"]:
++                raw = encode(rig[0].decode_body("REQUEST", raw) | {13: 30})
++
++            def call():
++                return gateway.request(transport, request_id, sequence, raw)
++        else:
++
++            def call():
++                return gateway.prove(transport, request_id, sequence, proofs[request_id])
++
++        if step["expected"] in ("REPLAY", "OVER_CAPACITY"):
++            with error(getattr(ErrorCode, "NBSR_E_" + step["expected"])):
++                call()
++        else:
++            result = call()
++            if step["expected"] == "CHALLENGE":
++                context = rig[0].exporter_context(transport.session, request_id, requests[request_id], result)
++                proofs[request_id] = encode({0: 1, 1: result[1], 2: result[2], 3: transport.export(rig[0].EXPORTER_LABEL, context)})
++            else:
++                current, current_id = result, request_id
++        state = gateway.connections.get(id(transport))
++        assert (state.operation_high_water if state else 0) == int(step["high_water"])
++        assert (sum(key != state.pending for key in state.operations) if state else 0) == step["retained"]
++        pending = None if state is None or state.pending is None else str(int.from_bytes(state.pending[8:], "big"))
++        assert pending == step["pending"]
+--- prior/scripts/generate_connector_registration_vectors.py
++++ current/scripts/generate_connector_registration_vectors.py
+@@ -24,7 +24,7 @@
+ )
+ from scripts.generate_wp4_exporter_vectors import expand_label  # noqa: E402
+ 
+-PACKAGE = ROOT / "vectors/connector-registration-v1"
++PACKAGE = ROOT / "vectors/connector-registration-v1-counter"
+ PROFILE_TEST = "tests/protocol/test_connector_registration_vectors.py::"
+ MODEL_TEST = "tests/test_connector_control_model.py::"
+ FED_TEST = "tests/test_connector_federation_model.py::"
+@@ -75,6 +75,63 @@
+     ],
+     [PROFILE_TEST + "test_crp24_service_isolation", FED_TEST + "test_gap_two_live_owners_have_independent_dependency_effects"],
+ ]
++
++
++def counter_traces():
++    """Explicit expected replay/cache transitions, independently checked by Node."""
++
++    def step(kind, counter, outcome, high, retained, pending=None, changed=False, prefix="73" * 8):
++        return {
++            "kind": kind,
++            "request_id_hex": prefix + counter.to_bytes(8, "big").hex(),
++            "changed_body": changed,
++            "expected": outcome,
++            "high_water": str(high),
++            "retained": retained,
++            "pending": None if pending is None else str(pending),
++        }
++
++    renewals = []
++    for n in range(1, 11):
++        renewals += [step("request", n, "CHALLENGE", n, min(n - 1, 4), n), step("proof", n, "ACCEPT", n, min(n, 4))]
++    renewals += [
++        step("request", 1, "REPLAY", 10, 4),
++        step("request", 10, "ACCEPT", 10, 4),
++        step("request", 10, "REPLAY", 10, 4, changed=True),
++    ]
++    maximum = 2**64 - 1
++    return [
++        {"name": "ten_operations_evict_without_reexecution", "seed_high_water": "0", "steps": renewals},
++        {
++            "name": "pending_retry_capacity",
++            "seed_high_water": "0",
++            "steps": [
++                step("request", 1, "CHALLENGE", 1, 0, 1),
++                step("request", 2, "OVER_CAPACITY", 1, 0, 1),
++                step("request", 1, "CHALLENGE", 1, 0, 1),
++                step("proof", 1, "ACCEPT", 1, 1),
++            ],
++        },
++        {
++            "name": "counter_exhaustion_fixture",
++            "seed_high_water": str(maximum - 1),
++            "steps": [
++                step("request", maximum, "CHALLENGE", maximum, 0, maximum),
++                step("proof", maximum, "ACCEPT", maximum, 1),
++                step("request", 0, "REPLAY", maximum, 1),
++                step("request", 1, "REPLAY", maximum, 1),
++            ],
++        },
++        {
++            "name": "prefix_and_start",
++            "seed_high_water": "0",
++            "steps": [
++                step("request", 1, "REPLAY", 0, 0, prefix="78" * 8),
++                step("request", 2, "REPLAY", 0, 0),
++                step("request", 1, "CHALLENGE", 1, 0, 1),
++            ],
++        },
++    ]
+ 
+ 
+ def build():
+@@ -100,7 +157,8 @@
+     }
+     raw = canonical(request)
+     rd = sha256(raw).digest()
+-    session, rid = b"s" * 16, b"1" * 16
++    session = b"s" * 16
++    rid = session[:8] + (1).to_bytes(8, "big")
+     challenge = {0: 1, 1: rd, 2: b"n" * 32, 3: 105}
+     context = canonical([CONTEXT_DOMAIN, 1, session, rid, rd, challenge[2], request[4], request[5], request[6], request[8], request[12]])
+     # Same established TLS 1.3/HKDF-SHA256 mechanism as WP4, new CRP-1 domain.
+@@ -130,6 +188,7 @@
+         "invalid-indefinite.cbor": b"\xbf\xff",
+         "invalid-exporter.bin": bytes([exported[0] ^ 1]) + exported[1:],
+     }
++    artifacts["counter-traces.json"] = (json.dumps(counter_traces(), indent=2) + "\n").encode()
+     cases = []
+     for spec, nodes in zip(proposal["cases"], NODES, strict=True):
+         cases.append(
+@@ -142,12 +201,23 @@
+             }
+         )
+     manifest = {
+-        "profile": "connector-registration-v1-draft1",
++        "profile": "connector-registration-v1-draft2",
+         "status": "OFFLINE TEST-LOCAL ONLY",
+         "runtime_authorized": False,
+         "allocation_markers": proposal["allocation_markers"],
+         "limits": proposal["limits_proposed"],
+         "case_count": 24,
++        "counter_amendment": {
++            "request_id": "session_id[0:8] || uint64_be(operation_counter)",
++            "first_counter": "1",
++            "maximum_counter": str(2**64 - 1),
++            "next_counter": "high_water + 1; no wrap",
++            "retained_results": 4,
++            "pending": 1,
++            "envelope_directions": "independent monotonic uint64",
++            "new_operation_consumption": "after structural/session/counter/pending checks, before authority verification",
++            "eviction": "oldest completed outcome; never pending; current acceptance digest stored separately",
++        },
+         "cases": cases,
+         "exporter_label": EXPORTER_LABEL.decode(),
+         "context_domain": CONTEXT_DOMAIN,
+@@ -168,7 +238,7 @@
+             "no signed registration-action fixture until allocation",
+             "no authenticated event producer",
+             "no carrier envelope identifiers",
+-            "four operation slots are not recycled; long-lived replay retention remains a design gate",
++            "operation counter is connector-profile correlation, not authority generation or a registry allocation",
+             "clock skew 0 is a test input, not an assigned production policy",
+         ],
+         "artifacts": {name: {"bytes": len(data), "sha256": sha256(data).hexdigest()} for name, data in sorted(artifacts.items())},
+--- prior/scripts/verify_connector_registration_vectors.mjs
++++ current/scripts/verify_connector_registration_vectors.mjs
+@@ -6,7 +6,7 @@
+ import {fileURLToPath} from 'node:url';
+ import {decodeDeterministic, encodeDeterministic} from '../tools/core-v02-node-verifier/lib/cbor.mjs';
+ 
+-const root = resolve(process.argv[2] ?? resolve(dirname(fileURLToPath(import.meta.url)), '../vectors/connector-registration-v1'));
++const root = resolve(process.argv[2] ?? resolve(dirname(fileURLToPath(import.meta.url)), '../vectors/connector-registration-v1-counter'));
+ const manifest = JSON.parse(readFileSync(resolve(root, 'manifest.json'), 'utf8'));
+ const hash = b => createHash('sha256').update(b).digest();
+ function load(name) {
+@@ -30,6 +30,9 @@
+ const request = decodeDeterministic(requestRaw, {limits});
+ const session = Buffer.from(manifest.session_id_hex, 'hex');
+ const rid = Buffer.from(manifest.request_id_hex, 'hex');
++assert.equal(manifest.profile, 'connector-registration-v1-draft2');
++assert.deepEqual(rid.subarray(0, 8), session.subarray(0, 8));
++assert.equal(rid.readBigUInt64BE(8), 1n);
+ const challenge = decode('challenge.cbor');
+ const proof = decode('proof.cbor');
+ const accept = decode('accept.cbor');
+@@ -84,4 +87,38 @@
+ }
+ assert.equal(typeof get(decode('invalid-bool-lease.cbor'), 13), 'boolean');
+ assert.equal(decode('invalid-unknown-key.cbor').size, 17);
+-console.log('PASS: 18 artifact hashes, canonical transcript, TLS13 SHA256 exporter, ACCEPT digest, framing and negative fixtures; 24 scenario mappings. Not live interoperability.');
++// Independent replay/cache reference, not the Python coordinator implementation.
++const traces = JSON.parse(load('counter-traces.json').toString('utf8'));
++let transitions = 0;
++for (const trace of traces) {
++  let high = BigInt(trace.seed_high_water), pending = null, current = null;
++  const retained = new Map();
++  for (const step of trace.steps) {
++    const id = Buffer.from(step.request_id_hex, 'hex');
++    const counter = id.readBigUInt64BE(8);
++    const key = counter.toString();
++    let outcome;
++    if (!id.subarray(0, 8).equals(session.subarray(0, 8)) || counter === 0n) outcome = 'REPLAY';
++    else if (step.kind === 'request') {
++      if (retained.has(key)) outcome = !step.changed_body && current === key ? 'ACCEPT' : 'REPLAY';
++      else if (pending === key) outcome = step.changed_body ? 'REPLAY' : 'CHALLENGE';
++      else if (counter !== high + 1n) outcome = 'REPLAY';
++      else if (pending !== null) outcome = 'OVER_CAPACITY';
++      else { high = counter; pending = key; outcome = 'CHALLENGE'; }
++    } else {
++      assert.equal(step.kind, 'proof');
++      if (pending !== key) outcome = 'REPLAY';
++      else {
++        pending = null; current = key; retained.set(key, true);
++        while (retained.size > 4) retained.delete(retained.keys().next().value);
++        outcome = 'ACCEPT';
++      }
++    }
++    assert.equal(outcome, step.expected, `${trace.name}/${transitions}`);
++    assert.equal(high.toString(), step.high_water);
++    assert.equal(retained.size, step.retained);
++    assert.equal(pending, step.pending);
++    transitions++;
++  }
++}
++console.log(`PASS: ${Object.keys(manifest.artifacts).length} artifact hashes; canonical transcript/TLS13 exporter/ACCEPT digest/framing; ${transitions} independent replay-cache transitions across ${traces.length} traces. Not live interoperability.`);

@@ -1,0 +1,21 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "stage3-python-format",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "--no-cache",
+    "scripts/generate_connector_development_vectors.py",
+    "tests/protocol/test_connector_development_vectors.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 12091097088,
+  "disk_end": 12091097088,
+  "ram_end": 5553709056,
+  "direct_child_reaped": true
+}

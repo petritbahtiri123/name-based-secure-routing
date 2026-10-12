@@ -1,0 +1,20 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "normal-witness-red",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_normal_revocation_witness_integration.py"
+  ],
+  "exit_code": 2,
+  "abort": null,
+  "elapsed_seconds": 2.22,
+  "disk_start": 11995676672,
+  "disk_end": 11995664384,
+  "ram_end": 3518197760,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected-native-first",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_authority"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 16.87,
+  "disk_start": 11887812608,
+  "disk_end": 11856412672,
+  "ram_end": 3360407552,
+  "direct_child_reaped": true
+}

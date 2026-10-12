@@ -1,0 +1,7 @@
+{
+  "observed_pids": [],
+  "remaining_processes": [],
+  "remaining_udp_endpoints": [],
+  "socket_query": "netstat -ano -p udp",
+  "earlier_query_failure": "Get-NetUDPEndpoint CIM unavailable in sandbox"
+}

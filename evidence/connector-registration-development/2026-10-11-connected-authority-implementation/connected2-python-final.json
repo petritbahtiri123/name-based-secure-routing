@@ -1,0 +1,23 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "connected2-python-final",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/federation/test_connected_authority_vectors.py",
+    "tests/federation/test_revocation_inclusion_v2.py",
+    "tests/federation/test_inclusion_persistence.py",
+    "tests/ci/test_ci.py"
+  ],
+  "exit_code": 1,
+  "abort": null,
+  "elapsed_seconds": 6.23,
+  "disk_start": 11728326656,
+  "disk_end": 11728322560,
+  "ram_end": 7226404864,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,21 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "authority-timer-format",
+  "argv": [
+    "python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "nbsr/connector_control_model.py",
+    "nbsr/connector_authority_timer_offline.py",
+    "tests/test_connector_authority_timer_offline.py"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.21,
+  "disk_start": 11720744960,
+  "disk_end": 11720744960,
+  "ram_end": 4656889856,
+  "direct_child_reaped": true
+}

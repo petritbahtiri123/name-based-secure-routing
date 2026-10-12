@@ -1,0 +1,1 @@
+Independent reviewer connector_model_review: initial full-roster common-control gap and explicit-ID coverage limit; after deterministic red regression/fix and scope documentation, both resolved; no remaining blocking findings. Reviewer did not independently rerun tests.

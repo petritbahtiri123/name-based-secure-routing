@@ -1,0 +1,25 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "full-model-final-formatted",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_signature"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 1.21,
+  "disk_start": 12125687808,
+  "disk_end": 12125741056,
+  "ram_end": 5034262528,
+  "direct_child_reaped": true
+}

@@ -1,0 +1,29 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "overnight-rust-clock-neighbors",
+  "argv": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "crates/nbsr-transport/Cargo.toml",
+    "--features",
+    "benchmark-harness",
+    "--jobs",
+    "2",
+    "--test",
+    "connector_control",
+    "--test",
+    "connector_registration",
+    "--test",
+    "connector_loopback"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 3.02,
+  "disk_start": 11670687744,
+  "disk_end": 11669065728,
+  "ram_end": 4559253504,
+  "direct_child_reaped": true
+}

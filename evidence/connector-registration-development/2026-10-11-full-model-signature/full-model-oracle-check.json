@@ -1,0 +1,16 @@
+{
+  "commit": "c7abbc4423a9ad05cea9cdf6678c231a34cafd59",
+  "label": "full-model-oracle-check",
+  "argv": [
+    "python",
+    "scripts/extract_connector_signature_fixtures.py",
+    "--check"
+  ],
+  "exit_code": 0,
+  "abort": null,
+  "elapsed_seconds": 0.41,
+  "disk_start": 12128034816,
+  "disk_end": 12128034816,
+  "ram_end": 4932931584,
+  "direct_child_reaped": true
+}

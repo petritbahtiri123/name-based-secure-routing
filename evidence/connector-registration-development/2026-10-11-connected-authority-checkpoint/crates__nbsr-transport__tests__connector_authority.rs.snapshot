@@ -1,0 +1,275 @@
+#[path = "../src/connector_authority.rs"]
+mod authority;
+#[path = "../src/connector_cleanup.rs"]
+mod cleanup;
+#[path = "../src/connector_control.rs"]
+mod codec;
+#[path = "../src/connector_registration.rs"]
+mod owner;
+#[path = "../src/connector_signature.rs"]
+mod signature;
+use authority::{Applied, LocalAuthorityProvider, TimeWindow};
+use codec::{Value as V, bytes, get, map};
+use owner::{Binding, Gateway, Owner};
+use sha2::{Digest, Sha256};
+
+fn fixture() -> serde_json::Value {
+    serde_json::from_str(include_str!(
+        "../../../vectors/connector-authority-local-v1/cases.json"
+    ))
+    .unwrap()
+}
+fn hex(s: &str) -> Vec<u8> {
+    s.as_bytes()
+        .chunks_exact(2)
+        .map(|v| u8::from_str_radix(std::str::from_utf8(v).unwrap(), 16).unwrap())
+        .collect()
+}
+fn wire(name: &str) -> Vec<u8> {
+    hex(fixture()["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|r| r["name"] == name)
+        .unwrap()["wire"]
+        .as_str()
+        .unwrap())
+}
+fn clock() -> TimeWindow {
+    TimeWindow {
+        earliest: 1750000100,
+        latest: 1750000100,
+    }
+}
+fn setup() -> (Gateway, LocalAuthorityProvider) {
+    setup_with(|_| {})
+}
+fn setup_with(change: impl FnOnce(&mut serde_json::Value)) -> (Gateway, LocalAuthorityProvider) {
+    let raw = std::fs::read(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../vectors/connector-registration-development-v1/request.cbor"),
+    )
+    .unwrap();
+    let envelope = codec::decode(codec::ALPN, &raw).unwrap();
+    let mut request = get(map(&envelope).unwrap(), 5).unwrap().clone();
+    if let V::Map(fields) = &mut request {
+        fields.insert(3, V::Bytes(vec![b'S'; 32]));
+        fields.insert(4, V::Bytes(vec![b'O'; 32]));
+    }
+    let fields = map(&request).unwrap();
+    let b32 = |k| -> [u8; 32] {
+        bytes(get(fields, k).unwrap(), 32, false)
+            .unwrap()
+            .try_into()
+            .unwrap()
+    };
+    let gateway = if let V::Text(s) = get(fields, 6).unwrap() {
+        s.clone()
+    } else {
+        panic!()
+    };
+    let mut g = Gateway::new(request.clone(), [8; 16], 0).unwrap();
+    g.attach(1, [b's'; 16], b32(8), clock().earliest).unwrap();
+    // Explicit synthetic owner setup, NOT an admission by the new provider.
+    g.owner = Some(Owner {
+        binding: Binding {
+            profile: "connector-registration-development-v1".into(),
+            action: 24576,
+            connection: 1,
+            session: [b's'; 16],
+            peer: b32(8),
+            service: b32(3),
+            gateway,
+            operator: b32(4),
+            digest: Sha256::digest(codec::encode(&request)).into(),
+            dependencies: b32(12),
+            policy: b32(5),
+        },
+        registration: [1; 16],
+        generation: 1,
+        expires: 1750000300,
+        digest: [9; 32],
+        eligible: true,
+    });
+    let mut trust = fixture()["trust"].clone();
+    change(&mut trust);
+    let data = serde_json::to_vec(&trust).unwrap();
+    let pin = Sha256::digest(&data).into(); // Test caller explicitly supplies this trust, not a network pin.
+    let provider = LocalAuthorityProvider::from_supplied_test_trust(
+        &data,
+        pin,
+        g.owner.as_ref().unwrap().binding.clone(),
+        clock(),
+    )
+    .unwrap();
+    (g, provider)
+}
+
+#[test]
+fn final_apply_rechecks_all_selected_evidence_deadlines() {
+    // Existing signed witness statements expire at 1750000200.
+    for boundary in [1750000200, 1750000201] {
+        let (mut g, mut p) = setup();
+        let event = p
+            .verify_normal_event(&wire("deny"), g.owner.as_ref().unwrap(), clock())
+            .unwrap();
+        let before = g.owner.clone();
+        let result = p.apply_verified_event(
+            &mut g,
+            event,
+            TimeWindow {
+                earliest: boundary,
+                latest: boundary,
+            },
+        );
+        assert_eq!(
+            result.is_ok(),
+            boundary == 1750000200,
+            "witness statement boundary {boundary}"
+        );
+        if result.is_err() {
+            assert_eq!(g.owner, before);
+        }
+    }
+    for role in ["signers", "log", "witnesses"] {
+        for boundary in [1750000101, 1750000102] {
+            let (mut g, mut p) = setup_with(|trust| {
+                if role == "log" {
+                    trust[role]["expires"] = 1750000101u64.into();
+                } else {
+                    for row in trust[role].as_array_mut().unwrap() {
+                        row["expires"] = 1750000101u64.into();
+                    }
+                }
+            });
+            let event = p
+                .verify_normal_event(&wire("deny"), g.owner.as_ref().unwrap(), clock())
+                .unwrap();
+            let before = g.owner.clone();
+            let result = p.apply_verified_event(
+                &mut g,
+                event,
+                TimeWindow {
+                    earliest: boundary,
+                    latest: boundary,
+                },
+            );
+            assert_eq!(
+                result.is_ok(),
+                boundary == 1750000101,
+                "{role} deadline {boundary}"
+            );
+            if result.is_err() {
+                assert_eq!(g.owner, before);
+            }
+        }
+    }
+}
+
+#[test]
+fn native_cases_match_independent_oracle_without_positive_authority() {
+    for row in fixture()["cases"].as_array().unwrap() {
+        let (g, mut p) = setup();
+        assert!(!p.registration_ready());
+        let result = p.verify_normal_event(
+            &hex(row["wire"].as_str().unwrap()),
+            g.owner.as_ref().unwrap(),
+            clock(),
+        );
+        assert_eq!(
+            result.is_ok(),
+            row["accepted"].as_bool().unwrap(),
+            "{}: {:?}",
+            row["name"],
+            result.err()
+        );
+    }
+}
+#[test]
+fn verified_termination_retains_owner_until_exact_confirmation() {
+    let (mut g, mut p) = setup();
+    let event = p
+        .verify_normal_event(&wire("terminate"), g.owner.as_ref().unwrap(), clock())
+        .unwrap();
+    let Applied::Cleanup(ticket) = p.apply_verified_event(&mut g, event, clock()).unwrap() else {
+        panic!()
+    };
+    assert!(g.owner.is_some());
+    assert!(!g.owner.as_ref().unwrap().eligible);
+    assert!(g.finish_cleanup(&ticket).is_err());
+    ticket.complete(Err("synthetic failure"));
+    assert!(g.finish_cleanup(&ticket).is_err());
+    let retry = g.retry_cleanup(&ticket).unwrap();
+    retry.complete(Ok(()));
+    assert!(g.finish_cleanup(&ticket).is_err());
+    g.finish_cleanup(&retry).unwrap();
+    assert!(g.owner.is_none());
+}
+#[test]
+fn deny_new_retains_owner_and_retry_is_idempotent() {
+    let (mut g, mut p) = setup();
+    let event = p
+        .verify_normal_event(&wire("deny"), g.owner.as_ref().unwrap(), clock())
+        .unwrap();
+    assert!(matches!(
+        p.apply_verified_event(&mut g, event, clock()).unwrap(),
+        Applied::Denied
+    ));
+    assert!(g.owner.is_some());
+    assert!(!g.owner.as_ref().unwrap().eligible);
+    let event = p
+        .verify_normal_event(&wire("deny"), g.owner.as_ref().unwrap(), clock())
+        .unwrap();
+    assert!(matches!(
+        p.apply_verified_event(&mut g, event, clock()).unwrap(),
+        Applied::Idempotent
+    ));
+}
+#[test]
+fn wrong_owner_after_verification_cannot_mutate_replacement() {
+    let (mut g, mut p) = setup();
+    let event = p
+        .verify_normal_event(&wire("terminate"), g.owner.as_ref().unwrap(), clock())
+        .unwrap();
+    g.owner.as_mut().unwrap().generation += 1;
+    let before = g.owner.clone();
+    assert!(p.apply_verified_event(&mut g, event, clock()).is_err());
+    assert_eq!(g.owner, before);
+}
+#[test]
+fn stale_clock_and_bad_evidence_preserve_owner() {
+    let (mut g, mut p) = setup();
+    let before = g.owner.clone();
+    assert!(
+        p.verify_normal_event(&wire("bad-signature"), g.owner.as_ref().unwrap(), clock())
+            .is_err()
+    );
+    assert!(
+        p.verify_normal_event(
+            &wire("deny"),
+            g.owner.as_ref().unwrap(),
+            TimeWindow {
+                earliest: 1750000500,
+                latest: 1750000500
+            }
+        )
+        .is_err()
+    );
+    assert_eq!(g.owner, before);
+    let (_, mut p) = setup();
+    let event = p
+        .verify_normal_event(&wire("deny"), g.owner.as_ref().unwrap(), clock())
+        .unwrap();
+    assert!(
+        p.apply_verified_event(
+            &mut g,
+            event,
+            TimeWindow {
+                earliest: 99,
+                latest: 99
+            }
+        )
+        .is_err()
+    );
+    assert_eq!(g.owner, before);
+}

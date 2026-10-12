@@ -1,0 +1,65 @@
+ M AGENTS.md
+ M crates/nbsr-transport/src/control_read_tests.rs
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.json
+ M docs/benchmarks/OVERNIGHT_ROBUSTNESS_2026-10-10.md
+ M docs/protocol/connector-outbound-profile.md
+ M docs/protocol/status.md
+ M docs/superpowers/plans/2026-10-10-single-instance-operator-package.md
+ M nbsr/connector_control_model.py
+ M tests/test_connector_control_model.py
+?? deploy/single-instance/
+?? docs/benchmarks/OUTREACH_CAMPAIGN_CHECKPOINT_2026-09-30.md
+?? docs/benchmarks/OUTREACH_CAMPAIGN_CHECKPOINT_2026-10-03.md
+?? docs/benchmarks/OUTREACH_SENT_MESSAGES_2026-09-30.md
+?? docs/benchmarks/RESTACK_APPLICATION_WORKING_DRAFT_2026-09-30.md
+?? docs/benchmarks/SERVER_VALIDATION_PARTNER_REQUEST_2026-09-30.md
+?? docs/protocol/connector-registration-v1-vector-proposal.json
+?? docs/reviews/2026-10-10-connector-counter-amendment.json
+?? docs/reviews/2026-10-10-connector-counter-amendment.md
+?? docs/reviews/2026-10-10-connector-federation-adapter.json
+?? docs/reviews/2026-10-10-connector-federation-adapter.md
+?? docs/reviews/2026-10-10-connector-lifetime-separation.json
+?? docs/reviews/2026-10-10-connector-lifetime-separation.md
+?? docs/reviews/2026-10-10-connector-profile-proposal-review.json
+?? docs/reviews/2026-10-10-connector-profile-proposal-review.md
+?? docs/reviews/2026-10-10-connector-registration-offline.json
+?? docs/reviews/2026-10-10-connector-registration-offline.md
+?? docs/reviews/2026-10-10-connector-stage1-checkpoint.json
+?? docs/reviews/2026-10-10-connector-stage1-checkpoint.md
+?? docs/reviews/2026-10-10-paused-peer-close-characterization.json
+?? docs/reviews/2026-10-10-paused-peer-close-characterization.md
+?? docs/reviews/2026-10-10-single-instance-preflight.md
+?? evidence/connector-control-model/2026-10-10/adapter-final-connector_control_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/adapter-final-connector_federation_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/adapter-final-test_connector_federation_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/connector-adapter-boundaries.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-final.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-green.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-model-final.patch
+?? evidence/connector-control-model/2026-10-10/connector-adapter-owner-red.json
+?? evidence/connector-control-model/2026-10-10/connector-adapter-red.json
+?? evidence/connector-control-model/2026-10-10/connector-gap-final.json
+?? evidence/connector-control-model/2026-10-10/connector-gap-focused.json
+?? evidence/connector-control-model/2026-10-10/connector-gap-test.patch
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-final.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-final.patch
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-grace-red.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-green.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-red.json
+?? evidence/connector-control-model/2026-10-10/connector-lifetime-renew-red.json
+?? evidence/connector-control-model/2026-10-10/lifetime-final-connector_control_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/lifetime-final-test_connector_control_model.py.snapshot
+?? evidence/connector-control-model/2026-10-10/stage1-final-test_connector_federation_model.py.snapshot
+?? evidence/connector-registration-v1/
+?? "evidence/performance/wire-overhead-b1-94a1e4a/checksums (1).sha256"
+?? "evidence/performance/wire-overhead-b1-94a1e4a/commands (1).txt"
+?? "evidence/performance/wire-overhead-b1-94a1e4a/summary (1).md"
+?? evidence/single-instance-preflight/
+?? nbsr/connector_federation_model.py
+?? nbsr/connector_registration_offline.py
+?? scripts/generate_connector_registration_vectors.py
+?? scripts/verify_connector_registration_vectors.mjs
+?? tests/protocol/test_connector_registration_vectors.py
+?? tests/test_connector_federation_model.py
+?? vectors/connector-registration-v1-counter/
+?? vectors/connector-registration-v1/

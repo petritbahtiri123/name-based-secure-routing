@@ -1,0 +1,63 @@
+--- before/crates/nbsr-transport/src/connector_registration.rs
++++ after/crates/nbsr-transport/src/connector_registration.rs
+@@ -296,6 +296,7 @@
+                 let a = authority.ok_or("missing verified authority")?;
+                 let decision = a.verify(&binding, &body, now)?;
+                 if decision.binding != binding
++                    || decision.revision == 0
+                     || decision.expires <= now
+                     || decision.expires > 253402300799
+                     || decision.revision != a.revision()
+--- before/crates/nbsr-transport/tests/connector_registration.rs
++++ after/crates/nbsr-transport/tests/connector_registration.rs
+@@ -210,6 +210,50 @@
+     .clone()
+ }
+ #[test]
++fn zero_revision_cannot_start_registration() {
++    rejects_zero_revision(false);
++}
++
++#[test]
++fn zero_revision_cannot_start_renewal() {
++    rejects_zero_revision(true);
++}
++
++fn rejects_zero_revision(renew: bool) {
++    let (mut g, mut a, mut t) = setup();
++    if renew {
++        complete(&mut g, &mut a, &mut t, request(), 1, 100);
++    }
++    let original = g.owner.clone();
++    let mut body = map(&request()).unwrap().clone();
++    if let Some(owner) = &original {
++        body.insert(1, V::Text("renew".into()));
++        body.insert(15, V::Bytes(owner.digest.to_vec()));
++    }
++    a.revision = 0;
++    let counter = if renew { 2 } else { 1 };
++    assert_eq!(
++        g.handle(
++            1,
++            &env(V::Map(body), 24576, counter, counter * 2 - 1),
++            100,
++            Some(&mut a),
++            &mut t
++        ),
++        Err("invalid authority")
++    );
++    assert_eq!(g.owner, original);
++    assert!(t.closed.is_empty());
++    t.fail_close = true;
++    assert!(g.close_attempt(1, &mut t).is_err());
++    assert_eq!(g.owner.is_some(), renew);
++    t.fail_close = false;
++    g.close_attempt(1, &mut t).unwrap();
++    assert!(g.owner.is_none());
++    assert_eq!(t.closed, vec![1]);
++}
++
++#[test]
+ fn register_renew_cache_eviction_withdraw() {
+     let (mut g, mut a, mut t) = setup();
+     let mut result = complete(&mut g, &mut a, &mut t, request(), 1, 100);

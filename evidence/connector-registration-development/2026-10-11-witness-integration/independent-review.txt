@@ -1,0 +1,1 @@
+Independent connector_model_review: no blocking finding. Record log ID/digest/tree size/scope bound; signed continuity/witnesses verified; freshness before idempotent path; unrelated missing obligations pending. ACCEPT is checkpoint confirmation only, not record inclusion, authenticated configuration, or durable replay/restart protection. Reviewer did not run tests.
