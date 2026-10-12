@@ -202,10 +202,21 @@ def test_native_signature_slice_and_python_oracle_are_selected_without_activatio
     rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
     assert rust.argv.count("connector_signature") == 1
     oracle = next(c for c in command_groups("python-protocol") if c.name == "connector-signature-fixtures")
-    assert oracle.argv[1:] == ("scripts/extract_connector_signature_fixtures.py", "--check")
+    assert oracle.argv[1:] == ("-m", "scripts.extract_connector_signature_fixtures", "--check")
     registry = json.loads(Path("docs/protocol/registries/connector-registration-development-v1.json").read_text())
     assert registry["runtime_authorized"] is False
     assert registry["live_trust_authorized"] is False
+
+
+def test_connector_signature_ci_command_checks_fixtures_without_pythonpath():
+    root = Path(__file__).resolve().parents[2]
+    command = next(c for c in command_groups("python-protocol") if c.name == "connector-signature-fixtures")
+    # A pytest import or an inherited repository PYTHONPATH must not hide a broken CLI.
+    env = {key: value for key, value in os.environ.items() if key.upper() != "PYTHONPATH"}
+    result = subprocess.run(command.argv, cwd=root / command.cwd, env=env,
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "signature cases verified with Python; checked" in result.stdout
 
 
 def test_normal_revocation_conformance_is_selected_without_runtime_activation():

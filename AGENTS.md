@@ -340,7 +340,7 @@ SCM lifecycle, privileged routing installation or deployed rollback acceptance.
 The full-model connector signature prerequisite is test-only:
 `crates/nbsr-transport/src/connector_signature.rs` compiles in the
 `connector_signature` integration-test target, selected by the Rust CI profile.
-`python scripts/extract_connector_signature_fixtures.py --check` independently
+`python -m scripts.extract_connector_signature_fixtures --check` independently
 checks retained public signed bytes with the Python COSE primitive; it is selected
 by python-protocol CI and generates no keys or signatures. The native result
 proves signature/payload/kid binding only, not signer purpose, lifecycle, current
