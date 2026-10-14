@@ -20,13 +20,17 @@ NBSR does not need a new semantic for that problem.
 
 ## Repository evidence
 
-The current implementation has `cbor2`, `cryptography`, `dnslib`, Python
-`ssl`, and `httpx`. It has no QUIC, HTTP/3, MASQUE, CONNECT-UDP, CONNECT-IP,
-or broad COSE dependency. Therefore references to those standards below are
-architecture choices and dependency-selection inputs, not implementation
-claims. Existing Core v0.1 code and tests retain exactly 17 message codes, 19
-error codes, the frozen state machines, and the six frozen Core v0.1 wire
-schemas. No frozen registry or schema change is made by this package.
+The original 2026-07-28 matrix is architecture decision preparation, not a
+current dependency inventory. At the 2026-10-14 reviewed snapshot, Rust/Quinn
+QUIC/TLS transport and Python COSE boundaries exist at the scopes described in
+[status](status.md). Matrix rows describing future profiles are not evidence
+that those profiles are implemented. Frozen Core contracts remain unchanged.
+
+For an evidence-linked comparison with HIP, SCION, NDN Trust Schemas and
+Defined-Trust, including proposed comparative experiments, see
+[related architectures](related-work-comparison.md). Current NBSR uses existing
+IP routing; overlay service selection and forwarding do not demonstrate a new
+inter-domain or classic multi-hop routing protocol.
 
 ## Matrix
 

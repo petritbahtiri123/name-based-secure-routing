@@ -335,6 +335,15 @@ readiness, global federation, or independent interoperability.
 | Independent Core v0.2 vector verification | Implemented | Dependency-free Node.js verifier independently validates the 32-artifact deterministic package; this is conformance evidence, not a second runtime |
 | Public conformance suite and Internet-Draft | Implemented | Task 10B adds a reproducible independent Go/quic-go source to Rust/Quinn destination route/stream exchange. The final matrix and two independent reviews pass. The draft is not an approved standard. |
 
+## Routing interpretation and related work
+
+Current NBSR uses existing IP routing for its overlay transports and relays.
+Named-service authorization, synthetic addressing and edge selection do not
+demonstrate a new inter-domain or classic multi-hop routing protocol. See the
+[evidence-linked comparison with HIP, SCION, NDN Trust Schemas and Defined-Trust](related-work-comparison.md)
+for architectural overlap, implementation limits and unexecuted comparative
+experiments. This clarification does not promote any implementation status.
+
 ## Current non-claims
 
 The repository MUST NOT claim any of the following:
