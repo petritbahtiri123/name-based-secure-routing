@@ -1,0 +1,377 @@
+"""Windows-hosted finite management adapters; no container or credential provisioning.
+
+Native job operations can be injected. The backend creates a kill-on-close job,
+create a noninheriting suspended process, assign it before resume, query exact
+handles without releasing them, and terminate only the owned job/process. Offline
+tests establish this contract, not live Windows containment. The private worker
+entrypoint performs no provisioning; calling it still requires live authorization.
+"""
+import json
+from scripts.performance import native_debug_correctness as debug
+import hashlib
+import math
+from pathlib import Path
+import re
+import sys
+import time
+
+from scripts.performance import linux_native_finite_run as finite
+from scripts.performance.linux_native_finite_run import validate_config
+from scripts.performance.local_container_disposal import Container, Unconfirmed
+from scripts.performance.local_container_sequence import Outcome
+from scripts.performance.linux_native_watchdog import supervise
+from scripts.performance.windows_job_backend import RetainedJobError, Win32Backend
+from scripts.performance.process_cancellation import Cancellation
+
+
+class CellBudget:
+    """Created before endpoint creation; one 95s work / 120s cleanup deadline."""
+
+    def __init__(self, *, clock=time.monotonic):
+        self.clock = clock
+        self.started = self.previous = clock()
+        self.invalid = False
+        if type(self.started) not in (int, float) or not math.isfinite(self.started):
+            raise ValueError('invalid monotonic clock')
+
+    def _elapsed(self):
+        now = self.clock()
+        if (self.invalid or type(now) not in (int, float) or not math.isfinite(now)
+                or now < self.previous):
+            self.invalid = True
+            raise Unconfirmed('clock uncertainty; no new budget')
+        self.previous = now
+        return now - self.started
+
+    def check_work(self):
+        if self._elapsed() >= 95:
+            raise TimeoutError('work deadline; cleanup reserve begins')
+
+    def remaining_cleanup(self):
+        remaining = 120 - self._elapsed()
+        if remaining <= 0:
+            raise TimeoutError('cleanup-inclusive deadline')
+        return remaining
+
+
+class WindowsOwner:
+    """Exact-handle job ownership adapter; never interpret leader exit as job exit.
+
+Backend calls must be bounded/nonblocking. Assignment failure leaves a suspended
+process outside the job, so that exact process is terminated explicitly. No
+breakaway or permission fallback is permitted. Failed closes keep their handles.
+"""
+
+    def __init__(self, argv, *, backend, cancel):
+        self.argv, self.backend, self.cancel = tuple(argv), backend, cancel
+        self.job = self.process = self.thread = None
+        self.assigned = self.cancelled = self.killed = self.started = False
+
+    @property
+    def owned(self):
+        return any(handle is not None for handle in (self.job, self.process, self.thread))
+
+    def start(self):
+        if self.started:
+            raise Unconfirmed('owner already attempted')
+        self.started = True
+        try:
+            self.job = self.backend.create_job()
+        except RetainedJobError as exc:
+            self.job = exc.job
+            raise
+        self.process, self.thread = self.backend.create_suspended(self.argv)
+        self.backend.assign(self.job, self.process)
+        self.assigned = True
+        self.backend.resume(self.thread)
+
+    def observe(self):
+        if self.process is None:
+            # A created job with no process still needs explicit handle closure.
+            return 1, False
+        code, active = self.backend.observe(self.job, self.process, self.assigned)
+        if (code is not None and type(code) is not int) or type(active) is not int or active < 0:
+            raise Unconfirmed('invalid job observation')
+        # Job accounting may reach zero before the owned process is signalled
+        # during asynchronous termination. Keep ownership pending until both
+        # observations prove completion; callers retain their original deadline.
+        return code, active != 0 or code is None
+
+    def signal(self, name):
+        if name in ('INT', 'TERM'):
+            if not self.cancelled:
+                self.cancelled = True
+                self.cancel()
+        elif name == 'KILL':
+            if self.process is not None and not self.killed:
+                self.killed = True
+                self.backend.terminate(self.job, self.process, self.assigned)
+        else:
+            raise ValueError('unsupported ownership action')
+
+    def reap(self):
+        code, live = self.observe()
+        if code is None or live:
+            raise Unconfirmed('job or leader still owned')
+        for name in ('thread', 'process', 'job'):
+            handle = getattr(self, name)
+            if handle is not None:
+                self.backend.close(handle)
+                setattr(self, name, None)
+
+
+def bind_config(plan):
+    """Materialize Docker targets from exact current owners, never reusable names."""
+    if type(plan.owners) is not tuple or len(plan.owners) != 2:
+        raise Unconfirmed('two exact endpoint owners required')
+    ids = set()
+    for role, owner in zip(('source', 'destination'), plan.owners):
+        if (type(owner) is not Container or owner.run != plan.run or owner.role != role
+                or owner.isolated is not True or type(owner.container_id) is not str
+                or not re.fullmatch('[0-9a-f]{64}', owner.container_id) or owner.container_id in ids):
+            raise Unconfirmed('invalid current endpoint binding')
+        ids.add(owner.container_id)
+    config = json.loads(plan.config_json)
+    validate_config(config)
+    for owner in plan.owners:
+        config[owner.role]['transport'] = 'docker'
+        config[owner.role]['host'] = owner.container_id
+    validate_config(config)
+    return config
+
+
+class DeliberateInterruption(InterruptedError):
+    """Only the validated positive-progress hook may supply the expected failure."""
+
+
+def execute_bound(plan, output, *, check_cancelled):
+    """Run existing finite coordinator/validators; callable only inside an owned worker.
+
+The hook runs after the real Manager's ledger validation and telemetry forwarding.
+It cancels management at an explicit safe point after positive QUIC progress,
+not a process crash. No new readiness, cleanup, or transport validator is invented.
+"""
+    config = bind_config(plan)
+    if plan.interrupt and config.get('paired_live_guards') is not True:
+        raise Unconfirmed('validated live telemetry required for interruption')
+    interrupted = False
+
+    def event(role, value):
+        nonlocal interrupted
+        if (plan.interrupt and role == 'source' and value['event'] == 'paced_progress'
+                and type(value['value'].get('completed')) is int and value['value']['completed'] > 0):
+            interrupted = True
+            raise DeliberateInterruption('requested after validated positive transport progress')
+
+    check_cancelled()
+    try:
+        result = finite.execute(config, output, check_cancelled=check_cancelled, on_validated_event=event)
+    except DeliberateInterruption:
+        failure = json.loads((output / 'failure.json').read_bytes())
+        if (not interrupted or failure.get('status') != 'INVALID_PARTIAL'
+                or failure.get('error_type') != 'DeliberateInterruption'):
+            raise Unconfirmed('expected interruption evidence missing')
+        return Outcome('INVALID_PARTIAL', plan.owners)
+    if (plan.interrupt or type(result) is not dict
+            or result.get('status') != debug.status('PASS_CONTROLLED_FINITE_PAIR', config.get(debug.FIELD))
+            or (output / 'failure.json').exists()):
+        raise Unconfirmed('unexpected coordinator result')
+    return Outcome(debug.status('PASS_CONTROLLED_FINITE_PAIR', config.get(debug.FIELD)))
+
+
+class BudgetedEngine:
+    """Wrap an independently observing engine using one budget per owned cell.
+
+The concrete engine must honor the passed remaining seconds on every operation,
+including its subprocess cleanup. This module does not supply Docker provisioning.
+Unknown creation blocks further runs. Cleanup is still attempted after resource
+pressure aborts; it never receives a fresh timeout budget.
+"""
+
+    def __init__(self, engine, *, guard, clock=time.monotonic):
+        self.engine, self.guard, self.clock = engine, guard, clock
+        self.run = self.budget = None
+        self.pending, self.cleaning = set(), set()
+        self.uncertain = False
+
+    def budget_for(self, run):
+        if self.budget is None or self.run != run:
+            raise Unconfirmed('no current cell budget')
+        return self.budget
+
+    def create(self, request):
+        if self.uncertain:
+            raise Unconfirmed('unknown creation remains unresolved')
+        if request.run != self.run:
+            if self.pending:
+                raise Unconfirmed('previous resources remain owned')
+            self.run, self.budget = request.run, CellBudget(clock=self.clock)
+        self.guard()
+        self.budget.check_work()
+        try:
+            owner = self.engine.create(request, remaining=self.budget.remaining_cleanup() - 25)
+            if type(owner) is not Container:
+                raise Unconfirmed('creation identity unavailable')
+        except BaseException:
+            self.uncertain = True
+            raise
+        self.pending.add(owner.container_id)
+        self.budget.check_work()
+        return owner
+
+    def remove(self, identity):
+        if identity not in self.pending:
+            raise Unconfirmed('unowned removal')
+        self.cleaning.add(identity)
+        result = self.engine.remove(identity, remaining=self.budget.remaining_cleanup())
+        self.budget.remaining_cleanup()
+        return result
+
+    def observe(self, probe):
+        from scripts.performance.local_container_disposal import Observation
+        identity = probe.container.container_id
+        if identity not in self.pending:
+            raise Unconfirmed('unowned observation')
+        cleanup = identity in self.cleaning
+        if not cleanup:
+            self.guard()
+            self.budget.check_work()
+        remaining = self.budget.remaining_cleanup() - (0 if cleanup else 25)
+        result = self.engine.observe(probe, remaining=remaining)
+        if cleanup:
+            self.budget.remaining_cleanup()
+        else:
+            self.budget.check_work()
+        if (cleanup and type(result) is Observation and result.probe is probe and result.present is None):
+            self.pending.remove(identity)
+            self.cleaning.remove(identity)
+        return result
+
+
+class WindowsWorkload:
+    """Callable for the existing Sequence; only the host owns Docker access.
+
+Use BudgetedEngine.budget_for so endpoint creation precedes this worker within
+the same deadline. The fresh host directory is never mounted into endpoints.
+Native Win32 calls require explicit live authorization; tests inject every call.
+"""
+
+    def __init__(self, root, *, budget_for, guard, backend_factory=Win32Backend, sleep=time.sleep):
+        self.root, self.budget_for, self.guard = Path(root), budget_for, guard
+        self.backend_factory, self.sleep = backend_factory, sleep
+        self.owner = None
+
+    def __call__(self, plan):
+        from dataclasses import asdict
+        if self.owner is not None and self.owner.owned:
+            raise Unconfirmed('previous Windows job remains owned')
+        if type(plan.run) is not str or not re.fullmatch('[a-zA-Z0-9_-]{1,80}', plan.run):
+            raise Unconfirmed('invalid run path')
+        config = bind_config(plan)
+        budget = self.budget_for(plan.run)
+        budget.check_work()
+        directory = self.root / plan.run
+        directory.mkdir(exist_ok=False)
+        request = directory / 'request.json'
+        wire = json.dumps(dict(run=plan.run, interrupt=plan.interrupt, config=config,
+                               owners=[asdict(owner) for owner in plan.owners],
+                               started_at=budget.started), sort_keys=True, allow_nan=False).encode()
+        if len(wire) > 65536:
+            raise Unconfirmed('request size bound')
+        request.write_bytes(wire)
+
+        def cancel():
+            with (directory / 'cancel').open('xb'):
+                pass
+
+        argv = [sys.executable, '-B', '-m', 'scripts.performance.windows_native_management',
+                '--worker', str(request.resolve())]
+        self.owner = WindowsOwner(argv, backend=self.backend_factory(), cancel=cancel)
+        with Cancellation() as cancellation:
+            def check():
+                cancellation.check()
+                budget.check_work()
+
+            try:
+                result = supervise(self.owner, clock=budget.clock, sleep=self.sleep,
+                                   started_at=budget.started, check_cancelled=check, guard=self.guard)
+            except BaseException as exc:
+                # No new grace or blocking wait on exceptional unwinding. Keep
+                # handles if either termination or immediate observation fails.
+                result = dict(status='INVALID_PARTIAL', reason='exceptional_exit',
+                              errors=[dict(stage='supervise', type=type(exc).__name__)],
+                              remote_cleanup='UNCONFIRMED', local_cleanup='UNCONFIRMED')
+                if self.owner.owned:
+                    try:
+                        self.owner.signal('KILL')
+                        budget.remaining_cleanup()
+                        self.owner.reap()
+                    except BaseException as cleanup_error:
+                        result['errors'].append(dict(stage='exceptional_cleanup',
+                                                     type=type(cleanup_error).__name__))
+                (directory / 'supervision.json').write_text(json.dumps(result, indent=2) + '\n')
+                raise Unconfirmed('exceptional worker exit; inspect retained ownership') from exc
+        (directory / 'supervision.json').write_text(json.dumps(result, indent=2) + '\n')
+        if result['status'] != 'LOCAL_WORKER_COMPLETED' or self.owner.owned or result['exit_code'] != 0:
+            raise Unconfirmed('Windows worker did not finish with an empty job')
+        budget.remaining_cleanup()
+        try:
+            with (directory / 'reply.json').open('rb') as stream:
+                reply_wire = stream.read(65537)
+            if len(reply_wire) > 65536:
+                raise ValueError('oversized reply')
+            reply = json.loads(reply_wire)
+        except (OSError, ValueError) as exc:
+            raise Unconfirmed('missing worker reply') from exc
+        expected = 'INVALID_PARTIAL' if plan.interrupt else debug.status('PASS_CONTROLLED_FINITE_PAIR', json.loads(plan.config_json).get(debug.FIELD))
+        if (type(reply) is not dict or set(reply) != {'request_sha256', 'status', 'interrupted_after_ready'}
+                or reply['request_sha256'] != hashlib.sha256(wire).hexdigest()
+                or reply['status'] != expected or reply['interrupted_after_ready'] is not plan.interrupt):
+            raise Unconfirmed('stale or inconsistent worker reply')
+        return Outcome(expected, plan.owners if plan.interrupt else ())
+
+
+def worker(request):
+    """Explicit worker invocation only; parent must already own the suspended job."""
+    from contextlib import redirect_stdout, redirect_stderr
+    from scripts.performance.local_container_sequence import Plan
+    request = Path(request)
+    with request.open('rb') as stream:
+        wire = stream.read(65537)
+    if len(wire) > 65536:
+        raise Unconfirmed('oversized request')
+    value = json.loads(wire)
+    if (set(value) != {'run', 'interrupt', 'config', 'owners', 'started_at'}
+            or type(value['interrupt']) is not bool):
+        raise Unconfirmed('invalid worker request')
+    started = value['started_at']
+    if type(started) not in (int, float) or not math.isfinite(started) or started > time.monotonic():
+        raise Unconfirmed('invalid shared start')
+    owners = tuple(Container(**row) for row in value['owners'])
+    plan = Plan(value['run'], value['interrupt'], json.dumps(value['config']).encode(), owners, (), ())
+    budget = CellBudget()
+    budget.started = started
+
+    def check():
+        budget.check_work()
+        if (request.parent / 'cancel').exists():
+            raise InterruptedError('Windows owner requested cancellation')
+
+    with (request.parent / 'stdout.log').open('x') as stdout, (request.parent / 'stderr.log').open('x') as stderr:
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            try:
+                result = execute_bound(plan, request.parent / 'worker', check_cancelled=check)
+            except BaseException:
+                import traceback
+                traceback.print_exc()
+                raise
+    reply = dict(request_sha256=hashlib.sha256(wire).hexdigest(), status=result.status,
+                 interrupted_after_ready=bool(result.interrupted_after_ready))
+    with (request.parent / 'reply.json').open('x') as stream:
+        json.dump(reply, stream)
+
+
+if __name__ == '__main__':
+    if sys.platform != 'win32' or len(sys.argv) != 3 or sys.argv[1] != '--worker':
+        raise SystemExit('explicit Windows owned-worker invocation required')
+    worker(sys.argv[2])

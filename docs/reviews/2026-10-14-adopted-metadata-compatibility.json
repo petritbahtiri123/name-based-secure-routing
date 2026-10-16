@@ -1,0 +1,58 @@
+{
+  "scope": "Offline exact inherited image labels and recorded Windows controller/observed mount sources",
+  "base_commit": "dfd94648167a310cdeaebf4e12440d2cb38dd1f9",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "staged_source_sha256": {
+    "AGENTS.md": "e32f246e655479da310c150e5b25c3577ac51ead4eb1f8cce30a6a9d86af7fa1",
+    "docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md": "8817604d9ad622a03f6efdea928a0c9257ea30c212c1478b7bd4508c62b68e76",
+    "scripts/performance/windows_adopted_campaign.py": "f52aa9df4fa33906098c24972c395e9c93c2537b6333e888823b7355d0fe633c",
+    "scripts/performance/windows_docker_provisioning.py": "e22c18ea76a34333f282612e367ff57c12732ffebd8ec2aaaaea86688955aca5",
+    "tests/performance/fixtures/adoption-public-metadata.json": "b5c1e46faa1118a0ef70d76e3df09c5388373c31510b2fd4558807430aa3b44c",
+    "tests/performance/test_adopted_metadata_compatibility.py": "0a12025bc2e8ffcc6705ac9b53f3ebf2ee35874386145ab4ba30417b60d57719"
+  },
+  "validation": [
+    {
+      "name": "double-slash red after recovered context",
+      "passed": 0,
+      "failed": 1,
+      "deselected": 20,
+      "seconds": 1.45
+    },
+    {
+      "name": "compatibility plus adoption green",
+      "passed": 44,
+      "failed": 0,
+      "seconds": 2.46
+    },
+    {
+      "name": "clean committed dependency export neighbors",
+      "passed": 161,
+      "failed": 0,
+      "seconds": 6.21,
+      "files": [
+        "test_adopted_metadata_compatibility.py",
+        "test_windows_adopted_campaign.py",
+        "test_windows_docker_provisioning.py",
+        "test_windows_native_management.py",
+        "test_windows_job_backend.py",
+        "test_local_container_disposal.py",
+        "test_local_container_sequence.py",
+        "test_native_debug_correctness.py"
+      ],
+      "command": "python -m pytest -q -p no:cacheprovider <listed files under tests/performance> --basetemp <fresh test-owned temporary root>"
+    }
+  ],
+  "ruff": "passed on changed Python and clean base provisioning",
+  "diff_check": "passed",
+  "independent_review": "debug_correctness_review: clear after observed // alias regression/fix",
+  "prior_partial_attempts": "Earlier partial implementation red outcomes retained in task: missing mapping API, observed overlap, missing record parser. Recovered final validation supersedes no failed outcome.",
+  "cleanup": "All invoked pytest/export commands exited. No task Docker/container/socket/credential actions; only public temporary test/export files.",
+  "limits": [
+    "Windows local Python run; not complete supported-version/platform matrix",
+    "Fake command output does not prove Docker template evaluation or UID access",
+    "Trusted local mapping digest is not authenticated daemon provenance",
+    "No hardlink retry or pack copy; v4 alternate remains unsuitable for checkout-only mount",
+    "No live diagnostic; exact proposal in LOCAL_ADOPTED_CAMPAIGN.md"
+  ],
+  "preservation": "Original checkout untouched; existing unrelated dirty files and prior packages preserved; only allowlisted staged hunks."
+}

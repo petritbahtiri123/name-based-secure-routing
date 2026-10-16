@@ -137,7 +137,9 @@ def test_requested_true_cannot_accept_collected_false_mode(tmp_path, monkeypatch
         start_command = wait = send = finish = lambda *args: None
 
         def close(self):
-            return {role: dict(exit_code=0, local_relay_forced=False) for role in self.children}
+            return {role: dict(exit_code=0, local_relay_forced=False,
+                               local_relay_reaped=True, local_cleanup_errors=[],
+                               remote_cleanup="REQUIRES_EVIDENCE") for role in self.children}
 
     def collect(target, role, output, **kwargs):
         peer = output / role / "peer"

@@ -1,5 +1,21 @@
 # NBSR agent guidance
 
+## Local two-stream preparation snapshot
+
+This local-only snapshot selects the finite/lifecycle cleanup, watchdog, disposal,
+Windows management and Docker provisioning changes. No unrelated KAR/recovery
+overlay or local evidence is included. Historical protocol pins remain unchanged.
+See docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md for the scope and checks.
+Keep the tracked per-path CRLF exceptions: they preserve historical raw bytes,
+not permission to normalize pinned content or hide working-tree changes.
+Preserve primary and secondary command-cleanup failures with their exact stages;
+diagnostic improvements never rewrite historical UNCONFIRMED outcomes.
+Docker/native execution and credential handoff require task-specific authority.
+Keep exact-ID ownership, uncertain creation/disposal, original deadlines and
+private role inputs separate from evidence. No socket delegation or download
+fallback. A clean Git snapshot alone is not runtime or transport validation.
+
+
 ## Scope and working method
 
 - Follow the current task's authorization. This file does not authorize publication,
@@ -429,3 +445,44 @@ unchanged signed composed negatives are separate evidence: no composed positive
 fixture is available under the no-new-signatures constraint. Do not adjust
 historical root validity or synthesize purpose-12 normal-roster authorization.
 See `docs/reviews/2026-10-11-kar-genesis-implementation.md` for this limitation.
+
+Windows Job observation reads membership before the leader handle so termination
+between samples conservatively retains ownership until another poll. Keep the
+fake-kernel race regression and require both exited leader and empty Job before
+closing handles. This offline correction does not explain Docker creation
+timeouts or replace historical UNCONFIRMED cleanup evidence.
+
+An empty Windows Job with an unsignalled owned helper is pending during
+asynchronous termination. Retain exact handles and poll only within the existing
+deadline; require both signalled leader and empty Job before normal reaping.
+Preserve native query errors, failed-close ownership and the primary work timeout.
+
+
+The finite harness has an explicit pinned debug correctness mode documented in
+`docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md`. Preserve default release gates,
+independent manifest digest selection, exact current source/binary inventories,
+clean checkout enforcement, distinct debug result statuses and benchmark
+ineligibility. It is limited to two application streams on one QUIC connection,
+depth one and one core per endpoint. Run
+`tests/performance/test_native_debug_correctness.py` with native peer/pair,
+finite endpoint/run, post-close, local sequence and Windows management neighbors.
+Credential transmission remains a separate user-controlled secure handoff;
+broad trial approval never authorizes copying/mounting/transmitting private keys.
+
+The adoption-only local campaign uses six exact user-provisioned stopped endpoint
+IDs, consumed as three fresh pairs. Never substitute arbitrary IDs or invoke
+credential-bearing creation. Keep rejected IDs unresolved, failed cleanup owned,
+and per-cell 95/120-second limits inside the single 420-second campaign deadline.
+Run tests/performance/test_windows_adopted_campaign.py with ownership/sequence,
+Windows management/Job/provisioning and debug provenance neighbors. The integration
+recipe and live-validation limits are in docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md.
+
+
+Adopted endpoint metadata compatibility retains exact task labels plus explicitly
+pinned inherited image labels; never ignore extra labels. Windows controller
+sources require a complete recorded controller/observed-source mapping with an
+independently pinned public record digest. Reject aliases, shares, reparse points,
+namespace ambiguity and overlapping output/input mounts; inspect sources exactly.
+Run tests/performance/test_adopted_metadata_compatibility.py with the adoption
+neighbors. See docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md for Windows-only checks,
+trusted-local mapping limits and the unexecuted standalone staging/diagnostic plan.

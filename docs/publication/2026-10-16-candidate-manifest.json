@@ -1,0 +1,283 @@
+{
+  "schema": "nbsr-weekly-publication-candidate-v1",
+  "base_commit": "ad77d59754651fee449bb1d9c14a946f9f3b2d15",
+  "source_snapshot": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+  "status": "REVIEWED_PUBLICATION_SNAPSHOT",
+  "limitations": [
+    "Partial reviewed candidate; outstanding weekly work is explicitly deferred in the private disposition inventory.",
+    "Original files preserved; sanitized copies are not historical executed bytes.",
+    "No VM, Docker, TLS, benchmark, signing, or protection changes performed."
+  ],
+  "files": [
+    {
+      "path": ".gitattributes",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "528d2fd6e61926593b94258b8b11aa43949805370171e8fe1dcc05b4602b0253",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "AGENTS.md",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "e32f246e655479da310c150e5b25c3577ac51ead4eb1f8cce30a6a9d86af7fa1",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/benchmarks/EXTERNAL_NATIVE_FINITE_COORDINATOR.md",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "18935241455004dac61ab6d8fda673486789b53510b6683a8f7dfc28a56b08dd",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/benchmarks/EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "9ded42d9607e485ed3d383cbe341dbd3a717a31e8b5d7f4a6c260da4a1545789",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "8817604d9ad622a03f6efdea928a0c9257ea30c212c1478b7bd4508c62b68e76",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/benchmarks/LOCAL_TRIAL_WATCHDOG.md",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "b1fa70d01108fd2ff605588e49ae4ceadf7c7badc97a6f0583fbcaef259c52f2",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "eebc84c7ae57dc14693d4e40036653cb5e9908fe8ca35f7bd18560da7930bf2d",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/benchmarks/sphere-offline-20261012/finite-two-stream.synthetic.json",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "a2cfe3bbd0914c34cbd0c549399a6407dced4b10bbef16805bdc9d43bb727ddd",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/reviews/2026-10-14-adopted-metadata-compatibility.json",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "ed4a21bc4c225f16de034c432fa5c2d899e4ffa9ae13b0dc98146a2ea661f142",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/linux_native_finite_endpoint.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "f0c5b23723164d490becd207608e6c7e673ff3e149200daf11c45dffdb312390",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/linux_native_finite_run.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "ee1e6bd754cb72d6c0df825cd3990f536c466d8520b081c37f1fb60b2dafdcae",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/linux_native_lifecycle_coordinator.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "02f284c42b0e2c8a625ac3e5ac4ef31bae32aa645be581608746322258005261",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/linux_native_lifecycle_run.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "faa548364c7878f232db74e351fd0820b58bb882ca882dfa81d8131a48d1471e",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/linux_native_pair.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "a41b93109fbdf9bb2e410d18a62cd7143cdc429781140c85c79c2d7aa26021bb",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/linux_native_peer.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "61d356529f3f02d0965a9a30ac7376439f509232c9193c64949e4b2c5f6753da",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/linux_native_watchdog.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "aa48b3fe060770a224d29641ff471796da866c94cf6ec897865ae56e0821c21a",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/local_container_disposal.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "1aa6608bec775e05d272031d536091a54772bb23e1994318bf9d7a66c24a15fc",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/local_container_sequence.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "d8bb477cd0e5c136b9a2e1339c6b633ed1a8ebb22bb57a43bb1f1fac85e89d83",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/native_debug_correctness.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "6c6ec31b7fc3adfb522f57e48d79970d7873f243e51d94e4c42e82a6809cac4f",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/windows_adopted_campaign.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "f52aa9df4fa33906098c24972c395e9c93c2537b6333e888823b7355d0fe633c",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/windows_docker_provisioning.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "e22c18ea76a34333f282612e367ff57c12732ffebd8ec2aaaaea86688955aca5",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/windows_job_backend.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "dc7c955c3159c4182b98eeb717ce27a9798409542d97f6f5c248afacffd3d1af",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "scripts/performance/windows_native_management.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "e89d236476db0367ea45ac56d643e23ed3cef0eab0344f2e7bbf63689c8892f5",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/fixtures/adoption-public-metadata.json",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "bc01ad7e8cd0aa49cb853427d1746f807358d6da4b5b7c08fd780df647076ea6",
+      "disposition": "sanitized_example_account_derivative",
+      "original_sha256": "b5c1e46faa1118a0ef70d76e3df09c5388373c31510b2fd4558807430aa3b44c"
+    },
+    {
+      "path": "tests/performance/test_adopted_metadata_compatibility.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "d5404cf7ec9cff76cceeb496d078075759c0c30c30d8a52086df00c73a4cdefd",
+      "disposition": "sanitized_example_account_derivative",
+      "original_sha256": "0a12025bc2e8ffcc6705ac9b53f3ebf2ee35874386145ab4ba30417b60d57719"
+    },
+    {
+      "path": "tests/performance/test_linux_native_cleanup_failures.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "e7390879ed44e0d542a1bd67ae0997896269df8df5bb6ca6f6dbc8fb5c575d90",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_linux_native_post_close.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "868510ec9e9315538d843ae4b6265dcd9c5e1f8ad859a499430042f4f5e6f83a",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_linux_native_watchdog.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "c77ccc27b96fa9996d11a46425fc2fe10c3e461d4dcadabddb332d99c9479cae",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_local_container_disposal.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "3fb143758a2ba49547526b646f8717cac7df9393006a73310b9d59946cc6fa6c",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_local_container_sequence.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "757a5d2bc54b0f17515697496ac1c95d25943924c474224c2a056938981b1d5a",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_native_debug_correctness.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "c8e3d0c5ec4a03dbd7d9f0d33b0a949b3a0fa6e713a482af27a15cb832140f03",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_windows_adopted_campaign.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "14bb67adbb92015c0fb7262f0b5c41891c6ad8c65be70d381af7f03ea92601bd",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_windows_docker_provisioning.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "fb18b29d92e5d7e0de68c4062abc3df0f816adb1639f6bce76d00ad797acfed4",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_windows_job_backend.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "73315ad2e4331efaf3c5388571b0f2db18c08f95d49418b05269f846b0c38c08",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "tests/performance/test_windows_native_management.py",
+      "source_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "sha256": "5bce81da05e097d431b7534296fee43d261034585a088d3909736ad21916113c",
+      "disposition": "candidate_source_exact_committed_bytes"
+    },
+    {
+      "path": "docs/benchmarks/sphere-2026-10-16/run07-summary.json",
+      "sha256": "24f701ad113f3a2ff74dfee0e930c3c769605c3e6ded6dd3da2182aae491058b",
+      "disposition": "candidate_public_summary"
+    },
+    {
+      "path": "scripts/performance/diagnostic_support/diagnostic_absence.py",
+      "original_sha256": "7216acd04d325f35eb00f294e5155a26c642b53f6ddc85ee44855aaaf8105fc0",
+      "sha256": "fd0704f64e7e348fa0c6d60c0909b13c772bacaeb16ccba998eed6832dc98b81",
+      "disposition": "offline_support_exact_original_bytes; line_endings_normalized_to_repository_attributes"
+    },
+    {
+      "path": "scripts/performance/diagnostic_support/test_diagnostic_absence.py",
+      "original_sha256": "3b24f734d39f71a9d3273ccae0281f734fde7f43a0e2e9171808d4f1b61ea9fa",
+      "sha256": "572d9cdf89cccef613b621bdda1dae579f3a54415edc70df0fbc6d57181e93f0",
+      "disposition": "offline_support_exact_original_bytes; line_endings_normalized_to_repository_attributes"
+    },
+    {
+      "path": "scripts/performance/diagnostic_support/runtime_preflight.py",
+      "original_sha256": "199d17215c820d1b1f690049db9486594d124f3356f3cbe43deae1d3e4ed08ec",
+      "sha256": "199d17215c820d1b1f690049db9486594d124f3356f3cbe43deae1d3e4ed08ec",
+      "disposition": "offline_support_exact_original_bytes"
+    },
+    {
+      "path": "scripts/performance/diagnostic_support/test_runtime_preflight.py",
+      "original_sha256": "91777664de1ec64e8596d4535cd31a1468cf16ec7aefd387cd5e54600a935eab",
+      "sha256": "91777664de1ec64e8596d4535cd31a1468cf16ec7aefd387cd5e54600a935eab",
+      "disposition": "offline_support_exact_original_bytes"
+    },
+    {
+      "path": "scripts/performance/diagnostic_support/source_presentation_contract.py",
+      "original_sha256": "84d09e49fd7b81c2844f122e83738278459425b1f6b9976b2a22e76420476cb2",
+      "sha256": "90ae7e73c1f52cf575f6d1e1053389fcf1ff5be895aeb5c024b4b8b00741d961",
+      "disposition": "offline_support_exact_original_bytes; line_endings_normalized_to_repository_attributes"
+    },
+    {
+      "path": "scripts/performance/diagnostic_support/test_source_presentation_contract.py",
+      "original_sha256": "d98fbef9a4054efa0bc0f28fb3f13a1fc22d565340f9c843319d21e688815a20",
+      "sha256": "fb3aa53e4752250bae5b33f6883d7e21bfe8ef5d31bc47df38413ef94fd3176c",
+      "disposition": "offline_support_exact_original_bytes; line_endings_normalized_to_repository_attributes"
+    },
+    {
+      "path": "scripts/performance/sphere_support/accounting.py",
+      "original_sha256": "a1aad2a2cf5a3dc2c356f99d4715ff5ae6e7de8c9c6c1e016649f5cad940a557",
+      "sha256": "a1aad2a2cf5a3dc2c356f99d4715ff5ae6e7de8c9c6c1e016649f5cad940a557",
+      "disposition": "offline_support_exact_original_bytes"
+    },
+    {
+      "path": "scripts/performance/sphere_support/test_accounting.py",
+      "original_sha256": "cb5f8efd452a97b43420c3fb214dc18051e5a465a8349ec51210f24b9e8ff8cb",
+      "sha256": "4d8b009ed280d11d4ab2a1f64d3cd8d95dfd5f81e53d7dfba8c4356bc4164106",
+      "disposition": "offline_support_exact_original_bytes; line_endings_normalized_to_repository_attributes; removed trailing empty line"
+    },
+    {
+      "path": "docs/publication/2026-10-16-publication-scope.md",
+      "sha256": "2c6d03b44b38bb20e8e43c368fe0e79a7147740a695a6fa16d9baf48dc564d2f",
+      "disposition": "publication_scope_and_validation_record"
+    }
+  ]
+}

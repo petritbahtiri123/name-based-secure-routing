@@ -5,6 +5,7 @@ This gate neither authenticates a host nor classifies sustainable capacity.
 """
 
 import argparse
+from scripts.performance import native_debug_correctness as debug
 import json
 import math
 from pathlib import Path, PurePosixPath
@@ -49,7 +50,8 @@ def verify_index(root):
     return digest(root / 'checksums.sha256')
 
 
-def check_peer(root, role, source_sha):
+def check_peer(root, role, source_sha, *, debug_correctness_manifest_sha256=None):
+    pin = debug.validate_pin(debug_correctness_manifest_sha256)
     index = verify_index(root)
     require(not any((root / n).exists() for n in ('failure.json', 'forced-cleanup.json')),
             'failed/forced peer cannot be accepted')
@@ -63,9 +65,12 @@ def check_peer(root, role, source_sha):
         warmup_seconds=3, duration_seconds=20))
     warmup, duration = measurement_contract(cell)
     require(env['warmup_seconds'] == warmup and env['duration_seconds'] == duration, 'finite measurement mode mismatch')
-    require(build['source_sha'] == source_sha and build['build_profile'] == 'release'
-            and build['binary_sha256'] == env['binary_sha256'] and build['build_commands']
-            and build['toolchains'], 'release manifest mismatch')
+    debug.validate_build(build, source_sha, env['binary_sha256'], pin)
+    require(env.get(debug.FIELD) == pin and result.get(debug.FIELD) == pin, 'debug mode mismatch')
+    debug.validate_workload(cell, env.get('post_close_reports', False), pin)
+    if pin is not None:
+        require(all(env.get(k) == v and result.get(k) == v for k, v in debug.qualification(pin).items())
+                and 'application_gbps' not in result, 'debug benchmark claim rejected')
     require(set(env['binary_sha256']) == set(NAMES.values())
             and all(re.fullmatch('[0-9a-f]{64}', h) for h in env['binary_sha256'].values()),
             'invalid binary hashes')
@@ -156,7 +161,7 @@ def check_peer(root, role, source_sha):
     else:
         require('--p2a-cleanup-report' not in argv, 'undeclared cleanup observer')
     require(result.get('runtime_ownership_cleanup', 'NOT_MEASURED') == cleanup, 'cleanup claim mismatch')
-    require(result['status'] == 'PASS_FINITE_PEER' and result['exit_code'] == exit_record['exit_code'] == 0
+    require(result['status'] == debug.status('PASS_FINITE_PEER', pin) and result['exit_code'] == exit_record['exit_code'] == 0
             and result['final_sample'] == exit_record['final_sample'] and pid['owns_process_group'] is True,
             'peer exit contract failed')
     first = previous = last = first_sample = None
@@ -191,13 +196,14 @@ def check_peer(root, role, source_sha):
     return env, result, index
 
 
-def analyze_pair(source, destination, *, source_sha):
+def analyze_pair(source, destination, *, source_sha, debug_correctness_manifest_sha256=None):
+    pin = debug.validate_pin(debug_correctness_manifest_sha256)
     require(re.fullmatch('[0-9a-f]{40}', source_sha), 'full expected source SHA required')
     source, destination = Path(source), Path(destination)
     require(source.resolve() != destination.resolve(), 'distinct peer roots required')
     try:
-        src, result, src_index = check_peer(source, 'source', source_sha)
-        dst, _, dst_index = check_peer(destination, 'destination', source_sha)
+        src, result, src_index = check_peer(source, 'source', source_sha, debug_correctness_manifest_sha256=pin)
+        dst, _, dst_index = check_peer(destination, 'destination', source_sha, debug_correctness_manifest_sha256=pin)
         require(src['cell'] == dst['cell'] and src['binary_sha256'] == dst['binary_sha256']
                 and src.get('paired_live_guards', False) == dst.get('paired_live_guards', False)
                 and src.get('post_close_reports', False) == dst.get('post_close_reports', False)
@@ -233,14 +239,17 @@ def analyze_pair(source, destination, *, source_sha):
                 and type(row['measured_ns']) is int and row['measured_ns'] > 0
                 and row['completed_operations'] == result['completed_operations'], 'source workload/count mismatch')
         gbps = 16 * cell['payload_bytes'] * row['completed_operations'] / row['measured_ns']
-        require(math.isclose(result['application_gbps'], gbps, rel_tol=1e-12), 'goodput arithmetic mismatch')
+        if pin is None:
+            require(math.isclose(result['application_gbps'], gbps, rel_tol=1e-12), 'goodput arithmetic mismatch')
+        else:
+            extra.update(debug.qualification(pin))
         if cell['path'] == 'direct':
             require((destination / 'completion.ack').is_file(), 'missing Direct completion ACK')
         else:
             server = read(destination, 'server-result.json')
             require(server['status'] == 'PASS' and server['streams'] == cell['streams'], 'server result mismatch')
-        return dict(status='PASS_FINITE_PAIR_INTEGRITY', source_sha=source_sha, cell=cell,
-            source_index_sha256=src_index, destination_index_sha256=dst_index, application_gbps=gbps,
+        return dict(status=debug.status('PASS_FINITE_PAIR_INTEGRITY', pin), source_sha=source_sha, cell=cell,
+            source_index_sha256=src_index, destination_index_sha256=dst_index, **({'application_gbps': gbps} if pin is None else {}),
             strict_stable_capacity='NOT_PROVEN', external_hardware='NOT_PROVEN',
             observer_qualification='NOT_PROVEN', runtime_ownership_cleanup=result.get('runtime_ownership_cleanup', 'NOT_MEASURED'),
             authenticity='checksums are not signatures or remote attestation', **extra)
@@ -253,8 +262,10 @@ def main():
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--destination', type=Path, required=True)
     parser.add_argument('--source-sha', required=True)
+    parser.add_argument('--debug-correctness-manifest-sha256')
     args = parser.parse_args()
-    print(json.dumps(analyze_pair(args.source, args.destination, source_sha=args.source_sha), indent=2))
+    print(json.dumps(analyze_pair(args.source, args.destination, source_sha=args.source_sha,
+        debug_correctness_manifest_sha256=args.debug_correctness_manifest_sha256), indent=2))
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@ Lifetime CPU is not steady-state CPU and process exit is not runtime ownership.
 """
 
 import argparse
+from scripts.performance import native_debug_correctness as debug
 from contextlib import nullcontext
 import ipaddress
 import json
@@ -217,9 +218,9 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
         endpoint = None
     build = json.loads(args.build_manifest.read_bytes())
     hashes = {name: digest(binaries / name) for name in NAMES.values()}
-    require(build.get('source_sha') == sha and build.get('build_profile') == 'release'
-            and build.get('binary_sha256') == hashes and build.get('build_commands')
-            and build.get('toolchains'), 'exact current release build manifest required')
+    pin = debug.validate_pin(getattr(args, debug.FIELD, None))
+    inventory = debug.source_inventory(ROOT) if pin is not None else None
+    debug.validate_build(build, sha, hashes, pin, actual_source=inventory)
     host = environment(args.cores)
     cell = dict(path=args.path, cores=args.cores, payload_bytes=args.payload,
                 streams=args.streams, outstanding=args.depth)
@@ -233,6 +234,7 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
     warmup, duration = measurement_contract(cell)
     phase_control = getattr(args, 'phase_control', None)
     post_close_reports = getattr(args, 'post_close_reports', False)
+    debug.validate_workload(cell, post_close_reports, pin)
     source_live_guard = getattr(args, 'source_live_guard', False)
     paired_live_guards = getattr(args, 'paired_live_guards', False)
     require(type(paired_live_guards) is bool and (not paired_live_guards or
@@ -268,7 +270,7 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
             post_close_reports=post_close_reports, output_root=str(output),
             source_live_guard=source_live_guard,
             paired_live_guards=paired_live_guards,
-            binary_sha256=hashes, certificates_sha256=certificate_hashes,
+            binary_sha256=hashes, certificates_sha256=certificate_hashes, **debug.qualification(pin),
             scope='finite native-address peer; external/physical hardware unqualified',
             cpu_scope='whole peer lifetime including startup/warmup/drain; not steady CPU ns/op',
             cleanup_scope='explicit requested report plus owned exit; otherwise process exit only'))
@@ -298,8 +300,9 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
                     check_cancelled=check_cancelled, socket_identity=socket_identity, live_observer=live)
         if args.role == 'source':
             row = validate_source(output, cell)
-            result.update(completed_operations=row['completed_operations'],
-                          application_gbps=16 * cell['payload_bytes'] * row['completed_operations'] / row['measured_ns'])
+            result.update(completed_operations=row['completed_operations'])
+            if pin is None:
+                result['application_gbps'] = 16 * cell['payload_bytes'] * row['completed_operations'] / row['measured_ns']
         elif args.path == 'nbsr':
             row = json.loads((output / 'server-result.json').read_bytes())
             require(row.get('status') == 'PASS' and row.get('streams') == args.streams,
@@ -307,12 +310,15 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
         cleanup = validate_post_close(output, cell, args.role, child.pid, post_close_reports)
         result['runtime_ownership_cleanup'] = cleanup
         require(git_state() == (sha, ''), 'source changed during cell')
+        if pin is not None:
+            require(debug.source_inventory(ROOT) == inventory, 'debug source changed during cell')
+        result.update(debug.qualification(pin))
         require(all(digest(binaries / n) == h for n, h in hashes.items())
                 and digest(output / 'executed-binary') == hashes[executable.name], 'binary changed')
         require(json.loads(args.build_manifest.read_bytes()) == build, 'build manifest changed')
         require({n: digest(authority / n) for n in cert_names} == certificate_hashes, 'certificate changed')
         check_cancelled()
-        write_json(output / 'result.json', dict(status='PASS_FINITE_PEER', role=args.role, **result,
+        write_json(output / 'result.json', dict(status=debug.status('PASS_FINITE_PEER', pin), role=args.role, **result,
             strict_stable_capacity='NOT_ESTABLISHED', steady_cpu_ns_per_operation=None,
             external_hardware='NOT_PROVEN'))
         success = True
@@ -336,6 +342,8 @@ def execute(args, *, check_cancelled=not_cancelled, live_events=None, destinatio
 
 def argument_parser():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--debug-correctness-manifest-sha256',
+                        help='Explicit pinned debug correctness mode; never throughput/capacity evidence')
     parser.add_argument('--phase-control', help='Source-only local capture phase control IPv4:port')
     parser.add_argument('--role', choices=('source', 'destination'), required=True)
     parser.add_argument('--observe-socket-ownership', action='store_true',

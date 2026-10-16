@@ -1,0 +1,26 @@
+{
+  "record_sha256": "0f0a58b5375fd8ae9994e51bbf4fc726afca4dde544a62ff42a75a6f28a4808f",
+  "image": "sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d",
+  "inherited_labels": {
+    "org.opencontainers.image.source": "https://github.com/rust-lang/docker-rust"
+  },
+  "recorded_mounts": [
+    {
+      "Destination": "/input",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": false,
+      "Source": "C:\\Users\\example\\AppData\\Local\\Temp\\nbsr-cargo-resolution-input-b09a851",
+      "Type": "bind"
+    },
+    {
+      "Destination": "/out",
+      "Mode": "",
+      "Propagation": "rprivate",
+      "RW": true,
+      "Source": "C:\\Users\\example\\AppData\\Local\\Temp\\nbsr-linux-build-b09a851-20261014-once-execfix\\artifacts",
+      "Type": "bind"
+    }
+  ],
+  "scope": "Sanitized derivative of selected retained image metadata. Source paths use a synthetic example account; record_sha256 remains the historical original record reference, not the digest of this derivative. No credentials or environment values."
+}

@@ -22,6 +22,17 @@ SEQUENCES = dict(source=('prepared', 'readiness_transferred', 'active', 'release
                  destination=('ready', 'active', 'released', 'report_ready', 'report_released', 'complete'))
 
 
+def require_relay_cleanup(outcomes):
+    """Local cleanup is a prerequisite, never proof of remote endpoint cleanup."""
+    require(isinstance(outcomes, dict) and set(outcomes) == set(SEQUENCES)
+            and all(isinstance(row, dict) and type(row.get('exit_code')) is int
+                    and row['exit_code'] == 0 and row.get('local_relay_forced') is False
+                    and row.get('local_relay_reaped') is True
+                    and row.get('local_cleanup_errors') == []
+                    and row.get('remote_cleanup') == 'REQUIRES_EVIDENCE'
+                    for row in outcomes.values()), 'relay cleanup failed')
+
+
 def endpoint_arguments(config, role):
     target = config[role]
     argv = ['python3', '-B', '-m', 'scripts.performance.linux_native_lifecycle_endpoint', '--role', role]
@@ -285,33 +296,82 @@ class Manager:
 
     def close(self):
         # EOF reaches cooperative remote controllers. Never kill remote PIDs by name.
-        for child in self.children.values():
+        outcomes = {
+            role: dict(exit_code=None, local_relay_forced=False, local_relay_reaped=False,
+                       local_cleanup_errors=[], remote_cleanup='UNCONFIRMED')
+            for role in dict.fromkeys((*self.children, *self.errors))
+        }
+        # Retain ownership and partial outcomes even if an uncatchable failure interrupts us.
+        self.cleanup_outcomes = outcomes
+        failed = object()
+
+        def error(role, stage, exception):
+            row = outcomes[role]
+            entry = dict(stage=stage, error_type=type(exception).__name__[:64])
+            if entry not in row['local_cleanup_errors'] and len(row['local_cleanup_errors']) < 16:
+                row['local_cleanup_errors'].append(entry)
+            row['remote_cleanup'] = 'UNCONFIRMED'
+
+        def attempt(role, stage, operation):
             try:
-                child.stdin.close()
-            except (OSError, ValueError):
-                pass
+                return operation()
+            except Exception as exception:
+                # Cleanup failures must not prevent attempts for another owned relay.
+                # Catchable cancellation is deferred by Cancellation, not raised here.
+                error(role, stage, exception)
+                return failed
+
+        for role, child in self.children.items():
+            attempt(role, 'stdin_close', lambda: child.stdin.close())
         deadline = time.monotonic() + self.cleanup_timeout
-        while any(child.poll() is None for child in self.children.values()) and time.monotonic() < deadline:
+        pending = {role for role, child in self.children.items() if attempt(role, 'poll', child.poll) is None}
+        while pending and time.monotonic() < deadline:
             time.sleep(.02)
-        outcomes = {}
+            pending = {role for role in pending if attempt(role, 'poll', self.children[role].poll) is None}
         self.stop.set()
         for role, child in self.children.items():
-            forced = child.poll() is None
+            code = attempt(role, 'poll', child.poll)
+            forced = code is None or code is failed
+            outcomes[role]['local_relay_forced'] = forced
             if forced:
-                child.terminate()
-                try:
-                    child.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    child.kill()
-                    child.wait(timeout=5)
-            self.readers[role].join(timeout=2)
-            child.stdout.close()
-            self.errors[role].close()
-            outcomes[role] = dict(exit_code=child.returncode, local_relay_forced=forced,
-                                 remote_cleanup='UNCONFIRMED' if forced or child.returncode != 0 else 'REQUIRES_EVIDENCE')
+                attempt(role, 'terminate', child.terminate)
+                attempt(role, 'wait', lambda: child.wait(timeout=5))
+                code = attempt(role, 'poll', child.poll)
+                if code is None or code is failed:
+                    attempt(role, 'kill', child.kill)
+                    attempt(role, 'wait', lambda: child.wait(timeout=5))
+                    code = attempt(role, 'poll', child.poll)
+            if type(code) is int:
+                outcomes[role].update(exit_code=code, local_relay_reaped=True)
+            reader = self.readers.get(role)
+            # Popen can succeed before thread construction/start fails. The child is
+            # still ours, but a nonexistent/unstarted reader cannot be joined.
+            if reader is not None and reader.ident is not None:
+                attempt(role, 'reader_join', lambda: reader.join(timeout=2))
+                if attempt(role, 'reader_alive', reader.is_alive) is True:
+                    error(role, 'reader_join', TimeoutError())
+            attempt(role, 'stdout_close', lambda: child.stdout.close())
         for role, errors in self.errors.items():
-            if role not in self.children:
-                errors.close()
-        self.record(action='cleanup', outcomes=outcomes)
-        self.log.close()
+            attempt(role, 'stderr_close', errors.close)
+        for row in outcomes.values():
+            if (row['local_relay_reaped'] and row['exit_code'] == 0
+                    and not row['local_relay_forced'] and not row['local_cleanup_errors']):
+                row['remote_cleanup'] = 'REQUIRES_EVIDENCE'
+
+        def log_failure(stage, exception):
+            if not outcomes:
+                outcomes['_manager'] = dict(exit_code=None, local_relay_forced=False,
+                    local_relay_reaped=False, local_cleanup_errors=[], remote_cleanup='UNCONFIRMED')
+            for role in outcomes:
+                error(role, stage, exception)
+
+        try:
+            self.record(action='cleanup', outcomes=outcomes)
+        except Exception as exception:
+            log_failure('management_record', exception)
+        finally:
+            try:
+                self.log.close()
+            except Exception as exception:
+                log_failure('management_close', exception)
         return outcomes

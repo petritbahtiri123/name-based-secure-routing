@@ -1,6 +1,7 @@
 """Coordinate and independently verify one finite native Direct/NBSR pair."""
 
 import argparse
+from scripts.performance import native_debug_correctness as debug
 from pathlib import Path, PurePosixPath
 import re
 
@@ -10,7 +11,7 @@ from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_loopback import ROOT, validate_matrix, write_json
 from scripts.performance.linux_native_finite_control import FiniteLedger, SCHEMA, drive
 from scripts.performance.linux_native_lifecycle_control import decode_object
-from scripts.performance.linux_native_lifecycle_coordinator import Manager
+from scripts.performance.linux_native_lifecycle_coordinator import Manager, require_relay_cleanup
 from scripts.performance.linux_native_lifecycle_remote import remote_command, remote_path
 from scripts.performance.linux_native_lifecycle_run import collect
 from scripts.performance.linux_native_pair import analyze_pair, read, verify_index
@@ -26,7 +27,7 @@ ROLES = ('source', 'destination')
 
 
 def validate_config(value):
-    require(isinstance(value, dict) and set(value) - {'post_close_reports', 'diagnostic_rate', 'source_live_guard', 'paired_live_guards', 'diagnostic_seconds'} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
+    require(isinstance(value, dict) and set(value) - {'post_close_reports', 'diagnostic_rate', 'source_live_guard', 'paired_live_guards', 'diagnostic_seconds', debug.FIELD} == {'schema', 'source_sha', 'path', 'payload', 'streams', 'depth', *ROLES},
             'invalid finite configuration fields')
     require(type(value.get('post_close_reports', False)) is bool, 'boolean post-close mode required')
     require(type(value.get('source_live_guard', False)) is bool
@@ -61,6 +62,11 @@ def validate_config(value):
         output, private = (PurePosixPath(target[key]) for key in ('output', 'authority'))
         require(not output.is_relative_to(PurePosixPath(target['checkout'])), 'output in checkout')
         require(not output.is_relative_to(private) and not private.is_relative_to(output), 'private/output overlap')
+    pin = debug.validate_pin(value.get(debug.FIELD))
+    require(debug.FIELD not in value or pin is not None, 'null debug opt-in rejected')
+    debug.validate_workload(dict(path=value['path'], streams=value['streams'], outstanding=value['depth'],
+        cores=value['source']['cores'], **({'diagnostic_seconds': value['diagnostic_seconds']}
+        if 'diagnostic_seconds' in value else {})), value.get('post_close_reports', False), pin)
     src, dst = (value[r] for r in ROLES)
     require(src['cores'] == dst['cores'], 'matched peer core count required')
     if (src['transport'], src['host']) == (dst['transport'], dst['host']):
@@ -76,6 +82,8 @@ def endpoint_arguments(config, role):
         argv += ['--' + field.replace('_', '-'), str(target[field])]
     for field in ('path', 'payload', 'streams', 'depth'):
         argv += ['--' + field, str(config[field])]
+    if debug.FIELD in config:
+        argv += ['--debug-correctness-manifest-sha256', config[debug.FIELD]]
     if config.get('post_close_reports', False):
         argv += ['--post-close-reports']
     if 'diagnostic_rate' in config:
@@ -113,8 +121,9 @@ def check_endpoint(root, role):
                 telemetry=telemetry)
 
 
-def execute(config, output, *, check_cancelled=not_cancelled):
+def execute(config, output, *, check_cancelled=not_cancelled, on_validated_event=None):
     validate_config(config)
+    require(on_validated_event is None or callable(on_validated_event), 'invalid event observer')
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
     output.mkdir(parents=False, exist_ok=False)
     problem = None
@@ -123,10 +132,12 @@ def execute(config, output, *, check_cancelled=not_cancelled):
         paired = config.get('paired_live_guards', False)
         ledger = LiveLedger(payload_bytes=config['payload'], diagnostic_seconds=config.get('diagnostic_seconds')) if paired else FiniteLedger()
         manager = Manager(None, output, check_cancelled=check_cancelled, ledger=ledger, diagnostic_seconds=config.get('diagnostic_seconds'))
-        if paired:
+        if paired or on_validated_event is not None:
             def forward(role, value):
-                if role == 'source' and value['event'] in ('paced_progress', 'paced_final'):
+                if paired and role == 'source' and value['event'] in ('paced_progress', 'paced_final'):
                     manager.send('destination', dict(op=value['event'], value=value['value']))
+                if on_validated_event is not None:
+                    on_validated_event(role, value)
             manager.on_receive = forward
         try:
             drive(lambda role: manager.start_command(role, remote_command(config[role], endpoint_arguments(config, role))),
@@ -135,7 +146,11 @@ def execute(config, output, *, check_cancelled=not_cancelled):
             problem = error
         finally:
             cleanup = manager.close()
-            write_json(output / 'cleanup.json', cleanup)
+            try:
+                write_json(output / 'cleanup.json', cleanup)
+            finally:
+                if problem is not None:
+                    write_json(output / 'driver-failure.json', dict(error_type=type(problem).__name__))
         for role in ROLES:
             if role not in manager.children:
                 continue
@@ -150,15 +165,15 @@ def execute(config, output, *, check_cancelled=not_cancelled):
                     problem = error
         if problem is not None:
             raise problem
-        require(set(cleanup) == set(ROLES) and all(v['exit_code'] == 0 and not v['local_relay_forced']
-                for v in cleanup.values()), 'relay cleanup failed')
+        require_relay_cleanup(cleanup)
         endpoints = {role: check_endpoint(output / role, role) for role in ROLES}
         for role, checked in endpoints.items():
             for name, event in checked['events'].items():
                 require(event == manager.ledger.received[role, name], 'retained/live event mismatch')
         if paired:
             require(endpoints['source']['telemetry'] == ledger.telemetry, 'retained/live source telemetry mismatch')
-        result = analyze_pair(output / 'source' / 'peer', output / 'destination' / 'peer', source_sha=config['source_sha'])
+        result = analyze_pair(output / 'source' / 'peer', output / 'destination' / 'peer', source_sha=config['source_sha'],
+                              **({debug.FIELD: config[debug.FIELD]} if debug.FIELD in config else {}))
         expected = dict(path=config['path'], payload_bytes=config['payload'], streams=config['streams'],
                         outstanding=config['depth'], cores=config['source']['cores'])
         if 'diagnostic_rate' in config:
@@ -179,7 +194,7 @@ def execute(config, output, *, check_cancelled=not_cancelled):
             result.update(live_private_growth='PAIRED_DIAGNOSTIC', destination_private_growth='DIAGNOSTIC',
                 destination_live_guard=replay_destination(output / 'destination', output / 'source' / 'peer',
                                                          payload_bytes=config['payload'], diagnostic_seconds=config.get('diagnostic_seconds')))
-        result.update(status='PASS_CONTROLLED_FINITE_PAIR',
+        result.update(status=debug.status('PASS_CONTROLLED_FINITE_PAIR', config.get(debug.FIELD)),
             endpoint_indexes={role: value['index_sha256'] for role, value in endpoints.items()},
             sustained_capacity='NOT_ESTABLISHED')
         write_json(output / 'result.json', result)

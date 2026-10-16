@@ -1,0 +1,244 @@
+"""Opt-in Linux local process-group containment; never remote cleanup proof.
+
+The monotonic budget includes worker startup, blocked I/O, validation and cleanup.
+Kernel/filesystem stalls, scheduling starvation, escaped sessions and parent death
+remain outside a userspace watchdog's guarantee. Raw coordinator APIs are unchanged.
+"""
+
+import argparse
+import json
+import math
+import os
+from pathlib import Path
+import shutil
+import signal
+import subprocess
+import sys
+import time
+
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
+
+
+def supervise(owner, *, clock=time.monotonic, sleep=time.sleep,
+              check_cancelled=not_cancelled, guard=not_cancelled, started_at=None):
+    """Owner methods must be nonblocking except bounded OS process creation.
+
+    Observe without reaping. Retain the group leader until all group members are
+    absent, so its PID/PGID cannot be reused between observation and escalation.
+    Cancellation and failures latch once; repeated requests never reset deadlines.
+    """
+    now = clock()
+    started = now if started_at is None else started_at
+    if (type(started) not in (int, float) or not math.isfinite(started)
+            or type(now) not in (int, float) or not math.isfinite(now) or started > now):
+        raise ValueError('invalid monotonic clock')
+    deadline, stop_at = started + 120, started + 100
+    previous = now
+    reason = None
+    errors, actions = [], []
+    sent = set()
+    code, group_live, reaped = None, True, False
+
+    def error(stage, exception):
+        entry = dict(stage=stage, type=type(exception).__name__[:64])
+        if entry not in errors and len(errors) < 16:
+            errors.append(entry)
+
+    def kill_once(now):
+        if 'KILL' not in sent:
+            sent.add('KILL')
+            actions.append(dict(signal='KILL', elapsed_seconds=now - started if math.isfinite(now) else None))
+            try:
+                owner.signal('KILL')
+            except Exception as exception:
+                error('KILL', exception)
+
+    try:
+        if now >= deadline:
+            raise TimeoutError('shared deadline expired before startup')
+        guard()
+        check_cancelled()
+        owner.start()
+    except Exception as exception:
+        error('start', exception)
+        reason, stop_at = 'startup', started
+    if not owner.owned:
+        return dict(status='INVALID_PARTIAL', reason=reason or 'ownership', errors=errors,
+                    actions=actions, leader_reaped=False, group_exit_observed=False,
+                    remote_cleanup='UNCONFIRMED', local_cleanup='UNCONFIRMED',
+                    elapsed_seconds=clock() - started)
+
+    while True:
+        now = clock()
+        if not math.isfinite(now) or now < previous:
+            reason = reason or 'clock'
+            # No trustworthy remaining budget: one immediate owned kill, no waits.
+            kill_once(now)
+            break
+        previous = now
+        if now >= deadline:
+            reason = reason or 'deadline'
+            kill_once(now)
+            break
+        if reason is None:
+            for stage, check in [('cancel', check_cancelled), ('resource', guard)]:
+                try:
+                    check()
+                except Exception as exception:
+                    error(stage, exception)
+                    reason, stop_at = stage, min(stop_at, now)
+                    break
+        try:
+            code, group_live = owner.observe()
+        except Exception as exception:
+            error('observe', exception)
+            reason, stop_at = reason or 'observation', min(stop_at, now)
+            code, group_live = None, True
+        observed_at = clock()
+        if not math.isfinite(observed_at) or observed_at < now or observed_at >= deadline:
+            reason = reason or ('clock' if not math.isfinite(observed_at) or observed_at < now else 'deadline')
+            kill_once(observed_at)
+            break
+        now = observed_at
+        if now >= started + 100:
+            reason = reason or 'deadline'
+        if code is not None:
+            if code != 0 or group_live:
+                reason = reason or ('worker_exit' if code != 0 else 'remaining_group')
+                stop_at = min(stop_at, now)
+            if not group_live:
+                try:
+                    owner.reap()
+                    reaped = True
+                except Exception as exception:
+                    error('reap', exception)
+                    reason = reason or 'reap'
+                break
+        if reason is not None:
+            for name, offset in [('INT', 0), ('TERM', 5), ('KILL', 10)]:
+                if name not in sent and now >= stop_at + offset:
+                    sent.add(name)
+                    actions.append(dict(signal=name, elapsed_seconds=now - started))
+                    try:
+                        owner.signal(name)
+                    except Exception as exception:
+                        error(name, exception)
+        sleep(min(.05, max(0, deadline - clock())))
+    elapsed = clock() - started
+    if elapsed >= 120:
+        reason = reason or 'deadline'
+    return dict(status='LOCAL_WORKER_COMPLETED' if reason is None and reaped and not errors else 'INVALID_PARTIAL',
+                reason=reason, errors=errors, actions=actions, exit_code=code,
+                leader_reaped=reaped, group_exit_observed=not group_live,
+                remote_cleanup='UNCONFIRMED', local_cleanup='UNCONFIRMED',
+                elapsed_seconds=elapsed if math.isfinite(elapsed) else None)
+
+
+class LinuxGroup:
+    """One fresh session; no poll/wait/context-manager reap before group cleanup."""
+
+    def __init__(self, argv, stdout, stderr):
+        if sys.platform != 'linux':
+            raise OSError('Linux process ownership adapter required')
+        self.argv, self.stdout, self.stderr = argv, stdout, stderr
+        self.process = None
+        self.owned = False
+
+    def start(self):
+        # Cancellation records requests, never raises between creation/assignment.
+        self.process = subprocess.Popen(self.argv, stdin=subprocess.DEVNULL,
+                                        stdout=self.stdout, stderr=self.stderr,
+                                        start_new_session=True)
+        self.owned = True
+
+    def observe(self):
+        pid = self.process.pid
+        info = os.waitid(os.P_PID, pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        code = None if info is None else (info.si_status if info.si_code == os.CLD_EXITED else -info.si_status)
+        # This is a non-atomic /proc snapshot, NOT descendant shutdown proof.
+        # A retained zombie leader pins its identity. Count every other member,
+        # including zombies; uncertainty must not be replaced by a zero count.
+        for entry in Path('/proc').iterdir():
+            if not entry.name.isdecimal() or int(entry.name) == pid:
+                continue
+            try:
+                text = (entry / 'stat').read_text()
+            except FileNotFoundError:
+                continue  # Concurrent exit, not an observation failure.
+            fields = text[text.rfind(')') + 2:].split()
+            if len(fields) < 4:
+                raise ValueError('invalid process identity observation')
+            if int(fields[2]) == pid:
+                return code, True
+        return code, code is None
+
+    def signal(self, name):
+        if not self.owned or self.process.returncode is not None:
+            raise RuntimeError('owned unreaped group required')
+        os.killpg(self.process.pid, getattr(signal, 'SIG' + name))
+
+    def reap(self):
+        pid, status = os.waitpid(self.process.pid, os.WNOHANG)
+        if pid != self.process.pid:
+            raise RuntimeError('leader not ready to reap')
+        self.process.returncode = os.waitstatus_to_exitcode(status)
+
+
+def resource_guard(path, baseline, *, starting=False):
+    if type(baseline) is not int or baseline <= 0:
+        raise ValueError('explicit original disk baseline required')
+    free = shutil.disk_usage(path).free
+    available = None
+    for line in Path('/proc/meminfo').read_text().splitlines():
+        if line.startswith('MemAvailable:'):
+            available = int(line.split()[1]) * 1024
+    if (free < (8 if starting else 6) * 2**30 or baseline - free > 2 * 2**30
+            or available is None or available < 2 * 2**30):
+        raise OSError('local resource guard')
+
+
+def worker_command(mode, config, output):
+    if mode not in ('finite', 'lifecycle'):
+        raise ValueError('unsupported bounded worker')
+    return [sys.executable, '-B', '-m', 'scripts.performance.linux_native_' + mode + '_run',
+            '--config', str(config), '--output', str(output)]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--mode', choices=('finite', 'lifecycle'), required=True)
+    parser.add_argument('--config', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--original-disk-free-bytes', type=int, required=True)
+    args = parser.parse_args()
+    if sys.platform != 'linux':
+        parser.error('Linux adapter only; offline injected tests are cross-platform')
+    # Validate before spawning; do not silently shorten authorized long profiles.
+    from scripts.performance.linux_native_lifecycle_control import decode_object
+    from scripts.performance.linux_native_finite_run import validate_config as finite_config
+    from scripts.performance.linux_native_lifecycle_coordinator import validate_config as lifecycle_config
+    with args.config.open('rb') as stream:
+        config = decode_object(stream.read(65537))
+    (finite_config if args.mode == 'finite' else lifecycle_config)(config)
+    if 'diagnostic_seconds' in config:
+        parser.error('long profiles require a separately approved watchdog budget')
+    root = Path(__file__).resolve().parents[2]
+    if args.output.is_symlink() or args.output.resolve().is_relative_to(root):
+        parser.error('fresh external evidence directory required')
+    resource_guard(args.output.parent, args.original_disk_free_bytes, starting=True)
+    args.output.mkdir(exist_ok=False)
+    # Persist uncertainty before creating anything. Interrupted final writes cannot
+    # leave the initial state looking successful. Existing worker evidence stays intact.
+    pending = dict(status='UNCONFIRMED', remote_cleanup='UNCONFIRMED')
+    (args.output / 'watchdog-start.json').write_text(json.dumps(pending) + '\n', encoding='utf-8')
+    with (args.output / 'stdout.log').open('xb', buffering=0) as stdout, (args.output / 'stderr.log').open('xb', buffering=0) as stderr:
+        owner = LinuxGroup(worker_command(args.mode, args.config.resolve(), args.output.resolve() / 'worker'), stdout, stderr)
+        with Cancellation() as cancellation:
+            result = supervise(owner, check_cancelled=cancellation.check,
+                               guard=lambda: resource_guard(args.output, args.original_disk_free_bytes))
+        (args.output / 'watchdog-result.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+    return 0 if result['status'] == 'LOCAL_WORKER_COMPLETED' else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

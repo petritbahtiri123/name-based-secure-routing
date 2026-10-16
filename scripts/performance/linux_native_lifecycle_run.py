@@ -9,7 +9,7 @@ from scripts.performance.linux_b5_ceiling import require
 from scripts.performance.linux_b5_placement import seal_output
 from scripts.performance.linux_loopback import ROOT, write_json
 from scripts.performance.linux_native_lifecycle_control import decode_object
-from scripts.performance.linux_native_lifecycle_coordinator import Manager, drive, endpoint_arguments, validate_config
+from scripts.performance.linux_native_lifecycle_coordinator import Manager, drive, endpoint_arguments, validate_config, require_relay_cleanup
 from scripts.performance.linux_native_lifecycle_gate import check_endpoint
 from scripts.performance.linux_native_lifecycle_pair import analyze
 from scripts.performance.linux_native_lifecycle_remote import download_archive, extract_public_archive, remote_command
@@ -105,7 +105,12 @@ def execute(config, output, *, check_cancelled=not_cancelled, archive_collection
         except BaseException as error:
             problem = error
         finally:
-            write_json(output / 'cleanup.json', manager.close())
+            cleanup = manager.close()
+            try:
+                write_json(output / 'cleanup.json', cleanup)
+            finally:
+                if problem is not None:
+                    write_json(output / 'driver-failure.json', dict(error_type=type(problem).__name__))
         # A slow first bulk extraction must not starve the other peer's reports.
         # Use the same live-event ownership proof as full collection below.
         for role in ('destination', 'source'):
@@ -143,6 +148,7 @@ def execute(config, output, *, check_cancelled=not_cancelled, archive_collection
                     problem = error
         if problem is not None:
             raise problem
+        require_relay_cleanup(cleanup)
         endpoints = {role: endpoint_gate(roots[role], role, count, **cycle_shape) for role in ('source', 'destination')}
         for role, checked in endpoints.items():
             for name, value in checked['events'].items():

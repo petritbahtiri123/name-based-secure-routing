@@ -134,7 +134,8 @@ def execute_endpoint(args, *, input_stream=None, output_stream=None, delegate=na
                             'destination telemetry incomplete')
                     live_result['destination_live_guard'] = destination_observers[0].guard.qualification()
                 write_json(output / 'result.json', dict(status='PASS_FINITE_ENDPOINT', role=args.role, **live_result,
-                    peer=outcome, sustained_capacity='NOT_ESTABLISHED',
+                    peer=outcome, **native.debug.qualification(getattr(args, native.debug.FIELD, None)),
+                    sustained_capacity='NOT_ESTABLISHED',
                     runtime_ownership=outcome.get('runtime_ownership_cleanup', 'NOT_MEASURED')))
                 emit(dict(event='complete'))
                 return outcome

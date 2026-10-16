@@ -175,3 +175,39 @@ drops and incomplete activation are retained; neither a production ceiling nor
 a sole packet-level cause is established. See the [September25 checkpoint](ENGINEERING_CHECKPOINT_2026-09-25.md).
 The optional memory observer remains unqualified for timing, and guest placement
 does not prove exclusive physical-host cores.
+
+
+## Local relay cleanup evidence
+
+The finite and lifecycle coordinators require exact local relay cleanup outcomes:
+zero integer exit, no forced termination, confirmed local reap, no cleanup errors,
+and `remote_cleanup=REQUIRES_EVIDENCE`. That marker still requires independent
+remote evidence. Manager cleanup attempts each owned relay and retains failed
+ownership plus bounded stage/type metadata; partial startup must remain cleanable.
+Driver failures and cleanup failures remain separate evidence. Focused coverage is
+`tests/performance/test_linux_native_cleanup_failures.py` with finite/lifecycle,
+coordinator and post-close neighbors. These deterministic fake-process checks do
+not prove a cleanup-inclusive whole-trial deadline, remote shutdown, blocking-pipe
+safety or writer-thread cancellation. A separate external watchdog remains required
+before live execution. See `docs/reviews/2026-10-12-sphere-cleanup-implementation.md`.
+
+
+## Opt-in local whole-trial watchdog
+
+`scripts/performance/linux_native_watchdog.py` wraps the finite/lifecycle CLI in
+one fresh Linux session with an absolute 120-second supervision budget. It begins
+cancellation at 100 seconds, escalates at 105/110, and makes a final owned KILL
+attempt on deadline overrun without granting a new wait. Early failures start
+cleanup immediately. Existing raw `execute` APIs and long profiles are unchanged;
+they do not gain this wrapper implicitly. Long diagnostic profiles are rejected.
+
+Use only with separately authorized execution resources, existing trusted SSH and
+an explicitly retained original disk baseline. The supervisor retains fixed
+8/6 GiB disk start/stop thresholds, 2 GiB cumulative growth and 2 GiB RAM reserve.
+`tests/performance/test_linux_native_watchdog.py` uses fake clocks/process handles;
+its raw-manager characterization preserves the historical 135-second counterexample.
+The wrapper is Linux-only; the Windows run proves orchestration and mocked adapter
+contracts, not Linux process/signal behavior. Both local and remote cleanup remain
+UNCONFIRMED: a /proc snapshot is non-atomic and can omit escaped/hidden processes.
+No hard real-time, parent-death, remote shutdown or READY guarantee follows.
+See `docs/benchmarks/LOCAL_TRIAL_WATCHDOG.md` for invocation and remaining gates.

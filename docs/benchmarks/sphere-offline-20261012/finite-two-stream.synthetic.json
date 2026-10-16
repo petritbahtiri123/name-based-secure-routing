@@ -1,0 +1,31 @@
+{
+  "schema": "nbsr-native-finite-coordinator-v1",
+  "source_sha": "ad77d59754651fee449bb1d9c14a946f9f3b2d15",
+  "path": "nbsr",
+  "payload": 1024,
+  "streams": 2,
+  "depth": 1,
+  "post_close_reports": true,
+  "source": {
+    "transport": "ssh",
+    "host": "sphere-source.invalid",
+    "checkout": "/srv/nbsr/source",
+    "binaries": "/srv/nbsr/bin",
+    "build_manifest": "/srv/nbsr/build.json",
+    "authority": "/srv/nbsr/private/tls",
+    "output": "/srv/nbsr/evidence/synthetic-finite-r1/source",
+    "bind": "192.0.2.10:0",
+    "cores": 1
+  },
+  "destination": {
+    "transport": "ssh",
+    "host": "sphere-destination.invalid",
+    "checkout": "/srv/nbsr/source",
+    "binaries": "/srv/nbsr/bin",
+    "build_manifest": "/srv/nbsr/build.json",
+    "authority": "/srv/nbsr/private/tls",
+    "output": "/srv/nbsr/evidence/synthetic-finite-r1/destination",
+    "bind": "192.0.2.11:0",
+    "cores": 1
+  }
+}
