@@ -1,0 +1,17 @@
+from pathlib import Path
+import json,time
+from diagnostic_tls_budget_v3 import DiagnosticCommand
+from diagnostic_absence import absence_confirmed
+p=Path(__file__).resolve().parent;root=p/'tls-proof-authorization/resource-absence-recheck-01';root.mkdir();(root/'logs').mkdir();start=time.monotonic();command=DiagnosticCommand(root/'logs',started=start,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe');ids=[]
+for run in ['nbsr-tls-proof-01','nbsr-tls-proof-01-retry1','nbsr-tls-proof-01-retry2']:
+ for phase in ['stage','runtime']:
+  f=p.parent/run/phase/'result.json'
+  if f.exists():
+   cid=json.loads(f.read_text()).get('container_id')
+   if cid:ids.append(cid)
+results=[]
+for identity in ids:
+ reply=command(['inspect','--type','container','--format','{{.Id}}',identity]);released=command.owner is None or not command.owner.owned
+ results.append({'id':identity,'absent':absence_confirmed(reply.code,reply.stdout,reply.stderr,identity,completed=True,handles_released=released)})
+reply=command(['volume','ls','--filter','name=^nbsr-tls-source-01$','--format','{{.Name}}']);volume_absent=reply.code==0 and reply.stdout.strip()==''
+result={'containers':results,'volume':'nbsr-tls-source-01','volume_absent':volume_absent,'host_handles_owned':command.owner is not None and command.owner.owned,'elapsed':time.monotonic()-start};(root/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result));assert all(x['absent'] for x in results) and volume_absent and not result['host_handles_owned']

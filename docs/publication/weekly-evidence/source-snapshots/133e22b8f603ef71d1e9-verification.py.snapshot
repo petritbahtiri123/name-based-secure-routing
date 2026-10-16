@@ -1,0 +1,36 @@
+import ctypes, hashlib, json, shutil, subprocess, sys, time
+from pathlib import Path
+SOURCE=Path("C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013")
+OUT=Path("C:/Users/OPERATOR/AppData/Local/Temp/nbsr-single-readonly-docker-20261013")
+COMMIT="b09a85187d1e27250a1aec2e76f7a5bcdef84611"
+class Memory(ctypes.Structure):
+    _fields_=[("length",ctypes.c_ulong),("load",ctypes.c_ulong)]+[(n,ctypes.c_ulonglong) for n in ("total","free","page_total","page_free","virtual_total","virtual_free","extended")]
+def resources(start=False):
+    m=Memory(); m.length=ctypes.sizeof(m)
+    if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)): raise RuntimeError("memory observation unavailable")
+    disk=shutil.disk_usage(SOURCE).free
+    value=dict(disk_free=disk,ram_free=m.free,commit_free=m.page_free)
+    if disk<(8 if start else 6)*2**30 or 14247788544-disk>2*2**30 or min(m.free,m.page_free)<2*2**30: raise RuntimeError("resource guard: "+json.dumps(value))
+    return value
+assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=SOURCE,timeout=10).decode().strip()==COMMIT
+assert not subprocess.check_output(["git","status","--porcelain"],cwd=SOURCE,timeout=10)
+OUT.mkdir(exist_ok=False)
+sys.path.insert(0,str(SOURCE))
+from scripts.performance.windows_docker_provisioning import DockerCommand
+result=dict(commit=COMMIT,approval="Sentinel_ef30d560dbf8819183551a26e3d93a65",historical_cache_probe="UNCONFIRMED unchanged",status="NOT_RUN",resources_start=resources(True))
+cmd=DockerCommand(OUT,executable="C:/Program Files/Docker/Docker/resources/bin/docker.exe")
+args=["image","inspect","--format",'{{.Id}} {{.Os}} {{.Architecture}} {{.Size}}',"sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769"]
+result["args"]=args
+started=time.monotonic()
+try:
+    reply=cmd(args,timeout=8)
+    result.update(status="PASS" if reply.code==0 else "COMMAND_FAILED",code=reply.code,stdout=reply.stdout,stderr=reply.stderr)
+except BaseException as exc:
+    result.update(status="UNCONFIRMED",error_type=type(exc).__name__,error=str(exc),cause=None if exc.__cause__ is None else dict(type=type(exc.__cause__).__name__,message=str(exc.__cause__)))
+finally:
+    result["elapsed_seconds"]=time.monotonic()-started
+    result["owned"]=None if cmd.owner is None else cmd.owner.owned
+    try: result["resources_end"]=resources()
+    except BaseException as exc: result["resource_error"]=str(exc)
+    (OUT/"result.json").write_text(json.dumps(result,indent=2))
+    print(json.dumps(result))

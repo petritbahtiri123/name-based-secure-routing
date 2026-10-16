@@ -1,0 +1,15 @@
+import pathlib,lzma,subprocess,hashlib,json,sys
+p=pathlib.Path('/tmp/debian-closure-plan');w=pathlib.Path('/tmp/apt-plan');w.mkdir()
+lists=w/'lists';lists.mkdir();(lists/'partial').mkdir();cache=w/'cache';cache.mkdir();(cache/'archives').mkdir();(cache/'archives/partial').mkdir()
+sources=[]
+for suite,archive in [('bookworm','debian'),('bookworm-updates','debian'),('bookworm-security','debian-security')]:
+    sources.append(f'deb https://deb.debian.org/{archive} {suite} main')
+    b=(p/(suite+'.Packages.xz')).read_bytes()
+    evidence=next(r for r in json.loads((p/'verified-indexes.json').read_text()) if r['suite']==suite)
+    assert hashlib.sha256(b).hexdigest()==evidence['sha256']
+    (lists/f'deb.debian.org_{archive}_dists_{suite}_main_binary-amd64_Packages').write_bytes(lzma.decompress(b))
+(w/'sources.list').write_text('\n'.join(sources)+'\n')
+assert hashlib.sha256(pathlib.Path('/var/lib/dpkg/status').read_bytes()).hexdigest()=='646e182b3b4a1182c9b4a8f583d9f08e3148e243349f0e6bf5ff07c57000c3b0'
+args=['apt-get','--simulate','--no-install-recommends','--no-remove','-o','Debug::NoLocking=1','-o',f'Dir::State::Lists={lists}','-o',f'Dir::Cache={cache}','-o',f'Dir::Etc::sourcelist={w}/sources.list','-o','Dir::Etc::sourceparts=-','-o','APT::Get::List-Cleanup=0','install','git=1:2.39.5-0+deb12u3']
+print(json.dumps({'command':args,'network':'none','install':False}),flush=True)
+r=subprocess.run(args,timeout=35);sys.exit(r.returncode)

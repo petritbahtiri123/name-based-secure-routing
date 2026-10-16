@@ -1,0 +1,25 @@
+
+import json,time,re,datetime
+from pathlib import Path
+from scripts.performance.windows_docker_provisioning import DockerCommand
+from diagnostic_absence import absence_confirmed
+BASE=Path('C:/Users/PUBLIC_USER/AppData/Local/Temp');old=BASE/'nbsr-47d2ae4-public-diagnostic-02';out=BASE/'nbsr-diagnostic02-cleanup-followup';out.mkdir(exist_ok=False)
+intent=json.loads((old/'logs/command-0002/request.json').read_text())['argv'];name=intent[intent.index('--name')+1];assert name=='nbsr-47d2ae4-public-diagnostic-02'
+image='sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d';assert image in intent
+labels=dict(intent[i+1].split('=',1) for i,v in enumerate(intent) if v=='--label');labels['org.opencontainers.image.source']='https://github.com/rust-lang/docker-rust'
+start=time.monotonic();command=DockerCommand(out,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe');record={'name':name,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'removed':False}
+def call(args):
+ remaining=30-(time.monotonic()-start)
+ if remaining<=0:raise TimeoutError('followup cleanup bound')
+ return command(args,timeout=min(8,remaining))
+try:
+ q=call(['inspect','--format','{"Id":{{json .Id}},"Name":{{json .Name}},"Image":{{json .Image}},"Labels":{{json .Config.Labels}},"Running":{{json .State.Running}}}',name]);record['inspection_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+ if absence_confirmed(q.code,q.stdout,q.stderr,name,completed=True,handles_released=not command.owner.owned):record['observation']='EXACT_NAME_ABSENT_AT_INSPECTION'
+ else:
+  if q.code!=0:raise RuntimeError('inspection failed without exact absence evidence')
+  row=json.loads(q.stdout);assert row['Name']=='/'+name and row['Image']==image and row['Labels']==labels,'ownership mismatch';cid=row['Id'];assert re.fullmatch('[0-9a-f]{64}',cid);record['id']=cid;record['was_running']=row['Running']
+  if row['Running']:raise RuntimeError('unexpected running state; stop')
+  q=call(['rm',cid]);assert q.code==0;record['removed']=True
+  q=call(['inspect','--format','{{.Id}}',cid]);assert absence_confirmed(q.code,q.stdout,q.stderr,cid,completed=True,handles_released=not command.owner.owned);record['observation']='OWNED_ID_REMOVED_AND_ABSENT'
+except BaseException as e:record['failure']={'type':type(e).__name__,'message':str(e)}
+record['handles_owned']=command.owner is not None and command.owner.owned;record['elapsed']=time.monotonic()-start;record['daemon_cancellation_proven']=False;(out/'result.json').write_text(json.dumps(record,indent=2));print(json.dumps(record))

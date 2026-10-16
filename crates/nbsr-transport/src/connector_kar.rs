@@ -81,7 +81,8 @@ fn extensions(v: &V) -> Result<()> {
     Ok(())
 }
 // Private semantic helper never constructs the checked-signature result.
-// Tests exercise it separately because no authorized signed positive exists.
+// Unsigned tests cover field mutations; the retained purpose-3 fixture also
+// exercises successful signature-plus-semantics composition under supplied trust.
 fn semantics(
     payload: &[u8],
     root: &SuppliedTestRoot,

@@ -529,3 +529,46 @@ def test_empty_job_unsignalled_helper_retains_exact_handles_until_both_complete(
     assert not owner.owned
     assert all(a[1:] == ('job', 'process', True)
                for a in backend.actions if a[0] == 'observe')
+
+
+def test_explicit_diagnostic_budget_composes_work_and_cleanup():
+    from scripts.performance.windows_native_management import CellBudget
+    now = [10.0]
+    budget = CellBudget(clock=lambda: now[0], work_seconds=240, total_seconds=300)
+    assert budget.command_timeout(122) == 122
+    now[0] = 240
+    assert budget.command_timeout(122) == 10
+    now[0] = 250
+    with pytest.raises(TimeoutError):
+        budget.command_timeout(8)
+    assert budget.command_timeout(8, cleanup=True) == 8
+    assert budget.remaining_cleanup() == 60
+    now[0] = 309
+    assert budget.command_timeout(8, cleanup=True) == 1
+    now[0] = 310
+    with pytest.raises(TimeoutError):
+        budget.remaining_cleanup()
+
+
+@pytest.mark.parametrize('field', ['work_seconds', 'total_seconds'])
+@pytest.mark.parametrize('value', [0, -1, True, float('nan'), float('inf'), 301])
+def test_diagnostic_budget_rejects_invalid_limits(field, value):
+    from scripts.performance.windows_native_management import CellBudget
+    values = dict(work_seconds=240, total_seconds=300)
+    values[field] = value
+    with pytest.raises(ValueError):
+        CellBudget(**values)
+
+
+def test_diagnostic_budget_cannot_consume_cleanup_reserve():
+    from scripts.performance.windows_native_management import CellBudget
+    for work, total in [(96,120),(241,300),(240,299),(120,121)]:
+        with pytest.raises(ValueError):
+            CellBudget(work_seconds=work,total_seconds=total)
+
+
+@pytest.mark.parametrize('value', [0, -1, True, float('nan'), float('inf'), 123])
+def test_diagnostic_command_allocation_rejects_invalid(value):
+    from scripts.performance.windows_native_management import CellBudget
+    with pytest.raises(ValueError):
+        CellBudget().command_timeout(value)

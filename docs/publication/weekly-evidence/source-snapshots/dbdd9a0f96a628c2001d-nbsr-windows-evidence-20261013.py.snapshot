@@ -1,0 +1,118 @@
+from pathlib import Path
+import difflib
+import hashlib
+import json
+import shutil
+
+root = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+prior = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-reconnect-20261013')
+logs = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-evidence-20261012')
+out = Path('C:/Users/OPERATOR/OneDrive/Documents/NBSR/evidence/local-handoff/2026-10-13-windows-native-management')
+out.mkdir(exist_ok=False)
+files = [
+    'scripts/performance/windows_native_management.py',
+    'scripts/performance/windows_job_backend.py',
+    'scripts/performance/linux_native_finite_run.py',
+    'scripts/performance/linux_native_watchdog.py',
+    'tests/performance/test_windows_native_management.py',
+    'tests/performance/test_windows_job_backend.py',
+    'docs/reviews/2026-10-13-windows-native-management.md',
+    'docs/benchmarks/SPHERE_MINIMAL_INTEGRATION_2026-10-13.md',
+    'AGENTS.md',
+]
+before = {
+    'scripts/performance/linux_native_finite_run.py': prior / 'linux_native_finite_run.before-windows.py',
+    'scripts/performance/linux_native_watchdog.py': prior / 'linux_native_watchdog.before-windows.py',
+    'AGENTS.md': prior / 'AGENTS.before-windows.md',
+    'docs/benchmarks/SPHERE_MINIMAL_INTEGRATION_2026-10-13.md': prior / 'SPHERE_MINIMAL_INTEGRATION.before-windows.md',
+}
+patch = []
+for name in files:
+    target = out / 'source' / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(root / name, target)
+    old = before[name].read_text() if name in before else ''
+    if name in before:
+        saved = out / 'before' / name
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(before[name], saved)
+    patch.extend(difflib.unified_diff(old.splitlines(True), target.read_text().splitlines(True),
+                                    fromfile='a/' + name, tofile='b/' + name))
+(out / 'change.patch').write_text(''.join(patch), encoding='utf-8')
+labels = ['windows-management-red', 'windows-management-green', 'windows-composition-red',
+          'windows-composition-green', 'windows-native-binding-red', 'windows-native-binding-green',
+          'windows-runner-red', 'windows-runner-green', 'windows-deadline-red',
+          'windows-cancellation-red', 'windows-corrections-green', 'windows-final', 'windows-ruff-final']
+for label in labels:
+    for suffix in ('.json', '.stdout.log', '.stderr.log'):
+        shutil.copyfile(logs / (label + suffix), out / (label + suffix))
+shutil.copyfile(logs / 'source-manifest.json', out / 'materialization-source-manifest.json')
+shutil.copyfile(Path(__file__), out / Path(__file__).name)
+dependencies = [
+    'scripts/performance/local_container_disposal.py',
+    'scripts/performance/local_container_sequence.py',
+    'scripts/performance/linux_native_lifecycle_coordinator.py',
+    'scripts/performance/linux_native_lifecycle_remote.py',
+    'scripts/performance/process_cancellation.py',
+    'scripts/performance/authority.py',
+    'docs/benchmarks/sphere-offline-20261012/finite-two-stream.synthetic.json',
+]
+(out / 'source-identity.json').write_text(json.dumps({
+    'base': 'ad77d59754651fee449bb1d9c14a946f9f3b2d15',
+    'meaning': 'Isolated materialization with earlier local changes; base alone does not identify current source.',
+    'source_root': str(root), 'changed_files': files,
+    'selected_dependency_sha256': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in dependencies},
+    'no_binaries_built': True, 'native_api_execution': 'NOT_RUN', 'docker_execution': 'NOT_RUN',
+}, indent=2) + '\n')
+(out / 'public-fixture-inventory.json').write_text(json.dumps({
+    'scope': 'Known relevant handoff metadata and source recipes only; no private-key content inspected.',
+    'usable_existing_tls_set': 'NOT_ESTABLISHED', 'public_certificate_fingerprints': [],
+    'actual_certificate_validity': None, 'linux_release_manifest': 'NOT_LOCATED',
+    'recipe_only': {'source': 'scripts/performance/authority.py', 'key_type': 'random P-256 test credentials',
+                    'sans': ['source.edge', 'destination.edge'], 'validity': 'generation minus one minute through plus one day'},
+    'observed_configuration': 'placeholder /srv/nbsr/private/tls and /srv/nbsr/build.json',
+    'no_private_key_read_hash_copy_mount_transfer': True,
+}, indent=2) + '\n')
+(out / 'independent-review.md').write_text('''# Independent scoped review
+
+Reviewer /root/kar_positive_review, read-only. Initial blocking finding: catchable
+cancellation/exception could escape supervision while the Windows job remained
+owned. Two deterministic RED cases reproduced acquisition/loop gaps. Deferred
+Cancellation and exceptional exact-owner cleanup fixed them.
+
+Follow-up: no remaining scoped blocker. Deferred cancellation covers acquisition
+and supervision; failed handles remain retained. Late absence cannot clear pending
+ownership after the deadline. Composition tests cover normal/interrupted/fresh and
+block fresh execution after failed cleanup. Reviewer did not rerun tests. Native
+Windows behavior and concrete Docker provisioning remain unvalidated.
+''', encoding='utf-8')
+(out / 'README.md').write_text('''# Windows management checkpoint
+
+Implemented Windows-hosted workload/ownership adapters and explicit Win32 binding,
+reusing the finite coordinator, watchdog and exact disposal contract. No management
+container or daemon socket delegation. Source changes remain isolated under
+C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012; original dirty source
+preserved. This evidence bundle is additive.
+
+Final135 tests passed (32 new,103 neighbors),2.83s pytest/4.22s supervised. Ruff
+passed. Every supervised test child reaped, no abort. Six expected RED runs are
+retained alongside their successors. Nine changed files and four before snapshots
+are retained; hashes and exact patch identify this slice independently of base SHA.
+
+No Docker, live Job Object/process fault trial, network workload, build, download,
+credential generation/private-key inspection, settings, commit or publication.
+Fake Win32 calls are not native containment proof. Concrete Docker provisioning
+remains an injected interface. Native/live validation still needs separate approval.
+
+Known metadata established no exact usable public TLS certificate set or matching
+Linux release manifest. No actual fingerprint/validity assertion can be made.
+Private-key mounting/use is not authorized by this inventory. See the retained
+review document for details, source expectations and remaining live prerequisites.
+''', encoding='utf-8')
+inventory = {str(path.relative_to(out)).replace('\\', '/'): {
+    'bytes': path.stat().st_size, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()
+} for path in sorted(out.rglob('*')) if path.is_file()}
+(out / 'inventory.json').write_text(json.dumps(inventory, indent=2) + '\n', encoding='utf-8')
+print(json.dumps({'bundle': str(out), 'files': len(inventory),
+                  'patch_sha256': hashlib.sha256((out / 'change.patch').read_bytes()).hexdigest(),
+                  'inventory_sha256': hashlib.sha256((out / 'inventory.json').read_bytes()).hexdigest()}))

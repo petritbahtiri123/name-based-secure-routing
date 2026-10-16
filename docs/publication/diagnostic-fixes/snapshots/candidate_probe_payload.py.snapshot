@@ -1,0 +1,41 @@
+"""Isolated diagnostic gate; no project imports or native operations on import."""
+PINS={'cryptography':'45.0.7','cffi':'2.1.0','pycparser':'3.0','cbor2':'5.9.0'}
+REQUIRES_PYTHON='>=3.12,<3.15'
+def errors(facts,requirement=REQUIRES_PYTHON):
+    result=[]
+    if requirement!=REQUIRES_PYTHON:result.append('unreviewed Python requirement')
+    version=facts.get('python',[])
+    if (not isinstance(version,(tuple,list)) or len(version)!=3 or any(type(v) is not int or v<0 for v in version)
+            or not (3,12,0)<=tuple(version)<(3,15,0)):result.append('Python outside '+requirement)
+    if facts.get('implementation')!='cpython' or facts.get('platform')!='linux' or facts.get('machine') not in ('x86_64','amd64'):result.append('unsupported runtime platform')
+    for name,expected in PINS.items():
+        actual=facts.get('versions',{}).get(name)
+        if actual!=expected:result.append(name+': expected '+expected+', observed '+str(actual))
+    if not facts.get('git'):result.append('Git unavailable')
+    return result
+def gate(facts,import_check,integrity_check,requirement=REQUIRES_PYTHON):
+    problems=errors(facts,requirement)
+    if problems:raise ValueError('; '.join(problems))
+    import_check()  # ABI/import failures propagate; no metadata-only readiness.
+    return integrity_check()  # Original source/Git/binary checks still mandatory.
+
+import sys,os,platform,importlib,importlib.metadata,json,shutil,subprocess
+SOURCE_HASHES={'pyproject.toml': 'a78b968f8b267b7111373902fc7d3137c1b44a17abb01972412f4dc0c32e97fa', 'constraints/runtime.txt': '717ab12008a0bd07d163691a3357065537444b47302b35ffb2413dff176ffe6b'}
+def inspect_runtime():
+    assert os.getuid()==65532
+    names=['annotated-types', 'anyio', 'cbor2', 'certifi', 'cffi', 'click', 'cryptography', 'dnslib', 'fastapi', 'h11', 'httpcore', 'httpx', 'idna', 'iniconfig', 'packaging', 'pluggy', 'pycparser', 'pydantic', 'pydantic-core', 'pydantic-settings', 'pygments', 'pyjwt', 'pytest', 'python-dotenv', 'starlette', 'typing-extensions', 'typing-inspection', 'uvicorn']
+    versions={}
+    for name in names:
+        try:versions[name]=importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:versions[name]=None
+    facts=dict(python=list(sys.version_info[:3]),implementation=sys.implementation.name,platform=sys.platform,machine=platform.machine(),versions=versions,git=shutil.which('git'))
+    imports={}
+    for name in ['cryptography.x509','cffi','pycparser','cbor2']:
+        try:importlib.import_module(name);imports[name]={'ok':True}
+        except Exception as error:imports[name]={'ok':False,'error_type':type(error).__name__,'message':str(error)[:512]}
+    git_version=None
+    if facts['git']:
+        try:git_version=subprocess.check_output([facts['git'],'--version'],timeout=3,stderr=subprocess.STDOUT).decode()[:4096].strip()
+        except Exception as error:git_version={'error_type':type(error).__name__}
+    print(json.dumps({'status':'INSPECTION_COMPLETE','facts':facts,'executable':sys.executable,'git_version':git_version,'native_imports':imports,'exact_v5_profile_errors':errors(facts),'requirement_source_sha256':SOURCE_HASHES,'ready':False}))
+if __name__=='__main__':raise SystemExit('Reviewed lifecycle wrapper required')

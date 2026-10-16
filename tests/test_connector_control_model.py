@@ -14,6 +14,38 @@ def test_model_is_available():
     assert importlib.util.find_spec("nbsr.connector_control_model") is not None, "mock control model is missing"
 
 
+@pytest.mark.parametrize("restart", [False, True], ids=["reconnect", "fresh-model"])
+@pytest.mark.parametrize("invalid", ["stale", "expired", "revoked", "other-service"])
+def test_replacement_requires_current_exact_permission(rig, restart, invalid):
+    """Fresh-model construction is not durable restart or revocation recovery."""
+    api, model, clock, verifier, binding = rig
+    old, old_ticket = ready(rig)
+    model.stop(old)
+    clock.now += 2
+    if restart:
+        model = api.Model(binding, verifier, clock, lease=8, attempts=3, retry_delay=2)
+    if invalid == "stale":
+        verifier.fresh = False
+    elif invalid == "expired":
+        verifier.permission = replace(verifier.permission, admission_expires=clock.now)
+    elif invalid == "revoked":
+        verifier.revoked = True
+    else:
+        verifier.permission = replace(verifier.permission, binding=replace(binding, service="other-service"))
+    calls = verifier.calls
+    transport = Transport()
+    candidate = model.begin(transport, binding)
+    assert candidate is not None
+    assert candidate.session is not old.session
+    assert not model.authenticate(candidate)
+    assert verifier.calls > calls
+    assert model.register(candidate) is None
+    assert not model.confirm(candidate, old_ticket)
+    assert model.admit_work(candidate, deadline=25) is None
+    assert transport.closed
+    assert model.health() == {"ready": False, "owned": 0}
+
+
 @pytest.fixture
 def api():
     return importlib.import_module("nbsr.connector_control_model")

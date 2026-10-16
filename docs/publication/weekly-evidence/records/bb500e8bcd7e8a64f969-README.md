@@ -1,0 +1,29 @@
+# Unsigned outage and ownership semantics
+
+Exact requested slice: 17 passed, zero skips/deselections/failures, pytest 1.03 seconds, supervised 2.22 seconds. Exit 0, no resource abort, direct child reaped. Disk 13,967,523,840 to 13,967,507,456 bytes free; final RAM 6,020,612,096 bytes. Existing 95-second work bound, 120-second cleanup-inclusive limit, fixed cumulative disk baseline, disk/RAM guards retained. Python 3.14 local result, not a version matrix. Exact command is in restart-outage-semantics.json. No new signing, fixtures, runtime/network changes, builds, Docker, publication or permissions. No implementation defect demonstrated or source changed.
+
+This verifies existing unsigned/fake semantic contracts: ordinary outage can preserve previously approved bounded operations; compromise affects its dependency scope; deny-new preserves independently bounded work; termination overrides grace; unconfirmed cleanup retains ownership; stale work/revocation cannot affect a successor. It does not prove process-loss recovery, authenticated event delivery or real resource disposal.
+
+## Reusable components and recommendation
+
+- client/nbsr-go-client/internal/authority/restart.go: RestartGate.Load and AcceptFresh provide the existing fresh-validation-before-ready ordering, exact scope, monotonic floor and final freshness check. floor.go explicitly labels MemoryGenerationFloorStore as test storage. ACP authority is not interchangeable connector-registration authority.
+- scripts/inclusion_persistence.py: Repository._load, _owned and _commit preserve full inclusion safety state using independently supplied context/digest, uncertain-commit latching and watermark-first replacement. This is the best existing state-recovery contract to reuse within its exact local scope; do not extend its schema to live transport ownership.
+- crates/nbsr-transport/src/connector_registration.rs: begin_cleanup, matches_cleanup, retry_cleanup and finish_cleanup enforce exact owner/session/attempt and retain failed ownership. connector_cleanup.rs uses Arc identity and synthetic callbacks; neither survives process loss as an authenticated disposal receipt.
+- scripts/performance/linux_native_watchdog.py: LinuxGroup can supervise owned local process groups but both local_cleanup and remote_cleanup remain UNCONFIRMED. It is Linux-only and cannot be promoted to a Windows or remote connector disposal provider.
+- docs/reviews/2026-10-11-inclusion-filesystem-matching-module.md records actual reopen/repair after an injected exception. It is not a killed-process, reboot or production adapter result.
+
+Recommendation: the next bounded implementation, if selected, should be an explicitly test-only recovery harness with a surviving controlling process. That controller retains the exact accepted context/snapshot expectation independently of the restarted worker and owns the old disposable worker/resource inventory. Reuse the approved inclusion codec/recovery logic and retained signed artifacts without signing. Keep negative-state recovery separate from fresh registration acceptance. No production provider, filesystem schema for cleanup tickets, cross-service permission, automatic takeover or remote-cleanup claim is introduced.
+
+The concrete new choice is the harness ownership boundary: authorize a surviving test controller to supply the independent expected recovery state and to gate replacement on disposal of its exact test-owned worker/resources. If the controller or resource identity is lost, this experiment remains unavailable. This is proposed test architecture, not an already approved runtime security contract. Actual child termination/file operations need their own bounded execution scope; existing Windows private-writer ACL operations still need exact-root action-time authorization. No such operation occurred here.
+
+Production provider choice is not needed to run this experiment. Production integration still needs concrete accepted-context/floor provenance and an actual resource-owner disposal mechanism; existing full-model governance requirements remain mandatory, including controller/normal/emergency obligations. No controller-only fallback.
+
+## Minimal future acceptance plan (not implemented or run)
+
+1. Recovery selection: exact retained context and expected digest succeed; wrong/missing expectation, old joint snapshot rollback, corrupt copy or stale lock reject. Use existing retained bytes, not fixture generators that sign.
+2. Interrupt at before-watermark, after-watermark and after-primary boundaries in a disposable worker; recover only the exact independently retained candidate permitted by the existing contract. Uncertain write never becomes ordinary rejection or readiness.
+3. Worker ownership: replacement stays blocked while the exact owned worker/resources are unresolved; stale worker identity, late completion and cleanup failure cannot release a successor. Actual local reap establishes only that owned process's exit, not remote/backend closure.
+4. Recovery restores negative safety state only. Old registration/session/acceptance remains unusable; fresh acceptance still needs its existing current authorization path. An unsigned stand-in tests sequencing only and must not be called a runtime provider.
+5. Missing controller expectation or disposal evidence fails unavailable. Do not add automatic stale-lock removal, fallback routes, owner takeover, authority restoration or new revocation policy.
+
+Existing docs anchor the plan: connector-outbound-profile.md owner binding/restart section; wp6-replicated-continuity-state-decision.md; 2026-10-11-inclusion-persistence-design.md and implementation.md; 2026-10-11-registration-full-model-acceptance.md. Root AGENTS guidance reviewed; no durable rule or command changed, so no guidance edit. Original dirty checkout and isolated handoff sources preserved.

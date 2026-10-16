@@ -25,9 +25,16 @@ from scripts.performance.process_cancellation import Cancellation
 
 
 class CellBudget:
-    """Created before endpoint creation; one 95s work / 120s cleanup deadline."""
+    """One monotonic trial budget; defaults remain 95s work / 120s total."""
 
-    def __init__(self, *, clock=time.monotonic):
+    def __init__(self, *, clock=time.monotonic, work_seconds=95, total_seconds=120):
+        if any(type(v) not in (int, float) or not math.isfinite(v) or v <= 0
+               for v in (work_seconds, total_seconds)):
+            raise ValueError('finite positive trial limits required')
+        reserve = 60 if total_seconds > 120 else 25
+        if total_seconds > 300 or work_seconds > 240 or total_seconds - work_seconds < reserve:
+            raise ValueError('trial limits exceed ceiling or consume cleanup reserve')
+        self.work_seconds, self.total_seconds = work_seconds, total_seconds
         self.clock = clock
         self.started = self.previous = clock()
         self.invalid = False
@@ -44,14 +51,24 @@ class CellBudget:
         return now - self.started
 
     def check_work(self):
-        if self._elapsed() >= 95:
+        if self._elapsed() >= self.work_seconds:
             raise TimeoutError('work deadline; cleanup reserve begins')
 
     def remaining_cleanup(self):
-        remaining = 120 - self._elapsed()
+        remaining = self.total_seconds - self._elapsed()
         if remaining <= 0:
             raise TimeoutError('cleanup-inclusive deadline')
         return remaining
+
+
+    def command_timeout(self, requested, *, cleanup=False):
+        if (type(requested) not in (int, float) or not math.isfinite(requested)
+                or not 0 < requested <= 122 or type(cleanup) is not bool):
+            raise ValueError('invalid finite command allocation')
+        remaining = (self.total_seconds if cleanup else self.work_seconds) - self._elapsed()
+        if remaining <= 0:
+            raise TimeoutError('trial command deadline')
+        return min(requested, remaining)
 
 
 class WindowsOwner:

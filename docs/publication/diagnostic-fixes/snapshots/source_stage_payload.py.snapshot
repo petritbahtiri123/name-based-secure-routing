@@ -1,0 +1,90 @@
+"""Offline source-archive validation; never extracts or changes permissions."""
+import hashlib,io,tarfile
+
+def verify_archive(wire,inventory):
+    if len(wire)>8*1024**2 or not 0<len(inventory)<=440:raise ValueError('archive bound')
+    for name,row in inventory.items():
+        if name.startswith('/') or ':' in name or chr(92) in name or any(x in ('','.','..','.git') for x in name.split('/')):raise ValueError('path')
+        if row['mode'] not in (0o644,0o755):raise ValueError('mode')
+    seen=set();total=0
+    with tarfile.open(fileobj=io.BytesIO(wire),mode='r:') as archive:
+        for entry in archive:
+            if entry.name not in inventory or entry.name in seen or not entry.isfile() or entry.linkname:raise ValueError('inventory/type')
+            row=inventory[entry.name]
+            if entry.mode!=row['mode'] or entry.size!=row['size'] or not 0<=entry.size<=4*1024**2:raise ValueError('metadata')
+            total+=entry.size
+            if total>8*1024**2:raise ValueError('source bound')
+            body=archive.extractfile(entry).read(entry.size+1)
+            if len(body)!=entry.size or hashlib.sha256(body).hexdigest()!=row['sha256']:raise ValueError('bytes')
+            seen.add(entry.name)
+    if seen!=set(inventory):raise ValueError('missing')
+    return {'files':len(seen),'source_bytes':total,'archive_bytes':len(wire)}
+
+import os,json,stat
+from pathlib import Path
+ARCHIVE_PIN='39656c8d85616990708d8b7f878115830c28a2d56bda55cbd0776db87f279136'
+INVENTORY_PIN='605d132d9734aa9887f80d69cc8dabf62607fb460448c33c95f98fdd978790ff'
+
+def checked(path):
+    if any(p.is_symlink() or getattr(p.lstat(),'st_file_attributes',0)&0x400 for p in (path,*path.parents)):raise ValueError('alias')
+    if not path.is_file():raise ValueError('regular input')
+    return path.read_bytes()
+
+def verify_tree(root, inventory, *, git_placeholder=False):
+    expected_files=set(inventory);expected_dirs=set()
+    for name in inventory:
+        expected_dirs.update(p.as_posix() for p in Path(name).parents if str(p)!='.')
+    if git_placeholder:expected_dirs.add('.git')
+    seen_files=set();seen_dirs=set()
+    def fail(error):raise error
+    paths=(Path(parent)/name for parent,dirs,files in os.walk(root,followlinks=False,onerror=fail) for name in dirs+files)
+    for path in paths:
+        name=path.relative_to(root).as_posix();mode=path.lstat().st_mode
+        if stat.S_ISLNK(mode):raise ValueError('staged alias')
+        if stat.S_ISDIR(mode):
+            if name not in expected_dirs:raise ValueError('unexpected directory')
+            if stat.S_IMODE(mode)!=0o755:raise ValueError('directory mode')
+            seen_dirs.add(name);continue
+        if not stat.S_ISREG(mode) or name not in inventory:raise ValueError('unexpected file')
+        row=inventory[name]
+        if stat.S_IMODE(mode)!=row['mode'] or path.stat().st_size!=row['size']:raise ValueError('staged mode/size')
+        if hashlib.sha256(checked(path)).hexdigest()!=row['sha256']:raise ValueError('staged bytes')
+        seen_files.add(name)
+    if seen_files!=expected_files or seen_dirs!=expected_dirs:raise ValueError('staged inventory')
+    return len(seen_files)
+
+def populate(root, wire, inventory):
+    verify_archive(wire,inventory)
+    if not hasattr(os,'O_NOFOLLOW') or not hasattr(os,'fchmod'):raise RuntimeError('Linux no-follow and descriptor chmod required')
+    if root.is_symlink() or not root.is_dir() or any(root.iterdir()):raise ValueError('empty ordinary volume required')
+    if not os.access(root,os.W_OK|os.X_OK):raise PermissionError('non-root volume not writable; no fallback')
+    with tarfile.open(fileobj=io.BytesIO(wire),mode='r:') as archive:
+        for entry in archive:
+            target=root/entry.name
+            target.parent.mkdir(parents=True,exist_ok=True,mode=0o755)
+            if any(p.is_symlink() for p in (target.parent,*target.parent.parents)):raise ValueError('parent alias')
+            fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+            try:
+                body=archive.extractfile(entry)
+                with os.fdopen(fd,'wb',closefd=False) as output:
+                    remaining=entry.size
+                    while remaining:
+                        chunk=body.read(min(65536,remaining))
+                        if not chunk:raise ValueError('short source')
+                        output.write(chunk);remaining-=len(chunk)
+                    output.flush()
+                    os.fchmod(fd,entry.mode)
+            finally:os.close(fd)
+    (root/'.git').mkdir(mode=0o755)
+    count=verify_tree(root,inventory,git_placeholder=True)
+    return dict(status='STAGED_VERIFIED',files=count)
+
+def main():
+    if os.geteuid()!=65532:raise ValueError('non-root required')
+    wire=checked(Path('/input/source.tar'));raw=checked(Path('/input/inventory.json'))
+    if hashlib.sha256(wire).hexdigest()!=ARCHIVE_PIN or hashlib.sha256(raw).hexdigest()!=INVENTORY_PIN:raise ValueError('input pin')
+    manifest=json.loads(raw)
+    if manifest['commit']!='47d2ae41df49fedd21768db5fa6be71377acebf3' or len(manifest['files'])!=440:raise ValueError('source identity')
+    print(json.dumps(populate(Path('/tmp'),wire,manifest['files'])))
+
+if __name__=='__main__':raise SystemExit('OFFLINE: native staging requires lifecycle approval')

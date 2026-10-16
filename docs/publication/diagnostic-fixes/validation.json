@@ -1,0 +1,28 @@
+{
+  "schema": "diagnostic-publication-validation-v1",
+  "python": "3.14.6",
+  "portable_test_command": "python -m unittest discover -s scripts/performance/diagnostic_support -p test_*.py -v",
+  "portable_tests": {"run": 31, "failures": 0, "errors": 0},
+  "archive_fake_tests": {
+    "test_source_lifecycle_v3.py": {"run": 11, "failures": 0, "errors": 0, "boundary": "injected fake command only"},
+    "debian-closure-plan/test_offline_install_v3.py": {"run": 4, "failures": 0, "errors": 0, "boundary": "AST extracted install_debian_files with mocked subprocess.run; installer module never executed"}
+  },
+  "source_verification": {
+    "python_source_paths": 111,
+    "unique_snapshot_files": 108,
+    "all_snapshot_outgoing_sha256_verified": true,
+    "all_snapshots_syntax_parsed_without_execution": true,
+    "top_level_dispositions": 168,
+    "all_top_level_original_sha256_rechecked": true,
+    "active_files_with_verified_outgoing_sha256": 10,
+    "source_originals_modified": false
+  },
+  "limits": [
+    "No Docker, native Windows process management, network, SSH or VM operation",
+    "No credential generation or private-key file access",
+    "No package download, install or build",
+    "No pin changes or bypasses; historical pin-bound suites were not run",
+    "No historical live outcome reproduced; historical source10 public diagnostic is not TLS/throughput evidence",
+    "No staging, commit or push by diagnostic review"
+  ]
+}

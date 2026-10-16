@@ -1,0 +1,22 @@
+import json,re,sys,time
+from pathlib import Path
+sys.path.insert(0,'C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+from scripts.performance.windows_docker_provisioning import DockerCommand
+root=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-cache-inspect-approved-20261013/independent-cleanup'); root.mkdir(exist_ok=False)
+c=DockerCommand(root,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe')
+name='nbsr-cache-inspect-20261013-1757'; result={'status':'UNCONFIRMED','original_command_cleanup':'UNCONFIRMED'}; start=time.monotonic()
+try:
+ r=c(['inspect','--type','container','--format','{"Id":{{json .Id}},"Image":{{json .Image}},"Labels":{{json .Config.Labels}}}',name],timeout=8)
+ result['observation']=dict(code=r.code,stdout=r.stdout,stderr=r.stderr)
+ if r.code==1 and not r.stdout.strip() and r.stderr.strip().lower() in ('error: no such object: '+name,'error: no such container: '+name): result['status']='UNIQUE_NAME_ABSENT_AT_OBSERVATION'
+ elif r.code==0:
+  row=json.loads(r.stdout); cid=row['Id']
+  assert re.fullmatch('[0-9a-f]{64}',cid) and row['Image']=='sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769' and row['Labels'].get('nbsr.prerequisite')=='cache-inspect-20261013-1757'
+  result['exact_id']=cid
+  r=c(['rm','--force',cid],timeout=8); result['remove']=dict(code=r.code,stdout=r.stdout,stderr=r.stderr); assert r.code==0
+  r=c(['inspect','--type','container','--format','{{.Id}}',cid],timeout=8); result['absence']=dict(code=r.code,stdout=r.stdout,stderr=r.stderr)
+  if r.code==1 and not r.stdout.strip() and r.stderr.strip().lower() in ('error: no such object: '+cid,'error: no such container: '+cid): result['status']='EXACT_ID_REMOVED_AND_ABSENT'
+except BaseException as e: result['error']=dict(type=type(e).__name__,message=str(e))
+finally:
+ result['elapsed']=time.monotonic()-start; result['observer_owned']=None if c.owner is None else c.owner.owned
+ (root/'result.json').write_text(json.dumps(result,indent=2)); print(json.dumps(result))

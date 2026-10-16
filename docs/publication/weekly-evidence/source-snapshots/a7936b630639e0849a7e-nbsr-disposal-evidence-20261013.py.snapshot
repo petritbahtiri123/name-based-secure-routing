@@ -1,0 +1,96 @@
+from pathlib import Path
+import difflib
+import hashlib
+import json
+import shutil
+
+root = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+prior = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-reconnect-20261013')
+logs = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-evidence-20261012')
+out = Path('C:/Users/OPERATOR/OneDrive/Documents/NBSR/evidence/local-handoff/2026-10-13-local-container-disposal')
+out.mkdir(exist_ok=False)
+files = [
+    'scripts/performance/local_container_disposal.py',
+    'scripts/performance/local_container_sequence.py',
+    'tests/performance/test_local_container_disposal.py',
+    'tests/performance/test_local_container_sequence.py',
+    'docs/reviews/2026-10-13-local-container-disposal.md',
+    'docs/benchmarks/SPHERE_MINIMAL_INTEGRATION_2026-10-13.md',
+    'AGENTS.md',
+]
+before = {
+    'AGENTS.md': prior / 'AGENTS.before-offline-contract.md',
+    'docs/benchmarks/SPHERE_MINIMAL_INTEGRATION_2026-10-13.md': prior / 'SPHERE_MINIMAL_INTEGRATION.before-offline-contract.md',
+}
+patch = []
+for name in files:
+    target = out / 'source' / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(root / name, target)
+    old = before[name].read_text() if name in before else ''
+    if name in before:
+        saved = out / 'before' / name
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(before[name], saved)
+    patch.extend(difflib.unified_diff(old.splitlines(True), target.read_text().splitlines(True),
+                                    fromfile='a/' + name, tofile='b/' + name))
+(out / 'change.patch').write_text(''.join(patch), encoding='utf-8')
+for path in logs.glob('disposal-*'):
+    shutil.copyfile(path, out / path.name)
+shutil.copyfile(logs / 'source-manifest.json', out / 'materialization-source-manifest.json')
+shutil.copyfile(Path(__file__), out / Path(__file__).name)
+dependencies = [
+    'scripts/performance/linux_native_finite_run.py',
+    'scripts/performance/linux_native_watchdog.py',
+    'scripts/performance/linux_native_lifecycle_coordinator.py',
+    'tests/performance/test_linux_native_finite_run.py',
+    'tests/performance/test_linux_native_watchdog.py',
+    'tests/performance/test_linux_native_cleanup_failures.py',
+    'docs/benchmarks/sphere-offline-20261012/finite-two-stream.synthetic.json',
+]
+(out / 'source-identity.json').write_text(json.dumps({
+    'base': 'ad77d59754651fee449bb1d9c14a946f9f3b2d15',
+    'meaning': 'Isolated materialization with earlier local changes; base alone does not identify current source.',
+    'source_root': str(root), 'changed_files': files,
+    'selected_dependency_sha256': {name: hashlib.sha256((root / name).read_bytes()).hexdigest() for name in dependencies},
+    'no_binaries_built': True,
+}, indent=2) + '\n')
+(out / 'independent-review.md').write_text('''# Independent scoped review
+
+Reviewer: /root/kar_positive_review, read-only.
+Initial findings: worker output differed from watchdog /worker; diagnostic_seconds
+accepted by finite config but rejected by watchdog; config paths overlapped fresh
+output roots. No blocking ownership/disposal defect under trusted synchronous fake
+adapter assumptions. All three findings were reproduced and fixed.
+
+Resolution review: all three resolved; documentation accurately leaves live timing,
+provenance and readiness unproven. No remaining scoped blocker. Reviewer did not
+rerun tests. Main-agent final check:103 passed; Ruff passed.
+''', encoding='utf-8')
+(out / 'README.md').write_text('''# Approved offline disposal implementation checkpoint
+
+Two new modules implement local-container ownership receipts and offline three-cell
+orchestration. Two new test files cover35 cases; final scoped suite103 passed
+(2.32s pytest,3.62s supervised), Ruff passed. Five RED runs are retained:17,12,3,2,2
+expected failures, followed by successful checks. All direct test children reaped;
+no aborts. No live Docker/socket/workload, signing, build, download, commit or push.
+
+Source edits are isolated under C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012.
+Original dirty repository source was preserved; this bundle is additive evidence.
+Seven changed files are retained under source/; change.patch is the exact slice,
+with before/ snapshots for existing documents. Exact source hashes are in inventory.json
+and selected unchanged dependencies in source-identity.json. No binaries built.
+
+The engine and workload adapters are deterministic fixtures; object identities are
+instance-local misuse guards, not cryptographic or durable evidence. Concrete live
+adapters, independently bounded engine calls and separately approved local rehearsal
+remain required. This does not authorize SPHERE/bare-host disposal or protocol trust.
+See source/docs/reviews/2026-10-13-local-container-disposal.md for full limits.
+''', encoding='utf-8')
+inventory = {str(path.relative_to(out)).replace('\\', '/'): {
+    'bytes': path.stat().st_size, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()
+} for path in sorted(out.rglob('*')) if path.is_file()}
+(out / 'inventory.json').write_text(json.dumps(inventory, indent=2) + '\n', encoding='utf-8')
+print(json.dumps({'bundle': str(out), 'files': len(inventory),
+                  'patch_sha256': hashlib.sha256((out / 'change.patch').read_bytes()).hexdigest(),
+                  'inventory_sha256': hashlib.sha256((out / 'inventory.json').read_bytes()).hexdigest()}))

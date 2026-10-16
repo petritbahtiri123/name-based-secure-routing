@@ -1,0 +1,65 @@
+import json,tempfile,unittest
+from pathlib import Path
+from types import SimpleNamespace
+from diagnostic_source_lifecycle_v3 import SourceVolume,NAME,volume_absent
+from scripts.performance.local_container_disposal import Unconfirmed
+HERE=Path(__file__).parent
+class Fake:
+    def __init__(self):self.responses=[];self.calls=[];self.owner=None
+    def __call__(self,args,**kwargs):
+        self.calls.append((args,kwargs));result=self.responses.pop(0)
+        if isinstance(result,BaseException):raise result
+        return result if isinstance(result,SimpleNamespace) else SimpleNamespace(code=0,stdout=result,stderr='')
+class Lifecycle(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(dir=HERE,prefix='nbsr-source-lifecycle-test-')
+        assert Path(self.temp.name).resolve().parent==HERE.resolve()
+        self.addCleanup(self.temp.cleanup);self.command=Fake();self.volume=SourceVolume(self.temp.name,self.command,'test-nonce')
+        self.row={'Name':NAME,'Driver':'local','Scope':'local','Labels':self.volume.labels,'Options':None,'CreatedAt':'2026-10-15T00:00:00Z','Mountpoint':'/var/lib/docker/volumes/'+NAME+'/_data'}
+    def create(self):
+        self.command.responses=['',NAME,json.dumps(self.row)];self.volume.create()
+    def test_success_exact_nonforce_cleanup(self):
+        self.create();self.command.responses=[json.dumps(self.row),NAME,SimpleNamespace(code=1,stdout='',stderr='Error response from daemon: get '+NAME+': no such volume')]
+        self.assertTrue(self.volume.cleanup(containers_absent=True));self.assertFalse(self.volume.state['uncertain'])
+        self.assertEqual(self.command.calls[-2][0],['volume','rm',NAME])
+        self.assertTrue(all(k['cleanup'] for a,k in self.command.calls[-3:]))
+    def test_preexisting_volume_untouched(self):
+        self.command.responses=[NAME]
+        with self.assertRaises(Unconfirmed):self.volume.create()
+        self.assertFalse(self.volume.state['attempted']);self.assertEqual(len(self.command.calls),1)
+    def test_create_timeout_keeps_obligation_and_never_removes(self):
+        self.command.responses=['',TimeoutError('injected uncertain create')]
+        with self.assertRaises(TimeoutError):self.volume.create()
+        self.assertFalse(self.volume.cleanup(containers_absent=True));self.assertTrue(self.volume.state['uncertain'])
+        self.assertEqual(len(self.command.calls),2)
+    def test_changed_volume_blocks_removal(self):
+        self.create();self.command.responses=[json.dumps({**self.row,'CreatedAt':'changed'})]
+        self.assertFalse(self.volume.cleanup(containers_absent=True));self.assertEqual(self.command.calls[-1][0][:2],['volume','inspect'])
+    def test_container_uncertainty_blocks_even_inspection(self):
+        self.create();count=len(self.command.calls)
+        self.assertFalse(self.volume.cleanup(containers_absent=False));self.assertEqual(len(self.command.calls),count)
+    def test_unexpected_user_blocks_nonforce_removal(self):
+        self.create();self.command.responses=[json.dumps(self.row),SimpleNamespace(code=1,stdout='',stderr='volume is in use')]
+        self.assertFalse(self.volume.cleanup(containers_absent=True));self.assertEqual(self.command.calls[-1][0],['volume','rm',NAME])
+    def test_removal_without_absence_stays_uncertain(self):
+        self.create();self.command.responses=[json.dumps(self.row),NAME,NAME]
+        self.assertFalse(self.volume.cleanup(containers_absent=True));self.assertTrue(self.volume.state['uncertain'])
+    def test_retry_forbidden(self):
+        self.create()
+        with self.assertRaises(Unconfirmed):self.volume.create()
+    def test_bad_ack_never_establishes_ownership(self):
+        self.command.responses=['','wrong']
+        with self.assertRaises(Unconfirmed):self.volume.create()
+        self.assertIsNone(self.volume.state['snapshot']);self.assertFalse(self.volume.cleanup(containers_absent=True))
+    def test_absence_parser_rejects_wrong_name_permission_partial_and_success(self):
+        good=SimpleNamespace(code=1,stdout='',stderr='Error response from daemon: get '+NAME+': no such volume')
+        self.assertTrue(volume_absent(good))
+        for row in [SimpleNamespace(code=0,stdout='',stderr=good.stderr),SimpleNamespace(code=1,stdout='partial',stderr=good.stderr),SimpleNamespace(code=1,stdout='',stderr='permission denied'),SimpleNamespace(code=1,stdout='',stderr=good.stderr.replace(NAME,'unrelated'))]:
+            self.assertFalse(volume_absent(row))
+    def test_preflight_forwards_allocation_and_cleanup_avoids_enumeration(self):
+        self.create();self.assertEqual(self.command.calls[0][1],dict(timeout=32,cleanup=False,volume_absence=True))
+        self.command.responses=[json.dumps(self.row),NAME,SimpleNamespace(code=1,stdout='',stderr='Error response from daemon: get '+NAME+': no such volume')]
+        self.assertTrue(self.volume.cleanup(containers_absent=True))
+        self.assertEqual(self.command.calls[-1][0],['volume','inspect','--format','{{.Name}}',NAME])
+        self.assertEqual(self.command.calls[-1][1],dict(timeout=8,cleanup=True))
+if __name__=='__main__':unittest.main()

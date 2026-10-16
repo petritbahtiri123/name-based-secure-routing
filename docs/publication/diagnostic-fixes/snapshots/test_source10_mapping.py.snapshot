@@ -1,0 +1,29 @@
+import ast,json,unittest
+from pathlib import Path
+from unittest.mock import patch
+import source_attempt10_retry1 as d
+class Mapping(unittest.TestCase):
+ def test_retained_stage_failure_is_exact_path_representation(self):
+  row=json.loads((d.BASE/'nbsr-47d2ae4-source-presentation-10/stage/public-inspect.json').read_text())
+  binds=[x for x in row['Mounts'] if x['Type']=='bind'];self.assertEqual(len(binds),3)
+  for observed in binds:
+   suffix=observed['Source'].removeprefix('/run/desktop/mnt/host/c/')
+   win='C:\\'+suffix.replace('/','\\')
+   self.assertNotEqual(win,observed['Source'])
+   self.assertEqual('C:/'+suffix,Path(win).as_posix())
+ def test_exact_pinned_entries_and_unknown_rejected(self):
+  record=json.loads((d.HERE/'source10-retry1-mount-map.json').read_text())
+  for x in record['bindings']:self.assertEqual(d.observed_source(Path(x['controller'])),x['observed'])
+  with self.assertRaises(AssertionError):d.observed_source(Path('C:/unlisted'))
+ def test_mapping_drift_rejected(self):
+  with patch.object(d,'MAPPING_PIN','0'*64):
+   with self.assertRaises(AssertionError):d.observed_source(d.ROOT/'output')
+ def test_actual_mount_assertion_rejects_destination_write_and_source_drift(self):
+  tree=ast.parse((d.HERE/'source_attempt10_retry1.py').read_text())
+  node=next(n for n in ast.walk(tree) if isinstance(n,ast.Assert) and isinstance(n.msg,ast.Constant) and n.msg.value=='exact bind mounts')
+  code=compile(ast.Module(body=[node],type_ignores=[]),'actual-mount-check','exec')
+  source=d.HERE/'source-presentation-440.tar';good={'Source':d.observed_source(source),'Destination':'/input/source.tar','RW':False,'Propagation':'rprivate'}
+  ns={'sources':[(source,'/input/source.tar',False)],'binds':[good],'observed_source':d.observed_source};exec(code,ns)
+  for key,value in [('Source',good['Source']+'x'),('Destination','/other'),('RW',True),('Propagation','shared')]:
+   with self.subTest(key=key),self.assertRaises(AssertionError):exec(code,{**ns,'binds':[{**good,key:value}]})
+if __name__=='__main__':unittest.main()

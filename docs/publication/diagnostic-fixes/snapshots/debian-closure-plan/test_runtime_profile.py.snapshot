@@ -1,0 +1,20 @@
+import ast,json,pathlib,tempfile,unittest
+from test_create_reconciliation import Clock,FakeNative
+from runtime_probe_budget import DiagnosticCommand,CreateReconciler
+P=pathlib.Path(__file__).parent;PROFILE=json.loads((P/'runtime-image-profile.json').read_text());CID='a'*64;NAME='nbsr-runtime-profile-fixture'
+TASK={'nbsr.campaign':'dependency-image-inspection','nbsr.run':'2026-10-16','nbsr.role':'probe'}
+class Profile(unittest.TestCase):
+    def test_actual_caller_label_loop_is_accepted_and_all_inherited_labels_checked(self):
+        labels={**PROFILE['container_inherited_labels'],**TASK}
+        tree=ast.parse((P/'runtime_probe.py').read_text());loop=next(n for n in ast.walk(tree) if isinstance(n,ast.For) and ast.unparse(n.iter)=='labels.items()')
+        args=['create','--pull=never','--name',NAME];ns={'labels':labels,'args':args};exec(compile(ast.Module(body=[loop],type_ignores=[]),'actual-caller-label-loop','exec'),ns);args.append(PROFILE['image'])
+        self.assertEqual(len([x for x in args if x=='--label']),5)
+        self.assertFalse(any(x.startswith('desktop.') for x in args))
+        scripts=iter([{'stdout':CID},{'stdout':json.dumps({'Id':CID,'Name':'/'+NAME,'Image':PROFILE['image'],'Labels':labels,'Status':'created','Running':False})},{},{'code':1,'stderr':'error: no such object: '+CID}]);clock=Clock();requests=[]
+        with tempfile.TemporaryDirectory(dir=P) as tmp:
+            root=pathlib.Path(tmp);(root/'logs').mkdir()
+            command=DiagnosticCommand(root/'logs',started=0,extended_create=True,backend_factory=lambda:FakeNative(clock,next(scripts),requests),clock=clock,sleep=clock.sleep,executable='C:/approved/docker.exe')
+            rec=CreateReconciler(root,command,name=NAME,image=PROFILE['image'],task_labels=TASK)
+            self.assertEqual(rec.create(args),CID);self.assertEqual(rec.labels,labels)
+            rec.reconcile();self.assertEqual(rec.state['status'],'REMOVED_EXACT_ID');self.assertFalse(command.owner.owned)
+if __name__=='__main__':unittest.main()

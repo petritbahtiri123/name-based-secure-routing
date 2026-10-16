@@ -1,0 +1,106 @@
+"""Assemble approved baseline and explicit reviewed overlay; no commit here."""
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import subprocess
+
+BASE = 'ad77d59754651fee449bb1d9c14a946f9f3b2d15'
+SOURCE = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+ROOT = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+EVIDENCE = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-prerequisites-20261013')
+
+
+def git(*args, cwd=ROOT):
+    return subprocess.run(['git', *args], cwd=cwd, check=True, capture_output=True, timeout=30).stdout
+
+
+runtime = ['linux_native_finite_run.py', 'linux_native_lifecycle_coordinator.py', 'linux_native_lifecycle_run.py',
+           'linux_native_watchdog.py', 'local_container_disposal.py', 'local_container_sequence.py',
+           'windows_docker_provisioning.py', 'windows_job_backend.py', 'windows_native_management.py']
+tests = ['test_linux_native_post_close.py', 'test_linux_native_cleanup_failures.py', 'test_linux_native_watchdog.py',
+         'test_local_container_disposal.py', 'test_local_container_sequence.py', 'test_windows_docker_provisioning.py',
+         'test_windows_job_backend.py', 'test_windows_native_management.py']
+docs = ['docs/benchmarks/sphere-offline-20261012/finite-two-stream.synthetic.json',
+        'docs/benchmarks/LOCAL_TRIAL_WATCHDOG.md', 'docs/benchmarks/EXTERNAL_NATIVE_FINITE_COORDINATOR.md',
+        'docs/benchmarks/EXTERNAL_NATIVE_LIFECYCLE_COORDINATOR.md']
+overlay = ['scripts/performance/' + n for n in runtime] + ['tests/performance/' + n for n in tests] + docs
+if ROOT.exists():
+    assert not git('status', '--porcelain')
+    assert subprocess.run(['git', 'rev-parse', '--verify', 'HEAD'], cwd=ROOT, capture_output=True).returncode != 0
+else:
+    ROOT.mkdir()
+    git('init', '--initial-branch=local-two-stream-prerequisites')
+git('config', 'core.autocrlf', 'false')
+git('config', 'core.sparseCheckout', 'true')
+(ROOT / '.git/objects/info/alternates').write_bytes(
+    b'C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012/.git/objects\n')
+(ROOT / '.git/info/sparse-checkout').write_bytes(b'/*\n!/evidence/\n!/artifacts/\n!/demo-video/\n')
+git('update-ref', 'refs/heads/local-two-stream-prerequisites', BASE)
+git('read-tree', '-mu', 'HEAD')
+assert not git('status', '--porcelain')
+for name in overlay:
+    destination = ROOT / name
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(SOURCE / name, destination)
+guidance = '''## Local two-stream preparation snapshot
+
+This local-only snapshot selects the finite/lifecycle cleanup, watchdog, disposal,
+Windows management and Docker provisioning changes. No unrelated KAR/recovery
+overlay or local evidence is included. Historical protocol pins remain unchanged.
+See docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md for the scope and checks.
+Docker/native execution and credential handoff require task-specific authority.
+Keep exact-ID ownership, uncertain creation/disposal, original deadlines and
+private role inputs separate from evidence. No socket delegation or download
+fallback. A clean Git snapshot alone is not runtime or transport validation.
+
+'''
+agents = (ROOT / 'AGENTS.md').read_text()
+(ROOT / 'AGENTS.md').write_text(agents.replace('# NBSR agent guidance\n', '# NBSR agent guidance\n\n' + guidance, 1), encoding='utf-8')
+review = ROOT / 'docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md'
+review.write_text('''# Local-only two-stream prerequisites snapshot
+
+This snapshot retains baseline ad77d59754651fee449bb1d9c14a946f9f3b2d15 and selects
+only the reviewed finite/lifecycle cleanup, local watchdog, exact-ID disposal,
+Windows management/Job backend and Docker provisioning overlays. Rust source,
+Cargo manifests/lockfiles and historical fixtures remain baseline bytes. Unrelated
+KAR, recovery, CI and broader status changes are excluded. Raw local evidence,
+machine inventories, credentials and build outputs are not added to this commit.
+
+Existing committed historical evidence remains in the baseline tree; the local
+checkout is sparse for evidence/, artifacts/ and demo-video/. Sparse materialization
+does not weaken a validator: a required missing artifact remains a blocker.
+
+Run the affected Python performance tests for post-close, cleanup failures,
+finite/lifecycle run, watchdog, local-container disposal/sequence and Windows
+management/Job/provisioning. Use the provisioned environment, no-cache mode and a
+fresh test-owned temporary root on Windows. Baseline Rust benchmark code needs no
+source change. A later build still requires verified Linux cached dependencies,
+locked offline release commands, max2 jobs and the approved resource/time guards.
+
+WindowsOwner assigns suspended processes before resume and retains exact handles.
+DockerCommand bounds host CLI jobs; daemon effects require separate exact-ID
+inspection. DockerProvisioner selects one internal network, exact readonly role
+mounts, bounded non-root endpoints and fresh absence confirmation. Unknown creation
+blocks replacement; known failed creations remain cleanup-addressable. No socket
+is delegated. The existing Sequence/WindowsWorkload use normal, expected interrupted
+INVALID_PARTIAL and fresh cells. Local worker exit never proves endpoint disposal.
+
+This commit does not authorize TLS generation/access/copy/mount, QUIC traffic,
+downloads, live deployment or publication. Credential setup remains a separate
+user-controlled handoff. Source, native containment, runtime/cache and actual
+transport results must be reported separately; no production/SPHERE/capacity claim.
+''', encoding='utf-8')
+overlay += ['AGENTS.md', 'docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md']
+git('add', '--', *overlay)
+changed = git('diff', '--cached', '--name-only').decode().splitlines()
+assert set(changed) == set(overlay), (set(changed) - set(overlay), set(overlay) - set(changed))
+git('diff', '--cached', '--check')
+(EVIDENCE / 'assembled-source.patch').write_bytes(git('diff', '--cached', '--binary'))
+inventory = {'base': BASE, 'root': str(ROOT), 'overlay': overlay, 'staged': changed,
+             'sha256': {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in overlay},
+             'sparse_exclusions': ['evidence/', 'artifacts/', 'demo-video/'],
+             'meaning': 'Unchanged baseline entries retained; no new private evidence or credentials staged.'}
+(EVIDENCE / 'assembled-source.json').write_text(json.dumps(inventory, indent=2))
+print(json.dumps({'root': str(ROOT), 'staged_files': len(changed),
+                  'disk_free': shutil.disk_usage(ROOT).free}))

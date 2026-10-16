@@ -1,0 +1,26 @@
+"""Child coordinator: runs only when parent owns its Windows Job."""
+import contextlib,hashlib,json,sys,time
+from pathlib import Path
+from single_container_adapter import bind_single,Budget60
+from scripts.performance import linux_native_finite_run as finite
+from scripts.performance.linux_native_lifecycle_remote import remote_command as original_remote_command
+from scripts.performance.process_cancellation import Cancellation
+P=Path(__file__).resolve().parent
+def main(request_path):
+ request=json.loads(Path(request_path).read_text());root=Path(request['root'])
+ def endpoint_command(target,argv):
+  command=original_remote_command(target,argv)
+  assert command[:2]==['docker','exec']
+  return command[:2]+['-e','PYTHONDONTWRITEBYTECODE=1','-e','GIT_CONFIG_NOSYSTEM=1','-e','GIT_CONFIG_GLOBAL=/dev/null','-e','GIT_CONFIG_COUNT=1','-e','GIT_CONFIG_KEY_0=safe.directory','-e','GIT_CONFIG_VALUE_0=/repo']+command[2:]
+ finite.remote_command=endpoint_command
+ config=bind_single(json.loads((P/'finite-config.proposed.json').read_text()),request['container_id'])
+ budget=Budget60(request['started']);budget.work()
+ with Cancellation() as cancellation:
+  def check():cancellation.check();budget.work()
+  with (root/'stdout.log').open('x') as out,(root/'stderr.log').open('x') as err,contextlib.redirect_stdout(out),contextlib.redirect_stderr(err):
+   result=finite.execute(config,root/'coordinator',check_cancelled=check)
+  budget.work()
+  (root/'reply.json').write_text(json.dumps({'status':result['status'],'request_sha256':hashlib.sha256(Path(request_path).read_bytes()).hexdigest()}))
+if __name__=='__main__':
+ if len(sys.argv)!=3 or sys.argv[1]!='--owned-request':raise SystemExit('owned request only')
+ main(sys.argv[2])

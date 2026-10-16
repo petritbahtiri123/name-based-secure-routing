@@ -1,0 +1,203 @@
+"""Approved tmpfs/process interruption experiment; controller survives."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import select
+import signal
+import sys
+import time
+from contextlib import contextmanager
+from dataclasses import replace
+
+sys.path.insert(0, '/source')
+from nbsr.protocol.cbor import decode_deterministic
+from nbsr.secure_files import secure_write_private
+from nbsr.federation.store import FederationStateRepository
+from scripts import inclusion_persistence as store
+from scripts.inclusion_recovery_harness import Controller, RecoveryBlocked
+from scripts.revocation_inclusion_v2 import FixtureState, VECTORS
+
+OUT = Path('/evidence')
+BASE = Path('/trial')
+LOCK = '.inclusion.json.lock'
+
+
+def identity(path):
+    s = path.lstat()
+    import stat
+    assert stat.S_ISREG(s.st_mode) and s.st_nlink == 1
+    return [s.st_dev, s.st_ino]
+
+
+class Files:
+    def __init__(self, root):
+        self.root = root
+
+    @contextmanager
+    def exclusive(self):
+        lock = self.root / LOCK
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        try:
+            yield
+        finally:
+            os.close(fd)
+            lock.unlink()
+
+    def read(self, name):
+        path = self.root / name
+        if not path.exists():
+            return None
+        return FederationStateRepository(path)._read_bounded_regular_file()
+
+    def replace(self, name, data):
+        secure_write_private(self.root / name, data)
+
+
+def fixtures():
+    case = json.loads(VECTORS.read_text())['cases'][0]
+    raw = bytes.fromhex(case['package_hex'])
+    assert hashlib.sha256(raw).hexdigest() == case['sha256']
+    package = decode_deterministic(raw)
+    record = package[3]
+    digest = hashlib.sha256(record).digest()
+    checkpoint = decode_deterministic(package[5][1:])[2]
+    state = FixtureState(hashlib.sha256(checkpoint).digest(), record, frozenset({digest}), ((b'a'*16, digest),))
+    first = store.Snapshot(state, b'C'*32, hashlib.sha256(store.AMENDMENT.read_bytes()).digest(), 1, None)
+    second = replace(first, state=replace(state, requests=state.requests+((b'b'*16, digest),)), transaction=2, previous_snapshot_digest=first.digest)
+    return first, second
+
+
+def reap(pid):
+    until = time.monotonic() + 4
+    while time.monotonic() < until:
+        got, status = os.waitpid(pid, os.WNOHANG)
+        if got == pid:
+            return status
+        time.sleep(.01)
+    raise TimeoutError('owned child did not exit')
+
+
+def rejected(call, exception):
+    try:
+        call()
+    except exception:
+        return
+    raise AssertionError('expected rejection absent')
+
+
+def one(name, first, second):
+    root = BASE / name
+    root.mkdir(mode=0o700)
+    root_id = (root.stat().st_dev, root.stat().st_ino)
+    files = Files(root)
+    for key in (store.PRIMARY, store.WATERMARK):
+        files.replace(key, store.encode(first))
+    expected = first if name == 'before-watermark' else second
+    r, w = os.pipe()
+    go_r, go_w = os.pipe()
+    pid = None
+    waited = False
+    ack = None
+    result = dict(name=name, status='INVALID_PARTIAL', child_reaped=False, files_removed=False)
+    try:
+        pid = os.fork()
+        if pid == 0:
+            os.close(r); os.close(go_w)
+            def boundary(stage):
+                if stage == name:
+                    os.write(w, json.dumps(dict(stage=stage, lock=identity(root/LOCK))).encode()+b'\n')
+                    os.read(go_r, 1)
+                    raise AssertionError('kill boundary unexpectedly resumed')
+            try:
+                with files.exclusive():
+                    boundary('before-watermark')
+                    files.replace(store.WATERMARK, store.encode(second))
+                    boundary('after-watermark')
+                    files.replace(store.PRIMARY, store.encode(second))
+                    boundary('after-primary')
+                os.write(w, b'{"stage":"normal"}\n')
+                os._exit(0)
+            except BaseException:
+                os._exit(23)
+        os.close(w); w = -1
+        os.close(go_r); go_r = -1
+        result['pid'] = pid
+        result['proc_identity'] = Path(f'/proc/{pid}/stat').read_text()
+        controller = Controller(files, context_binding=first.context_binding, expected=expected.digest, owner=object())
+        ticket = controller.begin_disposal(controller.owner)
+        rejected(controller.restore, RecoveryBlocked)
+        if not select.select([r], [], [], 6)[0]:
+            raise TimeoutError('boundary acknowledgement')
+        ack = json.loads(os.read(r, 4096))
+        assert ack['stage'] == name
+        result['boundary'] = ack
+        if name != 'normal':
+            os.kill(pid, signal.SIGKILL)
+        status = reap(pid); waited = True
+        result.update(wait_status=status, child_reaped=True)
+        assert (os.WIFEXITED(status) and os.WEXITSTATUS(status)==0) if name=='normal' else (os.WIFSIGNALED(status) and os.WTERMSIG(status)==signal.SIGKILL)
+        assert controller.confirm_disposal(ticket, success=True)
+        if name != 'normal':
+            rejected(controller.restore, FileExistsError)
+            assert identity(root/LOCK) == ack['lock']
+            (root/LOCK).unlink()
+            result['stale_lock_removed_after_reap'] = True
+        rejected(lambda: store.Repository(files, context_binding=first.context_binding).load(b'X'*32), store.SnapshotRejected)
+        missing = Controller(files, context_binding=first.context_binding, expected=None, owner=object())
+        missing.confirm_disposal(missing.begin_disposal(missing.owner), success=True)
+        rejected(missing.restore, RecoveryBlocked)
+        worker = controller.restore()
+        assert worker.snapshot == expected and worker.registration is None
+        assert not controller.confirm_disposal(ticket, success=True) and controller.owner is worker
+        assert files.read(store.PRIMARY) == files.read(store.WATERMARK) == store.encode(expected)
+        result['recovered_digest'] = expected.digest.hex()
+        result['file_hashes'] = {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in root.iterdir()}
+        for key in (store.PRIMARY, store.WATERMARK):
+            files.replace(key, store.encode(first))
+        rejected(lambda: store.Repository(files, context_binding=first.context_binding).load(second.digest), store.SnapshotRejected)
+        result['rollback_rejected'] = True
+        result['status'] = 'PASS'
+    finally:
+        active_error = sys.exc_info()[1]
+        if active_error is not None:
+            result['error'] = dict(type=type(active_error).__name__, detail=str(active_error))
+        try:
+            if pid and not waited:
+                os.kill(pid, signal.SIGKILL)
+                result['cleanup_wait_status'] = reap(pid)
+                result['child_reaped'] = True
+            for fd in (r,w,go_r,go_w):
+                if fd >= 0:
+                    os.close(fd)
+            assert result['child_reaped']
+            assert (root.stat().st_dev, root.stat().st_ino) == root_id
+            assert all(p.name in (store.PRIMARY,store.WATERMARK,LOCK) for p in root.iterdir())
+            if (root/LOCK).exists():
+                assert ack is not None and 'lock' in ack
+                assert identity(root/LOCK) == ack['lock']
+            result['cleanup_inventory'] = {p.name:identity(p) for p in root.iterdir()}
+            for p in root.iterdir():
+                p.unlink()
+            root.rmdir()
+            result['files_removed'] = not root.exists()
+        except BaseException as cleanup_error:
+            result['status'] = 'INVALID_PARTIAL'
+            result['cleanup_error'] = dict(type=type(cleanup_error).__name__, detail=str(cleanup_error))
+            raise
+        finally:
+            (OUT/(name+'.json')).write_text(json.dumps(result,indent=2)+'\n')
+    assert result['child_reaped'] and result['files_removed']
+    return result
+
+
+summary = dict(status='INVALID_PARTIAL', results=[])
+try:
+    first, second = fixtures()
+    for name in ('normal','before-watermark','after-watermark','after-primary'):
+        summary['results'].append(one(name,first,second))
+    assert not list(BASE.iterdir())
+    summary['status'] = 'PASS'
+finally:
+    summary['completed'] = len(summary['results'])
+    (OUT/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')

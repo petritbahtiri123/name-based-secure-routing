@@ -18,7 +18,7 @@ import time
 
 from scripts.performance.local_container_disposal import Container, Creation, Observation, Probe, Unconfirmed
 from scripts.performance.process_cancellation import Cancellation
-from scripts.performance.windows_native_management import WindowsOwner
+from scripts.performance.windows_native_management import CellBudget, WindowsOwner
 from scripts.performance.windows_job_backend import Win32Backend
 
 
@@ -311,6 +311,63 @@ class DockerProvisioner:
         return validate_config(config)
 
 
+class _CommandTrace:
+    """Bounded local diagnostics; no argv, environment or credential capture."""
+
+    def __init__(self, path, *, clock=time.monotonic):
+        self.path, self.clock = path, clock
+        self.events, self.dropped, self.write_errors = [], 0, 0
+
+    def record(self, stage, **fields):
+        try:
+            if len(self.events) == 128:
+                self.events.pop(32)  # Preserve startup and the most recent tail.
+                self.dropped += 1
+            self.events.append(dict(time=self.clock(), stage=stage, **fields))
+            self.path.write_text(json.dumps(dict(events=self.events, dropped=self.dropped,
+                                                write_errors=self.write_errors)))
+        except Exception:
+            # Diagnostics must not interrupt transfer/cleanup of newly created handles.
+            self.write_errors += 1
+
+
+class _TracedBackend:
+    def __init__(self, backend, trace):
+        self.backend, self.trace = backend, trace
+        self.last_observation = object()
+
+    def __getattr__(self, name):
+        if name not in ('create_job', 'create_suspended', 'assign', 'resume',
+                        'observe', 'terminate', 'close'):
+            raise AttributeError(name)
+        method = getattr(self.backend, name)
+
+        def call(*args):
+            if name != 'observe':
+                self.trace.record(name + '_enter')
+            try:
+                value = method(*args)
+            except BaseException as exc:
+                self.trace.record(name + '_error', error_type=type(exc).__name__)
+                raise
+            if name == 'observe':
+                if value != self.last_observation:
+                    self.trace.record('observe_return', leader_code=value[0], active_processes=value[1])
+                    self.last_observation = value
+            else:
+                self.trace.record(name + '_return')
+            return value
+        return call
+
+
+def windows_argv_units(argv):
+    """CreateProcess UTF-16 units including NUL, using Popen's serialization."""
+    units = len(subprocess.list2cmdline(argv).encode('utf-16-le')) // 2 + 1
+    if units > 30000:
+        raise ValueError('Windows command line exceeds conservative 30000-unit limit')
+    return units
+
+
 class DockerCommand:
     """Bound each host CLI invocation and its descendants to one Windows Job.
 
@@ -320,21 +377,39 @@ class DockerCommand:
     """
 
     def __init__(self, root, *, executable, backend_factory=Win32Backend,
-                 clock=time.monotonic, sleep=time.sleep):
+                 clock=time.monotonic, sleep=time.sleep, max_timeout=8, trial_budget=None, guard=None):
         if not Path(executable).is_absolute():
             raise ValueError('exact approved Docker executable required')
+        if trial_budget is not None and type(trial_budget) is not CellBudget:
+            raise ValueError('exact finite trial budget required')
+        ceiling = 122 if trial_budget is not None else 32
+        if type(max_timeout) not in (int, float) or not math.isfinite(max_timeout) or not 0 < max_timeout <= ceiling:
+            raise ValueError('explicit command limit exceeds finite ceiling')
+        self.trial_budget, self.guard = trial_budget, guard
+        self.max_timeout = max_timeout
         self.root, self.executable = Path(root), str(executable)
         self.backend_factory, self.clock, self.sleep = backend_factory, clock, sleep
         self.owner, self.count = None, 0
 
-    def __call__(self, args, *, timeout):
+    def __call__(self, args, *, timeout, cleanup=False):
         if (self.owner is not None and self.owner.owned) or type(args) is not list or not args or any(
                 type(v) is not str or '\x00' in v for v in args):
             raise Unconfirmed('previous command owned or invalid argv')
-        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 8:
-            raise ValueError('command needs a finite at-most-eight-second budget')
+        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= self.max_timeout:
+            raise ValueError('command exceeds its explicit finite budget')
+        if type(cleanup) is not bool:
+            raise ValueError('explicit cleanup phase required')
+        if self.trial_budget is not None:
+            timeout = self.trial_budget.command_timeout(timeout, cleanup=cleanup)
+        windows_argv_units([self.executable, *args])
         started = previous = self.clock()
         deadline = started + timeout
+        if self.trial_budget is not None:
+            boundary = self.trial_budget.total_seconds if cleanup else self.trial_budget.work_seconds
+            deadline = min(deadline, self.trial_budget.started + boundary)
+            timeout = deadline - started
+            if timeout <= 0:
+                raise TimeoutError('trial deadline reached before command startup')
 
         def now():
             nonlocal previous
@@ -350,9 +425,10 @@ class DockerCommand:
         request = output / 'request.json'
         wire = json.dumps(dict(argv=[self.executable, *args], deadline=deadline)).encode()
         request.write_bytes(wire)
+        trace = _CommandTrace(output / 'host-trace.json', clock=self.clock)
         self.owner = WindowsOwner([sys.executable, '-B', '-m',
             'scripts.performance.windows_docker_provisioning', '--command', str(request)],
-            backend=self.backend_factory(), cancel=lambda: None)
+            backend=_TracedBackend(self.backend_factory(), trace), cancel=lambda: None)
         failure = primary_failure = cleanup_failure = None
         stage = 'startup_check'
 
@@ -363,6 +439,8 @@ class DockerCommand:
         with Cancellation() as cancellation:
             try:
                 cancellation.check()
+                if self.guard is not None and not cleanup:
+                    self.guard()
                 if now() >= deadline - min(2, timeout / 2):
                     raise TimeoutError('no command startup budget')
                 stage = 'start'
@@ -370,6 +448,8 @@ class DockerCommand:
                 while True:
                     stage = 'observe'
                     cancellation.check()
+                    if self.guard is not None and not cleanup:
+                        self.guard()
                     code, active = self.owner.observe()
                     if code is not None and not active:
                         stage = 'reap'
@@ -405,6 +485,11 @@ class DockerCommand:
                         cleanup_failure = diagnostic(exc, cleanup_stage)
                         failure = failure or exc
                 (output / 'supervision.json').write_text(json.dumps(dict(
+                    timeout_seconds=timeout, max_timeout=self.max_timeout, cleanup_phase=cleanup,
+                    trial_work_seconds=None if self.trial_budget is None else self.trial_budget.work_seconds,
+                    trial_total_seconds=None if self.trial_budget is None else self.trial_budget.total_seconds,
+                    work_budget_seconds=timeout - min(2, timeout / 2),
+                    trace_write_errors=trace.write_errors,
                     owned=self.owner.owned, failure=None if failure is None else type(failure).__name__,
                     primary_failure=primary_failure, cleanup_failure=cleanup_failure,
                     retained_handles={name: getattr(self.owner, name) is not None
@@ -416,6 +501,10 @@ class DockerCommand:
             if any(p.stat().st_size > 1048576 for p in files):
                 raise Unconfirmed('command output limit')
             reply = json.loads(files[0].read_bytes())
+            if (set(reply) == {'request_sha256', 'code', 'launch_error'}
+                    and reply['request_sha256'] == hashlib.sha256(wire).hexdigest()
+                    and reply['code'] is None):
+                raise Unconfirmed('command launch failed; original exception retained in reply.json')
             if (set(reply) != {'request_sha256', 'code'} or type(reply['code']) is not int
                     or reply['request_sha256'] != hashlib.sha256(wire).hexdigest()):
                 raise Unconfirmed('unbound command reply')
@@ -438,13 +527,28 @@ def _command_worker(request):
     value = json.loads(wire)
     if set(value) != {'argv', 'deadline'} or time.monotonic() >= value['deadline']:
         raise ValueError('invalid or expired command')
+    trace = _CommandTrace(request.parent / 'worker-trace.json', clock=time.monotonic)
     with (request.parent / 'stdout.txt').open('xb') as stdout, (request.parent / 'stderr.txt').open('xb') as stderr:
         # Descendants inherit the assigned job, never a daemon socket or host handles.
-        child = subprocess.Popen(value['argv'], stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
-                                 close_fds=True, creationflags=subprocess.CREATE_NO_WINDOW)
+        trace.record('popen_enter')
+        try:
+            windows_argv_units(value['argv'])
+            child = subprocess.Popen(value['argv'], stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
+                                     close_fds=True, creationflags=subprocess.CREATE_NO_WINDOW)
+        except Exception as exc:
+            error = dict(type=type(exc).__name__, message=str(exc),
+                         errno=getattr(exc, 'errno', None), winerror=getattr(exc, 'winerror', None))
+            (request.parent / 'reply.json').write_text(json.dumps(dict(
+                request_sha256=hashlib.sha256(wire).hexdigest(), code=None, launch_error=error)))
+            trace.record('launch_failed', **error)
+            return
+        trace.record('popen_return', pid=child.pid)
+        trace.record('wait_enter')
         code = child.wait(timeout=max(.001, value['deadline'] - time.monotonic()))
+        trace.record('wait_return', code=code)
     (request.parent / 'reply.json').write_text(json.dumps(dict(
         request_sha256=hashlib.sha256(wire).hexdigest(), code=code)))
+    trace.record('reply_written')
 
 
 if __name__ == '__main__':

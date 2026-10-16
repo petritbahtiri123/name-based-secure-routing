@@ -1,0 +1,64 @@
+import importlib.util,json,re,sys,time,tomllib,subprocess
+from pathlib import Path
+SOURCE=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+OUT=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-cache-inspect-approved-20261013')
+IMAGE='sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769'
+NAME='nbsr-cache-inspect-20261013-1757'; LABEL='nbsr.prerequisite=cache-inspect-20261013-1757'
+COMMIT='b09a85187d1e27250a1aec2e76f7a5bcdef84611'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=SOURCE,timeout=10).decode().strip()==COMMIT
+assert not subprocess.check_output(['git','status','--porcelain'],cwd=SOURCE,timeout=10)
+sys.path.insert(0,str(SOURCE))
+from scripts.performance.windows_docker_provisioning import DockerCommand
+spec=importlib.util.spec_from_file_location('guard',Path(__file__).with_name('nbsr-prerequisite-containment-20261013.py'))
+guard=importlib.util.module_from_spec(spec); spec.loader.exec_module(guard)
+initial=guard.resources(True)
+OUT.mkdir(exist_ok=False)
+cmd=DockerCommand(OUT,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe')
+packages=[p['name']+'-'+p['version'] for p in tomllib.loads((SOURCE/'crates/nbsr-transport/Cargo.lock').read_text())['package'] if p.get('source','').startswith('registry+')]
+PROBE="import importlib.util,json,os,platform,shutil,subprocess,sys\nfrom pathlib import Path\nos.environ['RUSTUP_AUTO_INSTALL']='0'; os.environ['CARGO_NET_OFFLINE']='true'\nmemory={line.split(':')[0]:int(line.split()[1])*1024 for line in Path('/proc/meminfo').read_text().splitlines() if ':' in line and len(line.split())>=2}\nassert memory['MemAvailable']>=2*2**30 and memory['CommitLimit']-memory['Committed_AS']>=2*2**30, 'guest memory/commit reserve'\nvalue={'platform':platform.platform(),'python':sys.version,'cwd':os.getcwd(),'guest_available':memory['MemAvailable'],'guest_commit_free':memory['CommitLimit']-memory['Committed_AS']}\nvalue['modules']={name:importlib.util.find_spec(name) is not None for name in ['cryptography','cbor2','psutil']}\nvalue['tools']={name:shutil.which(name) for name in ['rustc','cargo','git','taskset','rustup']}\nvalue['versions']={}\nfor name,args in [('rustc',['--version','--verbose']),('cargo',['--version']),('git',['--version'])]:\n if value['tools'][name]:\n  try:\n   p=subprocess.run([value['tools'][name],*args],capture_output=True,text=True,timeout=3)\n   value['versions'][name]={'code':p.returncode,'stdout':p.stdout,'stderr':p.stderr}\n  except Exception as e: value['versions'][name]={'error':type(e).__name__}\nhomes=list(dict.fromkeys([os.environ.get('CARGO_HOME','/usr/local/cargo'),'/usr/local/cargo','/root/.cargo']))\ncached=set(); value['cargo_homes']={}\nfor name in homes:\n home=Path(name); value['cargo_homes'][name]=home.is_dir()\n for directory in (home/'registry/cache',home/'registry/src'):\n  if directory.is_dir():\n   for registry in directory.iterdir():\n    if registry.is_dir(): cached.update(p.name.removesuffix('.crate') for p in registry.iterdir())\nvalue['cached_locked_packages']=sorted(set(PACKAGES)&cached)\nvalue['missing_locked_packages']=sorted(set(PACKAGES)-cached)\ntargets=list(dict.fromkeys([os.environ.get('CARGO_TARGET_DIR','/app/target'),'/app/target','/work/target','/nbsr/target','/opt/nbsr/target',str(Path.cwd()/'crates/nbsr-transport/target')]))\nvalue['target_candidates']={n:{'exists':Path(n).is_dir(),'release_binaries':[b for b in ['perf_direct_peer','perf_rust_source','wp8_interop_server'] if (Path(n)/'release'/b).is_file()]} for n in targets}\nprint(json.dumps(value))\n".replace('PACKAGES',repr(packages))
+result=dict(status='NOT_RUN',approval='Sentinel_c31af745ba288191b86468409f60d932',commit=COMMIT,image=IMAGE,name=NAME,label=LABEL,resources_start=initial,events=[],historical_probe='UNCONFIRMED unchanged',build='NOT_RUN',cleanup='UNCONFIRMED')
+started=time.monotonic(); cid=None; stage='create'
+def call(args,cleanup=False,allow_failure=False):
+    remaining=(118 if cleanup else 95)-(time.monotonic()-started)
+    if remaining<=0: raise TimeoutError('original operation deadline')
+    if not cleanup: guard.resources()
+    r=cmd(args,timeout=min(8,remaining))
+    result['events'].append(dict(stage=stage,args=args,code=r.code,stdout=r.stdout,stderr=r.stderr,elapsed=time.monotonic()-started))
+    if r.code and not allow_failure: raise RuntimeError('Docker stage failed: '+stage)
+    return r
+try:
+    r=call(['create','--pull=never','--name',NAME,'--label',LABEL,'--network','none','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--pids-limit','64','--cpus','1','--memory','512m','--memory-swap','512m','--env','RUSTUP_AUTO_INSTALL=0','--env','CARGO_NET_OFFLINE=true','--entrypoint','python3',IMAGE,'-B','-c',PROBE])
+    identity=r.stdout.strip()
+    if not re.fullmatch('[0-9a-f]{64}',identity): raise RuntimeError('unknown creation identity')
+    cid=identity
+    stage='isolation_inspect'
+    fmt='{"Id":{{json .Id}},"Image":{{json .Image}},"HostConfig":{{json .HostConfig}},"Mounts":{{json .Mounts}},"Labels":{{json .Config.Labels}}}'
+    row=json.loads(call(['inspect','--type','container','--format',fmt,cid]).stdout)
+    h=row['HostConfig']
+    expected=dict(NetworkMode='none',ReadonlyRootfs=True,CapDrop=['ALL'],SecurityOpt=['no-new-privileges'],PidsLimit=64,NanoCpus=1000000000,Memory=536870912,MemorySwap=536870912,Privileged=False)
+    if row['Id']!=cid or row['Image']!=IMAGE or row['Mounts'] or row['Labels'].get('nbsr.prerequisite')!=LABEL.split('=',1)[1] or any(h.get(k)!=v for k,v in expected.items()): raise RuntimeError('isolation mismatch')
+    result['isolation_verified']=True
+    stage='start'; call(['start',cid])
+    stage='wait'; exitcode=call(['wait',cid]).stdout.strip()
+    stage='logs'; raw=call(['logs',cid]).stdout
+    result['container_exit']=exitcode
+    if exitcode!='0': raise RuntimeError('metadata process rejected prerequisites')
+    result['metadata']=json.loads(raw); result['status']='CACHE_METADATA_OBSERVED'
+except BaseException as e:
+    result.update(status='BLOCKED',primary_error=dict(stage=stage,type=type(e).__name__,message=str(e)))
+finally:
+    result['container_id']=cid
+    if cid:
+        try:
+            stage='exact_remove'; call(['rm','--force',cid],cleanup=True)
+            stage='independent_absence'; r=call(['inspect','--type','container','--format','{{.Id}}',cid],cleanup=True,allow_failure=True)
+            if r.code==1 and not r.stdout.strip() and r.stderr.strip().lower() in ('error: no such container: '+cid,'error: no such object: '+cid): result['cleanup']='EXACT_CONTAINER_ABSENT'
+            else: raise RuntimeError('exact absence not established')
+        except BaseException as e: result['cleanup_error']=dict(stage=stage,type=type(e).__name__,message=str(e))
+    result['elapsed_seconds']=time.monotonic()-started
+    result['command_owned']=None if cmd.owner is None else cmd.owner.owned
+    try: result['resources_end']=guard.resources()
+    except BaseException as e: result['resource_error']=str(e)
+    (OUT/'result.json').write_text(json.dumps(result,indent=2))
+    print(json.dumps({k:v for k,v in result.items() if k!='events'}))
+raise SystemExit(0 if result['status']=='CACHE_METADATA_OBSERVED' and result['cleanup']=='EXACT_CONTAINER_ABSENT' and not result['command_owned'] else 1)

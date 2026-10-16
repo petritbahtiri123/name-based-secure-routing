@@ -1,0 +1,99 @@
+import json,pathlib,runpy,sys,tempfile,unittest
+from unittest.mock import patch
+P=pathlib.Path(__file__).resolve().parent
+sys.path.insert(0,str(P.parent))
+from test_create_reconciliation import Clock,FakeNative
+from build_budget import DiagnosticCommand,CreateReconciler,IMAGE
+from build_launcher_v2 import launch
+from scripts.performance.local_container_disposal import Unconfirmed
+CID='a'*64;NAME='nbsr-diagnostic-build-123456789abc';LABELS={'nbsr.build-run':NAME};DIGEST='b'*64
+class BuildSupervisor(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(dir=P);self.addCleanup(self.temp.cleanup);self.root=pathlib.Path(self.temp.name)
+        (self.root/'logs').mkdir();self.clock=Clock();self.requests=[];self.backends=[]
+    def command(self,scripts,late=False):
+        scripts=iter(scripts)
+        def factory():
+            class Late(FakeNative):
+                def observe(inner,*args):
+                    if not inner.killed:inner.clock.value=7
+                    return super(Late,inner).observe(*args)
+            b=(Late if late else FakeNative)(self.clock,next(scripts),self.requests);self.backends.append(b);return b
+        return DiagnosticCommand(self.root/'logs',started=0,extended_create=True,backend_factory=factory,clock=self.clock,sleep=self.clock.sleep,executable='C:/approved/docker.exe')
+    def absent(self,target):return dict(code=1,stderr='error: no such object: '+target)
+    def owned(self,**kw):
+        row=dict(Id=CID,Name='/'+NAME,Image=IMAGE,Labels=LABELS,Running=False,Status='created');row.update(kw)
+        return dict(stdout=json.dumps(row))
+    def rec(self,c):return CreateReconciler(self.root,c,name=NAME,image=IMAGE,task_labels=LABELS)
+    def args(self):return ['create','--pull=never','--name',NAME,'--label','nbsr.build-run='+NAME,IMAGE]
+    def test_failed_reap_blocks_cleanup_without_replacing_owner(self):
+        c=self.command([dict(delay=999,unreaped=True)]);
+        with self.assertRaises(Unconfirmed):c(['inspect',NAME])
+        owner=c.owner;self.assertTrue(owner.owned)
+        with self.assertRaises(Unconfirmed):c(['inspect',NAME],cleanup=True)
+        self.assertIs(c.owner,owner);self.assertEqual(len(self.requests),1)
+    def test_late_success_is_rejected_before_acceptance(self):
+        c=self.command([{}],late=True)
+        with self.assertRaises(Unconfirmed):c(['inspect',NAME])
+        self.assertFalse(c.owner.owned);self.assertTrue(self.backends[0].killed)
+    def test_close_failure_preserves_handles_and_blocks_next_command(self):
+        c=self.command([dict(close_failure='process')])
+        with self.assertRaises(Unconfirmed):c(['inspect',NAME])
+        owner=c.owner
+        with self.assertRaises(Unconfirmed):c(['rm',CID],cleanup=True)
+        self.assertIs(c.owner,owner);self.assertTrue(owner.owned)
+    def test_delayed_create_after_absence_is_removed_by_exact_id(self):
+        c=self.command([dict(delay=999),self.absent(NAME),self.owned(),{},self.absent(CID)])
+        rec=self.rec(c)
+        with self.assertRaises(Unconfirmed):rec.create(self.args())
+        self.assertEqual(rec.state['status'],'REMOVED_EXACT_ID');self.assertFalse(rec.state['uncertain'])
+        self.assertEqual(self.requests[-2]['argv'][-1],CID)
+    def test_absence_only_never_clears_uncertain_create(self):
+        c=self.command([dict(delay=999),self.absent(NAME),self.absent(NAME),self.absent(NAME)])
+        rec=self.rec(c)
+        with self.assertRaises(Unconfirmed):rec.create(self.args())
+        self.assertTrue(rec.state['uncertain']);self.assertEqual(rec.state['status'],'UNRESOLVED_NAME_ABSENT_ONLY')
+        with self.assertRaises(Unconfirmed):rec.create(self.args())
+    def test_wrong_absence_target_rejected(self):
+        c=self.command([dict(delay=999),self.absent('unrelated')]);rec=self.rec(c)
+        with self.assertRaises(Unconfirmed):rec.create(self.args())
+        self.assertTrue(rec.state['uncertain']);self.assertEqual(len(self.requests),2)
+    def test_wrong_labels_never_removed(self):
+        c=self.command([dict(delay=999),self.owned(Labels={'other':'label'})]);rec=self.rec(c)
+        with self.assertRaises(Unconfirmed):rec.create(self.args())
+        self.assertTrue(rec.state['uncertain']);self.assertNotIn('rm',[r['argv'][1] for r in self.requests])
+    def test_install_reserves_two_seconds_and_clamps_to_absolute_work(self):
+        c=self.command([dict(delay=999)]);self.clock.value=55
+        with self.assertRaises(Unconfirmed):c(['exec',CID,'python3','-B','/opt/nbsr-build-inputs/install_offline.py'],timeout=52,install=True)
+        self.assertEqual(self.requests[0]['deadline'],60);self.assertAlmostEqual(self.clock(),58);self.assertFalse(c.owner.owned)
+    def test_cleanup_cannot_extend_absolute_deadline(self):
+        c=self.command([dict(delay=999,unreaped=True)]);self.clock.value=117
+        with self.assertRaises(Unconfirmed):c(['inspect',NAME],cleanup=True)
+        self.assertEqual(self.requests[0]['deadline'],120);self.assertAlmostEqual(self.clock(),120);self.assertTrue(c.owner.owned)
+    def test_extended_budget_requires_exact_installer(self):
+        c=self.command([])
+        for args in [['start',CID],['exec',CID,'python3','-B','other.py']]:
+            with self.assertRaises(ValueError):c(args,timeout=52,install=True)
+        self.assertEqual(self.requests,[])
+    def launch_prefix(self):
+        im={'Id':IMAGE,'Os':'linux','Architecture':'amd64','Config':{'Labels':None}}
+        row={'Image':IMAGE,'Mounts':[],'Config':{'User':'0:0','Labels':LABELS},'HostConfig':{'NetworkMode':'none','Privileged':False,'Memory':512*1024**2,'MemorySwap':512*1024**2,'NanoCpus':1000000000,'PidsLimit':128,'SecurityOpt':['no-new-privileges']}}
+        return [dict(stdout=json.dumps(im)),dict(stdout=CID),dict(stdout=json.dumps(row)),{},{}]
+    def test_launcher_failed_install_cleans_exact_running_container(self):
+        c=self.command(self.launch_prefix()+[dict(code=1,stderr='synthetic install failure'),self.owned(Running=True,Status='running'),{},self.absent(CID)])
+        state=launch(c,self.rec(c),self.root/'public-inputs',DIGEST,lambda:None)
+        self.assertEqual(state['status'],'FAILED');self.assertTrue(state['container_absent']);self.assertFalse(state['host_handles_owned']);self.assertFalse(state['commit_attempted'])
+    def test_launcher_commit_timeout_retains_image_obligation(self):
+        c=self.command(self.launch_prefix()+[dict(stdout='OFFLINE_INSTALL_PAYLOAD_PASS'),{},dict(delay=999),self.owned(Status='exited'),{},self.absent(CID)])
+        state=launch(c,self.rec(c),self.root/'public-inputs',DIGEST,lambda:None)
+        self.assertTrue(state['commit_uncertain']);self.assertTrue(state['container_absent']);self.assertIn('image_obligation',state)
+    def test_launcher_success_still_requires_runtime_probe(self):
+        image='sha256:'+'c'*64
+        row={'Id':image,'Config':{'User':'65532:65532','Labels':{**LABELS,'nbsr.input-sha256':DIGEST}}}
+        c=self.command(self.launch_prefix()+[dict(stdout='OFFLINE_INSTALL_PAYLOAD_PASS'),{},dict(stdout=image),dict(stdout=json.dumps(row)),self.owned(Status='exited'),{},self.absent(CID)])
+        state=launch(c,self.rec(c),self.root/'public-inputs',DIGEST,lambda:None)
+        self.assertEqual(state['status'],'BUILD_COMPLETED_PENDING_RUNTIME_PROBE');self.assertTrue(state['container_absent']);self.assertFalse(state['commit_uncertain'])
+    def test_cli_remains_blocked_without_any_process(self):
+        with patch('subprocess.Popen',side_effect=AssertionError('process forbidden')):
+            with self.assertRaisesRegex(SystemExit,'EXECUTION BLOCKED'):runpy.run_path(str(P/'build_launcher_v2.py'),run_name='__main__')
+if __name__=='__main__':unittest.main()

@@ -1,0 +1,53 @@
+import ast,json,tempfile,unittest
+from pathlib import Path
+from test_create_reconciliation import Clock,FakeNative
+from candidate_probe_budget import DiagnosticCommand
+from scripts.performance.local_container_disposal import Unconfirmed
+HERE=Path(__file__).resolve().parent
+from candidate_probe import payload
+PROBE=payload()
+CID='a'*64
+ARGS=['exec',CID,'python3','-B','-c',PROBE]
+class ProbeBudget(unittest.TestCase):
+ def setUp(self):
+  self.temp=tempfile.TemporaryDirectory(dir=HERE);self.addCleanup(self.temp.cleanup)
+  self.clock=Clock();self.requests=[];self.backends=[]
+ def command(self,delay=10,unreaped=False):
+  def factory():
+   b=FakeNative(self.clock,dict(delay=delay,unreaped=unreaped,stdout='ok'),self.requests);self.backends.append(b);return b
+  return DiagnosticCommand(Path(self.temp.name),started=0,executable='C:/approved/docker.exe',backend_factory=factory,clock=self.clock,sleep=self.clock.sleep)
+ def test_default_still_times_out_at_six(self):
+  c=self.command()
+  with self.assertRaises(Unconfirmed):c(ARGS)
+  self.assertAlmostEqual(self.clock(),6);self.assertFalse(c.owner.owned)
+ def test_exact_probe_ten_seconds_completes_under_opt_in(self):
+  c=self.command();r=c(ARGS,timeout=32,public_probe=True)
+  self.assertEqual(r.stdout,'ok');self.assertEqual(self.requests[0]['deadline'],32);self.assertFalse(c.owner.owned)
+ def test_opt_in_timeout_reserves_two_seconds(self):
+  c=self.command(delay=999)
+  with self.assertRaises(Unconfirmed):c(ARGS,timeout=32,public_probe=True)
+  self.assertAlmostEqual(self.clock(),30);self.assertFalse(c.owner.owned)
+ def test_absolute_work_boundary_is_preserved(self):
+  c=self.command(delay=999);self.clock.value=55
+  with self.assertRaises(Unconfirmed):c(ARGS,timeout=32,public_probe=True)
+  self.assertEqual(self.requests[0]['deadline'],60);self.assertAlmostEqual(self.clock(),58);self.assertFalse(c.owner.owned)
+ def test_insufficient_remaining_budget_does_not_spawn(self):
+  c=self.command();self.clock.value=58
+  with self.assertRaises(TimeoutError):c(ARGS,timeout=32,public_probe=True)
+  self.assertEqual(self.requests,[])
+ def test_unreaped_ownership_stays_visible(self):
+  c=self.command(delay=999,unreaped=True)
+  with self.assertRaises(Unconfirmed):c(ARGS,timeout=32,public_probe=True)
+  self.assertTrue(c.owner.owned);self.assertAlmostEqual(self.clock(),32)
+ def test_opt_in_rejects_other_command_payload_and_cleanup(self):
+  c=self.command()
+  for args,kw in [(['start',CID],{}),(ARGS[:-1]+['print(1)'],{}),(['exec','bad',*ARGS[2:]],{}),(ARGS,dict(cleanup=True))]:
+   with self.assertRaises(ValueError):c(args,timeout=32,public_probe=True,**kw)
+  self.assertEqual(self.requests,[])
+ def test_extended_budget_requires_explicit_opt_in(self):
+  c=self.command()
+  with self.assertRaises(ValueError):c(ARGS,timeout=32)
+  with self.assertRaises(ValueError):c(ARGS,timeout=33,public_probe=True)
+  self.assertEqual(self.requests,[])
+
+if __name__=='__main__':unittest.main()

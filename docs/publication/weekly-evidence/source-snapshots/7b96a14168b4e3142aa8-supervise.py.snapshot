@@ -1,0 +1,157 @@
+"""Authorized one-shot Windows owner; no image pulls/builds or network workloads."""
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import time
+import uuid
+
+ROOT = Path(__file__).parent
+EVIDENCE = ROOT / 'evidence'
+SOURCE = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+DOCKER = 'C:/Program Files/Docker/Docker/resources/bin/docker.exe'
+DESKTOP = 'C:/Program Files/Docker/Docker/Docker Desktop.exe'
+BASELINE = 14247788544
+START = time.monotonic()
+CID = None
+NAME = 'nbsr-recovery-' + uuid.uuid4().hex[:12]
+LABEL = 'nbsr.recovery.validation=' + NAME
+events = []
+
+
+class Memory(ctypes.Structure):
+    _fields_ = [('length', ctypes.c_ulong), ('load', ctypes.c_ulong)] + [(n, ctypes.c_ulonglong) for n in ('total', 'free', 'page_total', 'page_free', 'virtual_total', 'virtual_free', 'extended')]
+
+
+def resources(start=False):
+    m = Memory(); m.length = ctypes.sizeof(m)
+    if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)):
+        raise RuntimeError('RAM query unavailable')
+    free = shutil.disk_usage(ROOT).free
+    if free < (8 if start else 6) * 2**30 or BASELINE - free > 2 * 2**30 or m.free < 2 * 2**30:
+        raise RuntimeError('resource guard')
+    return dict(disk_free=free, ram_free=m.free, commit_free=m.page_free)
+
+
+def command(args, seconds=8, cleanup=False):
+    remaining = (118 if cleanup else 95) - (time.monotonic() - START)
+    if remaining <= 0:
+        raise TimeoutError('outer cleanup-inclusive deadline')
+    p = subprocess.Popen([DOCKER, *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         creationflags=subprocess.CREATE_NO_WINDOW)
+    try:
+        until = time.monotonic() + min(seconds, remaining)
+        while True:
+            try:
+                out, err = p.communicate(timeout=min(.25, max(.01, until - time.monotonic())))
+                break
+            except subprocess.TimeoutExpired:
+                if not cleanup:
+                    resources()
+                if time.monotonic() >= until:
+                    raise TimeoutError('bounded Docker command')
+    except BaseException:
+        p.kill(); p.communicate(timeout=2)
+        raise
+    result = dict(argv=args, code=p.returncode, stdout=out.decode(errors='replace'), stderr=err.decode(errors='replace'))
+    events.append(result)
+    return result
+
+
+def checked(args, **kwargs):
+    result = command(args, **kwargs)
+    if result['code']:
+        raise RuntimeError('Docker command failed: ' + args[0])
+    return result['stdout'].strip()
+
+
+outcome = dict(status='NOT_RUN', name=NAME, original_disk_baseline=BASELINE)
+try:
+    EVIDENCE.mkdir(exist_ok=False)
+    outcome['resources_start'] = resources(start=True)
+    initial = command(['info', '--format', '{{.OSType}}'], seconds=2)
+    if initial['code'] or initial['stdout'].strip() != 'linux':
+        raise RuntimeError('Linux engine prerequisite unavailable; no startup or retry')
+    outcome['resources_after_engine'] = resources(start=True)
+    image = json.loads(checked(['image', 'inspect', 'sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769',
+                               '--format', '{{json .Id}}']))
+    if image != 'sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769':
+        raise RuntimeError('immutable image identity unavailable')
+    outcome['image_id'] = image
+    # Runtime verification executes before importing the harness or spawning cases.
+    probe = ("import sys,os,json,runpy; from pathlib import Path; "
+             "assert (3,12)<=sys.version_info[:2]<(3,15), 'Python runtime mismatch'; "
+             "assert all(hasattr(os,n) for n in ['waitid','WNOWAIT','killpg']), 'Linux APIs absent'; "
+             "m=Path('/proc/meminfo').read_text(); a=next(int(x.split()[1])*1024 for x in m.splitlines() if x.startswith('MemAvailable:')); "
+             "assert a>=2*2**30, 'guest RAM reserve'; "
+             "Path('/evidence/runtime.json').write_text(json.dumps(dict(python=sys.version,platform=sys.platform,guest_available=a))); "
+             "runpy.run_path('/harness/validate.py',run_name='__main__')")
+    args = ['create', '--pull=never', '--name', NAME, '--label', LABEL, '--network', 'none', '--init',
+            '--cpus', '1', '--memory', '512m', '--memory-swap', '512m', '--pids-limit', '64',
+            '--tmpfs', '/trial:rw,noexec,nosuid,nodev,size=16m,mode=0700,uid=65534,gid=65534', '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--user', '65534:65534',
+            '--mount', f'type=bind,source={SOURCE.as_posix()},target=/source,readonly',
+            '--mount', f'type=bind,source={ROOT.as_posix()},target=/harness,readonly',
+            '--mount', f'type=bind,source={EVIDENCE.as_posix()},target=/evidence',
+            '--entrypoint', 'python3', image, '-B', '-c', probe]
+    outcome['container_create_attempted'] = True
+    CID = checked(args)
+    outcome['container_id'] = CID
+    checked(['start', CID])
+    outcome['status'] = 'RUNNING'
+    while time.monotonic() - START < 90:
+        resources()
+        state = json.loads(checked(['inspect', '--format', '{{json .State}}', CID]))
+        if not state['Running']:
+            outcome['container_state'] = state
+            outcome['status'] = 'COMPLETED' if state['ExitCode'] == 0 and not state.get('OOMKilled') else 'INVALID_PARTIAL'
+            summary = json.loads((EVIDENCE / 'summary.json').read_text())
+            if summary.get('status') != 'PASS' or summary.get('completed') != 4 or len(summary.get('results', [])) != 4 or {r.get('name') for r in summary.get('results', [])} != {'normal','before-watermark','after-watermark','after-primary'} or not all(r.get('child_reaped') and r.get('files_removed') and r.get('status') == 'PASS' for r in summary.get('results', [])):
+                outcome['status'] = 'INVALID_PARTIAL'
+            break
+        time.sleep(.25)
+    else:
+        raise TimeoutError('outer 90s work deadline')
+except BaseException as error:
+    outcome.update(status='INVALID_PARTIAL', error_type=type(error).__name__, error=str(error))
+finally:
+    try:
+        # Recover an ambiguous create only by exact random name AND ownership label.
+        if CID is None:
+            found = command(['ps', '-aq', '--no-trunc', '--filter', 'name=^/' + NAME + '$', '--filter', 'label=' + LABEL], cleanup=True, seconds=3)
+            ids = found['stdout'].split()
+            if found['code'] == 0 and len(ids) == 1:
+                CID = ids[0]
+        if CID:
+            try:
+                stopped = command(['stop', '--time', '1', CID], cleanup=True, seconds=3)
+                outcome['stop_exit_code'] = stopped['code']
+                if time.monotonic() - START < 102:
+                    state = json.loads(checked(['inspect', '--format', '{{json .State}}', CID], cleanup=True, seconds=2))
+                    outcome['cleanup_state'] = state
+                    if state.get('Running') or state.get('Pid') != 0:
+                        outcome['status'] = 'INVALID_PARTIAL'
+                if time.monotonic() - START < 104:
+                    logs = command(['logs', CID], cleanup=True, seconds=2)
+                    (ROOT / 'container.stdout').write_text(logs['stdout'], encoding='utf-8')
+                    (ROOT / 'container.stderr').write_text(logs['stderr'], encoding='utf-8')
+            finally:
+                # Exact task-owned ID only, including partial startup or stop failure.
+                checked(['rm', '--force', CID], cleanup=True, seconds=6)
+            verify = command(['inspect', CID], cleanup=True, seconds=2)
+            outcome['container_removed'] = verify['code'] != 0 and ('no such object:' in verify['stderr'].lower() and CID in verify['stderr'])
+        else:
+            outcome['container_created'] = 'UNCONFIRMED' if outcome.get('container_create_attempted') else False
+    except BaseException as error:
+        outcome['cleanup_error'] = dict(type=type(error).__name__, detail=str(error))
+    if not outcome.get('container_removed') or time.monotonic() - START > 120:
+        outcome['status'] = 'INVALID_PARTIAL'
+    outcome['elapsed_seconds'] = time.monotonic() - START
+    outcome['commands'] = events
+    outcome['source_sha256'] = hashlib.sha256((SOURCE / 'scripts/inclusion_recovery_harness.py').read_bytes()).hexdigest()
+    (ROOT / 'outer-result.json').write_text(json.dumps(outcome, indent=2) + '\n', encoding='utf-8')
+    print(json.dumps({k:v for k,v in outcome.items() if k != 'commands'}), flush=True)
+
+raise SystemExit(0 if outcome['status'] == 'COMPLETED' and outcome.get('container_removed') else 1)

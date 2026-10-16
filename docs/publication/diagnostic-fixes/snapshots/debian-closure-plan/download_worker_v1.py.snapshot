@@ -1,0 +1,38 @@
+"""Exact public artifacts only; parent owns this worker in a Windows Job."""
+import hashlib,json,pathlib,sys,time,urllib.request,urllib.parse
+MANIFEST_SHA='38f13d332a8af94e8930eb4f41a6a1f6cef7a072157d35fcd3fb35fc43923267'
+CAP=32*1024**2
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self,*args,**kwargs):raise RuntimeError('redirect prohibited')
+def fetch(root,deadline,opener=None,clock=time.monotonic):
+    p=pathlib.Path(__file__).resolve().parent
+    raw=(p/'artifact-closure.json').read_bytes();assert hashlib.sha256(raw).hexdigest()==MANIFEST_SHA
+    m=json.loads(raw);rows=m['packages']+m['wheels'];assert len(rows)==27 and sum(r['bytes'] for r in rows)==25271876
+    root=pathlib.Path(root);dest=root/'artifacts';dest.mkdir(exist_ok=False)
+    opener=opener or urllib.request.build_opener(NoRedirect())
+    state={'status':'IN_PROGRESS','bytes':0,'verified':[],'current':None};response=None
+    def save():(root/'download-progress.json').write_text(json.dumps(state,indent=2))
+    try:
+        for r in rows:
+            if clock()>=deadline:raise TimeoutError('download work deadline')
+            url=urllib.parse.urlsplit(r['url']);assert url.scheme=='https' and url.hostname in ('deb.debian.org','files.pythonhosted.org') and not url.username and not url.password and url.port in (None,443)
+            name=r['filename'];assert pathlib.PurePath(name).name==name and '/' not in name and '\\' not in name
+            state['current']={'filename':name,'url':r['url'],'bytes':0};save()
+            with opener.open(r['url'],timeout=min(5,deadline-clock())) as response, (dest/(name+'.partial')).open('xb') as f:
+                assert response.geturl()==r['url'] and response.status==200
+                digest=hashlib.sha256()
+                while True:
+                    if clock()>=deadline:raise TimeoutError('download work deadline')
+                    remaining=min(CAP-state['bytes'],r['bytes']+1-state['current']['bytes'])
+                    if remaining<=0:raise RuntimeError('byte ceiling')
+                    b=response.read(min(65536,remaining))
+                    if not b:break
+                    state['bytes']+=len(b);state['current']['bytes']+=len(b);f.write(b);digest.update(b);save()
+                    if state['bytes']>CAP or state['current']['bytes']>r['bytes']:raise RuntimeError('unexpected artifact length')
+                assert state['current']['bytes']==r['bytes'] and digest.hexdigest()==r['sha256']
+            (dest/(name+'.partial')).rename(dest/name);state['verified'].append(name);save()
+        if clock()>=deadline:raise TimeoutError('late download completion')
+        state.update(status='ARTIFACTS_VERIFIED',current=None);save();return state
+    except BaseException as e:
+        state.update(status='FAILED',failure=type(e).__name__+': '+str(e));save();raise
+if __name__=='__main__':fetch(sys.argv[1],float(sys.argv[2]))

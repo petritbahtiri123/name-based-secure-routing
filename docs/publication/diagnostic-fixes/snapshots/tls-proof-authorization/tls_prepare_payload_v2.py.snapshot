@@ -1,0 +1,42 @@
+"""Runtime-only prepared payload: no execution on import."""
+import json,os,stat,subprocess,hashlib
+from pathlib import Path
+def prepare(public_payload):
+ assert os.getuid()==65532
+ private=Path('/private');assert stat.S_IMODE(private.stat().st_mode)==0o700 and private.stat().st_uid==65532
+ assert not list(private.iterdir())
+ # Reuse the complete unchanged public source/binary/Git/import gate before keys.
+ dummy=private/'tls';dummy.mkdir(mode=0o700)
+ for name in ('ca','source','source-key'):(dummy/(name+'.der')).write_bytes(b'PUBLIC DIAGNOSTIC DUMMY; NOT TLS MATERIAL\n')
+ import contextlib,io
+ with contextlib.redirect_stdout(io.StringIO()) as output:exec(public_payload,{})
+ verified=json.loads(output.getvalue());assert verified['status']=='PUBLIC_DIAGNOSTIC_PASS'
+ for name in ('ca','source','source-key'):(dummy/(name+'.der')).unlink()
+ dummy.rmdir()
+ from scripts.performance.b3_linux import environment
+ env=environment(1)
+ prerequisites(env)
+ verify_projection(Path('/input'),json.loads(Path('/nbsr/build.json').read_text())['source_sha256'])
+ # Approved ephemeral key generation. Never serialize keys into any output.
+ raw=Path('/repo/scripts/performance/authority.py').read_bytes()
+ assert hashlib.sha256(raw).hexdigest()=='1b555178d20ee6b0202b3730835e5382ad41c5f87d3b46bfb02ce5ea4a4302b5'
+ ns={};exec(compile(raw,'/repo/scripts/performance/authority.py','exec'),ns);write_loopback_authority=ns['write_loopback_authority']
+ os.umask(0o077);write_loopback_authority(dummy)
+ expected={'ca.der','source.der','destination.der','source-key.der','destination-key.der'}
+ assert {x.name for x in dummy.iterdir()}==expected and stat.S_IMODE(dummy.stat().st_mode)==0o700
+ for x in dummy.iterdir():assert not x.is_symlink() and stat.S_IMODE(x.stat().st_mode)==0o600 and x.stat().st_uid==65532
+ return {'status':'TLS_PREPARED','public_gate':verified,'selected_cpus':env['selected_cpus'],'public_certificate_sha256':{n:hashlib.sha256((dummy/n).read_bytes()).hexdigest() for n in ('ca.der','source.der','destination.der')}}
+
+def prerequisites(env,*,run=subprocess.run):
+ required={'/sys/fs/cgroup/'+n for n in ('cpu.max','cpu.stat','cpuset.cpus.effective','memory.max','pids.max')}
+ observed=env.get('cgroup_observed',{})
+ if set(observed)!=required or not all(type(v) is str and v.strip() for v in observed.values()) or not env.get('proc_cgroup') or not env.get('proc_mountinfo'):raise ValueError('required proc/cgroup observation unavailable')
+ for name in ('perf_rust_source','wp8_interop_server'):
+  for mode in ('--verify','--list'):run(['/lib64/ld-linux-x86-64.so.2',mode,'/nbsr/bin/'+name],check=True,timeout=3,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+
+def verify_projection(manifest_dir,pins):
+ assert manifest_dir.is_dir() and not manifest_dir.is_symlink(),'compiled manifest directory missing'
+ for name in ('vectors/wp8-f75-route-open/route-open-body.cbor','vectors/wp8-local-admission/source.cose','vectors/wp8-local-admission/destination.cose'):
+  path=manifest_dir/'..'/'..'/name
+  assert path.is_file() and not path.is_symlink()
+  assert hashlib.sha256(path.read_bytes()).hexdigest()==pins[name],'compiled fixture projection drift'

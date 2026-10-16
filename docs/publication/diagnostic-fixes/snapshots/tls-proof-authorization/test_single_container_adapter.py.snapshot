@@ -1,0 +1,53 @@
+import importlib.util,json,unittest,copy,tempfile
+from pathlib import Path
+P=Path(__file__).resolve().parent
+class Adapter(unittest.TestCase):
+ def api(self):
+  self.assertIsNotNone(importlib.util.find_spec('single_container_adapter'),'separate adapter missing')
+  import single_container_adapter as a
+  return a
+ def config(self):return json.loads((P/'finite-config.proposed.json').read_text())
+ def test_one_owner_binds_both_roles_without_duplicate_fake_owners(self):
+  a=self.api();c=a.bind_single(self.config(),'a'*64);self.assertEqual(c['source']['host'],'a'*64);self.assertEqual(c['destination']['host'],'a'*64)
+ def test_binding_rejects_identity_scope_or_output_drift(self):
+  a=self.api()
+  for field,value in [('bind','0.0.0.0:0'),('authority','/host/private'),('output','/evidence/destination')]:
+   c=self.config();c['source'][field]=value
+   with self.assertRaises(ValueError):a.bind_single(c,'a'*64)
+  with self.assertRaises(ValueError):a.bind_single(self.config(),'name')
+ def test_approved_cutoff_is_sixty_and_latched(self):
+  a=self.api();n=[0.0];b=a.Budget60(0,clock=lambda:n[0]);n[0]=59.99;b.work();n[0]=60
+  with self.assertRaises(TimeoutError):b.work()
+  n[0]=20
+  with self.assertRaises((TimeoutError,ValueError)):b.work()
+ def test_success_at_boundary_rejected_and_owned_tree_killed(self):
+  a=self.api();n=[0.0]
+  class O:
+   owned=True
+   def start(self):pass
+   def observe(self):n[0]=60;return 0,False
+   def signal(self,x):self.killed=True
+   def reap(self):self.owned=False
+  o=O();r=a.run_owned(o,a.Budget60(0,clock=lambda:n[0]),lambda:None,lambda:None,sleep=lambda _:None)
+  self.assertFalse(r['work_pass']);self.assertTrue(o.killed);self.assertFalse(r['host_handles_owned'])
+ def test_failed_reap_retains_owner_and_rejects_success(self):
+  a=self.api();n=[0.0]
+  class O:
+   owned=True
+   def start(self):pass
+   def observe(self):return 0,False
+   def signal(self,x):pass
+   def reap(self):raise OSError('injected')
+  o=O();r=a.run_owned(o,a.Budget60(0,clock=lambda:n[0]),lambda:None,lambda:None,sleep=lambda _:n.__setitem__(0,n[0]+1))
+  self.assertFalse(r['work_pass']);self.assertTrue(r['host_handles_owned'])
+ def test_normal_success_reaps_exact_owner(self):
+  a=self.api()
+  class O:
+   owned=True
+   def start(self):pass
+   def observe(self):return 0,False
+   def reap(self):self.owned=False
+   def signal(self,x):raise AssertionError('unexpected kill')
+  r=a.run_owned(O(),a.Budget60(0,clock=lambda:1),lambda:None,lambda:None)
+  self.assertTrue(r['work_pass']);self.assertFalse(r['host_handles_owned'])
+if __name__=='__main__':unittest.main()

@@ -1,0 +1,58 @@
+"""Explicitly approved mount-free candidate inspection; not runtime acceptance."""
+import json,time,hashlib,sys
+from pathlib import Path
+from runtime_probe_budget import DiagnosticCommand,CreateReconciler
+from source_attempt09_retry1 import resources,inspection_template,FLOOR,REPO
+HERE=Path(__file__).resolve().parent;ROOT=HERE/'runtime-probe-2026-10-16'
+IMAGE='sha256:4e24792049e09cd8431ad9d74bf9349a07230d6c5889468d825af820d1ae75a2'
+NAME='nbsr-runtime-probe-2026-10-16'
+def payload():return "ns={'__name__':'candidate_inspection'};exec("+repr((HERE.parent/'candidate_probe_payload.py').read_text())+",ns);ns['inspect_runtime']()"
+def main():
+    import candidate_probe_payload as p
+    for n,pin in p.SOURCE_HASHES.items():assert hashlib.sha256((REPO/n).read_bytes()).hexdigest()==pin
+    profile=json.loads((HERE/'runtime-image-profile.json').read_bytes());assert hashlib.sha256((HERE/'runtime-image-profile.json').read_bytes()).hexdigest()=='7fa8560a0954371520da82de753f0578c86b5617ffe1a562b5e30e53e678cf2d'
+    growth_origin=json.loads((HERE/'ACTIVATION-PREFLIGHT-2026-10-16.json').read_text())['resources']
+    before=resources();assert before['disk']>=FLOOR+500*1024**2 and min(before['ram'],before['commit'])>=2*1024**3
+    ROOT.mkdir(exist_ok=False);(ROOT/'logs').mkdir();started=time.monotonic();cleaning=False
+    def guard():
+        elapsed=time.monotonic()-started;r=resources()
+        if elapsed>=120:raise TimeoutError('total deadline')
+        if not cleaning:
+            if elapsed>=60:raise TimeoutError('work deadline')
+            if r['disk']<FLOOR or growth_origin['disk']-r['disk']>300*1024**2 or min(r['ram'],r['commit'])<2*1024**3:raise RuntimeError('resource guard')
+    command=DiagnosticCommand(ROOT/'logs',started=started,extended_create=True,work_guard=guard,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe')
+    def success(args,probe=False):
+        guard();reply=command(args,timeout=32 if probe else 8,public_probe=probe)
+        if reply.code:raise RuntimeError('Docker '+args[0]+' failed')
+        return reply.stdout
+    rec=None;cid=None;failure=None;absent=True;observations=None
+    try:
+        template='{"Id":{{json .Id}},"Os":{{json .Os}},"Architecture":{{json .Architecture}},"Labels":{{json (index .Config "Labels")}},"Environment":[{{range .Config.Env}}{{$parts := split . "="}}{{$key := index $parts 0}}{{if or (eq $key "PATH") (eq $key "LANG") (eq $key "GPG_KEY") (eq $key "PYTHON_VERSION") (eq $key "PYTHON_SHA256")}}{{json .}}{{else}}{{json $key}}{{end}},{{end}}null]}'
+        im=json.loads(success(['image','inspect','--format',template,IMAGE]));assert im['Id']==IMAGE and im['Os']=='linux' and im['Architecture']=='amd64' and im['Labels']==profile['image_labels']
+        env=im['Environment'][:-1];assert all('=' in e for e in env)
+        task_labels={'nbsr.campaign':'dependency-image-inspection','nbsr.run':'2026-10-16','nbsr.role':'probe'};labels={**profile['container_inherited_labels'],**task_labels}
+        args=['create','--pull=never','--name',NAME,'--network','none','--user','65532:65532','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--ipc','private','--init','--pids-limit','128','--cpus','1','--memory','512m','--memory-swap','512m','--log-driver','none','--workdir','/tmp']
+        for k,v in labels.items():
+            if k.startswith('nbsr.'):args+=['--label',k+'='+v]
+        args+=['--entrypoint','python3',IMAGE,'-B','-c','import time; time.sleep(3600)']
+        rec=CreateReconciler(ROOT,command,name=NAME,image=IMAGE,task_labels=task_labels);absent=False;cid=rec.create(args)
+        row=json.loads(success(['inspect','--format',inspection_template(labels,env),cid]));(ROOT/'inspect.json').write_text(json.dumps(row,indent=2))
+        assert row['Id']==cid and row['Image']==IMAGE and row['Mounts']==[] and row['User']=='65532:65532' and row['Network']=='none' and row['Readonly'] is True
+        assert row['Memory']==row['Swap']==512*1024**2 and row['NanoCpus']==1000000000 and row['Pids']==128 and row['Caps']==['ALL'] and row['Security']==['no-new-privileges'] and row['Log']=='none' and row['Ipc']=='private' and row['Init'] is True and not row['Ports']
+        assert all(row[k] is True for k in ['LabelsOK','EnvironmentOK','CommandOK'])
+        success(['start',cid]);wire=success(['exec',cid,'python3','-B','-c',payload()],True);assert len(wire.encode())<=65536
+        observations=json.loads(wire);assert observations['status']=='INSPECTION_COMPLETE' and observations['ready'] is False and observations['exact_v5_profile_errors']==[] and observations['git_version']=='git version 2.39.5' and all(v['ok'] for v in observations['native_imports'].values())
+        (ROOT/'observations.json').write_text(json.dumps(observations,indent=2))
+    except BaseException as error:failure={'type':type(error).__name__,'message':str(error)}
+    finally:
+        cleaning=True
+        if rec is not None and rec.attempted:
+            if cid:rec.reconcile(allow_running=True)
+            absent=rec.state['status']=='REMOVED_EXACT_ID' and not rec.state['uncertain']
+        owned=command.owner is not None and command.owner.owned
+        result={'status':'INSPECTION_COMPLETE' if failure is None and observations is not None and absent and not owned else 'FAILED','failure':failure,'container_id':cid,'container_absent':absent,'host_handles_owned':owned,'before':before,'after':resources(),'elapsed':time.monotonic()-started,'reconciliation':None if rec is None else rec.state,'runtime_accepted':False,'mounts':0}
+        (ROOT/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+    return 0 if result['status']=='INSPECTION_COMPLETE' else 1
+if __name__=='__main__':
+    if sys.argv!=[sys.argv[0],'--approved-mount-free-inspection']:raise SystemExit('Approved inspection argument required')
+    raise SystemExit(main())

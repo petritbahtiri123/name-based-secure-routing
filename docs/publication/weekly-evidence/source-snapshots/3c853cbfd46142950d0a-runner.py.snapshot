@@ -1,0 +1,65 @@
+import hashlib,importlib.util,json,re,sys,time,subprocess
+from pathlib import Path
+SOURCE=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+OUT=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-create-patched-20261013')
+OLD=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-cache-inspect-approved-20261013/command-0001/request.json')
+NAME='nbsr-create-patched-20261013-1830'; LABEL='nbsr.prerequisite=create-patched-20261013-1830'
+sys.path.insert(0,str(SOURCE))
+from scripts.performance.windows_docker_provisioning import DockerCommand
+spec=importlib.util.spec_from_file_location('guard',Path(__file__).with_name('nbsr-prerequisite-containment-20261013.py')); guard=importlib.util.module_from_spec(spec); spec.loader.exec_module(guard)
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=SOURCE,timeout=10).decode().strip()=='b09a85187d1e27250a1aec2e76f7a5bcdef84611'
+initial=guard.resources(True); OUT.mkdir(exist_ok=False)
+old=json.loads(OLD.read_bytes())['argv']; argv=list(old); argv[argv.index('--name')+1]=NAME; argv[argv.index('--label')+1]=LABEL
+assert [i for i,(a,b) in enumerate(zip(old,argv)) if a!=b]==[argv.index('--name')+1,argv.index('--label')+1]
+result=dict(approval='Sentinel_4f52ef291ce08191a9b3274c6b560fcd',status='NOT_RUN',cleanup='UNCONFIRMED',events=[],resources_start=initial,source_hashes={n:hashlib.sha256((SOURCE/n).read_bytes()).hexdigest() for n in ['scripts/performance/windows_docker_provisioning.py','scripts/performance/windows_job_backend.py','scripts/performance/windows_native_management.py']},original_request_sha256=hashlib.sha256(OLD.read_bytes()).hexdigest(),historical_outcomes='UNCONFIRMED unchanged')
+from scripts.performance.windows_job_backend import Win32Backend, W
+class IdentityBackend(Win32Backend):
+ def create_suspended(self,args):
+  handles=super().create_suspended(args)
+  try:
+   self.kernel.GetProcessId.argtypes=[W.HANDLE]; self.kernel.GetProcessId.restype=W.DWORD
+   result.setdefault('helper_identities',[]).append(dict(time=time.monotonic(),pid=self.kernel.GetProcessId(handles[0]),process_handle=handles[0],thread_handle=handles[1]))
+  except Exception as e:
+   result.setdefault('identity_errors',[]).append(type(e).__name__)
+  return handles
+command=DockerCommand(OUT,executable=argv[0],backend_factory=IdentityBackend); started=time.monotonic(); cid=None
+
+def call(args,stage,cleanup=False):
+ remaining=(118 if cleanup else 95)-(time.monotonic()-started)
+ if remaining<=0: raise TimeoutError('original total deadline')
+ if not cleanup: guard.resources()
+ r=command(args,timeout=min(8,remaining))
+ result['events'].append(dict(stage=stage,code=r.code,stdout=r.stdout,stderr=r.stderr,elapsed=time.monotonic()-started))
+ return r
+
+def absent(r,identity):
+ return r.code==1 and not r.stdout.strip() and r.stderr.strip().lower() in tuple(prefix+identity for prefix in ['error: no such container: ','error: no such object: ','error response from daemon: no such container: '])
+
+try:
+ r=call(argv[1:],'create')
+ if r.code!=0 or not re.fullmatch('[0-9a-f]{64}',r.stdout.strip()): raise RuntimeError('create failed or returned no exact ID')
+ cid=r.stdout.strip(); result['status']='CREATED_STOPPED'
+except BaseException as e: result.update(status='BLOCKED',primary_error=dict(type=type(e).__name__,message=str(e)))
+finally:
+ result['created_id']=cid
+ try:
+  if command.owner is not None and command.owner.owned: raise RuntimeError('command handles retained; cannot confirm cleanup through this owner')
+  fmt='{"Id":{{json .Id}},"Image":{{json .Image}},"Labels":{{json .Config.Labels}},"Running":{{json .State.Running}}}'
+  r=call(['inspect','--type','container','--format',fmt,cid or NAME],'identify_owned_container',True)
+  if absent(r,cid or NAME): result['cleanup']='ABSENT_AT_OBSERVATION'
+  elif r.code==0:
+   row=json.loads(r.stdout); identity=row['Id']
+   if not re.fullmatch('[0-9a-f]{64}',identity) or (cid and cid!=identity) or row['Image']!='sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769' or row['Labels'].get('nbsr.prerequisite')!=LABEL.split('=',1)[1]: raise RuntimeError('ownership identity mismatch')
+   result['identified_id']=identity; result['observed_running']=row['Running']
+   if row['Running'] is not False: raise RuntimeError('owned container not confirmed stopped; no removal')
+   r=call(['rm','--force',identity],'remove_exact_id',True)
+   if r.code: raise RuntimeError('removal failed')
+   r=call(['inspect','--type','container','--format','{{.Id}}',identity],'independent_absence',True)
+   if not absent(r,identity): raise RuntimeError('absence unconfirmed')
+   result['cleanup']='EXACT_ID_REMOVED_AND_ABSENT'
+  else: raise RuntimeError('identity/absence query failed')
+ except BaseException as e: result['cleanup_error']=dict(type=type(e).__name__,message=str(e))
+ result['elapsed_seconds']=time.monotonic()-started; result['command_owned']=None if command.owner is None else command.owner.owned
+ try: result['resources_end']=guard.resources()
+ except BaseException as e: result['resource_error']=str(e)
+ (OUT/'result.json').write_text(json.dumps(result,indent=2)); print(json.dumps(result))

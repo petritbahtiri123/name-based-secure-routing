@@ -1,0 +1,364 @@
+"""Offline integration: real WindowsOwner, fake native backend and daemon replies."""
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from unittest.mock import patch
+
+from scripts.performance.windows_docker_provisioning import DockerCommand
+from scripts.performance.local_container_disposal import Unconfirmed
+
+HERE = Path(__file__).resolve().parent
+PROFILE = json.loads((HERE / 'label-profile.json').read_bytes())
+IMAGE = PROFILE['image']
+NAME = 'nbsr-offline-reconciliation-fixture'
+CID = 'a' * 64
+TASK = {'nbsr.campaign': 'offline-fixture', 'nbsr.run': 'once', 'nbsr.role': 'source'}
+LABELS = {**PROFILE['container_inherited_labels'], **TASK}
+
+
+class Clock:
+    def __init__(self):
+        self.value = 0.0
+
+    def __call__(self):
+        return self.value
+
+    def sleep(self, seconds):
+        self.value += seconds
+
+
+class FakeNative:
+    """Only OS process operations are fake; owner/supervision remains real."""
+    def __init__(self, clock, script, requests):
+        self.clock, self.script, self.requests = clock, script, requests
+        self.killed = self.written = False
+        self.closed = []
+
+    def create_job(self):
+        return 'job'
+
+    def create_suspended(self, argv):
+        self.request = Path(argv[-1])
+        self.wire = self.request.read_bytes()
+        self.requests.append(json.loads(self.wire))
+        callback = self.script.get('before_start')
+        if callback:
+            callback(self.requests[-1])
+        return 'process', 'thread'
+
+    def assign(self, *args):
+        pass
+
+    def resume(self, thread):
+        self.started = self.clock()
+
+    def observe(self, *args):
+        if self.killed:
+            return (None, 1) if self.script.get('unreaped') else (1, 0)
+        if self.clock() - self.started < self.script.get('delay', 0):
+            return None, 1
+        if not self.written:
+            self.written = True
+            for name in ('stdout', 'stderr'):
+                (self.request.parent / (name + '.txt')).write_text(self.script.get(name, ''), encoding='utf-8')
+            digest = hashlib.sha256(self.wire).hexdigest()
+            (self.request.parent / 'reply.json').write_text(json.dumps({
+                'request_sha256': 'bad' if self.script.get('unbound') else digest,
+                'code': self.script.get('code', 0)}))
+        return 0, 0
+
+    def terminate(self, *args):
+        self.killed = True
+
+    def close(self, handle):
+        if handle == self.script.get('close_failure'):
+            raise OSError('synthetic close failure')
+        self.closed.append(handle)
+
+
+class Integration(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='nbsr-reconcile-offline-', dir=HERE)
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.clock, self.requests, self.backends = Clock(), [], []
+
+    def command(self, scripts, *, opt_in=False):
+        scripts = iter(scripts)
+        def factory():
+            backend = FakeNative(self.clock, next(scripts), self.requests)
+            self.backends.append(backend)
+            return backend
+        kwargs = dict(executable='C:/approved/docker.exe', backend_factory=factory,
+                      clock=self.clock, sleep=self.clock.sleep)
+        if importlib.util.find_spec('diagnostic_reconciliation'):
+            from diagnostic_reconciliation import DiagnosticCommand
+            return DiagnosticCommand(self.root, started=0, extended_create=opt_in, **kwargs)
+        return DockerCommand(self.root, **kwargs)
+
+    def test_opt_in_cold_create_uses_actual_owner_and_32_second_budget(self):
+        command = self.command([dict(delay=9.56, stdout=CID)], opt_in=True)
+        try:
+            result = command(['create', '--pull=never'], timeout=32)
+        except ValueError as error:
+            self.fail('opt-in cold create rejected before native supervision: ' + str(error))
+        self.assertEqual(result.stdout, CID)
+        self.assertEqual(self.requests[0]['deadline'], 32)
+        self.assertFalse(command.owner.owned)
+        self.assertGreaterEqual(self.clock(), 9.56)
+        self.assertLessEqual(self.clock(), 9.581)  # At most one 20ms observer tick.
+        self.assertEqual(self.backends[0].closed, ['thread', 'process', 'job'])
+
+    def test_unknown_create_has_integrated_reconciliation_entrypoint(self):
+        worker = self.reconciler([dict(delay=999), self.absence(NAME), self.object(), {}, self.absence(CID)])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertEqual(worker.state['status'], 'REMOVED_EXACT_ID')
+        self.assertFalse(worker.state['uncertain'])
+        self.assertFalse(worker.state['host_handles_owned'])
+        self.assertEqual([r['argv'][1] for r in self.requests], ['create', 'inspect', 'inspect', 'rm', 'inspect'])
+        self.assertEqual(self.requests[3]['argv'][-1], CID)
+        self.assertLess(self.clock(), 7)
+        self.assertEqual(worker.state['observations'][0]['kind'], 'NAME_ABSENT_AT_INSPECTION')
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+
+    def args(self):
+        return ['create', '--pull=never', '--name', NAME,
+                *[value for key, label in TASK.items() for value in ('--label', key + '=' + label)], IMAGE]
+
+    def absence(self, target, **kwargs):
+        return dict(code=1, stderr='error: no such object: ' + target, **kwargs)
+
+    def object(self, **changes):
+        row = dict(Id=CID, Name='/' + NAME, Image=IMAGE, Labels=LABELS,
+                   Status='created', Running=False)
+        row.update(changes)
+        return dict(stdout=json.dumps(row))
+
+    def reconciler(self, scripts, *, opt_in=False):
+        from diagnostic_reconciliation import CreateReconciler
+        return CreateReconciler(self.root, self.command(scripts, opt_in=opt_in),
+                                name=NAME, image=IMAGE, task_labels=TASK)
+
+    def test_default_8_seconds_retains_6_second_work_limit(self):
+        command = self.command([dict(delay=9.56, stdout=CID)])
+        with self.assertRaises(Unconfirmed):
+            command(['create'], timeout=8)
+        self.assertEqual(self.requests[0]['deadline'], 8)
+        self.assertEqual(self.clock(), 6)
+        self.assertFalse(command.owner.owned)
+        self.assertTrue(self.backends[0].killed)
+
+    def test_extended_budget_requires_opt_in_and_create_verb(self):
+        command = self.command([], opt_in=False)
+        with self.assertRaises(ValueError):
+            command(['create'], timeout=32)
+        command.extended_create = True
+        with self.assertRaises(ValueError):
+            command(['inspect', NAME], timeout=32)
+        with self.assertRaises(ValueError):
+            command(['create'], timeout=32, cleanup=True)
+        self.assertEqual(self.requests, [])
+
+    def test_create_clamped_to_work_boundary_and_retains_reap_reserve(self):
+        command = self.command([dict(delay=999)], opt_in=True)
+        self.clock.value = 90
+        with self.assertRaises(Unconfirmed):
+            command(['create'], timeout=32)
+        self.assertEqual(self.requests[0]['deadline'], 95)
+        self.assertEqual(self.clock(), 93)
+        self.assertFalse(command.owner.owned)
+
+    def test_cleanup_clamped_to_original_total_deadline(self):
+        command = self.command([dict(delay=999, unreaped=True)])
+        self.clock.value = 117
+        with self.assertRaises(Unconfirmed):
+            command(['inspect', NAME], timeout=8, cleanup=True)
+        self.assertEqual(self.requests[0]['deadline'], 120)
+        self.assertEqual(self.clock(), 120)
+        self.assertTrue(command.owner.owned)
+        with self.assertRaises(Unconfirmed):
+            command(['inspect', NAME], timeout=8, cleanup=True)
+        self.assertEqual(len(self.requests), 1)
+
+    def test_no_start_with_only_host_reap_reserve_left(self):
+        command = self.command([])
+        for instant, cleanup in [(93, False), (95, False), (118, True), (120, True)]:
+            self.clock.value = instant
+            with self.assertRaises(TimeoutError):
+                command(['inspect', NAME], timeout=8, cleanup=cleanup)
+        self.assertEqual(self.requests, [])
+
+    def test_no_success_at_work_deadline(self):
+        command = self.command([dict(delay=30, stdout=CID)], opt_in=True)
+        with self.assertRaises(Unconfirmed):
+            command(['create'], timeout=32)
+        self.assertEqual(self.clock(), 30)
+        self.assertFalse(command.owner.owned)
+
+    def test_intent_is_persisted_before_native_start(self):
+        def observe(request):
+            intent = json.loads((self.root / 'create-intent.json').read_bytes())
+            self.assertEqual(intent['name'], NAME)
+            self.assertEqual(intent['labels'], LABELS)
+            self.assertEqual(intent['argv_sha256'], hashlib.sha256(json.dumps(request['argv']).encode()).hexdigest())
+            self.assertTrue(json.loads((self.root / 'reconciliation.json').read_bytes())['uncertain'])
+        worker = self.reconciler([dict(stdout=CID, before_start=observe)])
+        self.assertEqual(worker.create(self.args()), CID)
+        self.assertTrue(worker.state['uncertain'])  # Owned until removal, not a cleanup success.
+
+    def test_only_absence_keeps_unknown_creation_visible(self):
+        worker = self.reconciler([dict(delay=999), *[self.absence(NAME) for _ in range(3)]])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertEqual(worker.state['status'], 'UNRESOLVED_NAME_ABSENT_ONLY')
+        self.assertTrue(worker.state['uncertain'])
+        self.assertEqual(len(worker.state['observations']), 3)
+        self.assertNotIn('rm', [r['argv'][1] for r in self.requests])
+
+    def test_failed_or_invalid_create_reply_reconciles(self):
+        worker = self.reconciler([dict(code=1, stdout='not-an-id', stderr='daemon failed'),
+                                  self.object(), {}, self.absence(CID)])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertEqual(worker.state['status'], 'REMOVED_EXACT_ID')
+        self.assertIsNotNone(worker.state['failure'])
+
+    def test_unbound_reply_reconciles_without_trusting_stdout_id(self):
+        worker = self.reconciler([dict(stdout='b' * 64, unbound=True), self.object(), {}, self.absence(CID)])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertEqual(worker.state['container_id'], CID)
+        self.assertFalse(worker.state['uncertain'])
+
+    def test_foreign_ownership_never_removed(self):
+        for changes in [dict(Name='/wrong'), dict(Image='sha256:' + 'b' * 64),
+                        dict(Labels={**LABELS, 'unexpected': 'label'}), dict(Labels=TASK),
+                        dict(Running=True), dict(Status='running'), dict(Id='short')]:
+            with self.subTest(changes=changes):
+                # Isolate every command ledger and immutable intent.
+                directory = self.root / ('case-' + str(len(list(self.root.iterdir()))))
+                directory.mkdir()
+                original = self.root
+                self.root = directory
+                worker = self.reconciler([dict(delay=999), self.object(**changes)])
+                with self.assertRaises(Unconfirmed):
+                    worker.create(self.args())
+                self.assertTrue(worker.state['uncertain'])
+                self.assertIsNotNone(worker.state['cleanup_error'])
+                self.root = original
+        self.assertNotIn('rm', [r['argv'][1] for r in self.requests])
+
+    def test_inspection_errors_are_not_absence(self):
+        worker = self.reconciler([dict(delay=999), dict(code=1, stderr='daemon unavailable')])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertTrue(worker.state['uncertain'])
+        self.assertEqual(worker.state['observations'], [])
+
+    def test_removal_failure_preserves_identity(self):
+        worker = self.reconciler([dict(delay=999), self.object(), dict(code=1, stderr='denied')])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertTrue(worker.state['uncertain'])
+        self.assertEqual(worker.state['container_id'], CID)
+        self.assertEqual(len(self.requests), 3)
+
+    def test_wrong_target_absence_preserves_identity(self):
+        worker = self.reconciler([dict(delay=999), self.object(), {}, self.absence('b' * 64)])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertTrue(worker.state['uncertain'])
+        self.assertEqual(worker.state['container_id'], CID)
+
+    def test_create_handle_close_failure_blocks_new_commands(self):
+        worker = self.reconciler([dict(stdout=CID, close_failure='job')])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertTrue(worker.state['uncertain'])
+        self.assertTrue(worker.state['host_handles_owned'])
+        self.assertEqual(len(self.requests), 1)
+
+    def test_absence_handle_close_failure_cannot_confirm_cleanup(self):
+        worker = self.reconciler([dict(delay=999), self.object(), {}, self.absence(CID, close_failure='job')])
+        with self.assertRaises(Unconfirmed):
+            worker.create(self.args())
+        self.assertTrue(worker.state['uncertain'])
+        self.assertTrue(worker.state['host_handles_owned'])
+
+    def test_cleanup_stops_at_total_deadline(self):
+        worker = self.reconciler([dict(stdout=CID)])
+        worker.create(self.args())
+        self.clock.value = 120
+        worker.reconcile()
+        self.assertTrue(worker.state['uncertain'])
+        self.assertEqual(len(self.requests), 1)
+
+    def test_known_created_container_cleanup_after_probe(self):
+        worker = self.reconciler([dict(stdout=CID), self.object(Status='running', Running=True),
+                                  {}, self.absence(CID)])
+        self.assertEqual(worker.create(self.args()), CID)
+        worker.reconcile(allow_running=True)
+        self.assertFalse(worker.state['uncertain'])
+        self.assertEqual(worker.state['status'], 'REMOVED_EXACT_ID')
+
+    def test_clock_rollback_cannot_restore_command_eligibility(self):
+        command = self.command([{}, {}])
+        self.clock.value = 10
+        command(['inspect', NAME])
+        self.clock.value = 9
+        with self.assertRaises(Unconfirmed):
+            command(['inspect', NAME])
+        self.clock.value = 11
+        with self.assertRaises(Unconfirmed):
+            command(['inspect', NAME])
+        self.assertEqual(len(self.requests), 1)
+
+    def test_source_drift_rejected_before_native_operations(self):
+        import diagnostic_reconciliation as module
+        with patch.dict(module.SOURCE_PINS, windows_docker_provisioning='0' * 64):
+            with self.assertRaises(Unconfirmed):
+                self.command([])
+        self.assertEqual(self.requests, [])
+
+    def test_profile_drift_rejected_before_create(self):
+        import diagnostic_reconciliation as module
+        with patch.object(module, 'PROFILE_PIN', '0' * 64):
+            with self.assertRaises(ValueError):
+                self.reconciler([])
+        self.assertEqual(self.requests, [])
+
+    def test_create_label_mismatch_rejected_before_intent_or_command(self):
+        worker = self.reconciler([])
+        args = self.args()
+        args[args.index('nbsr.role=source')] = 'nbsr.role=other'
+        with self.assertRaises(ValueError):
+            worker.create(args)
+        self.assertFalse((self.root / 'create-intent.json').exists())
+        self.assertEqual(self.requests, [])
+
+    def test_work_resource_guard_failure_still_reaps(self):
+        command = self.command([dict(delay=999)])
+        def guard():
+            if self.clock() >= 1:
+                raise RuntimeError('synthetic resource floor')
+        command.work_guard = guard
+        with self.assertRaises(Unconfirmed):
+            command(['create'], timeout=8)
+        self.assertFalse(command.owner.owned)
+        self.assertLess(self.clock(), 2)
+
+    def test_proposal_guard_blocks_all_top_level_execution(self):
+        import ast
+        tree = ast.parse((HERE / 'diagnostic-proposal.py').read_text())
+        self.assertIsInstance(tree.body[0], ast.Raise)
+        with self.assertRaises(SystemExit):
+            exec(compile(tree, 'guarded-proposal', 'exec'), {})
+
+
+if __name__ == '__main__':
+    unittest.main()

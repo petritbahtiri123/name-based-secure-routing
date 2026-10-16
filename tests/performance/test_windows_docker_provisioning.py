@@ -310,8 +310,9 @@ def test_unknown_create_blocks_network_release_and_replacement():
         engine.create(Creation("two", "source"), remaining=30)
 
 
-@pytest.mark.parametrize("fault", [None, "missing_reply", "live_descendant", "assign_failure"])
-def test_command_transport_owns_job_and_binds_reply(tmp_path, fault):
+@pytest.mark.parametrize("fault", [None, "missing_reply", "live_descendant", "assign_failure", "resource"])
+@pytest.mark.parametrize("limit", [8, 122])
+def test_command_transport_owns_job_and_binds_reply(tmp_path, fault, limit):
     mod = api()
     assert hasattr(mod, "DockerCommand"), "bounded concrete command transport missing"
     from pathlib import Path
@@ -355,21 +356,35 @@ def test_command_transport_owns_job_and_binds_reply(tmp_path, fault):
         def close(self, handle):
             actions.append(("close", handle))
 
+    budget = mod.CellBudget(clock=lambda: now[0], work_seconds=240, total_seconds=300)
+    guard_calls = [0]
+
+    def guard():
+        guard_calls[0] += 1
+        if fault == 'resource' and guard_calls[0] == 2:
+            raise RuntimeError('fixture resource reserve')
+
     backend = Backend()
     command = mod.DockerCommand(
         tmp_path,
         executable="C:/approved/docker.exe",
         backend_factory=lambda: backend,
+        max_timeout=limit, trial_budget=budget, guard=guard,
         clock=lambda: now[0],
         sleep=lambda seconds: now.__setitem__(0, now[0] + seconds),
     )
     if fault:
         with pytest.raises(Unconfirmed):
-            command(["inspect", "a" * 64], timeout=8)
+            command(["inspect", "a" * 64], timeout=limit)
     else:
-        assert command(["inspect", "a" * 64], timeout=8) == mod.CommandResult(0, "exact result", "")
+        assert command(["inspect", "a" * 64], timeout=limit) == mod.CommandResult(0, "exact result", "")
     assert not command.owner.owned
-    assert now[0] <= 8
+    assert now[0] <= limit
+    request = json.loads(backend.request.read_text())
+    assert request['deadline'] == limit
+    report = json.loads((backend.request.parent / 'supervision.json').read_text())
+    assert report['trial_total_seconds'] == 300
+    assert report['trial_work_seconds'] == 240
     if fault == "assign_failure":
         assert "resume" not in actions and "kill" in actions
 
@@ -425,6 +440,8 @@ def test_worker_builds_exact_cli_without_running_processes(tmp_path, monkeypatch
     calls = []
 
     class Child:
+        pid = 1234
+
         def wait(self, *, timeout):
             assert 0 < timeout <= 10
             return 1
@@ -443,13 +460,15 @@ def test_worker_builds_exact_cli_without_running_processes(tmp_path, monkeypatch
     assert (tmp_path / 'stderr.txt').read_text().endswith('a' * 64)
 
 
-@pytest.mark.parametrize('cleanup_fault', [None, 'terminate', 'observe', 'reap'])
-def test_timeout_preserves_primary_and_exact_cleanup_failure(tmp_path, cleanup_fault):
+@pytest.mark.parametrize('timeout', [8, 32, 122])
+@pytest.mark.parametrize('cleanup_fault', [None, 'terminate', 'observe', 'reap', 'pending'])
+def test_timeout_preserves_primary_and_exact_cleanup_failure(tmp_path, cleanup_fault, timeout):
     mod = api()
     now = [0.0]
 
     class Backend:
         killed = False
+        cleanup_observations = 0
 
         def create_job(self):
             return 'job'
@@ -466,6 +485,10 @@ def test_timeout_preserves_primary_and_exact_cleanup_failure(tmp_path, cleanup_f
         def observe(self, *args):
             if self.killed and cleanup_fault == 'observe':
                 raise OSError(5, 'cleanup observation rejected')
+            if self.killed:
+                self.cleanup_observations += 1
+                if cleanup_fault == 'pending' or (cleanup_fault is None and self.cleanup_observations == 1):
+                    return None, 0
             return (1, 0) if self.killed else (None, 1)
 
         def terminate(self, *args):
@@ -478,19 +501,136 @@ def test_timeout_preserves_primary_and_exact_cleanup_failure(tmp_path, cleanup_f
                 raise OSError(5, 'handle close rejected')
 
     command = mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe',
-        backend_factory=Backend, clock=lambda: now[0],
-        sleep=lambda seconds: now.__setitem__(0, now[0] + seconds))
+        backend_factory=Backend, clock=lambda: now[0], max_timeout=timeout,
+        sleep=lambda seconds: now.__setitem__(0, now[0] + seconds),
+        trial_budget=(mod.CellBudget(clock=lambda: now[0], work_seconds=240, total_seconds=300)
+                      if timeout == 122 else None))
     with pytest.raises(mod.Unconfirmed) as error:
-        command(['inspect', 'a' * 64], timeout=8)
+        command(['inspect', 'a' * 64], timeout=timeout)
     assert isinstance(error.value.__cause__, TimeoutError)
     report = json.loads((tmp_path / 'command-0001' / 'supervision.json').read_text())
     assert report['primary_failure']['type'] == 'TimeoutError'
     assert report['primary_failure']['stage'] == 'work_deadline'
     assert report['owned'] is (cleanup_fault is not None)
-    if cleanup_fault:
+    if cleanup_fault == 'pending':
+        assert report['cleanup_failure']['stage'] == 'deadline'
+        assert report['cleanup_failure']['type'] == 'TimeoutError'
+        assert timeout - .01 <= now[0] <= timeout
+    elif cleanup_fault:
         assert report['cleanup_failure']['stage'] == cleanup_fault
         assert report['cleanup_failure']['type'] == 'OSError'
         assert report['cleanup_failure']['errno'] == 5
     else:
         assert report['cleanup_failure'] is None
-    assert now[0] <= 8
+    assert timeout - 2 <= now[0] <= timeout
+
+
+def test_worker_retains_launch_and_reply_stage_times(tmp_path, monkeypatch):
+    mod = api()
+    request = tmp_path / 'request.json'
+    request.write_text(json.dumps(dict(argv=['C:/approved/docker.exe', 'inspect'], deadline=10)))
+
+    class Child:
+        pid = 4321
+
+        def wait(self, *, timeout):
+            return 0
+
+    monkeypatch.setattr(mod.subprocess, 'Popen', lambda *a, **k: Child())
+    monkeypatch.setattr(mod.time, 'monotonic', lambda: 1)
+    mod._command_worker(request)
+    events = json.loads((tmp_path / 'worker-trace.json').read_text())['events']
+    assert [e['stage'] for e in events] == [
+        'popen_enter', 'popen_return', 'wait_enter', 'wait_return', 'reply_written']
+    assert events[1]['pid'] == 4321
+    assert all(e['time'] == 1 for e in events)
+
+
+def test_trace_is_bounded_preserving_initial_and_final_events(tmp_path):
+    mod = api()
+    trace = mod._CommandTrace(tmp_path / 'trace.json', clock=lambda: 1)
+    for i in range(300):
+        trace.record('stage', sequence=i)
+    data = json.loads((tmp_path / 'trace.json').read_text())
+    assert len(data['events']) == 128
+    assert data['dropped'] == 172
+    assert data['events'][0]['sequence'] == 0
+    assert data['events'][-1]['sequence'] == 299
+
+
+def test_trace_write_failure_cannot_lose_created_handle_or_prevent_cleanup(tmp_path):
+    mod = api()
+    trace = mod._CommandTrace(tmp_path / 'missing' / 'trace.json', clock=lambda: 1)
+
+    class Backend:
+        def create_job(self):
+            return 77
+
+        def close(self, handle):
+            assert handle == 77
+
+    backend = mod._TracedBackend(Backend(), trace)
+    handle = backend.create_job()
+    assert handle == 77
+    backend.close(handle)
+    assert trace.write_errors == 4
+
+
+def test_trace_clock_failure_after_creation_preserves_handle(tmp_path):
+    mod = api()
+    calls = [0]
+
+    def clock():
+        calls[0] += 1
+        if calls[0] > 1:
+            raise RuntimeError('diagnostic clock failure')
+        return 1
+
+    class Backend:
+        def create_job(self):
+            return 88
+
+    trace = mod._CommandTrace(tmp_path / 'trace.json', clock=clock)
+    assert mod._TracedBackend(Backend(), trace).create_job() == 88
+    assert trace.write_errors == 1
+
+
+def test_default_budget_stays_eight_seconds_and_larger_limit_is_explicit(tmp_path):
+    mod = api()
+    command = mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe')
+    with pytest.raises(ValueError):
+        command(['inspect'], timeout=32)
+    assert not list(tmp_path.iterdir())
+    for limit in (True, 0, 33, float('nan'), float('inf')):
+        with pytest.raises(ValueError):
+            mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe', max_timeout=limit)
+
+
+def test_worker_retains_original_launch_exception(tmp_path, monkeypatch):
+    mod = api()
+    request = tmp_path / 'request.json'
+    request.write_text(json.dumps(dict(argv=['C:/approved/docker.exe'], deadline=10)))
+    error = OSError(7, 'fixture launch rejected')
+    error.winerror = 206
+
+    def fail(*args, **kwargs):
+        raise error
+
+    monkeypatch.setattr(mod.subprocess, 'Popen', fail)
+    monkeypatch.setattr(mod.time, 'monotonic', lambda: 1)
+    mod._command_worker(request)
+    reply = json.loads((tmp_path / 'reply.json').read_text())
+    assert reply['code'] is None
+    assert reply['launch_error'] == dict(type='OSError', message=str(error), errno=7, winerror=206)
+    assert reply['request_sha256'] == mod.hashlib.sha256(request.read_bytes()).hexdigest()
+
+
+def test_windows_argv_preflight_counts_serialized_utf16_before_any_launch(tmp_path):
+    mod = api()
+    command = mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe')
+    for arg in ['x' * 32000, chr(0x1f600) * 16000]:
+        with pytest.raises(ValueError, match='command line'):
+            command([arg], timeout=8)
+    assert not list(tmp_path.iterdir())
+    argv = ['C:/path with spaces/docker.exe', 'a"b', chr(0x1f600)]
+    assert mod.windows_argv_units(argv) == len(mod.subprocess.list2cmdline(argv).encode('utf-16-le')) // 2 + 1

@@ -1,0 +1,132 @@
+"""Guarded standalone public-probe proposal. No live activation authorized."""
+import hashlib, importlib, importlib.abc, importlib.util, json, os, subprocess, sys
+from pathlib import Path
+PYTHON_PINS = {'scripts/performance/__init__.py': '7695a4ccdec00d30a8d83994f3fb9160a6f7f1429a755ca8dc73c7d9a4c3b2b4', 'scripts/performance/p2a_established.py': '99ba92405763fa3e1528d061bd154197d1afb7f01d8a3d37cce0c42677dc966d', 'scripts/performance/process_cancellation.py': '29adfd385bfdf9d51304269e576bed71fbd9cb3885653a5de50085549079107c', 'scripts/performance/linux_loopback.py': '58429171ac36d3a1002aae1b2e282f0c8b525cf00b67ad5e4d2d968949550d91', 'scripts/performance/linux_resources.py': 'ebb356e5af274d6d865a989484caf423100b668a52a909e9d7f0064375b5dcdf', 'scripts/performance/b3_linux.py': '40d7249342d63c061deefe8e9f4b9bebbb3e439d29f0db9af7289232e7d55c28', 'scripts/performance/post_close_cleanup.py': 'a71ea28bec962fac2ac86016e5fb318e84102b35845869812622363c1cc16324', 'scripts/performance/b4_linux.py': '01dccbc83ee18fd270a381445fc18f07b4afa2a585d88068acda8e67525b075b', 'scripts/performance/linux_b5_reference.py': '693fd98d9f45ecf4797c8667d8ad02b5b5f930f3d51b1f5e6e24af7232e0c2a8', 'scripts/performance/physical_core_analysis.py': 'df5f9d1fdc0e49ff7e76f4e45f23458155670ad2a90296f2c3a8d981749380c9', 'scripts/performance/linux_b5_ceiling.py': 'd58f2a4b3f210c1022bd48a0c70965341f0317bcca7d7e8031cae8738aefc2c9', 'scripts/performance/native_debug_correctness.py': '6c6ec31b7fc3adfb522f57e48d79970d7873f243e51d94e4c42e82a6809cac4f', 'scripts/performance/linux_native_cycle_limits.py': '9920f6d20c27d5f3aed9dee7030ff8ab2de8c36d7c6f2cd13a3ba6125c7e3338', 'scripts/performance/linux_native_lifecycle_control.py': '7efb496a902792a798eae7d54885c3ca134c9cf0a0891c35269fd0644ebfcce0', 'scripts/performance/authority.py': '1b555178d20ee6b0202b3730835e5382ad41c5f87d3b46bfb02ce5ea4a4302b5', 'scripts/performance/windows_affinity.py': 'ad1873c0950ce14f507af08130ad890a0673486c8db95d23b52ee766454efbbb', 'nbsr/gateway_profile.py': 'f1252f036d4f6d7e90d53fe7332402708e6e93deeafa88ad9da83ad493a9f315', 'nbsr/__init__.py': 'e5f774578a020c05f54263f53c75e4ff640dd0095746ce522cf5c385db870e1c', 'nbsr/federation/profile.py': '9fff91cccbd3eba5bdecf832351fe4a6ef05928ef6bfd64ce563707277498b4e', 'nbsr/federation/identity.py': 'db62fa8a7b0fddfdbba4dbc2ef03084053da91a1782205b4791f0f578a963cb2', 'nbsr/federation/registry.py': '484a3398350b3756503e49cc6663e1c880dade8a152cd1373c62bc2709bb4024', 'nbsr/protocol/registry.py': '90b1fbe0b4096142c2081a3eda36a4f82d132c65792c1ac879ff62279e26493b', 'nbsr/protocol/errors.py': 'fc9ca062e214cd03a76fb5cb829befe89584cfd29294960d0595363bb88ab5c9', 'nbsr/protocol/cbor.py': '1690e14243bbb43bb3aa310d2d3141d2ea89fa3f3dd73f2d392a9c9010e70e17', 'nbsr/protocol/cose.py': '90df7499877412c7bd19e6190009bc5432d8d569224050349e37f07a148548f4', 'nbsr/protocol/fields.py': 'fb7ffeff4901b9380d16c107955275f46db350ca9ac6ac1988fa07413e0e7d7b', 'nbsr/protocol/models.py': '6d97fbb7f554880165b73c3666b9cd15fe4d6f13ee04bb44f6e038e91bfa3fca', 'nbsr/protocol/schemas.py': '9702feaf93ceccc2e9ef0f32bb560e30976c3b6aa65e60db8e2ba6c9eeefda77', 'nbsr/protocol/states.py': 'dfcb2b0dcdc61f9c99319020f0714467cd1bf9823dd62662440a6f39d399df9b', 'nbsr/protocol/__init__.py': 'f38a7187e10d7ca106657a04c5e02071fff4bbf2dc300e4f03d41bb0f83d13e9', 'nbsr/federation/fields.py': 'e6cf23d2e852fc67781eed61808ad1e21edb7599e000a2dbd8e35925ec6731e1', 'nbsr/federation/ownership.py': 'd04c7885220ebfcda89dcc593bdd29d6eb1cdccee6bf765fb4bc9de366915661', 'nbsr/federation/delegation.py': '3fdbd2b9d93c27053770564ed1d38b5dd465232d2129228e375982f99f750993', 'nbsr/federation/transparency.py': 'b457880f5e6fbcae78fcf279c7b478d954deb005080ffdb09a66c1915c433b06', 'nbsr/federation/trust.py': '0d3f6c9a320d057b3844367369ad20226d3766a22267ae3bc42e0839d43af25b', 'nbsr/federation/cose.py': '35b568535a6023460f158143fcd2cbdc6ff1c22dacc58d38983fd43f149fc8ba', 'nbsr/federation/discovery.py': 'b228a6803e58fe52f758a7c655d4fca04c594782b145efcf0f28434de8481fe4', 'nbsr/federation/authorization.py': '76e5ef5a6ea4e4dfa0ca321eb61208f1e0c9421d15ded2fdfee2fa44c990aeaf', 'nbsr/federation/local_attestation.py': '59943b42024c03473b330b18715c0df25166cfb98beef7ecddf1180b48df193b', 'nbsr/two_operator_lab.py': 'c7e9bd4c6ee25f5d2889cc07cd37df6e5f189bff6366e7389921de8bc7722cd4', 'nbsr/federation/live_lab.py': '11f67adb5490551f849d8071f453658b1928d92cfb8b11a137e3f3e063c96d33', 'nbsr/federation/state.py': '3cd9d045121e890d367159b8c4327fd103f8820b549c3cbbf7d4966d4eaeb81a', 'nbsr/secure_files.py': '572ec93a6ac32a9b0ef54a730de07c3589995f76786636342ff81f8de398702b', 'nbsr/federation/store.py': 'cf3877b1fbb02b9505c216b51f52f1e7ae9e5cb6a9d6544c5c6cb63da472eef9', 'nbsr/federation/revocation.py': '46f12de41a81a681ff7ca0e21d90d03eb8c0ba624cff6895d202a9b87566e529', 'nbsr/federation/lifecycle.py': '3280f28eb409808727ac4bc9ce628132f1772a2be22032f436752f29dc5ebb9d', 'nbsr/federation/__init__.py': '2b04cb99d9b9b9cbd0ee807c77baece8c21d70f398ebb3773b696d35741c2437', 'scripts/core_v02_vectors/fixtures.py': 'd980eb7e78d3aaa14e6eb4c4d77faceec7cd72e2e38db65a047674cdf2eaefe4', 'scripts/performance/authorities.py': 'b13cdffbdc5f2d0a640121efb0e44f32c5294cd9225df8d6573c636e3ba36676', 'scripts/performance/driver.py': '9a53b848ef4e0caa7483092aebaa8ee65c50d2b5b35389ac217ccc0744a25f1b', 'scripts/performance/resources.py': '0f11a4988a6c0d0ab9081be0ceb28e7f3d3fc8a0ea80b43d97f4269ed6b10aa4', 'scripts/run_performance_validation.py': 'fccc46525703d3aa8de1bca5788abdb8d23b0d75832c31ca0357da2430ef1557', 'scripts/run_p2a_established.py': 'f302b5b1047b0991aefc8ec6262b760d3d43daa3a4308495adb5e9c9f88b8ce6', 'scripts/profile_b2_v2.py': '0b5032b5dfecf26087bc10366b9a93709a28a6f76432a954237b4520d75f45f8', 'scripts/run_max_throughput_v2_stage2.py': '374fc6842cfd7a7e332713d680aabef03ac7947f1d3626f757fca74704a1c9df', 'scripts/run_max_throughput_v2_stage4.py': '722d3cbad095da55519a5f55190987a90215ca165998d1d8a6c8b8f682222aee', 'scripts/performance/mixed_connections.py': '55d8bed5dc4125e7027d5f53bb7a28b04c9210a91174d0023996e7724b9fda15', 'scripts/performance/stderr_drain.py': '2f6428c62b865a5682d3402c085d5174ac2fd4ede7fc4c1d4b01c4e7d0ea6e53', 'scripts/run_b4b_mixed_connections.py': '7b08b2a9a01083a66331db332bf06160d312fc9e3b2136ba503ac145ebe3d2c3', 'scripts/run_b4b_v2.py': '25834c111b2893b96db29feda4455bc65377584c61bc7e4a99292f979b115d05', 'scripts/run_b4b_task4i.py': 'cd281ef21aa91e3895eec7fa5a9f486a93f27f65c549a06752a18c29864bba16', 'scripts/run_b4b_task4k.py': '99946f70b6c9264d29bcdab9dae38d386801f41a12ea1082156ffce8aa3ae0da', 'scripts/run_physical_core_v2.py': '82104fde0f6966a98b403b459aba539e545a0b21b4a629e1e076aea26b0498ed', 'scripts/performance/b5_ceiling.py': '81ef5708f26ec1fb93bd19d7fff948e7179d14b3fbee3e8834d5ad24ea1b3139', 'scripts/performance/b5_grouped.py': '7c83640e6622379ded88f1e00eca902c59671c71113538947d9df1db65169ca4', 'scripts/performance/b5_stream.py': '60e40a7979a1dc99a2ccf041d107c3dd6f6733e54b481f8066776a608a278684', 'scripts/performance/b5_ownership.py': 'da4f45778fe7b3f43b2037d74eae0ef405f4e286d32ff925a553ea95ab38e881', 'scripts/performance/sustained_capacity.py': '459fe5f7df96a446bf332caef71b053bd48bd8571e739bfecc20192a226b0be1', 'scripts/run_b5_v2.py': '1d388a11b8387d54128c3a10a02706559e800fbc1a8f86422cb6f6b42fb45231', 'scripts/performance/linux_exit.py': '0b0a00daa335d42bac15ce032187640a623f68e96a893f6adb88ec3e94f42a5b', 'scripts/performance/linux_b5_backend.py': 'c2f781bbfd99e69d92883e15a9a541ba483435c3237775f99076552ea8331315', 'scripts/performance/linux_b5_campaign.py': 'c12605bf498d4176ff22a8678f3a5720e4ecc81fb9367986c47e63729d3057c9', 'scripts/performance/linux_b5_placement.py': '3c45d3a82d429cc0d317a8059ed79adb5314c005d4cd0fda0ef649da74290dd4', 'scripts/performance/linux_native_cycle_memory.py': '01148598370de45f02a529b1525632f010a54c8b3498b5b16f6ea46fbaff2657', 'scripts/performance/linux_native_duration.py': '110aba59b9cd71a37035b8711a035c4f245d7aa6729bf51c36c3c9d044068531', 'scripts/performance/linux_udp_failure.py': 'c7c02228536d6bdcba9e63110045aa4debd7ec85d964cfdbe1574af972e3d6d8', 'scripts/performance/linux_socket_ownership.py': '72cf5ad77ae9bd43892a5818717da2679130f6eeeb11277cbd2b8ee7f5ecc733', 'scripts/performance/linux_native_paced.py': 'f147f8f9faf00b6c5ae9f4caaaaaf815e621b46fe638bd0b4d5cd1cdf74e8378', 'scripts/performance/linux_native_live.py': 'bb8eff6f88c3ece2a271b8095cb47e0ef07efea2b8f17c56d98bcb4e5d607660', 'scripts/performance/linux_native_source_observer.py': 'e50b960b2f7822d09274c83e4f397ce7992a49da968691e69ddbe607ff5f7104', 'scripts/performance/linux_native_peer.py': '61d356529f3f02d0965a9a30ac7376439f509232c9193c64949e4b2c5f6753da', 'scripts/performance/linux_native_lifecycle.py': '4b842b268ad818917d6f192c334a140b2f551c20e49e077f7c0b8f4317d7e218', 'scripts/performance/linux_native_lifecycle_endpoint.py': '258aab0d435a5a7b3502772251b5c46f197e24a8c4d4fb7d0e16b72fbe0b99b7', 'scripts/performance/linux_native_finite_control.py': '1c09281b493f474c2799a7bc41b33581799125d2caf38598bf1e16281863d177', 'scripts/performance/linux_native_destination_observer.py': '9cf2569900292b138232ceb4995d7e2502228e7fd733514e5c804fd1d3cc5271', 'scripts/performance/linux_native_finite_endpoint.py': 'f0c5b23723164d490becd207608e6c7e673ff3e149200daf11c45dffdb312390', 'scripts/performance/linux_native_lifecycle_remote.py': '3696ac08d635623def597d8cf4eddf7de7b37f173ebe4525988ccc51f1b8a73c', 'scripts/performance/linux_native_lifecycle_coordinator.py': '02f284c42b0e2c8a625ac3e5ac4ef31bae32aa645be581608746322258005261', 'scripts/performance/linux_native_pair.py': 'a41b93109fbdf9bb2e410d18a62cd7143cdc429781140c85c79c2d7aa26021bb', 'scripts/performance/linux_native_lifecycle_gate.py': '531dcabefe8389241209615bfc4bfc1081d79bdab7f6b12bd6b037656d70d7d4', 'scripts/performance/linux_native_lifecycle_pair.py': 'd1ed161049a96429a4282ce43f63399c904af4d0a40789266595636cdf20b0c5', 'scripts/performance/linux_native_archive.py': '78ce1ad141daae5d9769aad2e03749f846193a801e068bd6a2425a8a2fb8207e', 'scripts/performance/linux_native_lifecycle_run.py': 'faa548364c7878f232db74e351fd0820b58bb882ca882dfa81d8131a48d1471e', 'scripts/performance/linux_native_live_relay.py': '3fc0c3abda7256dd5a73aa7e022d46ad489d5077605add1ff1fa1e94e0caa40a', 'scripts/performance/linux_native_finite_run.py': 'ee1e6bd754cb72d6c0df825cd3990f536c466d8520b081c37f1fb60b2dafdcae', 'scripts/performance/local_container_disposal.py': '1aa6608bec775e05d272031d536091a54772bb23e1994318bf9d7a66c24a15fc', 'scripts/performance/linux_native_watchdog.py': 'aa48b3fe060770a224d29641ff471796da866c94cf6ec897865ae56e0821c21a', 'scripts/performance/local_container_sequence.py': 'd8bb477cd0e5c136b9a2e1339c6b633ed1a8ebb22bb57a43bb1f1fac85e89d83', 'scripts/performance/windows_job_backend.py': 'dc7c955c3159c4182b98eeb717ce27a9798409542d97f6f5c248afacffd3d1af', 'scripts/performance/windows_native_management.py': 'e89d236476db0367ea45ac56d643e23ed3cef0eab0344f2e7bbf63689c8892f5', 'scripts/performance/windows_docker_provisioning.py': 'e22c18ea76a34333f282612e367ff57c12732ffebd8ec2aaaaea86688955aca5', 'scripts/performance/windows_adopted_campaign.py': 'f52aa9df4fa33906098c24972c395e9c93c2537b6333e888823b7355d0fe633c'}
+METADATA_PINS = {'.git/config': '74ae643095ffab2050e89814b32b45384b344e1837d99e050a52fb42ede78fe6', '.git/HEAD': '5bcde70a2e7845057ad14c7b262e45bd533ce95deaeddb3a2bda56545b2f17e4', '.git/index': '5f955f9bc7954f493f21cb176c2ca754555ac2240f464d721446570044d8c99b', '.git/shallow': 'b7a159dc11f4629c259d5eb545b5cf9cf2413717abb0c65bb3a75258cbc54c3c'}
+
+def verify_full_presentation(root):
+    raw=Path('/nbsr/source-inventory.json').read_bytes()
+    assert hashlib.sha256(raw).hexdigest()=='605d132d9734aa9887f80d69cc8dabf62607fb460448c33c95f98fdd978790ff','presentation inventory pin'
+    inventory=json.loads(raw);assert inventory['commit']=='47d2ae41df49fedd21768db5fa6be71377acebf3' and len(inventory['files'])==440,'presentation identity'
+    return verify_presented_tree(root,inventory['files'])
+
+def verify_presented_tree(root,inventory):
+    seen=set();seen_dirs=set();expected_dirs={'.git'}
+    for name in inventory:
+        expected_dirs.update(p.as_posix() for p in Path(name).parents if str(p)!='.')
+    def fail(error):raise error
+    for directory,dirs,files in os.walk(root,followlinks=False,onerror=fail):
+        parent=Path(directory)
+        assert not parent.is_symlink(),'presentation directory alias'
+        for name in dirs:
+            path=parent/name;relative=path.relative_to(root).as_posix()
+            assert relative in expected_dirs and not path.is_symlink(),'presentation directory inventory/alias'
+            # The nested original Git mount retains its original filesystem mode.
+            if relative!='.git':assert (path.lstat().st_mode & 0o7777)==0o755,'presentation directory mode'
+            seen_dirs.add(relative)
+        if parent==root and '.git' in dirs:dirs.remove('.git')
+        for name in files:
+            path=parent/name;relative=path.relative_to(root).as_posix()
+            assert relative in inventory,'unexpected presentation file'
+            row=inventory[relative];st=path.lstat()
+            assert not path.is_symlink() and (st.st_mode & 0o170000)==0o100000,'presentation regular file'
+            assert (st.st_mode & 0o7777)==row['mode'] and st.st_size==row['size'],'presentation mode/size'
+            assert hashlib.sha256(path.read_bytes()).hexdigest()==row['sha256'],'presentation bytes'
+            seen.add(relative)
+    assert seen==set(inventory),'presentation completeness'
+    assert seen_dirs==expected_dirs,'presentation directory completeness'
+
+
+def run_probe():
+    r=Path('/repo');verify_full_presentation(r); expected_sha='47d2ae41df49fedd21768db5fa6be71377acebf3'
+    pin='6ccc7a97451ffc424e1f4f7dfdeb61d125406f35b7962d4cd24d6b3ee735049d'
+    assert os.getuid()==65532, 'non-root diagnostic UID required'
+    assert r.is_dir() and (r/'.git').is_dir(), 'explicit repository required'
+    def checked_bytes(path):
+        assert not any(p.is_symlink() or getattr(p.lstat(),'st_file_attributes',0)&0x400 for p in (path,*path.parents)), 'alias/reparse rejected'
+        assert path.is_file(), 'regular materialized input required'
+        return path.read_bytes()
+    b=json.loads(checked_bytes(Path('/nbsr/build.json')))
+    assert hashlib.sha256(json.dumps(b,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()==pin, 'manifest pin mismatch'
+    assert set(b['binary_sha256'])=={'perf_direct_peer','perf_rust_source','wp8_interop_server'}, 'exact binary inventory'
+    for name in b['source_sha256']:
+        assert not any(part in ('','.','..') for part in name.split('/')) and ':' not in name and chr(92) not in name, 'source path escape'
+    actual_source={name:hashlib.sha256(checked_bytes(r/name)).hexdigest() for name in b['source_sha256']}
+    assert actual_source==b['source_sha256'], 'pinned source bytes mismatch'
+    hashes={name:hashlib.sha256(checked_bytes(Path('/nbsr/bin')/name)).hexdigest() for name in b['binary_sha256']}
+    assert hashes==b['binary_sha256'], 'binary bytes mismatch'
+    for name, expected in PYTHON_PINS.items():
+        assert hashlib.sha256(checked_bytes(r/name)).hexdigest()==expected, 'Python dependency drift'
+    for name, expected in METADATA_PINS.items():
+        assert hashlib.sha256(checked_bytes(r/name)).hexdigest()==expected, 'Git metadata drift'
+    for name in ('.git/objects/info/alternates','.git/commondir','.git/gitdir'):
+        assert not (r/name).exists() and not (r/name).is_symlink(), 'external Git indirection'
+    assert not any(k.startswith('GIT_') for k in os.environ), 'unexpected Git environment'
+    # Bind project imports to verified source bytes, never sys.path or bytecode.
+    roots={name.split('/')[0] for name in PYTHON_PINS}
+    assert not any(name.split('.')[0] in roots for name in sys.modules), 'preloaded project module'
+    sources={}
+    packages=set()
+    namespaces=set()
+    for filename, expected in PYTHON_PINS.items():
+        parts=filename[:-3].split('/')
+        if parts[-1]=='__init__':
+            parts.pop(); packages.add('.'.join(parts))
+        name='.'.join(parts)
+        raw=checked_bytes(r/filename)
+        assert hashlib.sha256(raw).hexdigest()==expected, 'import source drift'
+        sources[name]=(filename,raw)
+        namespaces.update('.'.join(parts[:i]) for i in range(1,len(parts)))
+    class PinnedLoader(importlib.abc.MetaPathFinder, importlib.abc.Loader):
+        def find_spec(self, fullname, path=None, target=None):
+            if fullname.split('.')[0] not in roots:return None
+            assert fullname in sources or fullname in namespaces, 'unreviewed project import'
+            return importlib.util.spec_from_loader(fullname,self,is_package=fullname in packages or fullname not in sources)
+        def create_module(self,spec):return None
+        def exec_module(self,module):
+            name=module.__name__
+            if name in sources:
+                filename,raw=sources[name]
+                module.__file__=str(r/filename)
+                exec(compile(raw,module.__file__,'exec'),module.__dict__)
+    loader=PinnedLoader()
+    sys.meta_path.insert(0,loader)
+    try:
+        return trusted_probe(r,expected_sha,pin,b,actual_source,hashes,checked_bytes)
+    finally:
+        sys.meta_path.remove(loader)
+
+def trusted_probe(r,expected_sha,pin,b,actual_source,hashes,checked_bytes):
+    from scripts.performance import native_debug_correctness as d
+    d.validate_build(b,expected_sha,hashes,pin,actual_source=actual_source)
+    env={'PATH':os.environ['PATH'],'GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null'}
+    # Proposed third read: preserve source_inventory's tracked-name completeness.
+    names=subprocess.check_output(['git','--no-optional-locks','-c','safe.directory=','-c','safe.directory=/repo','-C','/repo','ls-files','-z','--','crates/nbsr-transport/src','crates/nbsr-transport/Cargo.toml','crates/nbsr-transport/Cargo.lock','crates/nbsr-transport/build.rs'],cwd=r,env=env).decode().split(chr(0))
+    names=sorted(set(filter(None,names)) | set(d.FIXTURES))
+    assert set(names)==set(actual_source), 'tracked source inventory mismatch'
+    sha=subprocess.check_output(['git','--no-optional-locks','-c','safe.directory=','-c','safe.directory=/repo','-C','/repo','rev-parse','HEAD'],cwd=r,env=env).decode().strip()
+    assert sha==expected_sha, 'HEAD mismatch'
+    assert not subprocess.check_output(['git','--no-optional-locks','-c','safe.directory=','-c','safe.directory=/repo','-C','/repo','status','--porcelain','--untracked-files=all'],cwd=r,env=env), 'working tree not clean'
+    # Rehash to detect visible changes during the Git reads; this is not atomic.
+    current_source={name:hashlib.sha256(checked_bytes(r/name)).hexdigest() for name in names}
+    d.validate_build(b,sha,hashes,pin,actual_source=current_source)
+    for name, expected in METADATA_PINS.items():
+        assert hashlib.sha256(checked_bytes(r/name)).hexdigest()==expected, 'Git metadata changed during reads'
+    for name in hashes:assert os.access(Path('/nbsr/bin')/name,os.R_OK|os.X_OK), 'binary access'
+    for name in ['linux_native_finite_control','linux_native_finite_endpoint','linux_native_finite_run','linux_native_peer','windows_adopted_campaign']:
+        importlib.import_module('scripts.performance.'+name)
+    for module in tuple(sys.modules.values()):
+        filename=getattr(module,'__file__',None)
+        if filename:
+            path=Path(filename).resolve()
+            if path.is_relative_to(r.resolve()) and path.suffix=='.py':
+                name=path.relative_to(r.resolve()).as_posix()
+                assert name in PYTHON_PINS, 'unreviewed local import'
+                assert hashlib.sha256(checked_bytes(path)).hexdigest()==PYTHON_PINS[name], 'loaded dependency drift'
+    for name in ['ca','source','source-key']:
+        assert checked_bytes(Path('/private/tls')/(name+'.der'))==b'PUBLIC DIAGNOSTIC DUMMY; NOT TLS MATERIAL\n'
+    p=Path('/evidence/probe.txt');p.write_bytes(b'PUBLIC PROBE PASS\n');assert p.stat().st_size<64
+    print(json.dumps({'status':'PUBLIC_DIAGNOSTIC_PASS','uid':os.getuid(),'commit':sha,'binary_count':len(hashes),'source_count':len(current_source),'git_read_count':3,'repo_uid':r.stat().st_uid,'git_uid':(r/'.git').stat().st_uid}))
+
+if __name__=='__main__':
+    raise SystemExit('GUARDED PROPOSAL: third exact Git read and a new live attempt require approval')

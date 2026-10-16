@@ -2,9 +2,10 @@
 
 ## Local two-stream preparation snapshot
 
-This local-only snapshot selects the finite/lifecycle cleanup, watchdog, disposal,
-Windows management and Docker provisioning changes. No unrelated KAR/recovery
-overlay or local evidence is included. Historical protocol pins remain unchanged.
+The weekly publication includes finite/lifecycle cleanup, watchdog, disposal,
+Windows provisioning, offline cache, KAR/recovery tests and sanitized evidence.
+See docs/publication/2026-10-16-weekly-reconciliation.md for source mappings,
+validation and exclusions. Historical protocol pins remain unchanged.
 See docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md for the scope and checks.
 Keep the tracked per-path CRLF exceptions: they preserve historical raw bytes,
 not permission to normalize pinned content or hide working-tree changes.
@@ -441,8 +442,9 @@ offline/resource guards, plus `connector_signature` and `connector_control`.
 The gate preserves inclusive expiry and exact purpose/identity/root-authorizer
 binding, accepts only active unrevoked genesis records, and rejects rotation and
 recovery. It has no authority/owner/READY conversion. Semantic positives and
-unchanged signed composed negatives are separate evidence: no composed positive
-fixture is available under the no-new-signatures constraint. Do not adjust
+unchanged signed composed negatives are separate evidence. The retained public
+connector-kar-genesis-positive.json fixture now supplies composed verification
+without creating signatures; runtime_authorized remains false. Do not adjust
 historical root validity or synthesize purpose-12 normal-roster authorization.
 See `docs/reviews/2026-10-11-kar-genesis-implementation.md` for this limitation.
 
@@ -457,6 +459,22 @@ asynchronous termination. Retain exact handles and poll only within the existing
 deadline; require both signalled leader and empty Job before normal reaping.
 Preserve native query errors, failed-close ownership and the primary work timeout.
 
+Explicit cold-start diagnostic approval may select DockerCommand max_timeout=32
+(30s work plus2s helper cleanup); defaults remain8s and overall trials120s.
+This requires per-trial authority and does not authorize starts or settings changes.
+
+Windows Docker command preparation checks the actual Popen serialization before launch,
+with a conservative 30,000 UTF-16-unit ceiling including NUL. Worker launch errors
+retain their original type/message/errno/winerror in the request-bound reply; existing
+timeout and cleanup supervision remain independent. The offline rust_cache_metadata
+probe reads only the approved Cargo.lock file mount, with no additional script mount.
+Its package/archive observations do not establish offline build readiness.
+
+Explicitly approved metadata-only Docker trials may opt into the validated
+240s work/300s total CellBudget, with 60s reserved for cleanup and the same
+monotonic clock in DockerCommand. Defaults remain unchanged. See
+`docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md`; these opt-in limits do not
+provide standing authorization for longer experiments or dependency downloads.
 
 The finite harness has an explicit pinned debug correctness mode documented in
 `docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md`. Preserve default release gates,

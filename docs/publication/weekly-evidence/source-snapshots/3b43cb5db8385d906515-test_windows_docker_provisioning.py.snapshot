@@ -1,0 +1,636 @@
+"""Deterministic Docker JSON/argv fixtures; never invoke Docker or read keys."""
+
+from copy import deepcopy
+import importlib
+import json
+
+import pytest
+
+
+def api():
+    name = "scripts.performance.windows_docker_provisioning"
+    assert importlib.util.find_spec(name) is not None, "Docker provisioning adapter missing"
+    return importlib.import_module(name)
+
+
+class Docker:
+    def __init__(self, mod):
+        self.mod = mod
+        self.calls = []
+        self.network = None
+        self.containers = {}
+        self.count = 0
+        self.fail_remove = False
+        self.inspect_error = False
+        self.mutate = lambda row: row
+
+    def __call__(self, args, *, timeout):
+        assert 0 < timeout <= 8
+        self.calls.append(tuple(args))
+        code, out, err = 0, "", ""
+        if args[:2] == ["network", "create"]:
+            self.network = {
+                "Id": "f" * 64,
+                "Name": args[-1],
+                "Driver": "bridge",
+                "Internal": True,
+                "EnableIPv6": False,
+                "IPAM": {"Config": [{"Subnet": "192.0.2.10/29"}]},
+                "Labels": {"nbsr.campaign": "offline"},
+                "Containers": {},
+            }
+            out = self.network["Id"]
+        elif args[:2] == ["network", "inspect"]:
+            if self.network is None:
+                code, err = 1, "Error response from daemon: network " + args[-1] + " not found"
+            else:
+                out = json.dumps(self.network)
+        elif args[:2] == ["network", "rm"]:
+            self.network = None
+            out = args[-1]
+        elif args[0] == "create":
+            self.count += 1
+            identity = f"{self.count:064x}"
+            labels = dict(value.split("=", 1) for i, value in enumerate(args) if i and args[i - 1] == "--label")
+            mounts = []
+            for i, value in enumerate(args):
+                if i and args[i - 1] == "--mount":
+                    pieces = dict(part.split("=", 1) for part in value.split(",") if "=" in part)
+                    mounts.append(
+                        {
+                            "Type": "bind",
+                            "Source": pieces["source"],
+                            "Destination": pieces["target"],
+                            "RW": "readonly" not in value.split(","),
+                        }
+                    )
+            self.containers[identity] = {
+                "Id": identity,
+                "Image": "sha256:" + "a" * 64,
+                "Labels": labels,
+                "User": "65532:65532",
+                "HostConfig": {
+                    "NetworkMode": "f" * 64,
+                    "PidMode": "",
+                    "IpcMode": "private",
+                    "UTSMode": "",
+                    "Privileged": False,
+                    "ReadonlyRootfs": True,
+                    "CapDrop": ["ALL"],
+                    "CapAdd": None,
+                    "SecurityOpt": ["no-new-privileges"],
+                    "PortBindings": {},
+                    "Devices": [],
+                    "Binds": None,
+                    "VolumesFrom": None,
+                    "PidsLimit": 128,
+                    "NanoCpus": 1000000000,
+                    "Memory": 536870912,
+                    "MemorySwap": 536870912,
+                    "Init": True,
+                },
+                "Mounts": mounts,
+                "State": {"Running": False, "Pid": 0, "OOMKilled": False},
+                "Networks": {
+                    "task-network": {
+                        "NetworkID": "f" * 64,
+                        "IPAddress": "192.0.2.10" if labels["nbsr.role"] == "source" else "192.0.2.10",
+                    }
+                },
+            }
+            self.network["Containers"][identity] = {}
+            out = identity
+        elif args[0] == "start":
+            self.containers[args[-1]]["State"].update(Running=True, Pid=123)
+            out = args[-1]
+        elif args[0] == "inspect":
+            if self.inspect_error:
+                code, err = 1, "daemon unavailable"
+            elif args[-1] not in self.containers:
+                code, err = 1, "Error: No such object: " + args[-1]
+            else:
+                out = json.dumps(self.mutate(deepcopy(self.containers[args[-1]])))
+        elif args[0] == "rm":
+            if self.fail_remove:
+                code, err = 1, "removal failed"
+            else:
+                self.containers.pop(args[-1])
+                self.network["Containers"].pop(args[-1])
+                out = args[-1]
+        else:
+            raise AssertionError(args)
+        return self.mod.CommandResult(code, out, err)
+
+
+def setup():
+    mod = api()
+    docker = Docker(mod)
+    specs = {
+        role: mod.EndpointSpec(
+            checkout_source="/approved/source",
+            checkout_target="/original/build/source",
+            binaries_source="/approved/bin",
+            manifest_source="/approved/build.json",
+            ca_source="/approved/tls/ca.der",
+            certificate_source=f"/approved/tls/{role}.der",
+            key_source=f"/approved/tls/{role}-key.der",
+            evidence_source=f"/approved/evidence/{role}",
+            address=address,
+        )
+        for role, address in [("source", "192.0.2.10"), ("destination", "192.0.2.10")]
+    }
+    engine = mod.DockerProvisioner(docker, campaign="offline", image="sha256:" + "a" * 64, specs=specs)
+    return mod, docker, engine
+
+
+def test_exact_two_endpoint_creation_and_independent_absence():
+    mod, docker, engine = setup()
+    from scripts.performance.local_container_disposal import Controller
+    from scripts.performance.windows_native_management import BudgetedEngine
+
+    controller = Controller(BudgetedEngine(engine, guard=lambda: None))
+    owners = controller.start("normal")
+    assert len(docker.containers) == 2
+    creates = [args for args in docker.calls if args[0] == "create"]
+    assert all("--pull=never" in args and "--publish" not in args and "--privileged" not in args for args in creates)
+    assert all("docker.sock" not in " ".join(args) for args in creates)
+    assert all("--network" in args and args[args.index("--network") + 1] == "f" * 64 for args in creates)
+    assert all(owner.isolated for owner in owners)
+    controller.release(tuple(controller.dispose(owner) for owner in owners))
+    engine.close_network(remaining=10)
+    assert not docker.containers and docker.network is None
+    assert all(len(args[-1]) == 64 for args in docker.calls if args[0] in ("rm", "start", "inspect"))
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "wrong_id",
+        "wrong_label",
+        "shared_pid",
+        "extra_network",
+        "extra_mount",
+        "writable_key",
+        "privileged",
+        "published_port",
+        "wrong_image",
+        "wrong_limit",
+    ],
+)
+def test_inspect_mismatch_is_not_isolation_evidence(field):
+    _, docker, engine = setup()
+    from scripts.performance.local_container_disposal import Controller, Unconfirmed
+    from scripts.performance.windows_native_management import BudgetedEngine
+
+    def mutate(row):
+        if field == "wrong_id":
+            row["Id"] = "0" * 64
+        elif field == "wrong_label":
+            row["Labels"]["nbsr.run"] = "stale"
+        elif field == "shared_pid":
+            row["HostConfig"]["PidMode"] = "host"
+        elif field == "extra_network":
+            row["Networks"]["other"] = {}
+        elif field == "extra_mount":
+            row["Mounts"].append({"Source": "/var/run/docker.sock"})
+        elif field == "writable_key":
+            row["Mounts"][-2]["RW"] = True
+        elif field == "privileged":
+            row["HostConfig"]["Privileged"] = True
+        elif field == "published_port":
+            row["HostConfig"]["PortBindings"] = {"80/tcp": [{}]}
+        elif field == "wrong_image":
+            row["Image"] = "sha256:" + "b" * 64
+        else:
+            row["HostConfig"]["Memory"] = 0
+        return row
+
+    docker.mutate = mutate
+    controller = Controller(BudgetedEngine(engine, guard=lambda: None))
+    with pytest.raises(Unconfirmed):
+        controller.start("one")
+    assert engine.owned_ids  # known created IDs stay available for cleanup
+    with pytest.raises(Unconfirmed):
+        controller.start("two")
+
+
+def test_cleanup_error_or_daemon_error_cannot_be_absence():
+    _, docker, engine = setup()
+    from scripts.performance.local_container_disposal import Controller, Unconfirmed
+    from scripts.performance.windows_native_management import BudgetedEngine
+
+    controller = Controller(BudgetedEngine(engine, guard=lambda: None))
+    owners = controller.start("one")
+    docker.fail_remove = True
+    with pytest.raises(Unconfirmed):
+        controller.dispose(owners[0])
+    docker.fail_remove, docker.inspect_error = False, True
+    with pytest.raises(Unconfirmed):
+        controller.dispose(owners[0])
+    assert controller.owned == owners
+    with pytest.raises(Unconfirmed):
+        engine.close_network(remaining=10)
+
+
+def test_role_mounts_and_target_config_match_existing_finite_validator():
+    _, docker, engine = setup()
+    from scripts.performance.linux_native_finite_run import validate_config
+
+    config = engine.config("normal", source_sha="b" * 40)
+    validate_config(config)
+    assert config["streams"] == 2 and config["payload"] == 1024 and config["diagnostic_rate"] == [100, 1]
+    assert config["source"]["checkout"] == "/original/build/source"
+    assert config["source"]["authority"] == "/private/tls"
+    assert config["source"]["output"].rsplit("/", 1)[0] == "/evidence"
+    assert docker.calls == []
+
+
+def test_daemon_prestart_network_shape_and_explicit_gateway():
+    mod, docker, engine = setup()
+    original = engine.command
+
+    def command(args, **kwargs):
+        result = original(args, **kwargs)
+        if args[:2] == ["network", "inspect"]:
+            row = json.loads(result.stdout)
+            row["IPAM"]["Config"][0]["Gateway"] = "192.0.2.10"
+            return mod.CommandResult(0, json.dumps(row), "")
+        if args[0] == "inspect" and result.code == 0:
+            row = json.loads(result.stdout)
+            if not row["State"]["Running"]:
+                row["Networks"]["task-network"]["IPAddress"] = ""
+                row["Networks"]["task-network"]["NetworkID"] = ""
+            return mod.CommandResult(0, json.dumps(row), "")
+        return result
+
+    engine.command = command
+    from scripts.performance.local_container_disposal import Creation
+
+    assert engine.create(Creation("one", "source"), remaining=50).isolated
+
+
+def test_late_create_id_retained_and_known_failed_creation_can_be_cleaned():
+    _, docker, engine = setup()
+    from scripts.performance.local_container_disposal import Creation, Probe, Unconfirmed
+
+    now = [0.0]
+    engine.clock = lambda: now[0]
+
+    def command(args, **kwargs):
+        result = docker(args, **kwargs)
+        if args[0] == "create":
+            now[0] = 11
+        return result
+
+    engine.command = command
+    with pytest.raises(Unconfirmed):
+        engine.create(Creation("one", "source"), remaining=10)
+    assert engine.owned_ids == (f"{1:064x}",)
+    (owner,) = engine.retained_owners
+    engine.remove(owner.container_id, remaining=10)
+    assert engine.observe(Probe(owner), remaining=10).present is None
+    engine.close_network(remaining=10)
+    assert engine.closed
+
+
+def test_unknown_create_blocks_network_release_and_replacement():
+    mod, docker, engine = setup()
+    from scripts.performance.local_container_disposal import Creation, Unconfirmed
+
+    def command(args, **kwargs):
+        result = docker(args, **kwargs)
+        return mod.CommandResult(1, "", "connection lost") if args[0] == "create" else result
+
+    engine.command = command
+    with pytest.raises(Unconfirmed):
+        engine.create(Creation("one", "source"), remaining=30)
+    with pytest.raises(Unconfirmed):
+        engine.close_network(remaining=10)
+    with pytest.raises(Unconfirmed):
+        engine.create(Creation("two", "source"), remaining=30)
+
+
+@pytest.mark.parametrize("fault", [None, "missing_reply", "live_descendant", "assign_failure", "resource"])
+@pytest.mark.parametrize("limit", [8, 122])
+def test_command_transport_owns_job_and_binds_reply(tmp_path, fault, limit):
+    mod = api()
+    assert hasattr(mod, "DockerCommand"), "bounded concrete command transport missing"
+    from pathlib import Path
+    import hashlib
+    from scripts.performance.local_container_disposal import Unconfirmed
+
+    now, actions = [0.0], []
+
+    class Backend:
+        code, active = None, 1
+
+        def create_job(self):
+            return "job"
+
+        def create_suspended(self, argv):
+            self.request = Path(argv[-1])
+            return "process", "thread"
+
+        def assign(self, *args):
+            actions.append("assign")
+            if fault == "assign_failure":
+                raise OSError("assignment failed")
+
+        def resume(self, thread):
+            actions.append("resume")
+            self.code, self.active = 0, int(fault == "live_descendant")
+            if fault != "missing_reply":
+                (self.request.parent / "stdout.txt").write_text("exact result")
+                (self.request.parent / "stderr.txt").write_text("")
+                (self.request.parent / "reply.json").write_text(
+                    json.dumps({"request_sha256": hashlib.sha256(self.request.read_bytes()).hexdigest(), "code": 0})
+                )
+
+        def observe(self, *args):
+            return self.code, self.active
+
+        def terminate(self, *args):
+            actions.append("kill")
+            self.code, self.active = 1, 0
+
+        def close(self, handle):
+            actions.append(("close", handle))
+
+    budget = mod.CellBudget(clock=lambda: now[0], work_seconds=240, total_seconds=300)
+    guard_calls = [0]
+
+    def guard():
+        guard_calls[0] += 1
+        if fault == 'resource' and guard_calls[0] == 2:
+            raise RuntimeError('fixture resource reserve')
+
+    backend = Backend()
+    command = mod.DockerCommand(
+        tmp_path,
+        executable="C:/approved/docker.exe",
+        backend_factory=lambda: backend,
+        max_timeout=limit, trial_budget=budget, guard=guard,
+        clock=lambda: now[0],
+        sleep=lambda seconds: now.__setitem__(0, now[0] + seconds),
+    )
+    if fault:
+        with pytest.raises(Unconfirmed):
+            command(["inspect", "a" * 64], timeout=limit)
+    else:
+        assert command(["inspect", "a" * 64], timeout=limit) == mod.CommandResult(0, "exact result", "")
+    assert not command.owner.owned
+    assert now[0] <= limit
+    request = json.loads(backend.request.read_text())
+    assert request['deadline'] == limit
+    report = json.loads((backend.request.parent / 'supervision.json').read_text())
+    assert report['trial_total_seconds'] == 300
+    assert report['trial_work_seconds'] == 240
+    if fault == "assign_failure":
+        assert "resume" not in actions and "kill" in actions
+
+
+@pytest.mark.parametrize("diagnostic", ["Error: No such container: ", "Error: No such object: ",
+                                        "error: no such object: "])
+def test_exact_typed_docker_absence(diagnostic):
+    mod, docker, engine = setup()
+    from scripts.performance.local_container_disposal import Creation, Probe
+
+    owner = engine.create(Creation("one", "source"), remaining=50)
+    engine.remove(owner.container_id, remaining=10)
+
+    def command(args, **kwargs):
+        result = docker(args, **kwargs)
+        if args[0] == "inspect":
+            return mod.CommandResult(1, "", diagnostic + args[-1])
+        return result
+
+    engine.command = command
+    assert engine.observe(Probe(owner), remaining=10).present is None
+
+
+def test_three_cells_compose_with_existing_sequence_and_exact_disposal():
+    _, docker, engine = setup()
+    from scripts.performance.local_container_sequence import Cell, Outcome, Sequence
+    from scripts.performance.windows_native_management import BudgetedEngine, bind_config
+    bounded = BudgetedEngine(engine, guard=lambda: None)
+    sequence = Sequence(bounded)
+    cells = [Cell(name, engine.config(name, source_sha='b' * 40),
+                  f'/recipes/{name}.json', f'/host-output/{name}')
+             for name in ('normal', 'interrupted', 'fresh')]
+    seen = []
+
+    def runner(plan):
+        config = bind_config(plan)
+        assert set(docker.containers) == {config[r]['host'] for r in ('source', 'destination')}
+        seen.extend(config[r]['host'] for r in ('source', 'destination'))
+        return Outcome('INVALID_PARTIAL', plan.owners) if plan.interrupt else Outcome('PASS_CONTROLLED_FINITE_PAIR')
+
+    result = sequence.run(cells, runner, original_disk_free_bytes=14 * 2**30)
+    engine.close_network(remaining=bounded.budget.remaining_cleanup())
+    assert len(set(seen)) == 6 and len(result) == 3
+    assert all(r.accepted and r.cleanup_confirmed for r in result)
+    assert not engine.owned_ids and engine.closed
+
+
+def test_worker_builds_exact_cli_without_running_processes(tmp_path, monkeypatch):
+    mod = api()
+    request = tmp_path / 'request.json'
+    argv = ['C:/approved/docker.exe', 'inspect', 'a' * 64]
+    request.write_text(json.dumps({'argv': argv, 'deadline': 10}))
+    calls = []
+
+    class Child:
+        pid = 1234
+
+        def wait(self, *, timeout):
+            assert 0 < timeout <= 10
+            return 1
+
+    def spawn(actual, **kwargs):
+        calls.append(actual)
+        assert kwargs['close_fds'] is True and kwargs['creationflags'] == mod.subprocess.CREATE_NO_WINDOW
+        kwargs['stderr'].write(b'Error: No such container: ' + b'a' * 64)
+        return Child()
+
+    monkeypatch.setattr(mod.subprocess, 'Popen', spawn)
+    monkeypatch.setattr(mod.time, 'monotonic', lambda: 0)
+    mod._command_worker(request)
+    assert calls == [argv]
+    assert json.loads((tmp_path / 'reply.json').read_text())['code'] == 1
+    assert (tmp_path / 'stderr.txt').read_text().endswith('a' * 64)
+
+
+@pytest.mark.parametrize('timeout', [8, 32, 122])
+@pytest.mark.parametrize('cleanup_fault', [None, 'terminate', 'observe', 'reap', 'pending'])
+def test_timeout_preserves_primary_and_exact_cleanup_failure(tmp_path, cleanup_fault, timeout):
+    mod = api()
+    now = [0.0]
+
+    class Backend:
+        killed = False
+        cleanup_observations = 0
+
+        def create_job(self):
+            return 'job'
+
+        def create_suspended(self, argv):
+            return 'process', 'thread'
+
+        def assign(self, *args):
+            pass
+
+        def resume(self, thread):
+            pass
+
+        def observe(self, *args):
+            if self.killed and cleanup_fault == 'observe':
+                raise OSError(5, 'cleanup observation rejected')
+            if self.killed:
+                self.cleanup_observations += 1
+                if cleanup_fault == 'pending' or (cleanup_fault is None and self.cleanup_observations == 1):
+                    return None, 0
+            return (1, 0) if self.killed else (None, 1)
+
+        def terminate(self, *args):
+            if cleanup_fault == 'terminate':
+                raise OSError(5, 'termination rejected')
+            self.killed = True
+
+        def close(self, handle):
+            if cleanup_fault == 'reap':
+                raise OSError(5, 'handle close rejected')
+
+    command = mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe',
+        backend_factory=Backend, clock=lambda: now[0], max_timeout=timeout,
+        sleep=lambda seconds: now.__setitem__(0, now[0] + seconds),
+        trial_budget=(mod.CellBudget(clock=lambda: now[0], work_seconds=240, total_seconds=300)
+                      if timeout == 122 else None))
+    with pytest.raises(mod.Unconfirmed) as error:
+        command(['inspect', 'a' * 64], timeout=timeout)
+    assert isinstance(error.value.__cause__, TimeoutError)
+    report = json.loads((tmp_path / 'command-0001' / 'supervision.json').read_text())
+    assert report['primary_failure']['type'] == 'TimeoutError'
+    assert report['primary_failure']['stage'] == 'work_deadline'
+    assert report['owned'] is (cleanup_fault is not None)
+    if cleanup_fault == 'pending':
+        assert report['cleanup_failure']['stage'] == 'deadline'
+        assert report['cleanup_failure']['type'] == 'TimeoutError'
+        assert timeout - .01 <= now[0] <= timeout
+    elif cleanup_fault:
+        assert report['cleanup_failure']['stage'] == cleanup_fault
+        assert report['cleanup_failure']['type'] == 'OSError'
+        assert report['cleanup_failure']['errno'] == 5
+    else:
+        assert report['cleanup_failure'] is None
+    assert timeout - 2 <= now[0] <= timeout
+
+
+def test_worker_retains_launch_and_reply_stage_times(tmp_path, monkeypatch):
+    mod = api()
+    request = tmp_path / 'request.json'
+    request.write_text(json.dumps(dict(argv=['C:/approved/docker.exe', 'inspect'], deadline=10)))
+
+    class Child:
+        pid = 4321
+
+        def wait(self, *, timeout):
+            return 0
+
+    monkeypatch.setattr(mod.subprocess, 'Popen', lambda *a, **k: Child())
+    monkeypatch.setattr(mod.time, 'monotonic', lambda: 1)
+    mod._command_worker(request)
+    events = json.loads((tmp_path / 'worker-trace.json').read_text())['events']
+    assert [e['stage'] for e in events] == [
+        'popen_enter', 'popen_return', 'wait_enter', 'wait_return', 'reply_written']
+    assert events[1]['pid'] == 4321
+    assert all(e['time'] == 1 for e in events)
+
+
+def test_trace_is_bounded_preserving_initial_and_final_events(tmp_path):
+    mod = api()
+    trace = mod._CommandTrace(tmp_path / 'trace.json', clock=lambda: 1)
+    for i in range(300):
+        trace.record('stage', sequence=i)
+    data = json.loads((tmp_path / 'trace.json').read_text())
+    assert len(data['events']) == 128
+    assert data['dropped'] == 172
+    assert data['events'][0]['sequence'] == 0
+    assert data['events'][-1]['sequence'] == 299
+
+
+def test_trace_write_failure_cannot_lose_created_handle_or_prevent_cleanup(tmp_path):
+    mod = api()
+    trace = mod._CommandTrace(tmp_path / 'missing' / 'trace.json', clock=lambda: 1)
+
+    class Backend:
+        def create_job(self):
+            return 77
+
+        def close(self, handle):
+            assert handle == 77
+
+    backend = mod._TracedBackend(Backend(), trace)
+    handle = backend.create_job()
+    assert handle == 77
+    backend.close(handle)
+    assert trace.write_errors == 4
+
+
+def test_trace_clock_failure_after_creation_preserves_handle(tmp_path):
+    mod = api()
+    calls = [0]
+
+    def clock():
+        calls[0] += 1
+        if calls[0] > 1:
+            raise RuntimeError('diagnostic clock failure')
+        return 1
+
+    class Backend:
+        def create_job(self):
+            return 88
+
+    trace = mod._CommandTrace(tmp_path / 'trace.json', clock=clock)
+    assert mod._TracedBackend(Backend(), trace).create_job() == 88
+    assert trace.write_errors == 1
+
+
+def test_default_budget_stays_eight_seconds_and_larger_limit_is_explicit(tmp_path):
+    mod = api()
+    command = mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe')
+    with pytest.raises(ValueError):
+        command(['inspect'], timeout=32)
+    assert not list(tmp_path.iterdir())
+    for limit in (True, 0, 33, float('nan'), float('inf')):
+        with pytest.raises(ValueError):
+            mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe', max_timeout=limit)
+
+
+def test_worker_retains_original_launch_exception(tmp_path, monkeypatch):
+    mod = api()
+    request = tmp_path / 'request.json'
+    request.write_text(json.dumps(dict(argv=['C:/approved/docker.exe'], deadline=10)))
+    error = OSError(7, 'fixture launch rejected')
+    error.winerror = 206
+
+    def fail(*args, **kwargs):
+        raise error
+
+    monkeypatch.setattr(mod.subprocess, 'Popen', fail)
+    monkeypatch.setattr(mod.time, 'monotonic', lambda: 1)
+    mod._command_worker(request)
+    reply = json.loads((tmp_path / 'reply.json').read_text())
+    assert reply['code'] is None
+    assert reply['launch_error'] == dict(type='OSError', message=str(error), errno=7, winerror=206)
+    assert reply['request_sha256'] == mod.hashlib.sha256(request.read_bytes()).hexdigest()
+
+
+def test_windows_argv_preflight_counts_serialized_utf16_before_any_launch(tmp_path):
+    mod = api()
+    command = mod.DockerCommand(tmp_path, executable='C:/approved/docker.exe')
+    for arg in ['x' * 32000, chr(0x1f600) * 16000]:
+        with pytest.raises(ValueError, match='command line'):
+            command([arg], timeout=8)
+    assert not list(tmp_path.iterdir())
+    argv = ['C:/path with spaces/docker.exe', 'a"b', chr(0x1f600)]
+    assert mod.windows_argv_units(argv) == len(mod.subprocess.list2cmdline(argv).encode('utf-16-le')) // 2 + 1

@@ -1,0 +1,56 @@
+"""Read a cached image through a never-started, mount-free owned container."""
+import hashlib,io,json,pathlib,subprocess,time,tarfile,uuid
+from source_attempt09_retry1 import resources,FLOOR
+P=pathlib.Path(__file__).parent/'debian-closure-plan'
+D='C:/Program Files/Docker/Docker/resources/bin/docker.exe'
+IMAGE='sha256:ff83a535339812dd72e69c93b3c48ddf7c85a324d6330af5797c82a255dbeef4'
+NAME='nbsr-debian-apt-simulation-'+uuid.uuid4().hex[:12]
+buf=io.BytesIO()
+with tarfile.open(fileobj=buf,mode='w') as tf:
+    for name in ['apt_simulate.py','verified-indexes.json','bookworm.Packages.xz','bookworm-updates.Packages.xz','bookworm-security.Packages.xz']:tf.add(P/name,arcname=name,recursive=False)
+payload=buf.getvalue();assert len(payload)<12*1024**2
+started=time.monotonic();before=resources();cleaning=False;attempted=False;cid=None
+result={'name':NAME,'image':IMAGE,'started_containers':1,'mounts':0,'files':{}}
+def run(args,check=True):
+    elapsed=time.monotonic()-started
+    if elapsed>(110 if cleaning else 60):raise TimeoutError('phase deadline')
+    if not cleaning:
+        r=resources()
+        assert r['disk']>=FLOOR and before['disk']-r['disk']<=300*1024**2 and min(r['ram'],r['commit'])>=2*1024**3
+    proc=subprocess.Popen([D]+args,stdin=subprocess.PIPE if args[0]=='start' else None,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    try:out,err=proc.communicate(input=payload if args[0]=='start' else None,timeout=min(40 if args[0]=='start' else 12,115-elapsed))
+    except subprocess.TimeoutExpired:
+        subprocess.run(['taskkill','/PID',str(proc.pid),'/T','/F'],capture_output=True,timeout=5)
+        out,err=proc.communicate(timeout=3)
+        raise TimeoutError('Docker command timeout: '+args[0])
+    with (P/'apt-simulation-v2-docker-log.jsonl').open('a') as log:log.write(json.dumps({'args':args,'returncode':proc.returncode,'stderr':err.decode(errors='replace')})+'\n')
+    if check and proc.returncode:raise RuntimeError(err.decode(errors='replace'))
+    return proc.returncode,out,err
+try:
+    assert before['disk']>=FLOOR+500*1024**2 and min(before['ram'],before['commit'])>=2*1024**3
+    attempted=True
+    _,out,_=run(['create','--interactive','--pull=never','--name',NAME,'--label','nbsr.role=debian-metadata','--network','none','--user','65532:65532','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--memory','512m','--memory-swap','512m','--cpus','1','--pids-limit','128','--tmpfs','/tmp:rw,noexec,nosuid,size=128m,mode=1777','--entrypoint','python3',IMAGE,'-B','-c',"import sys,tarfile,io,pathlib,runpy; p=pathlib.Path('/tmp/debian-closure-plan');p.mkdir();t=tarfile.open(fileobj=io.BytesIO(sys.stdin.buffer.read(12582913)));ms=t.getmembers();assert all(m.isfile() and '/' not in m.name and '..' not in m.name for m in ms);[(p/m.name).write_bytes(t.extractfile(m).read()) for m in ms];runpy.run_path(str(p/'apt_simulate.py'),run_name='__main__')"])
+    cid=out.decode().strip()
+    _,out,_=run(['inspect','--format','{{json .}}',cid]);row=json.loads(out)
+    assert row['Image']==IMAGE and row['Mounts']==[] and row['State']['Status']=='created' and not row['State']['Running']
+    assert row['Config']['User']=='65532:65532' and row['HostConfig']['NetworkMode']=='none'
+    (P/'apt-simulation-v2-inspect.json').write_text(json.dumps(row,indent=2))
+    _,out,_=run(['start','--attach','--interactive',cid]);(P/'apt-simulation.stdout').write_bytes(out)
+    result['status']='METADATA_COPIED'
+except BaseException as e:result['status']='FAILED';result['error']=str(e)
+finally:
+    cleaning=True
+    try:
+        if attempted:
+            code,out,err=run(['inspect','--format','{{json .}}',NAME],False)
+            if code==0:
+                row=json.loads(out);assert row['Image']==IMAGE and row['Config']['Labels'].get('nbsr.role')=='debian-metadata' and row['Name']=='/'+NAME
+                if row['State']['Running']:run(['kill',row['Id']])
+                run(['rm',row['Id']])
+            elif b'no such' not in err.lower():raise RuntimeError('ambiguous inspect')
+            code,out,err=run(['inspect',NAME],False);assert code!=0 and b'no such' in err.lower()
+        result['container_absent']=True
+    except BaseException as e:result['container_absent']=False;result['cleanup_error']=str(e)
+    result.update(elapsed=time.monotonic()-started,before=before,after=resources())
+    (P/'apt-simulation-v2-result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+if result['status']!='METADATA_COPIED' or not result['container_absent']:raise SystemExit(1)

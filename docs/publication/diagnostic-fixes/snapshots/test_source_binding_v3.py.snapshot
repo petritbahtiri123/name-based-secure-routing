@@ -1,0 +1,11 @@
+import unittest
+import source_attempt10 as d
+import diagnostic_source_budget_v3 as b
+import diagnostic_source_lifecycle_v3 as l
+class Binding(unittest.TestCase):
+ def test_actual_driver_uses_versioned_supervisor_and_lifecycle(self):
+  self.assertIs(d.DiagnosticCommand,b.DiagnosticCommand)
+  self.assertIs(d.CreateReconciler,b.CreateReconciler)
+  self.assertIs(d.SourceVolume,l.SourceVolume)
+  self.assertEqual(d.VOLUME,'nbsr-47d2ae4-source-10')
+if __name__=='__main__':unittest.main()

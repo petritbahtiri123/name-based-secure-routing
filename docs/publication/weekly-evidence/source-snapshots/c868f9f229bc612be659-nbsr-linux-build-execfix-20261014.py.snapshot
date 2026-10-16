@@ -1,0 +1,160 @@
+import hashlib,importlib.util,json,re,sys,time,shutil,ctypes
+from pathlib import Path
+SOURCE=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+SNAPSHOT=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-cargo-resolution-input-b09a851')
+OUT=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-linux-build-b09a851-20261014-once-execfix')
+EVIDENCE=Path('C:/Users/OPERATOR/OneDrive/Documents/NBSR/evidence/local-handoff')
+IMAGE='sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d'
+NAME='nbsr-linux-build-b09a851-20261014-once-execfix'
+LABEL='nbsr.prerequisite=linux-build-b09a851-20261014-once-execfix'
+sys.path.insert(0,str(SOURCE))
+from scripts.performance.windows_docker_provisioning import CellBudget,DockerCommand,windows_argv_units
+spec=importlib.util.spec_from_file_location('guard',Path(__file__).with_name('nbsr-prerequisite-containment-20261013.py'));g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
+assert not OUT.exists(), 'exact output must be absent'
+def sample():
+ v=g.Memory();v.length=ctypes.sizeof(v)
+ if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(v)):raise RuntimeError('memory unavailable')
+ return dict(disk_free=shutil.disk_usage(OUT.parent).free,ram_free=v.free,commit_free=v.page_free)
+initial=sample()
+def guard(start=False):
+ v=sample()
+ if v['disk_free']<8*2**30 or initial['disk_free']-v['disk_free']>300*2**20 or min(v['ram_free'],v['commit_free'])<(4 if start else 2)*2**30:raise RuntimeError('one-run resource stop: '+json.dumps(v))
+ return v
+guard(True)
+manifest=json.loads((EVIDENCE/'2026-10-13-cargo-resolution-snapshot/manifest.json').read_text())
+assert manifest['head']=='b09a85187d1e27250a1aec2e76f7a5bcdef84611'
+expected={x['path'] for x in manifest['files']}
+assert {p.relative_to(SNAPSHOT).as_posix() for p in SNAPSHOT.rglob('*') if p.is_file()}==expected
+for p in [SNAPSHOT,*SNAPSHOT.parents,*SNAPSHOT.rglob('*')]:assert not p.lstat().st_file_attributes & 0x400
+for x in manifest['files']:
+ data=(SNAPSHOT/x['path']).read_bytes();assert len(data)==x['bytes'] and hashlib.sha256(data).hexdigest()==x['sha256']
+assert hashlib.sha256((SNAPSHOT/'Cargo.lock').read_bytes()).hexdigest()=='976ace41027ae90bebbe2229a1575c1f0c7bc5e71b1847804f4d6d33404c21f8'
+script=r'''set -eu
+export HOME=/scratch CARGO_HOME=/scratch/cargo CARGO_TARGET_DIR=/scratch/target RUSTUP_HOME=/usr/local/rustup RUSTUP_AUTO_INSTALL=0 CARGO_NET_OFFLINE=true CARGO_BUILD_JOBS=1 TMPDIR=/scratch CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0
+unset RUSTFLAGS CARGO_ENCODED_RUSTFLAGS CARGO_BUILD_RUSTFLAGS CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS
+[ ! -e /.cargo/config ] && [ ! -e /.cargo/config.toml ]
+mkdir -p /scratch/cargo/registry
+for part in index cache src; do ln -s /usr/local/cargo/registry/$part /scratch/cargo/registry/$part; done
+cd /scratch
+mkdir -m 700 /scratch/target
+awk '$5 == "/scratch" { n++; print; opts="," $6 ","; if (opts !~ /,rw,/ || opts !~ /,nosuid,/ || opts !~ /,nodev,/ || opts ~ /,noexec,/) bad=1; found=0; for(i=7;i<=NF;i++) if($i=="-") { found=1; if($(i+1)!="tmpfs" || ("," $(i+3) ",") ~ /,noexec,/) bad=1; } if(!found) bad=1 } index($5,"/scratch/")==1 { bad=1; print } END { if(n!=1 || bad) exit 42 }' /proc/self/mountinfo >/out/scratch-mount.txt
+stat -c '%a %u %g %F %n' /scratch /scratch/target >/out/preflight-modes.txt
+cp /usr/bin/true /scratch/target/exec-preflight
+chmod 700 /scratch/target/exec-preflight
+cmp /usr/bin/true /scratch/target/exec-preflight
+[ "$(stat -c '%a' /scratch/target/exec-preflight)" = 700 ]
+[ -f /scratch/target/exec-preflight ] && [ ! -L /scratch/target/exec-preflight ]
+stat -c '%a %u %g %F %n' /scratch/target/exec-preflight >>/out/preflight-modes.txt
+sha256sum /usr/bin/true /scratch/target/exec-preflight >/out/preflight-sha256.txt
+/usr/bin/timeout --signal=KILL 5 /scratch/target/exec-preflight
+printf 'DIRECT_EXEC_PASS\n' >/out/preflight-status.txt
+rustc --version >/out/toolchain.txt
+cargo --version >>/out/toolchain.txt
+set +e
+( /usr/bin/timeout --signal=KILL 120 cargo build --locked --offline --target x86_64-unknown-linux-gnu --features benchmark-harness --jobs 1 --manifest-path /input/Cargo.toml --bin perf_direct_peer --bin perf_rust_source --bin wp8_interop_server; printf '%s' "$?" >/out/cargo-exit.txt ) 2>&1 | head -c 8388608 >/out/build.log
+set -e
+[ -f /out/cargo-exit.txt ] || exit 3
+rc=$(cat /out/cargo-exit.txt)
+[ "$(wc -c </out/build.log)" -lt 8388608 ] || exit 4
+[ "$rc" = 0 ] || exit "$rc"
+total=0
+for name in perf_direct_peer perf_rust_source wp8_interop_server; do
+ p=/scratch/target/x86_64-unknown-linux-gnu/debug/$name
+ [ -f "$p" ] && [ ! -L "$p" ] || exit 5
+ n=$(wc -c <"$p");total=$((total+n))
+done
+[ "$total" -le 67108864 ] || exit 6
+mkdir /out/bin
+for name in perf_direct_peer perf_rust_source wp8_interop_server; do cp /scratch/target/x86_64-unknown-linux-gnu/debug/$name /out/bin/$name; done
+sha256sum /out/bin/perf_direct_peer /out/bin/perf_rust_source /out/bin/wp8_interop_server >/out/binaries.sha256
+printf 'BUILD_AND_COPY_COMPLETE\n'
+'''
+args=['create','--pull=never','--name',NAME,'--label',LABEL,'--network','none','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--pids-limit','64','--cpus','1','--memory','2g','--memory-swap','2g','--workdir','/scratch','--mount','type=bind,source='+str(SNAPSHOT)+',target=/input,readonly','--mount','type=bind,source='+str(OUT/'artifacts')+',target=/out','--tmpfs','/scratch:rw,exec,nosuid,nodev,size=768m','--entrypoint','/usr/bin/timeout',IMAGE,'--signal=KILL','180','/bin/sh','-c',script]
+units=windows_argv_units(['C:/Program Files/Docker/Docker/resources/bin/docker.exe',*args])
+r=dict(approval='Sentinel_f1a97bbb9f3081918744e55f9c918a08',status='NOT_RUN',cleanup='UNCONFIRMED',events=[],resources_start=guard(True),historical_baseline=14247788544,historical_growth=14247788544-initial["disk_free"],exception="one run only; historical 2GiB stop suspended, original baseline retained;300MiB new volume growth/8GiB free stop",argv_units=units,source_head=manifest['head'],snapshot_manifest_sha256=hashlib.sha256((EVIDENCE/'2026-10-13-cargo-resolution-snapshot/manifest.json').read_bytes()).hexdigest())
+OUT.mkdir(exist_ok=False)
+(OUT/"artifacts").mkdir()
+(OUT/"guest").mkdir()
+budget=CellBudget(clock=time.monotonic,work_seconds=240,total_seconds=300)
+command=DockerCommand(OUT,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe',clock=time.monotonic,max_timeout=122,trial_budget=budget,guard=guard)
+cid=None
+create_attempted=False
+
+def call(args,stage,cleanup=False):
+ timeout=62 if stage=='create' else 122 if stage=='wait_build' else 8
+ v=command(args,timeout=timeout,cleanup=cleanup)
+ r['events'].append(dict(stage=stage,code=v.code,stdout=v.stdout,stderr=v.stderr,elapsed=time.monotonic()-budget.started))
+ return v
+
+
+def absent(v,identity):
+ return v.code==1 and not v.stdout.strip() and v.stderr.strip().lower() in tuple(p+identity for p in ['error: no such container: ','error: no such object: ','error response from daemon: no such container: '])
+
+
+try:
+ v=call(['image','inspect',IMAGE,'--format','{"Id":{{json .Id}},"Os":{{json .Os}},"Architecture":{{json .Architecture}}}'],'image_reinspection')
+ if v.code or json.loads(v.stdout)!={'Id':IMAGE,'Os':'linux','Architecture':'amd64'}:raise RuntimeError('image prerequisite failed')
+ guest=DockerCommand(OUT/'guest',executable='C:/Windows/System32/wsl.exe',clock=time.monotonic,max_timeout=122,trial_budget=budget,guard=guard)
+ v=guest(['-d','docker-desktop','--exec','cat','/proc/meminfo'],timeout=8)
+ r['guest_memory']=v.stdout
+ fields={line.split(':')[0]:int(line.split()[1])*1024 for line in v.stdout.splitlines() if ':' in line}
+ if v.code or fields.get('MemAvailable',0)<4*2**30:raise RuntimeError('guest headroom prerequisite failed')
+ guard(True)
+ create_attempted=True
+ v=call(args,'create')
+ if v.code or not re.fullmatch('[0-9a-f]{64}',v.stdout.strip()):raise RuntimeError('create failed/no exact ID')
+ cid=v.stdout.strip()
+ fmt='{"Id":{{json .Id}},"Image":{{json .Image}},"Labels":{{json .Config.Labels}},"HostConfig":{{json .HostConfig}},"Mounts":{{json .Mounts}},"Running":{{json .State.Running}}}'
+ v=call(['inspect','--type','container','--format',fmt,cid],'verify_isolation')
+ if v.code:raise RuntimeError('isolation inspect failed')
+ row=json.loads(v.stdout);h=row['HostConfig'];mounts=row['Mounts'];binds=[m for m in mounts if m['Type']=='bind'];tmp=[m for m in mounts if m['Type']=='tmpfs']
+ expected=dict(NetworkMode='none',ReadonlyRootfs=True,CapDrop=['ALL'],SecurityOpt=['no-new-privileges'],PidsLimit=64,NanoCpus=1000000000,Memory=2147483648,MemorySwap=2147483648,Privileged=False)
+ if row['Id']!=cid or row['Image']!=IMAGE or row['Labels'].get('nbsr.prerequisite')!=LABEL.split('=',1)[1] or row['Running'] is not False or any(h.get(k)!=v for k,v in expected.items()) or h.get('PortBindings'):raise RuntimeError('isolation identity mismatch')
+ if len(binds)!=2:raise RuntimeError('mount count')
+ for target,source,rw in [('/input',SNAPSHOT,False),('/out',OUT/'artifacts',True)]:
+  selected=[m for m in binds if m['Destination']==target]
+  if len(selected)!=1 or selected[0]['RW'] is not rw or Path(selected[0]['Source']).resolve()!=source.resolve():raise RuntimeError('exact mount mismatch')
+ if h.get('Tmpfs')!={'/scratch':'rw,exec,nosuid,nodev,size=768m'} or len(tmp)>1 or any(m['Destination']!='/scratch' for m in tmp) or len(mounts)!=len(binds)+len(tmp):raise RuntimeError('scratch mismatch')
+ r['isolation_verified']=True
+ v=call(['start',cid],'start_build')
+ if v.code:raise RuntimeError('start failed')
+ v=call(['wait',cid],'wait_build')
+ if v.code or not re.fullmatch('[0-9]+',v.stdout.strip()):raise RuntimeError('wait failed')
+ r['container_exit']=int(v.stdout.strip())
+ v=call(['logs',cid],'read_build_output')
+ if v.code:raise RuntimeError('log collection failed')
+ r['container_output']=v.stdout;r['container_stderr']=v.stderr
+ if r['container_exit']==0:
+  bins=OUT/'artifacts/bin';names=['perf_direct_peer','perf_rust_source','wp8_interop_server']
+  if sorted(p.name for p in bins.iterdir())!=sorted(names):raise RuntimeError('binary inventory')
+  r['binaries']={n:dict(bytes=(bins/n).stat().st_size,sha256=hashlib.sha256((bins/n).read_bytes()).hexdigest()) for n in names}
+  if sum(x['bytes'] for x in r['binaries'].values())>64*2**20:raise RuntimeError('binary cap')
+  expected=''.join(r['binaries'][n]['sha256']+'  /out/bin/'+n+'\n' for n in names)
+  if (OUT/'artifacts/binaries.sha256').read_text()!=expected:raise RuntimeError('host binary hash mismatch')
+ r['status']='BUILD_PASS' if r['container_exit']==0 else 'BUILD_FAILED'
+except BaseException as e:r.update(status='BLOCKED',primary_error=dict(type=type(e).__name__,message=str(e)))
+finally:
+ r['created_id']=cid
+ if not create_attempted:r['cleanup']='NO_CREATION_ATTEMPTED'
+ else:
+  try:
+   if command.owner is not None and command.owner.owned:raise RuntimeError('command owner retained')
+   fmt='{"Id":{{json .Id}},"Image":{{json .Image}},"Labels":{{json .Config.Labels}},"Running":{{json .State.Running}}}'
+   v=call(['inspect','--type','container','--format',fmt,cid or NAME],'identify_owned',True)
+   if absent(v,cid or NAME):r['cleanup']='ABSENT_AT_OBSERVATION'
+   elif v.code==0:
+    row=json.loads(v.stdout);identity=row['Id']
+    if not re.fullmatch('[0-9a-f]{64}',identity) or (cid and identity!=cid) or row['Image']!=IMAGE or row['Labels'].get('nbsr.prerequisite')!=LABEL.split('=',1)[1]:raise RuntimeError('cleanup identity mismatch')
+    v=call(['rm','--force',identity],'remove_exact_id',True)
+    if v.code:raise RuntimeError('remove failed')
+    v=call(['inspect','--type','container','--format','{{.Id}}',identity],'independent_absence',True)
+    if not absent(v,identity):raise RuntimeError('absence unconfirmed')
+    r['cleanup']='EXACT_ID_REMOVED_AND_ABSENT'
+   else:raise RuntimeError('cleanup identity unavailable')
+  except BaseException as e:r['cleanup_error']=dict(type=type(e).__name__,message=str(e))
+ r['elapsed']=time.monotonic()-budget.started;r['command_owned']=None if command.owner is None else command.owner.owned
+ r['guest_owned']=None if 'guest' not in globals() or guest.owner is None else guest.owner.owned
+ r['artifact_inventory']={str(p.relative_to(OUT/'artifacts')):dict(bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in (OUT/'artifacts').rglob('*') if p.is_file()}
+ try:r['resources_end']=sample()
+ except BaseException as e:r['resource_error']=str(e)
+ (OUT/'result.json').write_text(json.dumps(r,indent=2));print(json.dumps({k:v for k,v in r.items() if k not in ['events','guest_memory']}))

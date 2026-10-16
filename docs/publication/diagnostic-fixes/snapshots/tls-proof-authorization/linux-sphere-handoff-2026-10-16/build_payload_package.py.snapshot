@@ -1,0 +1,44 @@
+import hashlib,io,json,shutil,sys,time,zipfile
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+FLOOR=15210246144
+start=time.monotonic()
+def digest(b):return hashlib.sha256(b).hexdigest()
+def guard():
+ if time.monotonic()-start>60:raise TimeoutError('packaging work limit')
+ if shutil.disk_usage('C:/').free<FLOOR+1048576:raise RuntimeError('original cumulative disk ceiling/reserve')
+def build():
+ m=json.loads((HERE/'reproducibility-manifest.json').read_text()); members={}
+ for x in m['binary_files']:
+  p=Path(x['path']);b=p.read_bytes();assert digest(b)==x['sha256'];members['bin/'+p.name]=(b,0o755)
+ for x in m['referenced_artifacts']:
+  p=Path(x['path'])
+  if p.name in ['source-presentation-440.tar','source-presentation-inventory.json','debug-build-manifest.json','runtime-image-profile-v2.json','diagnostic-requirements.lock']:
+   b=p.read_bytes();assert digest(b)==x['sha256'];members['inputs/'+p.name]=(b,0o644)
+ for n in ['reproducibility-manifest.json','HANDOFF.md','REMOTE-ACCESS-PLAN.md','build_payload_package.py']:
+  members['handoff/'+n]=((HERE/n).read_bytes(),0o644)
+ for rel in ['result.json','runtime/socket-process-cleanup.json','runtime/management/coordinator/result.json','output/source/peer/validated-result.json']:
+  p=HERE.parents[2]/'nbsr-tls-proof-01-retry3'/rel
+  members['local-evidence/'+rel]=(p.read_bytes(),0o644)
+ notice='LOCAL PAYLOAD PACKAGE ONLY. Not a turnkey deployment. Includes verified Linux amd64 debug binaries, public source presentation and manifests. Requires separately provisioned exact clean Git checkout (47d2ae41df49fedd21768db5fa6be71377acebf3), runtime dependencies, fixture projection, fresh authorized TLS, remote supervisor, and approved hosts/network. No image, Git object database or private keys included. Do not run historical retry3 or use local paths on Linux. HANDOFF.md predates packaging approval; PACKAGE-RESULT.json outside this archive records actual packaging. No upload authorized.\n'
+ members['README.txt']=(notice.encode(),0o644)
+ index={n:{'sha256':digest(b),'bytes':len(b),'mode':mode} for n,(b,mode) in sorted(members.items())}
+ members['CONTENTS.json']=(json.dumps(index,sort_keys=True,indent=2).encode(),0o644)
+ sink=io.BytesIO()
+ with zipfile.ZipFile(sink,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+  for n,(b,mode) in sorted(members.items()):
+   guard();i=zipfile.ZipInfo(n,(1980,1,1,0,0,0));i.create_system=3;i.compress_type=zipfile.ZIP_DEFLATED;i.external_attr=(0o100000|mode)<<16;z.writestr(i,b,compresslevel=6)
+ return sink.getvalue(),index
+if __name__=='__main__':
+ guard();a,index=build();b,index2=build();assert a==b and index==index2
+ with zipfile.ZipFile(io.BytesIO(a)) as z:
+  assert z.testzip() is None
+  assert set(z.namelist())==set(index)|{'CONTENTS.json'}
+  for n,x in index.items():assert digest(z.read(n))==x['sha256']
+ free=shutil.disk_usage('C:/').free;assert len(a)+1048576<=free-FLOOR
+ path=HERE/'nbsr-linux-debug-payload-47d2ae4.zip'
+ with path.open('xb') as f:
+  for offset in range(0,len(a),262144):guard();f.write(a[offset:offset+262144]);f.flush()
+ assert digest(path.read_bytes())==digest(a)
+ result={'status':'LOCAL_PAYLOAD_PACKAGED_VERIFIED','standalone':False,'archive':str(path),'bytes':len(a),'sha256':digest(a),'members':len(index)+1,'two_in_memory_builds_identical':True,'all_members_hash_verified':True,'free_bytes_after':shutil.disk_usage('C:/').free,'remaining_bytes':shutil.disk_usage('C:/').free-FLOOR,'original_baseline':15524818944,'cap_bytes':314572800,'elapsed_seconds':time.monotonic()-start,'excluded':['Git object database','runtime image','credentials','full raw trial evidence'],'requirements':'See README.txt and handoff/HANDOFF.md; not deployable until exact checkout/dependencies/remote supervision and approvals are resolved.'}
+ (HERE/'PACKAGE-RESULT.json').write_text(json.dumps(result,indent=2));(HERE/(path.name+'.sha256')).write_text(digest(a)+'  '+path.name+'\n');print(json.dumps(result))

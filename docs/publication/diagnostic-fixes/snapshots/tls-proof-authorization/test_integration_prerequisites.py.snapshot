@@ -1,0 +1,22 @@
+import json,unittest
+from pathlib import Path
+from scripts.performance.windows_native_management import bind_config,CellBudget
+from scripts.performance.local_container_disposal import Container,Unconfirmed
+from scripts.performance.local_container_sequence import Plan
+from scripts.performance.linux_native_finite_run import validate_config
+P=Path(__file__).resolve().parent
+class Prerequisites(unittest.TestCase):
+ def config(self):return json.loads((P/'finite-config.proposed.json').read_text())
+ def plan(self,ids):return Plan('tls_proof_01',False,json.dumps(self.config()).encode(),tuple(Container('tls_proof_01',role,identity,True) for role,identity in zip(('source','destination'),ids)),(),())
+ def test_config_accepts_same_container_distinct_role_outputs(self):validate_config(self.config())
+ def test_existing_windows_owner_binding_rejects_single_container(self):
+  with self.assertRaisesRegex(Unconfirmed,'invalid current endpoint binding'):bind_config(self.plan(('a'*64,'a'*64)))
+ def test_distinct_container_control_still_binds_exact_ids(self):
+  result=bind_config(self.plan(('a'*64,'b'*64)))
+  self.assertEqual(result['source']['host'],'a'*64);self.assertEqual(result['destination']['host'],'b'*64)
+ def test_existing_work_budget_exceeds_approved_cutoff(self):
+  now=[0.0];b=CellBudget(clock=lambda:now[0]);now[0]=60.0;b.check_work()
+  now[0]=94.0;b.check_work()
+  now[0]=95.0
+  with self.assertRaises(TimeoutError):b.check_work()
+if __name__=='__main__':unittest.main()

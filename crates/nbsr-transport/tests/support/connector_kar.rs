@@ -2,6 +2,155 @@ use super::*;
 use crate::codec::{decode_value, encode};
 use serde_json::Value as J;
 
+fn composed_fixture() -> (Vec<u8>, Vec<u8>, SuppliedTestRoot, ExpectedKey) {
+    let fixture: J = serde_json::from_str(include_str!(
+        "../fixtures/connector-kar-genesis-positive.json"
+    ))
+    .unwrap();
+    assert_eq!(fixture["id"], "test-only-kar-genesis-purpose3-positive-v1");
+    assert_eq!(fixture["runtime_authorized"], false);
+    let (payload, root, expected) = recipe();
+    assert_eq!(hex(fixture["payload"].as_str().unwrap()), payload);
+    (
+        hex(fixture["wire"].as_str().unwrap()),
+        payload,
+        root,
+        expected,
+    )
+}
+
+#[test]
+fn composed_genesis_accepts_exact_subject_and_inclusive_validity() {
+    let (wire, payload, mut root, expected) = composed_fixture();
+    for now in [1000, 1500, 2000] {
+        let checked = verify_genesis(&wire, &payload, &root, &expected, now).unwrap();
+        assert_eq!(checked._payload, payload);
+    }
+    root.expires = 1500;
+    assert!(verify_genesis(&wire, &payload, &root, &expected, 1500).is_ok());
+    root.not_before = 1500;
+    root.expires = 2100;
+    assert!(verify_genesis(&wire, &payload, &root, &expected, 1500).is_ok());
+}
+
+#[test]
+fn composed_genesis_rejects_wrong_time_and_subject_bindings() {
+    let (wire, payload, root, expected) = composed_fixture();
+    for now in [999, 2001] {
+        assert_eq!(
+            verify_genesis(&wire, &payload, &root, &expected, now).err(),
+            Some("KAR validity")
+        );
+    }
+    for purpose in [12, 14] {
+        let mut wrong = expected.clone();
+        wrong.purpose = purpose;
+        assert_eq!(
+            verify_genesis(&wire, &payload, &root, &wrong, 1500).err(),
+            Some("exact child purpose")
+        );
+    }
+    let mut wrong = expected.clone();
+    wrong.operator[0] ^= 1;
+    assert_eq!(
+        verify_genesis(&wire, &payload, &root, &wrong, 1500).err(),
+        Some("operator binding")
+    );
+    let mut wrong = expected.clone();
+    wrong.kid.push(0);
+    assert_eq!(
+        verify_genesis(&wire, &payload, &root, &wrong, 1500).err(),
+        Some("expected child identity")
+    );
+    let mut wrong = expected.clone();
+    wrong.key[0] ^= 1;
+    assert_eq!(
+        verify_genesis(&wire, &payload, &root, &wrong, 1500).err(),
+        Some("expected child identity")
+    );
+    let mut wrong = expected.clone();
+    wrong.terminal_ids.push(expected.kid.clone());
+    assert_eq!(
+        verify_genesis(&wire, &payload, &root, &wrong, 1500).err(),
+        Some("terminal key ID")
+    );
+    let mut wrong_payload = payload.clone();
+    wrong_payload[0] ^= 1;
+    assert_eq!(
+        verify_genesis(&wire, &wrong_payload, &root, &expected, 1500).err(),
+        Some("signature payload context mismatch")
+    );
+}
+
+#[test]
+fn composed_genesis_rejects_ineligible_or_mismatched_root() {
+    let (wire, payload, root, expected) = composed_fixture();
+    let mut cases = Vec::new();
+    let mut wrong = root.clone();
+    wrong.kid.push(0);
+    cases.push(wrong);
+    let mut wrong = root.clone();
+    wrong.key[0] ^= 1;
+    cases.push(wrong);
+    let mut wrong = root.clone();
+    wrong.operator[0] ^= 1;
+    cases.push(wrong);
+    let mut wrong = root.clone();
+    wrong.purpose = 3;
+    cases.push(wrong);
+    let mut wrong = root.clone();
+    wrong.lifecycle = 3;
+    cases.push(wrong);
+    let mut wrong = root.clone();
+    wrong.revoked = true;
+    cases.push(wrong);
+    let mut wrong = root.clone();
+    wrong.not_before = 1501;
+    cases.push(wrong);
+    let mut wrong = root.clone();
+    wrong.expires = 1499;
+    cases.push(wrong);
+    for wrong in cases {
+        assert!(verify_genesis(&wire, &payload, &wrong, &expected, 1500).is_err());
+    }
+}
+
+#[test]
+fn composed_genesis_rejects_unsigned_mutations_at_signature_boundary() {
+    let (wire, payload, root, expected) = composed_fixture();
+    let mut signature_changed = wire.clone();
+    *signature_changed.last_mut().unwrap() ^= 1;
+    assert_eq!(
+        verify_genesis(&signature_changed, &payload, &root, &expected, 1500).err(),
+        Some("invalid signature")
+    );
+    let at = wire
+        .windows(payload.len())
+        .position(|p| p == payload)
+        .unwrap();
+    let mut payload_changed = payload.clone();
+    *payload_changed.last_mut().unwrap() ^= 1;
+    let mut altered = wire.clone();
+    altered[at..at + payload.len()].copy_from_slice(&payload_changed);
+    // Supply the altered payload too: rejection must be cryptographic, not just byte equality.
+    assert_eq!(
+        verify_genesis(&altered, &payload_changed, &root, &expected, 1500).err(),
+        Some("invalid signature")
+    );
+    let mut trailing = wire.clone();
+    trailing.push(0);
+    let mut noncanonical = vec![0xd8, 0x12];
+    noncanonical.extend_from_slice(&wire[1..]);
+    let bstr_header = encode(&V::Bytes(payload.clone())).len() - payload.len();
+    let mut detached = wire[..at - bstr_header].to_vec();
+    detached.push(0xf6);
+    detached.extend_from_slice(&wire[at + payload.len()..]);
+    for invalid in [trailing, noncanonical, detached] {
+        assert!(signature::verify_exact(&invalid, &payload, &root.kid, &root.key).is_err());
+        assert!(verify_genesis(&invalid, &payload, &root, &expected, 1500).is_err());
+    }
+}
+
 #[test]
 fn existing_unsigned_transport_recipe_cannot_authorize_normal_revocation() {
     // Exact public payload recipe from test_connector_registration_authority_offline.py.

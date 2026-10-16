@@ -1,0 +1,108 @@
+from pathlib import Path
+import difflib
+import hashlib
+import json
+import shutil
+
+root = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+before = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-docker-before-20261013')
+logs = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-evidence-20261012')
+out = Path('C:/Users/OPERATOR/OneDrive/Documents/NBSR/evidence/local-handoff/2026-10-13-windows-docker-provisioning')
+out.mkdir(exist_ok=False)
+files = ['scripts/performance/windows_docker_provisioning.py',
+         'tests/performance/test_windows_docker_provisioning.py', 'AGENTS.md',
+         'docs/benchmarks/SPHERE_MINIMAL_INTEGRATION_2026-10-13.md',
+         'docs/reviews/2026-10-13-windows-docker-provisioning.md']
+patch = []
+for name in files:
+    target = out / 'source' / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(root / name, target)
+    previous = before / Path(name).name
+    old = previous.read_text() if previous.exists() else ''
+    if previous.exists():
+        saved = out / 'before' / name
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(previous, saved)
+    patch.extend(difflib.unified_diff(old.splitlines(True), target.read_text().splitlines(True),
+                 fromfile='a/' + name if previous.exists() else '/dev/null', tofile='b/' + name))
+(out / 'change.patch').write_text(''.join(patch), encoding='utf-8')
+for label in ('docker-provision-red', 'docker-provision-green', 'docker-provision-boundary-red',
+              'docker-provision-boundary-green', 'docker-provision-review-red',
+              'docker-provision-final', 'docker-provision-ruff'):
+    for suffix in ('.json', '.stdout.log', '.stderr.log'):
+        shutil.copyfile(logs / (label + suffix), out / (label + suffix))
+shutil.copyfile(logs / 'source-manifest.json', out / 'materialization-source-manifest.json')
+shutil.copyfile(Path(__file__), out / Path(__file__).name)
+dependencies = ['windows_native_management.py', 'windows_job_backend.py', 'local_container_disposal.py',
+                'local_container_sequence.py', 'process_cancellation.py', 'linux_native_finite_run.py',
+                'linux_native_watchdog.py', 'linux_native_lifecycle_remote.py', 'linux_native_peer.py', 'authority.py']
+(out / 'source-identity.json').write_text(json.dumps({
+    'source_root': str(root), 'branch': 'kar-positive-local', 'head': None, 'tracked_files': 0,
+    'materialization_base': 'ad77d59754651fee449bb1d9c14a946f9f3b2d15',
+    'meaning': 'Unborn Git materialization with prior local work; base alone does not identify current source.',
+    'changed_files': files,
+    'dependency_sha256': {name: hashlib.sha256((root / 'scripts/performance' / name).read_bytes()).hexdigest()
+                          for name in dependencies},
+    'no_binaries_built': True, 'docker_execution': 'NOT_RUN', 'native_job_execution': 'NOT_RUN',
+}, indent=2) + '\n')
+(out / 'independent-review.md').write_text('''# Independent scoped review
+
+Reviewer /root/kar_positive_review performed read-only source review and targeted
+artifact inventory. Findings: before-start Docker NetworkID can be empty; typed
+container inspection can report a different exact missing-container diagnostic.
+The regressions retained in review-red reproduced both, plus the output-parent
+issue found during integration review. Corrections preserve exact configured
+network identity before start and exact attachment after start, full-ID absence
+matching and disjoint immediate evidence children.
+
+Follow-up: no remaining material blocker found in this offline adapter review.
+Reviewer did not rerun the reported160 tests. Native Docker/Win32 compatibility
+remains unvalidated; this is not live-readiness approval.
+
+Inventory correction: isolated .git exists as a hidden directory; HEAD is unborn
+and all materialized files untracked. No usable Linux release manifest or public
+TLS set established in the known inspected locations. No private content read.
+''', encoding='utf-8')
+(out / 'checkpoint.json').write_text(json.dumps({
+    'status': 'OFFLINE_ADAPTER_PREPARED_LIVE_NOT_RUN',
+    'tests': {'passed': 160, 'new': 25, 'neighbors': 135, 'pytest_seconds': 3.20,
+              'supervised_seconds': 4.42, 'ruff': 'PASS'},
+    'retained_red': [{'failed': 13, 'passed': 0}, {'failed': 6, 'passed': 14},
+                     {'failed': 3, 'passed': 1, 'deselected': 18}],
+    'earlier_ruff': '15 E701 findings in new tests; corrected by formatting; initial output in tool transcript',
+    'disk_end_bytes': 13944516608, 'ram_available_bytes': 7064518656,
+    'cleanup': {'all_supervised_children_reaped': True, 'containers_created': 0,
+                'resource_abort': None},
+    'blockers': ['approved clean reviewed source', 'verified cached Linux runtime/toolchain/dependencies',
+                 'matching release manifest/binaries', 'exact approved TLS inputs',
+                 'live native containment/engine compatibility and rehearsal authorization'],
+    'approval_bundle': 'source/docs/reviews/2026-10-13-windows-docker-provisioning.md',
+    'original_repo_sources_untouched': True,
+}, indent=2) + '\n')
+(out / 'README.md').write_text('''# Concrete Windows Docker provisioning checkpoint
+
+Offline preparation complete: concrete bounded host CLI and exact-ID two-endpoint
+provisioning adapter,25 new deterministic tests,160 scoped passes and Ruff PASS.
+Independent review corrections verified. No live Docker/Win32 calls, traffic,
+builds, downloads, credentials, signing, commits, pushes or settings changes.
+
+Five changed files are retained under source/, with exact patch and two before
+snapshots. Source remains in the isolated materialization; original dirty sources
+were not edited. Prior evidence is preserved. See checkpoint.json and the review
+document for measured results, artifact blockers and one proposed live approval
+bundle. Historical base/commit fields do not identify the uncommitted source alone.
+
+The known cache is Windows debug; no usable Linux release manifest or unexpired
+TLS fixture was established. This is not evidence of live QUIC exchange or native
+containment. Do not bypass the clean-source/build/fixture gates.
+''', encoding='utf-8')
+inventory = {p.relative_to(out).as_posix(): {'bytes': p.stat().st_size,
+             'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
+             for p in sorted(out.rglob('*')) if p.is_file()}
+(out / 'inventory.json').write_text(json.dumps(inventory, indent=2) + '\n')
+for name, item in inventory.items():
+    assert hashlib.sha256((out / name).read_bytes()).hexdigest() == item['sha256']
+print(json.dumps({'bundle': str(out), 'verified_entries': len(inventory),
+    'patch_sha256': hashlib.sha256((out / 'change.patch').read_bytes()).hexdigest(),
+    'inventory_sha256': hashlib.sha256((out / 'inventory.json').read_bytes()).hexdigest()}))

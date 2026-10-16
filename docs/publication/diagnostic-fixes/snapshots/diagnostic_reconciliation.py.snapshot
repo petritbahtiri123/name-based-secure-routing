@@ -1,0 +1,281 @@
+"""Guarded standalone proposal. Importing this module performs no native operations.
+
+The command loop is a reviewable copy of pinned DockerCommand.__call__, with
+create-only opt-in allocation and a shared absolute deadline. WindowsOwner,
+Cancellation, the worker, and the native backend are the pinned existing code.
+Fake-backend tests do not establish live containment or daemon cancellation.
+"""
+import hashlib
+import json
+import math
+from pathlib import Path
+import re
+import sys
+
+from scripts.performance import windows_docker_provisioning as provisioning
+from scripts.performance import windows_native_management as management
+from scripts.performance import windows_job_backend as native
+from scripts.performance import process_cancellation as cancellation_module
+from scripts.performance.local_container_disposal import Unconfirmed
+from diagnostic_absence import absence_confirmed
+from diagnostic_labels import load_profile, container_labels
+
+WindowsOwner = management.WindowsOwner
+Cancellation = cancellation_module.Cancellation
+CommandResult = provisioning.CommandResult
+SUPPORT_ROOT = Path('C:/Users/PUBLIC_USER/AppData/Local/Temp/nbsr-runtime-47d2ae4-v5/repo/scripts/performance')
+SOURCE_PINS = {
+    'windows_docker_provisioning': 'e22c18ea76a34333f282612e367ff57c12732ffebd8ec2aaaaea86688955aca5',
+    'windows_native_management': 'e89d236476db0367ea45ac56d643e23ed3cef0eab0344f2e7bbf63689c8892f5',
+    'windows_job_backend': 'dc7c955c3159c4182b98eeb717ce27a9798409542d97f6f5c248afacffd3d1af',
+    'process_cancellation': '29adfd385bfdf9d51304269e576bed71fbd9cb3885653a5de50085549079107c',
+}
+PROFILE_PIN = 'ec3029fbadcb42692c0bc12b8d7b87bd0dca720ff77216d556843980a71737f2'
+
+
+def verify_support_sources():
+    for module in (provisioning, management, native, cancellation_module):
+        name = module.__name__.rsplit('.', 1)[-1]
+        path = Path(module.__file__).resolve()
+        if (path != (SUPPORT_ROOT / (name + '.py')).resolve()
+                or hashlib.sha256(path.read_bytes()).hexdigest() != SOURCE_PINS[name]):
+            raise Unconfirmed('standalone supervisor source identity mismatch: ' + name)
+
+
+class DiagnosticCommand(provisioning.DockerCommand):
+    def __init__(self, root, *, started, extended_create=False, work_guard=lambda: None, **kwargs):
+        verify_support_sources()
+        if type(extended_create) is not bool or type(started) not in (int, float) or not math.isfinite(started):
+            raise ValueError('explicit finite start and boolean opt-in required')
+        super().__init__(root, **kwargs)
+        self.started, self.previous = started, started
+        self.clock_invalid = False
+        self.extended_create, self.work_guard = extended_create, work_guard
+
+    def now(self):
+        value = self.clock()
+        if self.clock_invalid or type(value) not in (int, float) or not math.isfinite(value) or value < self.previous:
+            self.clock_invalid = True
+            raise Unconfirmed('shared monotonic clock invalid')
+        self.previous = value
+        return value
+
+    def __call__(self, args, *, timeout=8, cleanup=False):
+        verify_support_sources()
+        if (self.owner is not None and self.owner.owned) or type(args) is not list or not args or any(
+                type(v) is not str or '\x00' in v for v in args):
+            raise Unconfirmed('previous command owned or invalid argv')
+        if type(cleanup) is not bool or (cleanup and args[0] not in ('inspect', 'rm')):
+            raise ValueError('cleanup budget restricted to inspection/removal')
+        limit = 32 if self.extended_create and args[0] == 'create' and not cleanup else 8
+        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= limit:
+            raise ValueError('command exceeds explicit diagnostic allocation')
+        now = self.now
+        started = now()
+        deadline = min(started + timeout, self.started + (120 if cleanup else 95))
+        timeout = deadline - started
+        if timeout <= 2:
+            raise TimeoutError('insufficient command plus two-second host-reap reserve')
+        work_deadline = deadline - 2
+        self.count += 1
+        output = self.root / f'command-{self.count:04d}'
+        output.mkdir(parents=False, exist_ok=False)
+        request = output / 'request.json'
+        wire = json.dumps(dict(argv=[self.executable, *args], deadline=deadline)).encode()
+        request.write_bytes(wire)
+        self.owner = WindowsOwner([sys.executable, '-B', '-m',
+            'scripts.performance.windows_docker_provisioning', '--command', str(request)],
+            backend=self.backend_factory(), cancel=lambda: None)
+        failure = primary_failure = cleanup_failure = None
+        stage = 'startup_check'
+
+        def diagnostic(error, phase):
+            return dict(stage=phase, type=type(error).__name__, message=str(error),
+                        errno=getattr(error, 'errno', None), winerror=getattr(error, 'winerror', None))
+
+        with Cancellation() as cancellation:
+            try:
+                cancellation.check()
+                if not cleanup:
+                    self.work_guard()
+                if now() >= work_deadline:
+                    raise TimeoutError('no command startup budget')
+                stage = 'start'
+                self.owner.start()
+                while True:
+                    stage = 'observe'
+                    cancellation.check()
+                    if not cleanup:
+                        self.work_guard()
+                    code, active = self.owner.observe()
+                    # A late result cannot consume the host-reap reserve as work.
+                    if now() >= work_deadline:
+                        stage = 'work_deadline'
+                        raise TimeoutError('command work deadline')
+                    if code is not None and not active:
+                        stage = 'reap'
+                        self.owner.reap()
+                        if code != 0 or now() >= deadline:
+                            raise Unconfirmed('command helper failed or completed late')
+                        break
+                    stage = 'sleep'
+                    self.sleep(min(.02, max(0, work_deadline - now())))
+            except BaseException as exc:
+                failure = exc
+                primary_failure = diagnostic(exc, stage)
+            finally:
+                if self.owner.owned:
+                    cleanup_stage = 'terminate'
+                    try:
+                        self.owner.signal('KILL')
+                        while now() < deadline:
+                            cleanup_stage = 'observe'
+                            code, active = self.owner.observe()
+                            if code is not None and not active:
+                                cleanup_stage = 'reap'
+                                self.owner.reap()
+                                break
+                            self.sleep(min(.02, max(0, deadline - now())))
+                        if self.owner.owned:
+                            cleanup_stage = 'deadline'
+                            raise TimeoutError('command cleanup deadline; ownership retained')
+                    except BaseException as exc:
+                        cleanup_failure = diagnostic(exc, cleanup_stage)
+                        failure = failure or exc
+                (output / 'supervision.json').write_text(json.dumps(dict(
+                    owned=self.owner.owned, failure=None if failure is None else type(failure).__name__,
+                    primary_failure=primary_failure, cleanup_failure=cleanup_failure,
+                    retained_handles={name: getattr(self.owner, name) is not None
+                                      for name in ('job', 'process', 'thread')})))
+        if failure is not None or self.owner.owned:
+            raise Unconfirmed('command failed; retained supervision and ownership') from failure
+        try:
+            files = [output / name for name in ('reply.json', 'stdout.txt', 'stderr.txt')]
+            if any(p.stat().st_size > 1048576 for p in files):
+                raise Unconfirmed('command output limit')
+            reply = json.loads(files[0].read_bytes())
+            if (set(reply) != {'request_sha256', 'code'} or type(reply['code']) is not int
+                    or reply['request_sha256'] != hashlib.sha256(wire).hexdigest()):
+                raise Unconfirmed('unbound command reply')
+            result = CommandResult(reply['code'], files[1].read_text(encoding='utf-8'),
+                                   files[2].read_text(encoding='utf-8'))
+            if now() >= deadline:
+                raise Unconfirmed('late command evidence')
+            return result
+        except (OSError, ValueError) as exc:
+            raise Unconfirmed('missing or invalid command evidence') from exc
+
+
+class CreateReconciler:
+    """One attempted create; uncertainty survives name absence and all failures."""
+    def __init__(self, root, command, *, name, image, task_labels):
+        if type(name) is not str or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,127}', name):
+            raise ValueError('exact diagnostic name required')
+        profile = load_profile((Path(__file__).parent / 'label-profile.json').read_bytes(), PROFILE_PIN)
+        if image != profile['image']:
+            raise ValueError('exact pinned image required')
+        self.labels = container_labels(profile, dict(task_labels))
+        if any(type(v) is not str or not v for v in task_labels.values()):
+            raise ValueError('nonempty exact ownership labels required')
+        self.root, self.command, self.name, self.image = Path(root), command, name, image
+        self.attempted = False
+        self.returned_id = None
+        self.state = dict(status='NOT_ATTEMPTED', uncertain=False, container_id=None,
+                          observations=[], failure=None, cleanup_error=None)
+
+    def save(self):
+        (self.root / 'reconciliation.json').write_text(json.dumps(self.state, indent=2))
+
+    def create(self, args):
+        if self.attempted:
+            raise Unconfirmed('create retry prohibited')
+        # Bind the intent to exactly the command that will be issued.
+        if (type(args) is not list or not args or args[0] != 'create'
+                or args.count('--name') != 1 or args[args.index('--name') + 1] != self.name
+                or args.count(self.image) != 1 or '--pull=never' not in args):
+            raise ValueError('create command identity mismatch')
+        given_labels = [args[i + 1] for i, item in enumerate(args) if item == '--label']
+        expected_labels = [k + '=' + v for k, v in self.labels.items() if k.startswith('nbsr.')]
+        if sorted(given_labels) != sorted(expected_labels):
+            raise ValueError('create command ownership labels mismatch')
+        intent = dict(name=self.name, image=self.image, labels=self.labels,
+                      argv_sha256=hashlib.sha256(json.dumps([self.command.executable, *args]).encode()).hexdigest(),
+                      started=self.command.started, work_deadline=self.command.started + 95,
+                      total_deadline=self.command.started + 120)
+        # Exclusive creation prevents overwriting a prior unresolved attempt.
+        with (self.root / 'create-intent.json').open('x', encoding='utf-8') as stream:
+            json.dump(intent, stream, indent=2)
+        self.attempted = True
+        self.state.update(status='CREATE_UNCERTAIN', uncertain=True)
+        self.save()
+        try:
+            reply = self.command(args, timeout=32 if self.command.extended_create else 8)
+            if reply.code != 0 or re.fullmatch('[0-9a-f]{64}', reply.stdout.strip()) is None:
+                raise Unconfirmed('create returned no successful full identity')
+            self.state.update(status='CREATED_NOT_REMOVED', container_id=reply.stdout.strip())
+            self.returned_id = self.state['container_id']
+            self.save()
+            return self.state['container_id']
+        except BaseException as error:
+            self.state['failure'] = dict(type=type(error).__name__, message=str(error))
+            self.reconcile()  # Immediately, with the SAME owner and absolute deadline.
+            raise Unconfirmed('create failed; inspect retained reconciliation obligation') from error
+
+    def reconcile(self, *, allow_running=False):
+        if type(allow_running) is not bool or (allow_running and self.returned_id is None):
+            raise Unconfirmed('running cleanup requires a successfully returned creation identity')
+        if not self.attempted or not self.state['uncertain']:
+            return dict(self.state)
+        template = ('{"Id":{{json .Id}},"Name":{{json .Name}},"Image":{{json .Image}},'
+                    '"Labels":{{json .Config.Labels}},"Status":{{json .State.Status}},'
+                    '"Running":{{json .State.Running}}}')
+        try:
+            for attempt in range(3):
+                reply = self.command(['inspect', '--type', 'container', '--format', template, self.name],
+                                     timeout=8, cleanup=True)
+                released = self.command.owner is None or not self.command.owner.owned
+                if absence_confirmed(reply.code, reply.stdout, reply.stderr, self.name,
+                                     completed=True, handles_released=released):
+                    self.state['observations'].append(dict(kind='NAME_ABSENT_AT_INSPECTION',
+                                                         monotonic=self.command.now()))
+                    self.state['status'] = 'UNRESOLVED_NAME_ABSENT_ONLY'
+                    self.save()
+                    if attempt < 2:
+                        remaining = self.command.started + 120 - self.command.now()
+                        if remaining <= 2.25:
+                            raise TimeoutError('no re-observation and host-reap budget')
+                        self.command.sleep(.25)
+                    continue
+                if reply.code != 0:
+                    raise Unconfirmed('name inspection failed')
+                row = json.loads(reply.stdout)
+                identity = row.get('Id')
+                if (type(identity) is not str or re.fullmatch('[0-9a-f]{64}', identity) is None
+                        or row.get('Name') != '/' + self.name or row.get('Image') != self.image
+                        or row.get('Labels') != self.labels
+                        or not ((row.get('Running') is False and row.get('Status') in ('created', 'exited'))
+                                or (allow_running and identity == self.returned_id
+                                    and row.get('Running') is True and row.get('Status') == 'running'))
+                        or (self.state['container_id'] is not None and self.state['container_id'] != identity)):
+                    raise Unconfirmed('unverified exact stopped-container ownership; removal prohibited')
+                self.state['container_id'] = identity
+                self.state['status'] = 'OWNED_REMOVAL_PENDING'
+                self.save()
+                removed = self.command(['rm', '--force', identity], timeout=8, cleanup=True)
+                if removed.code != 0:
+                    raise Unconfirmed('exact-ID removal failed')
+                observed = self.command(['inspect', '--type', 'container', '--format', '{{.Id}}', identity],
+                                        timeout=8, cleanup=True)
+                released = self.command.owner is None or not self.command.owner.owned
+                if not absence_confirmed(observed.code, observed.stdout, observed.stderr, identity,
+                                         completed=True, handles_released=released):
+                    raise Unconfirmed('exact-ID absence or handle release unconfirmed')
+                self.state['observations'].append(dict(kind='REMOVED_ID_ABSENT_AT_INSPECTION',
+                                                     container_id=identity, monotonic=self.command.now()))
+                self.state.update(status='REMOVED_EXACT_ID', uncertain=False)
+                break
+        except BaseException as error:
+            self.state['cleanup_error'] = dict(type=type(error).__name__, message=str(error))
+        self.state['host_handles_owned'] = self.command.owner is not None and self.command.owner.owned
+        self.save()
+        return dict(self.state)

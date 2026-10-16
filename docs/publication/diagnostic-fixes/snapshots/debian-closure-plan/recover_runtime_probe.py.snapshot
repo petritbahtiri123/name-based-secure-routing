@@ -1,0 +1,16 @@
+import json,time
+from pathlib import Path
+from runtime_probe_budget import DiagnosticCommand,CreateReconciler
+from runtime_probe import IMAGE,NAME
+P=Path(__file__).resolve().parent
+root=P/'runtime-probe-cleanup-2026-10-16';root.mkdir();(root/'logs').mkdir()
+old=json.loads((P/'runtime-probe-2026-10-16/result.json').read_text())
+observed=json.loads((P/'runtime-probe-2026-10-16/logs/command-0004/stdout.txt').read_text())
+assert observed['Id']==old['container_id']=='a00af34c15a5867f57105682f5f046977ea57c8b9ce4e3aefe363e859ee5835a'
+assert observed['Image']==IMAGE and observed['Name']=='/'+NAME and observed['Running'] is False and observed['Status']=='created'
+command=DiagnosticCommand(root/'logs',started=time.monotonic(),executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe')
+r=CreateReconciler(root,command,name=NAME,image=IMAGE,task_labels={'nbsr.campaign':'dependency-image-inspection','nbsr.run':'2026-10-16','nbsr.role':'probe'})
+expected={k:v for k,v in r.labels.items() if k!='desktop.docker.io/ports.scheme'}
+assert observed['Labels']==expected and len(expected)==5
+r.labels=expected;r.attempted=True;r.returned_id=old['container_id'];r.state.update(status='RECOVERY_PENDING',uncertain=True,container_id=old['container_id'])
+result=r.reconcile();print(json.dumps(result));raise SystemExit(0 if result['status']=='REMOVED_EXACT_ID' and not result['host_handles_owned'] else 1)

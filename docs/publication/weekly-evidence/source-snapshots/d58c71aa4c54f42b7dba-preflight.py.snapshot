@@ -1,0 +1,24 @@
+from pathlib import Path
+import sys,json,hashlib,copy
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT))
+# Deny accidental execution/network use during this read-only validation.
+def guard(event,args):
+    if event.startswith(("subprocess.","socket.","os.exec","os.spawn","os.posix_spawn")) or event=="os.system":
+        raise RuntimeError("offline preflight forbids process/network action: "+event)
+sys.addaudithook(guard)
+from scripts.performance.linux_native_finite_run import validate_config,endpoint_arguments
+from scripts.performance.linux_native_lifecycle_remote import remote_command
+from scripts.performance.linux_native_lifecycle_control import decode_object
+root=ROOT;path=root/"docs/benchmarks/sphere-offline-20261012/finite-two-stream.synthetic.json"
+raw=path.read_bytes();config=decode_object(raw);assert validate_config(config)==config
+commands={role:remote_command(config[role],endpoint_arguments(config,role)) for role in ("source","destination")}
+for argv in commands.values():assert "StrictHostKeyChecking=yes" in argv and "BatchMode=yes" in argv
+cases=[]
+for name,change in [("boolean_streams",lambda c:c.update(streams=True)),("unknown_field",lambda c:c.update(unrecognized=True)),("private_output_overlap",lambda c:c["source"].update(output="/srv/nbsr/private/tls/output")),("relative_checkout",lambda c:c["source"].update(checkout="relative")),("mismatched_core_count",lambda c:c["destination"].update(cores=2))]:
+    candidate=copy.deepcopy(config);change(candidate)
+    try:validate_config(candidate)
+    except ValueError:cases.append(name)
+    else:raise AssertionError("unexpected acceptance: "+name)
+result=dict(status="CONFIG_VALID_OFFLINE",live_trial="NOT_RUN",resources="NOT_RESERVED",source_sha=config["source_sha"],config_sha256=hashlib.sha256(raw).hexdigest(),negative_cases=cases,endpoint_commands_not_executed=commands,limits=dict(warmup_seconds=3,issue_seconds=20,streams=2,payload_bytes=1024,depth=1,post_close_reports=True),checks_not_performed=["DNS/SSH/known_hosts","remote path existence","Linux binary/build hashes","TLS fixture provenance","node headroom/affinity","aggregate remote supervisor and cleanup"])
+print(json.dumps(result,indent=2))

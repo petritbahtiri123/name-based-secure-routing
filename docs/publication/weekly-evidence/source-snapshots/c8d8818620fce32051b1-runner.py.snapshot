@@ -1,0 +1,104 @@
+import hashlib,importlib.util,json,re,sys,time
+from pathlib import Path
+SOURCE=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+SNAPSHOT=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-cargo-resolution-input-b09a851')
+OUT=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-cargo-metadata-once-20261013')
+EVIDENCE=Path('C:/Users/OPERATOR/OneDrive/Documents/NBSR/evidence/local-handoff')
+IMAGE='sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d'
+NAME='nbsr-cargo-metadata-b09a851-20261013-once'
+LABEL='nbsr.prerequisite=cargo-metadata-b09a851-20261013-once'
+sys.path.insert(0,str(SOURCE))
+from scripts.performance.windows_docker_provisioning import CellBudget,DockerCommand,windows_argv_units
+spec=importlib.util.spec_from_file_location('guard',Path(__file__).with_name('nbsr-prerequisite-containment-20261013.py'));g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
+manifest=json.loads((EVIDENCE/'2026-10-13-cargo-resolution-snapshot/manifest.json').read_text())
+assert manifest['head']=='b09a85187d1e27250a1aec2e76f7a5bcdef84611'
+expected={x['path'] for x in manifest['files']}
+assert {p.relative_to(SNAPSHOT).as_posix() for p in SNAPSHOT.rglob('*') if p.is_file()}==expected
+for p in [SNAPSHOT,*SNAPSHOT.parents,*SNAPSHOT.rglob('*')]:assert not p.lstat().st_file_attributes & 0x400
+for x in manifest['files']:
+ data=(SNAPSHOT/x['path']).read_bytes();assert len(data)==x['bytes'] and hashlib.sha256(data).hexdigest()==x['sha256']
+assert hashlib.sha256((SNAPSHOT/'Cargo.lock').read_bytes()).hexdigest()=='976ace41027ae90bebbe2229a1575c1f0c7bc5e71b1847804f4d6d33404c21f8'
+script=r'''set -eu
+export HOME=/scratch CARGO_HOME=/scratch/cargo CARGO_TARGET_DIR=/scratch/target RUSTUP_HOME=/usr/local/rustup RUSTUP_AUTO_INSTALL=0 CARGO_NET_OFFLINE=true CARGO_BUILD_JOBS=2 TMPDIR=/scratch
+unset RUSTFLAGS CARGO_ENCODED_RUSTFLAGS CARGO_BUILD_RUSTFLAGS CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS
+[ ! -e /.cargo/config ] && [ ! -e /.cargo/config.toml ]
+mkdir -p /scratch/cargo/registry
+for part in index cache src; do ln -s /usr/local/cargo/registry/$part /scratch/cargo/registry/$part; done
+cd /scratch
+rustc --version
+cargo --version
+ulimit -f 1024
+set +e
+cargo metadata --locked --offline --format-version 1 --filter-platform x86_64-unknown-linux-gnu --features benchmark-harness --manifest-path /input/Cargo.toml >/scratch/metadata.json 2>/scratch/cargo.stderr
+rc=$?
+set -e
+printf 'CARGO_EXIT:%s\n' "$rc"
+meta=$(wc -c </scratch/metadata.json); err=$(wc -c </scratch/cargo.stderr)
+if [ "$meta" -gt 900000 ] || [ "$err" -gt 65536 ]; then printf 'OUTPUT_BOUND_EXCEEDED\n'; exit 3; fi
+printf 'CARGO_STDERR_BEGIN\n'; cat /scratch/cargo.stderr; printf '\nCARGO_STDERR_END\n'
+printf 'CARGO_METADATA_BEGIN\n'; cat /scratch/metadata.json; printf '\nCARGO_METADATA_END\n'
+exit "$rc"
+'''
+args=['create','--pull=never','--name',NAME,'--label',LABEL,'--network','none','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--pids-limit','64','--cpus','1','--memory','512m','--memory-swap','512m','--workdir','/scratch','--mount','type=bind,source='+str(SNAPSHOT)+',target=/input,readonly','--tmpfs','/scratch:rw,noexec,nosuid,nodev,size=128m','--entrypoint','/usr/bin/timeout',IMAGE,'--signal=KILL','120','/bin/sh','-c',script]
+units=windows_argv_units(['C:/Program Files/Docker/Docker/resources/bin/docker.exe',*args])
+r=dict(approval='Sentinel_9001507479f881919464a7afa3beafcc',status='NOT_RUN',cleanup='UNCONFIRMED',events=[],resources_start=g.resources(True),argv_units=units,source_head=manifest['head'],snapshot_manifest_sha256=hashlib.sha256((EVIDENCE/'2026-10-13-cargo-resolution-snapshot/manifest.json').read_bytes()).hexdigest())
+OUT.mkdir(exist_ok=False)
+budget=CellBudget(clock=time.monotonic,work_seconds=240,total_seconds=300)
+command=DockerCommand(OUT,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe',clock=time.monotonic,max_timeout=122,trial_budget=budget,guard=g.resources)
+cid=None
+
+def call(args,stage,cleanup=False):
+ timeout=62 if stage=='create' else 122 if stage=='wait_metadata' else 8
+ v=command(args,timeout=timeout,cleanup=cleanup)
+ r['events'].append(dict(stage=stage,code=v.code,stdout=v.stdout,stderr=v.stderr,elapsed=time.monotonic()-budget.started))
+ return v
+
+
+def absent(v,identity):
+ return v.code==1 and not v.stdout.strip() and v.stderr.strip().lower() in tuple(p+identity for p in ['error: no such container: ','error: no such object: ','error response from daemon: no such container: '])
+
+
+try:
+ v=call(args,'create')
+ if v.code or not re.fullmatch('[0-9a-f]{64}',v.stdout.strip()):raise RuntimeError('create failed/no exact ID')
+ cid=v.stdout.strip()
+ fmt='{"Id":{{json .Id}},"Image":{{json .Image}},"Labels":{{json .Config.Labels}},"HostConfig":{{json .HostConfig}},"Mounts":{{json .Mounts}},"Running":{{json .State.Running}}}'
+ v=call(['inspect','--type','container','--format',fmt,cid],'verify_isolation')
+ if v.code:raise RuntimeError('isolation inspect failed')
+ row=json.loads(v.stdout);h=row['HostConfig'];mounts=row['Mounts'];binds=[m for m in mounts if m['Type']=='bind'];tmp=[m for m in mounts if m['Type']=='tmpfs']
+ expected=dict(NetworkMode='none',ReadonlyRootfs=True,CapDrop=['ALL'],SecurityOpt=['no-new-privileges'],PidsLimit=64,NanoCpus=1000000000,Memory=536870912,MemorySwap=536870912,Privileged=False)
+ if row['Id']!=cid or row['Image']!=IMAGE or row['Labels'].get('nbsr.prerequisite')!=LABEL.split('=',1)[1] or row['Running'] is not False or any(h.get(k)!=v for k,v in expected.items()) or h.get('PortBindings'):raise RuntimeError('isolation identity mismatch')
+ if len(binds)!=1 or binds[0]['Destination']!='/input' or binds[0]['RW'] is not False or Path(binds[0]['Source']).resolve()!=SNAPSHOT.resolve():raise RuntimeError('source mount mismatch')
+ if h.get('Tmpfs')!={'/scratch':'rw,noexec,nosuid,nodev,size=128m'} or len(tmp)>1 or any(m['Destination']!='/scratch' for m in tmp) or len(mounts)!=len(binds)+len(tmp):raise RuntimeError('scratch mount mismatch')
+ r['isolation_verified']=True
+ v=call(['start',cid],'start_metadata')
+ if v.code:raise RuntimeError('start failed')
+ v=call(['wait',cid],'wait_metadata')
+ if v.code or not re.fullmatch('[0-9]+',v.stdout.strip()):raise RuntimeError('wait failed')
+ r['container_exit']=int(v.stdout.strip())
+ v=call(['logs',cid],'read_metadata')
+ if v.code:raise RuntimeError('log collection failed')
+ r['metadata_output']=v.stdout;r['metadata_stderr']=v.stderr
+ r['status']='METADATA_PASS' if r['container_exit']==0 else 'METADATA_FAILED'
+except BaseException as e:r.update(status='BLOCKED',primary_error=dict(type=type(e).__name__,message=str(e)))
+finally:
+ r['created_id']=cid
+ try:
+  if command.owner is not None and command.owner.owned:raise RuntimeError('command owner retained')
+  fmt='{"Id":{{json .Id}},"Image":{{json .Image}},"Labels":{{json .Config.Labels}},"Running":{{json .State.Running}}}'
+  v=call(['inspect','--type','container','--format',fmt,cid or NAME],'identify_owned',True)
+  if absent(v,cid or NAME):r['cleanup']='ABSENT_AT_OBSERVATION'
+  elif v.code==0:
+   row=json.loads(v.stdout);identity=row['Id']
+   if not re.fullmatch('[0-9a-f]{64}',identity) or (cid and identity!=cid) or row['Image']!=IMAGE or row['Labels'].get('nbsr.prerequisite')!=LABEL.split('=',1)[1]:raise RuntimeError('cleanup identity mismatch')
+   v=call(['rm','--force',identity],'remove_exact_id',True)
+   if v.code:raise RuntimeError('remove failed')
+   v=call(['inspect','--type','container','--format','{{.Id}}',identity],'independent_absence',True)
+   if not absent(v,identity):raise RuntimeError('absence unconfirmed')
+   r['cleanup']='EXACT_ID_REMOVED_AND_ABSENT'
+  else:raise RuntimeError('cleanup identity unavailable')
+ except BaseException as e:r['cleanup_error']=dict(type=type(e).__name__,message=str(e))
+ r['elapsed']=time.monotonic()-budget.started;r['command_owned']=None if command.owner is None else command.owner.owned
+ try:r['resources_end']=g.resources()
+ except BaseException as e:r['resource_error']=str(e)
+ (OUT/'result.json').write_text(json.dumps(r,indent=2));print(json.dumps({k:v for k,v in r.items() if k!='events'}))

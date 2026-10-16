@@ -1,0 +1,65 @@
+"""Exact fresh-volume ownership for the approved source presentation trial."""
+import json,re
+from pathlib import Path
+from scripts.performance.local_container_disposal import Unconfirmed
+
+NAME='nbsr-tls-source-01'
+TEMPLATE='{"Name":{{json .Name}},"Driver":{{json .Driver}},"Scope":{{json .Scope}},"Labels":{{json .Labels}},"Options":{{json .Options}},"CreatedAt":{{json .CreatedAt}},"Mountpoint":{{json .Mountpoint}}}'
+
+class SourceVolume:
+    def __init__(self,root,command,nonce):
+        self.root=Path(root);self.command=command
+        self.labels={'nbsr.campaign':'tls-proof-01','nbsr.nonce':nonce}
+        self.state={'status':'NOT_ATTEMPTED','uncertain':False,'attempted':False,'snapshot':None,'failure':None}
+    def save(self):
+        (self.root/'volume-state.json').write_text(json.dumps(self.state,indent=2))
+    def call(self,args,cleanup=False,volume_absence=False):
+        reply=self.command(args,timeout=32 if volume_absence else 8,cleanup=cleanup,volume_absence=volume_absence)
+        if reply.code!=0:raise Unconfirmed('volume command failed: '+args[0])
+        return reply.stdout
+    def listed(self,cleanup=False):
+        wire=self.call(['volume','ls','--filter','name=^'+NAME+'$','--format','{{.Name}}'],cleanup,volume_absence=not cleanup)
+        rows=wire.splitlines()
+        if rows not in ([],[NAME]):raise Unconfirmed('unexpected exact-name listing')
+        return bool(rows)
+    def inspect(self,cleanup=False):
+        row=json.loads(self.call(['volume','inspect','--format',TEMPLATE,NAME],cleanup))
+        if (set(row)!=set(('Name','Driver','Scope','Labels','Options','CreatedAt','Mountpoint')) or
+            row['Name']!=NAME or row['Driver']!='local' or row['Scope']!='local' or
+            row['Labels']!=self.labels or row['Options'] not in (None,{}) or
+            type(row['CreatedAt']) is not str or not row['CreatedAt'] or
+            type(row['Mountpoint']) is not str or not row['Mountpoint'].startswith('/')):
+            raise Unconfirmed('volume identity mismatch')
+        return row
+    def create(self):
+        if self.state['attempted']:raise Unconfirmed('volume retry prohibited')
+        if self.listed():raise Unconfirmed('volume name already exists; untouched')
+        args=['volume','create','--driver','local']
+        for k,v in self.labels.items():args+=['--label',k+'='+v]
+        args.append(NAME)
+        with (self.root/'volume-intent.json').open('x') as output:json.dump({'name':NAME,'labels':self.labels,'argv':args},output)
+        self.state.update(attempted=True,uncertain=True,status='CREATE_UNCERTAIN');self.save()
+        try:
+            if self.call(args).strip()!=NAME:raise Unconfirmed('volume create acknowledgement mismatch')
+            self.state['snapshot']=self.inspect()
+            self.state['status']='OWNED_RETAINED';self.save()
+        except BaseException as error:
+            self.state['failure']={'type':type(error).__name__,'message':str(error)};self.save();raise
+    def cleanup(self,*,containers_absent):
+        if not self.state['attempted']:return True
+        if not containers_absent or self.state['snapshot'] is None:
+            self.state['status']='CLEANUP_BLOCKED_UNCERTAIN_OWNERSHIP';self.save();return False
+        try:
+            if self.inspect(True)!=self.state['snapshot']:raise Unconfirmed('volume changed since creation')
+            # Non-force Docker removal atomically rejects any remaining volume user.
+            # Avoid a second potentially slow enumeration and its check/remove race.
+            if self.call(['volume','rm',NAME],True).strip()!=NAME:raise Unconfirmed('volume remove acknowledgement mismatch')
+            absent=self.command(['volume','inspect','--format','{{.Name}}',NAME],timeout=8,cleanup=True)
+            if not volume_absent(absent):raise Unconfirmed('volume absence unconfirmed')
+            if self.command.owner is not None and self.command.owner.owned:raise Unconfirmed('host handles retained')
+            self.state.update(status='REMOVED_ABSENCE_CONFIRMED',uncertain=False);self.save();return True
+        except BaseException as error:
+            self.state['failure']={'type':type(error).__name__,'message':str(error)};self.save();return False
+
+def volume_absent(reply):
+    return (type(reply.code) is int and reply.code==1 and not reply.stdout.strip() and reply.stderr.strip()=='Error response from daemon: get '+NAME+': no such volume')

@@ -1,0 +1,17 @@
+import unittest,hashlib
+from pathlib import Path
+from test_create_reconciliation import Clock,FakeNative
+import tls_trial01 as d
+from diagnostic_tls_budget import DiagnosticCommand
+import tempfile
+class Payloads(unittest.TestCase):
+ def test_both_actual_caller_payloads_allowed_only_exactly(self):
+  for kind in ('stage','runtime'):
+   with self.subTest(kind=kind),tempfile.TemporaryDirectory(dir=Path(__file__).parent) as tmp:
+    clock=Clock();cmd=DiagnosticCommand(tmp,started=0,clock=clock,sleep=clock.sleep,backend_factory=lambda:FakeNative(clock,{'stdout':'ok'},[]),executable='C:/approved/docker.exe')
+    args=['exec','a'*64,'python3','-B','-c',d.payload(kind)]
+    try: reply=cmd(args,timeout=32,public_probe=True)
+    except ValueError as e:self.fail(str(e))
+    self.assertEqual(reply.stdout,'ok')
+    with self.assertRaises(ValueError):cmd(args[:-1]+[args[-1]+' '],timeout=32,public_probe=True)
+if __name__=='__main__':unittest.main()

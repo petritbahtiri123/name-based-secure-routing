@@ -1,0 +1,52 @@
+import hashlib,importlib.util,json,sys,time,zipfile
+from pathlib import Path
+sys.path.insert(0,'C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+from scripts.performance.windows_docker_provisioning import DockerCommand
+base=Path(__file__).parent
+spec=importlib.util.spec_from_file_location('guard',base/'nbsr-prerequisite-containment-20261013.py');g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
+root=base/'nbsr-metric-complete-20261013';root.mkdir(exist_ok=False)
+for name in ['files','docker','copy']:(root/name).mkdir()
+allow=json.loads((base/'nbsr-metric-allowlist-20261013.json').read_text())
+r={'action':'exact file read and ZIP; no starts or removal','resources_start':g.resources(True),'files':[]}
+docker=DockerCommand(root/'docker',executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe',max_timeout=32)
+copy=DockerCommand(root/'copy',executable=sys.executable,max_timeout=32)
+start=time.monotonic()
+previous=base/'nbsr-metric-preserve-cold32-20261013'
+prior=json.loads((previous/'result.json').read_text())
+for row in prior['files']:
+ data=(previous/'files'/row['filename']).read_bytes()
+ if len(data)!=row['size'] or hashlib.sha256(data).hexdigest()!=row['sha256']:raise RuntimeError('retained original mismatch')
+ (root/'files'/row['filename']).write_bytes(data);r['files'].append(row)
+allow=allow[3:]
+try:
+ ids=list(dict.fromkeys(x['container_id'] for x in allow))
+ q=docker(['inspect','--format','{{json .Id}} {{json .Image}} {{json .State.Status}}',*ids],timeout=32)
+ r['identity']=q.stdout
+ if q.code or len(q.stdout.splitlines())!=len(ids):raise RuntimeError('identity inspect failed')
+ for line,cid in zip(q.stdout.splitlines(),ids):
+  if line.split()!=[json.dumps(cid),json.dumps('sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71'),'"exited"']:raise RuntimeError('identity/state mismatch')
+ for i,x in enumerate(allow):
+  g.resources()
+  if time.monotonic()-start>75:raise TimeoutError('export work cutoff')
+  name=str(i+4).zfill(2)+'-'+x['container_id'][:12]+'-'+Path(x['path']).parent.name+'-'+Path(x['path']).name
+  q=copy(['-B',str(base/'nbsr-metric-copy-complete-20261013.py'),x['container_id'],x['path'],str(root/'files'/name)],timeout=min(32,90-(time.monotonic()-start)))
+  if q.code:raise RuntimeError('copy/schema rejected; retain supervision, do not archive')
+  row=json.loads(q.stdout);r['files'].append(row);(root/'result.json').write_text(json.dumps(r,indent=2))
+ archive=root/'metrics.zip'
+ with zipfile.ZipFile(archive,'x',compression=zipfile.ZIP_DEFLATED) as z:
+  for row in r['files']:
+   if time.monotonic()-start>90:raise TimeoutError('archive deadline')
+   g.resources();z.write(root/'files'/row['filename'],row['filename'])
+ with zipfile.ZipFile(archive) as z:
+  if z.testzip() is not None or set(z.namelist())!={x['filename'] for x in r['files']}:raise RuntimeError('zip membership/CRC')
+  for row in r['files']:
+   if time.monotonic()-start>90:raise TimeoutError('verification deadline')
+   g.resources();data=z.read(row['filename'])
+   if len(data)!=row['size'] or hashlib.sha256(data).hexdigest()!=row['sha256']:raise RuntimeError('zip readback')
+ r.update(status='ZIP_VERIFIED',archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),archive_bytes=archive.stat().st_size)
+except BaseException as e:r.update(status='BLOCKED',error_type=type(e).__name__,error=str(e))
+finally:
+ r.update(elapsed=time.monotonic()-start,owned=[None if c.owner is None else c.owner.owned for c in [docker,copy]])
+ try:r['resources_end']=g.resources()
+ except BaseException as e:r['resource_error']=type(e).__name__+': '+str(e)
+ (root/'result.json').write_text(json.dumps(r,indent=2));print(json.dumps(r))

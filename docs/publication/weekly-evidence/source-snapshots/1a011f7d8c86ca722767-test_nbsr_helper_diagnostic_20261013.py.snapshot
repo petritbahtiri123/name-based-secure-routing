@@ -1,0 +1,79 @@
+import importlib.util
+from pathlib import Path
+import pytest
+
+
+def module():
+    spec = importlib.util.spec_from_file_location("diag", Path(__file__).with_name("nbsr-helper-diagnostic-20261013.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+class Kernel:
+    def GetProcessId(self, p):
+        return 123
+
+    def QueryInformationJobObject(self, j, c, p, n, r):
+        p._obj.ActiveProcesses = 0
+        return 1
+
+    def WaitForSingleObject(self, p, t):
+        assert t == 0
+        return 258
+
+    def GetExitCodeProcess(self, p, v):
+        v._obj.value = 1
+        return 1
+
+
+def test_unsignalled_empty_job_is_retained_as_raw_pending():
+    m = module()
+    row = m.sample(Kernel(), 10, 20, clock=lambda: 3)
+    assert row["pid"] == 123 and row["active"] == 0 and row["wait"] == 258 and row["code"] is None
+    assert not m.complete(row, 123)
+    assert [x["api"] for x in row["calls"]] == ["GetProcessId", "QueryInformationJobObject", "WaitForSingleObject"]
+    assert all(x["start"] == 3 and x["end"] == 3 for x in row["calls"])
+
+
+def test_completion_requires_identity_signal_and_empty_job():
+    m = module()
+    row = dict(pid=123, wait=0, code=1, active=0)
+    assert m.complete(row, 123)
+    for update in [dict(pid=124), dict(wait=258), dict(code=None), dict(active=1)]:
+        assert not m.complete(dict(row, **update), 123)
+
+
+def test_native_error_is_not_empty_or_completed():
+    m = module()
+
+    class Bad(Kernel):
+        def QueryInformationJobObject(self, *a):
+            return 0
+
+    with pytest.raises(OSError):
+        m.sample(Bad(), 10, 20, clock=lambda: 3)
+
+
+def test_cancellation_covers_entire_run_and_cleanup(monkeypatch):
+    m = module()
+    events = []
+
+    class Cancellation:
+        def __enter__(self):
+            events.append("enter")
+            return self
+
+        def __exit__(self, *args):
+            events.append("exit")
+
+    def run(cancel):
+        assert isinstance(cancel, Cancellation)
+        events.append("acquire-through-cleanup")
+        raise RuntimeError("retained failure")
+
+    monkeypatch.setattr(m, "Cancellation", Cancellation)
+    monkeypatch.setattr(m, "run", run)
+    with pytest.raises(RuntimeError):
+        m.main()
+    assert events == ["enter", "acquire-through-cleanup", "exit"]

@@ -1,0 +1,130 @@
+{
+  "entries": [
+    {
+      "path": "AGENTS.md",
+      "original_sha256": "33057ccb2283705374f3c1560bdddeb6754f12767ccdfba067e8d478971ceeee",
+      "publication_sha256": "1ee9009d801e1896f28bb8a96459861e33e5f0002385b06281b3b5b3b1c93b53",
+      "final_publication_sha256": "1ee9009d801e1896f28bb8a96459861e33e5f0002385b06281b3b5b3b1c93b53"
+    },
+    {
+      "path": "docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md",
+      "original_sha256": "468037503255fa2c16ee920339995e41fbb90f8d143037a8b49f6f77452670a0",
+      "publication_sha256": "468037503255fa2c16ee920339995e41fbb90f8d143037a8b49f6f77452670a0",
+      "final_publication_sha256": "468037503255fa2c16ee920339995e41fbb90f8d143037a8b49f6f77452670a0"
+    },
+    {
+      "path": "scripts/performance/windows_docker_provisioning.py",
+      "original_sha256": "84a771633cb0be2ad2ffc299f8f8050aafb31be3a7bd9e85460f85c001d8fc53",
+      "publication_sha256": "82a21470e83fbde1de9339a0ca395380d540035bbd0f1a9beabcb5777ff829ff",
+      "final_publication_sha256": "82a21470e83fbde1de9339a0ca395380d540035bbd0f1a9beabcb5777ff829ff"
+    },
+    {
+      "path": "scripts/performance/windows_native_management.py",
+      "original_sha256": "9ec3257aaea25f63b12b9daf7d6540913256199ccb92a788515810cd4f56000b",
+      "publication_sha256": "9ec3257aaea25f63b12b9daf7d6540913256199ccb92a788515810cd4f56000b",
+      "final_publication_sha256": "9ec3257aaea25f63b12b9daf7d6540913256199ccb92a788515810cd4f56000b"
+    },
+    {
+      "path": "tests/performance/test_windows_docker_provisioning.py",
+      "original_sha256": "a7d5bcd0e32fc5b27258599c61ab2e7bd294e6872ee9c3a1946f03cc1accffcd",
+      "publication_sha256": "42c75e76582aeccfa1113d0cf52f85aa68ecb8e294f703dfb43df0650b5ab9ad",
+      "final_publication_sha256": "42c75e76582aeccfa1113d0cf52f85aa68ecb8e294f703dfb43df0650b5ab9ad"
+    },
+    {
+      "path": "tests/performance/test_windows_native_management.py",
+      "original_sha256": "d134bfee79d7fb34464eb2366edd7fc04373382c5930969f3ad4667150eb93d0",
+      "publication_sha256": "eb8b6ca60875961101765b49d08ea607725a8a4b879002df2c8b3d157b610885",
+      "final_publication_sha256": "eb8b6ca60875961101765b49d08ea607725a8a4b879002df2c8b3d157b610885"
+    },
+    {
+      "path": "scripts/performance/rust_cache_metadata.py",
+      "original_sha256": "3cd8d185986e0745344197eb8e7d096586b7aca848f6de843696a3aaf278f304",
+      "publication_sha256": "20af3348c5befd697f197e521cdc17ae000a85772ef44ab78623026bfdcf2a95",
+      "final_publication_sha256": "20af3348c5befd697f197e521cdc17ae000a85772ef44ab78623026bfdcf2a95"
+    },
+    {
+      "path": "tests/performance/test_rust_cache_metadata.py",
+      "original_sha256": "b7f444137483070e623bf71c12ef5001df2c2f65b6b4340c82f71567177f3189",
+      "publication_sha256": "e5c407fc4eaeca95539075fe2d26a124592104b78e7ea2e5dd10bcf142bb186f",
+      "final_publication_sha256": "e5c407fc4eaeca95539075fe2d26a124592104b78e7ea2e5dd10bcf142bb186f"
+    },
+    {
+      "path": "docs/reviews/2026-10-14-adopted-campaign.json",
+      "original_sha256": "14f86707177cc3e9473c8feede5eaa35c959ff52619198f09b3e236ef3911df5",
+      "publication_sha256": "d571040044864575005e0e2a5b695f2cb245c4449bc76ee93e8f687190117258",
+      "final_publication_sha256": "d571040044864575005e0e2a5b695f2cb245c4449bc76ee93e8f687190117258"
+    },
+    {
+      "path": "docs/reviews/2026-10-14-debug-correctness-harness.json",
+      "original_sha256": "dada2baa0c446affae83b4d36473e0f02cd27c34f1fbc3a714fa3ad004739b4c",
+      "publication_sha256": "e124085b4d001ddbbc2771dbb5770e90dd1068ec5e1916bdc0edeb92aef71895",
+      "final_publication_sha256": "e124085b4d001ddbbc2771dbb5770e90dd1068ec5e1916bdc0edeb92aef71895"
+    },
+    {
+      "path": "crates/nbsr-transport/src/connector_kar.rs",
+      "source_sha256": "f40441803836dd70f9b53cbce9c7a9155b2b18fd85bc0d7077c34ea1eaee9442",
+      "copy_sha256": "f40441803836dd70f9b53cbce9c7a9155b2b18fd85bc0d7077c34ea1eaee9442",
+      "baseline_sha256": "358795868f77e65b4e7283df1a281256606c4a4b409cd27c6a433b7636a8349d",
+      "final_publication_sha256": "f40441803836dd70f9b53cbce9c7a9155b2b18fd85bc0d7077c34ea1eaee9442"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/support/connector_kar.rs",
+      "source_sha256": "5d2bce378336dd98d11522af59b5d01c29f5487dfd71f310e1608d03a17d4287",
+      "copy_sha256": "5d2bce378336dd98d11522af59b5d01c29f5487dfd71f310e1608d03a17d4287",
+      "baseline_sha256": "f7e6185aa875e1dbb67e1862bb7a3c846a782959ee8043ba9c0a398fd7b66377",
+      "final_publication_sha256": "5d2bce378336dd98d11522af59b5d01c29f5487dfd71f310e1608d03a17d4287"
+    },
+    {
+      "path": "crates/nbsr-transport/tests/fixtures/connector-kar-genesis-positive.json",
+      "source_sha256": "f406fade8cad8304af37d368e2629ac5fee140d69298eaad0ad08db7aa8f85e5",
+      "copy_sha256": "f406fade8cad8304af37d368e2629ac5fee140d69298eaad0ad08db7aa8f85e5",
+      "final_publication_sha256": "f406fade8cad8304af37d368e2629ac5fee140d69298eaad0ad08db7aa8f85e5"
+    },
+    {
+      "path": "scripts/check_connector_kar_positive.py",
+      "source_sha256": "205b629476b85f0af8def4cc688a4eae7557061ef4e262a8de1bb1851d42abab",
+      "copy_sha256": "205b629476b85f0af8def4cc688a4eae7557061ef4e262a8de1bb1851d42abab",
+      "final_publication_sha256": "205b629476b85f0af8def4cc688a4eae7557061ef4e262a8de1bb1851d42abab"
+    },
+    {
+      "path": "scripts/inclusion_recovery_harness.py",
+      "source_sha256": "d69f4e1c32af4a9a68a6f59f99c911afb5dca29ef9b498df91d2649e0945a3f1",
+      "copy_sha256": "d69f4e1c32af4a9a68a6f59f99c911afb5dca29ef9b498df91d2649e0945a3f1",
+      "final_publication_sha256": "d69f4e1c32af4a9a68a6f59f99c911afb5dca29ef9b498df91d2649e0945a3f1"
+    },
+    {
+      "path": "tests/federation/test_inclusion_recovery_harness.py",
+      "source_sha256": "55a08adee0ee213b2d763c46d1a9461b8f31eb5edc33263918f0c57c39c0a8cc",
+      "copy_sha256": "55a08adee0ee213b2d763c46d1a9461b8f31eb5edc33263918f0c57c39c0a8cc",
+      "final_publication_sha256": "55a08adee0ee213b2d763c46d1a9461b8f31eb5edc33263918f0c57c39c0a8cc"
+    },
+    {
+      "path": "tests/test_connector_control_model.py",
+      "source_sha256": "fc130eb04385bd859a13e3ba5a4e791739c96bca2d8b89e90a18e2ae63b8a448",
+      "copy_sha256": "fc130eb04385bd859a13e3ba5a4e791739c96bca2d8b89e90a18e2ae63b8a448",
+      "baseline_sha256": "8b1e164ac2e035ded9a0b01046d6e08b62d314c7a79d3ed052c006ae65c26271",
+      "final_publication_sha256": "fc130eb04385bd859a13e3ba5a4e791739c96bca2d8b89e90a18e2ae63b8a448"
+    },
+    {
+      "path": "scripts/ci/check.py",
+      "source_sha256": "6e5fd6a8b06dcb553033c137b246e4946ee325faecfda3f88454e306724a51bc",
+      "copy_sha256": "6e5fd6a8b06dcb553033c137b246e4946ee325faecfda3f88454e306724a51bc",
+      "baseline_sha256": "8e42a3582b098c3c05b505e8f83ae55f033b2ea2dc55c0da149047cee8b97dec",
+      "final_publication_sha256": "6e5fd6a8b06dcb553033c137b246e4946ee325faecfda3f88454e306724a51bc"
+    },
+    {
+      "path": "tests/ci/test_ci.py",
+      "source_sha256": "a89b4655fa85fbf1241742525f096b0c014993ccee21c0cf5a1fe8977d940ab4",
+      "copy_sha256": "a89b4655fa85fbf1241742525f096b0c014993ccee21c0cf5a1fe8977d940ab4",
+      "baseline_sha256": "e6fb587e7204610f5bd56127a4c984fd99ebde27a4854d02cb40652f10877e09",
+      "final_publication_sha256": "a89b4655fa85fbf1241742525f096b0c014993ccee21c0cf5a1fe8977d940ab4"
+    },
+    {
+      "path": "docs/protocol/standards-reuse-matrix.md",
+      "source_sha256": "c107c390251bc99b3fff80a350aff952c3726329320b18c3659b016a225d6632",
+      "copy_sha256": "c107c390251bc99b3fff80a350aff952c3726329320b18c3659b016a225d6632",
+      "baseline_sha256": "7a675e11458ff7885e00040043329560d79ec1cda5b97cffcfef5191cfd6cfb5",
+      "final_publication_sha256": "c107c390251bc99b3fff80a350aff952c3726329320b18c3659b016a225d6632"
+    }
+  ]
+}

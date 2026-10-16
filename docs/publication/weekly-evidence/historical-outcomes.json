@@ -1,0 +1,913 @@
+{
+  "schema": "nbsr-compact-historical-outcomes-v1",
+  "note": "Extracted explicit scalar fields and terminal test-result lines only; not new validation or corrected historical outcomes.",
+  "records": [
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/cleanup-focused-final.json",
+      "original_sha256": "ead55a7bbce094c3ad53854992db181d14528dace33dc0c3575a00a8b50e44ac",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/cleanup-lint-final.json",
+      "original_sha256": "6281b7932f05c33d20634f4bd05ef2894e9ec913ab2686f1145370e30d53de1a",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/cleanup-lint.json",
+      "original_sha256": "7941dcb75880f58185ac14526b888b1c74b8ef8fca2dc096eb8cd06ad2d68175",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/cleanup-postclose-green.json",
+      "original_sha256": "a9010fb1c11783fa5a77c515d130dee9757255988cc57929c88e795b9a359d32",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/cleanup-postclose-red.json",
+      "original_sha256": "67575b45c10885726eb48cc7f7325e79f3327fe5085b69176c8d5d2fa537268b",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/cleanup-regression-green.json",
+      "original_sha256": "7e80dc6c812c4fcd1317840f2b7e80eb3113ee9945c16119c3eff75b5352effa",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/cleanup-regression-red.json",
+      "original_sha256": "84a950ec4820910b9fed607216d9aec8cccd456a72cb8d042f6b42d4c72949c6",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/fixture-missing-red.json",
+      "original_sha256": "c5b67c3a2fb354dfc42342e9125bd3615325a7420d37e85479cacce013b727e3",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/format-check.json",
+      "original_sha256": "354e583be42799113179307d0b9ee912b5bf801abae33146190b3abcb0acafb1",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/handoff-combined.json",
+      "original_sha256": "ed6112d88b27ec3824438940848a562b6061d357585b1325c9d2251bd7cc5b9d",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/handoff-config-check.json",
+      "original_sha256": "19a0a7f4245b8ecd854dc87afa9d21a8d7180deb0e3e1e5a55f4f6642c30d82e",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/handoff-kar-check.json",
+      "original_sha256": "9504748e6a7aba3966cce24ed512a592456c8852847820b5377baa0a94d38dd8",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/lint.json",
+      "original_sha256": "c25c75c8ecd63719f1a07c527bd5e8e10e926e85cc89413c113d70a924726b7c",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/native-bounded.json",
+      "original_sha256": "4f7720f5d8b8f5abd42a10ad078eec46d9d4cfa4a68234b43369202a26b3e3a5",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/native-kar-build.json",
+      "original_sha256": "d0c9e8120eefa0aa17cc88fab71765035a70131d49a8bb7cc66791e54365cd41",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/python-fixture-check.json",
+      "original_sha256": "08391e12a5dc078a19f173009f98c3b8c9dba30c1d41198ba16be5c09a540978",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/python-neighbors.json",
+      "original_sha256": "38dde76d0ac5a57f6d1165bd145d3f783dbd1427c72b4c0d4f5f695bccdc9060",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/python-temp-retry.json",
+      "original_sha256": "7129753412fbc87102f423e814dbbf67b8a11790fbd680d543b04d335b7611b6",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/python-timeout-host.json",
+      "original_sha256": "696e5392d078f0647473f0f29cf18a2ced0801f98ad0aaca973f3809c6ce9cb0",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/recovery-checkpoint.json",
+      "original_sha256": "43a60832df35cac731c8487dea94039a0daa232093a41f3c5f6ec4674393e675",
+      "exit_code": 1,
+      "seconds": 5.32
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/recovery.json",
+      "original_sha256": "d5c6f45af8ddb89e46bbdf0c6a5356a19c5fe92b305a0c4472099457b4a2b59e",
+      "exit_code": 1,
+      "seconds": 5.32
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/rust-format.json",
+      "original_sha256": "4b989500b16aefbb5ffb8a8f4e468d8924274eae66faa8d698e2479cd651296c",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/setup.json",
+      "original_sha256": "becb3f6a2aeb5f2a5a4bdbd683bc08b0dc04c2b00f43fb56472cf13a4876bc93",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/sign-once.json",
+      "original_sha256": "200bb996591b65e4951542f879125f27a4a8bab74110de68c50088e4bba91a18",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/source-manifest.json",
+      "original_sha256": "b76d4daa6db6f67506a979cfb13797cef93205cd56395978168c57806e50a1a0",
+      "seconds": 16.779677499987883
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/sphere-cleanup-fake-repro.json",
+      "original_sha256": "6d86c621bcbb4ada3b961ba01de2b18b97978bdcb22633805965b522af79c3f6",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/sphere-cleanup-final-checkpoint.json",
+      "original_sha256": "daa6db4d0a85aba47b00ee522d674bf6abbe526119c361b255b6a1305744dfbb",
+      "passed": 66
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/sphere-config-preflight.json",
+      "original_sha256": "64c83bbd3f570aa579428896bab0ce3ecd703d7163a53d83299ec91229c2b755",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/sphere-delivered-preflight.json",
+      "original_sha256": "1d45f694cfb4e9e7c83e0c2fb0982f9dad299916317ab7ee5811f61f1ddb3a38",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/sphere-final-checkpoint.json",
+      "original_sha256": "7ce6f8904f24b87e05a8c725869747187eb8364fcbf6b7cc3549cebfd9a0f766",
+      "historical_status": "CONFIG_VALID_OFFLINE"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/evidence/sphere-offline-neighbors.json",
+      "original_sha256": "0c89c1b74a0c3a45aef1d6a63e47cbae06047df93cc6ecd46a5e7dc37971dc7e",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-12/files/docs/benchmarks/sphere-offline-20261012/offline-result.json",
+      "original_sha256": "e6bd50161d25ad6eeba4e74ba38a4c7e2bed8174ed6303e1aabe1c2e1b576eca",
+      "historical_status": "CONFIG_VALID_OFFLINE"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-async-cleanup-fix/async-cleanup-green.json",
+      "original_sha256": "012810be216a0aad76d1a1b54743a6ff426c3be6fde585dce0afed516b7edab3",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-async-cleanup-fix/async-cleanup-lint.json",
+      "original_sha256": "5f53a1b68c1f0878e3a803c30f0321d05e835eaa46844241518a701ba94c5556",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-async-cleanup-fix/async-cleanup-red.json",
+      "original_sha256": "64edb6ef9d0bf8e17e08b6a4764e1913cc176b981903b007279c523d02d872ff",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-async-cleanup-live-verification/summary.json",
+      "original_sha256": "e76635fe21ad1417019830ce2019b7a570aea15daa127247e0fe2ffce65829e4",
+      "historical_status": "PASS_PROCESS_ONLY"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cargo-metadata-resolution/cargo-budget-final-lint.json",
+      "original_sha256": "364110b95b4beabc6ac9e6460ae40776973d676ee2e8cbddc7192d7a253044e8",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cargo-metadata-resolution/cargo-budget-final.json",
+      "original_sha256": "59bb178e71151efe9140f6265977c37f933fec890d3f92642e64ebc3782b36e5",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cargo-metadata-resolution/cargo-budget-green.json",
+      "original_sha256": "ee3718adfc2f3aec089d6638e30641611de9852d71c1aa43eae568d59f02eb89",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cargo-metadata-resolution/cargo-budget-lint.json",
+      "original_sha256": "7e7bd15f43ae97de87daad0c3eb69e15c3137ea6b094515c6cc865a07cc34656",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cargo-metadata-resolution/cargo-budget-red.json",
+      "original_sha256": "7480ecbf213446ee0ef530856cf79f506a6ed682b513065b209c4f3ec40ddc0b",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cargo-metadata-resolution/manifest.json",
+      "original_sha256": "96dacfea67ebff8db2ea90e06c581afd37010916940132206781404891f1427a",
+      "historical_status": "METADATA_PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cargo-metadata-resolution/run/result.json",
+      "original_sha256": "60f77fbb900d1276f119a41bbccbeee8d1693d4880c8619744072bedbc7d04d7",
+      "historical_status": "METADATA_PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cold30-create-only/cold-budget-final.json",
+      "original_sha256": "ff80cfcd114dbcdbc6d4cb5265b281ab9e59b0933db17b0c0f5add2d926749dd",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cold30-create-only/cold-budget-green.json",
+      "original_sha256": "10f5f4ba425e7134ed3273c825d92b3b03f2adca571e19038eab032dff1dc59b",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cold30-create-only/cold-budget-lint-final.json",
+      "original_sha256": "3c2efda3d0a7f5518983260dbbb35ab132312e7fb7f477ae5b411133a15e5cd7",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cold30-create-only/cold-budget-lint.json",
+      "original_sha256": "bacfeb0da879cd82bd8eaeba6c58d44c97945cff86809d5cae8bff236ffab1ff",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cold30-create-only/cold-budget-red.json",
+      "original_sha256": "a2664b30999f59b5d303bd1ff83827faf6e866bc8c574f6ea57c989a4c9e93c9",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-cold30-create-only/result.json",
+      "original_sha256": "335941054fd193b1cdd86c8631a0eae9bd64c06f12aae843543e5829ed32f590",
+      "historical_status": "CREATED_STOPPED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-complete-metric-preservation/metric-batch-complete.json",
+      "original_sha256": "ffa24bd4693c2176d56e95ffe3118420f8d6916945ea671cb162e553cda84b4e",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-complete-metric-preservation/result.json",
+      "original_sha256": "c0be8e5d527728f4bb328b8dafe6f8928c0e0ad499617214bee722529200a443",
+      "historical_status": "ZIP_VERIFIED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-docker-wake-diagnosis/exact-name-status/result.json",
+      "original_sha256": "87ac5b23abb39872eb1291bfbb69f43fc28de07c9e2613fe980602a849812e1c",
+      "historical_status": "COMMAND_FAILED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-fresh-cache-inspection/independent-cleanup/result.json",
+      "original_sha256": "e865826269ac399390e0d88bd65eb68925716de7753dd80410a95261dc2bd6d1",
+      "historical_status": "UNCONFIRMED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-fresh-cache-inspection/result.json",
+      "original_sha256": "a1139b210f533a0e652f9c79a83455f0516fd720ab9d63ceb2e53b62a9099fd2",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/command-trace-final.json",
+      "original_sha256": "ee15f6a5da84d4e3f06c642a62666e115a3bae46bfbcc22d20d65710cf723ccc",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/command-trace-green.json",
+      "original_sha256": "dbb37194343e41011790edb76e97a0fff88fb0559877f8e4016527073ec1e323",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/command-trace-red.json",
+      "original_sha256": "5b6b657de60bed162aca39a2e03372a6977864a7f4e9fce3483c104e372da8fe",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/command-trace-reviewed.json",
+      "original_sha256": "f474765032bc2cc99c6de239d2b636023a7a0fec5e3814558328cc5ca0346708",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/command-trace-ruff.json",
+      "original_sha256": "2a8e0d422b1dba4775a84b49418ace3e782bbb1db2479738b08cc320ea51b769",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/independent-cleanup/result.json",
+      "original_sha256": "f1b5772303c8ae47665cc0c2f56de35cc006802fa55b608c7837efe4b6899aa2",
+      "historical_status": "UNCONFIRMED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/result.json",
+      "original_sha256": "2160a6ecb9e649d04b23ccc432bdb9b81e7a36b681f0541d86933f1873eaccc5",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-instrumented-create-only/trace-clock-red.json",
+      "original_sha256": "469d0c40a3a573889d3c3d24c6d18d2057dc7ecbaa4ada34aed122ac2e575b8c",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-integration-disposal-gap/integration-disposal-boundary-writable-temp.json",
+      "original_sha256": "9bbb36628fcd5b3bbea1e0c18720b208e2d4066c81dcfc920f675a89f4ef4ab3",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-integration-disposal-gap/integration-disposal-boundary.json",
+      "original_sha256": "55b55b1814ec96ef4c86cdf5cb56a6d97785ef960f8d2bcd91db1556ff9ec9c5",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-attempt/inventory.json",
+      "original_sha256": "2cb2ef76798fe6b9fd3bf387679f5468d58a832cf3c23e7c0a5f9e68b7be0d05",
+      "historical_status": "PREREQUISITE_ACCESS_BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-attempt/outer-result.json",
+      "original_sha256": "b88a8eee6de525a63e0f73c897c87e39cb28d254fd916dd92b153a2b9797cb71",
+      "historical_status": "STOPPED_OR_FAILED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/evidence/blocked.json",
+      "original_sha256": "94307bf699259b3b8c3c5d8cb8633a64d3bab38417c5416eb19c82d683368061",
+      "passed": true
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/evidence/cancel.json",
+      "original_sha256": "caf59905b2b23e1a072010abf88d8a937472750bc06756f649ce8ff5d05a44ff",
+      "passed": true
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/evidence/disconnect.json",
+      "original_sha256": "b67c24b8e1723d682bacf9f383c50e8ca0d775891fe8406c7afb1fe6f3042b10",
+      "passed": true
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/evidence/exited-leader.json",
+      "original_sha256": "fd62ed9f1bbce1d8702c0951e1bf65fa0076a927122a2e9893cec8aa863e58db",
+      "passed": true
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/evidence/normal.json",
+      "original_sha256": "b927eca61238b6209ebebe73e4e69c458f0dd412592ea0f01144387f5febb9c2",
+      "passed": true
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/evidence/partial-start.json",
+      "original_sha256": "276f223f1c24d88dd4f6901e4072b8609c8b295c7dd0f78532357a32f2a0a2dd",
+      "passed": true
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/evidence/summary.json",
+      "original_sha256": "e621421b632ce13c06ff18859235ca2128f2a720f4394eac9485b30cc4867ecf",
+      "passed": 6
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-linux-validation/outer-result.json",
+      "original_sha256": "09a7479cf9d055231afe7993febb231efd4031e649e8cc485fd67c3c0d2bdb1a",
+      "historical_status": "COMPLETED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-config-overlap-red.json",
+      "original_sha256": "c4301a622cf0b03263231200bb7d79fb9b84a74260638b80cbc6f63102eb5152",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-contract-green.json",
+      "original_sha256": "0443e29dbd9d33059fc1f87559224d00a0ace3c8955411a91b695ad48d347100",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-contract-red.json",
+      "original_sha256": "45edcdc51a628afd5e39f46561e2abf7a0dec4e52258ee4f297475b411806928",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-final.json",
+      "original_sha256": "88fc03a0350e69b65cc3eb7a2f8987aaff0b21392a45e74cacb177f6bbce2c36",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-readiness-green.json",
+      "original_sha256": "f1d280370a689904cb67031aebb558f736d89d7ec725e1e5bd13f4d88838a52a",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-readiness-red.json",
+      "original_sha256": "ec8dd907097b806439155dbf8317faccbab5862fc963f53e6f2f82190f31a268",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-ruff-final.json",
+      "original_sha256": "c842318c557e18d3622ae6edcce1f38b5cc33c22799d11a7d8b44e281f9748bd",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-sequence-green.json",
+      "original_sha256": "e12362655fec673b9e79c51540482a2c97ea19e916b77ba96f70c4f23669a67a",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-sequence-red.json",
+      "original_sha256": "baea0420743e54a5467c7aa8fb827e83d930b638756ae3af1dacb5cd850e64f0",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-watchdog-recipe-green.json",
+      "original_sha256": "bc82c7d876dd36fb86a8a8cbf6c2f66225ca49608390d002928c000a7a2a9786",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/disposal-watchdog-recipe-red.json",
+      "original_sha256": "2d804e443fcf481a5a169444d69e7895caad8df11c0a781138db300b9267c6ec",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-container-disposal/materialization-source-manifest.json",
+      "original_sha256": "b76d4daa6db6f67506a979cfb13797cef93205cd56395978168c57806e50a1a0",
+      "seconds": 16.779677499987883
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-prerequisites/native-containment-authorized.json",
+      "original_sha256": "21232b52c64c4a198bc07127c8d3925d8a49f0c3bea513b4cad96b5e02d35976",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-prerequisites/prerequisites-source-assembly-corrected.json",
+      "original_sha256": "b9f8df435211f8927e17d8e65f5a708420490389da4d64ca0256410d84ca755d",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-prerequisites/prerequisites-source-assembly.json",
+      "original_sha256": "8767d30821aaf35d8bdf8bb6aa69ad987745a55c5632b5d37a7670e9f22ec2c8",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-prerequisites/raw/cache-probe-result.json",
+      "original_sha256": "8fd2bbc5fc0758dd898162907e310dabc047c526ffee2a0536ec39c50435743b",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-prerequisites/raw/containment-result.json",
+      "original_sha256": "c100d801e19ae363786f177aedb3eaf4819eea45d6a816114033a4ea83b1b74c",
+      "historical_status": "PASS_NATIVE_JOB_CONTAINMENT"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-prerequisites/raw/docker-inventory-result-approved.json",
+      "original_sha256": "23948b32e737111750b71f42c266b61718de18ff2847a3bcf564d3d58ca475a6",
+      "historical_status": "METADATA_COMPLETE"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-local-prerequisites/raw/docker-inventory-result.json",
+      "original_sha256": "c3756c28ef6480ea2c818f3d96757d33f1200d84215e46feabd0dcc93326c38c",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-marker-archive-boundary/manifest.json",
+      "original_sha256": "c71c64d8883a1be196a636c49a3aaace01e20eeaab795b7b56a8240e4cfc4d42",
+      "historical_status": "BLOCKED_BEFORE_LIVE_EXPORT"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-morning-closure/archive-search.json",
+      "original_sha256": "99a369edb4863b61359ec341a1b69bddecef26a7a45356f8073c11853c033a21",
+      "historical_status": "NO_VERIFIED_MATCH"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-morning-closure/morning-combined.json",
+      "original_sha256": "1239f2596bf9f57f78b21a1f7e99e6ac69f1fc4f5f601393ec116b61766e5f94",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-morning-closure/morning-lint.json",
+      "original_sha256": "207ddf224ecb1d1090c0420f714b0b34c52ddf074a2e855aa82f8bd075427649",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-morning-closure/morning-shell-outside-sandbox.json",
+      "original_sha256": "3487742be5f094f0efaa632c26fe7cd0a5d71f0cc59b03d46ab3aa249435d778",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-offline-observation-race/observation-race-green.json",
+      "original_sha256": "17324338fe09cfb5e5c7aa077db7faef3e2836ab3c463b9c3b7da41be489591e",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-offline-observation-race/observation-race-red.json",
+      "original_sha256": "5f18d8a2232408e000964f428054cccc9d4035063099874facd41b288fbcb584",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-offline-observation-race/observation-race-ruff.json",
+      "original_sha256": "082580cedb6469fba2ea913a4c0d4dacac5caad886584d48be43c6a7393ae106",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-outage-semantics/restart-outage-semantics.json",
+      "original_sha256": "65933b39c1d1cb0ac1bc896685e469d42d63e9fb0cc869caae1dd0263689ca08",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-partial-metric-preservation/manifest.json",
+      "original_sha256": "77841a8b1a7746a0f24b3b0d3366fe47a6dfa764527c3ce5bd9576f3653c3f24",
+      "historical_status": "PARTIAL_3_OF_9_PRESERVED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-partial-metric-preservation/nbsr-metric-preserve-20261013/result.json",
+      "original_sha256": "e8fbd97a5dc0e83fe20075b809af9aecfd36b352c53fe76e044f72d1b7a981a5",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-partial-metric-preservation/nbsr-metric-preserve-cold32-20261013/result.json",
+      "original_sha256": "61ad5df07da24d57b446c4094ae023b136f935de88c56c1564f62d61b108cc40",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-patched-create-only/result.json",
+      "original_sha256": "1f6b61ce213f4647cf34326f9658580dd53a8d0dbc77ef147fdeb35d6702ca58",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-probe-offline-correction/launch-red.json",
+      "original_sha256": "903cccb75af64cefa6132f1bc7030fb25ae6db3991f7b9553d73f1a9a3ee7218",
+      "exit_code": 5
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-probe-offline-correction/launch-red2.json",
+      "original_sha256": "4e3f0e8bf326d61b264fa96520dd5f7312b83c1a03dd1f79688b51f5eb729af6",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-probe-offline-correction/probe-lint.json",
+      "original_sha256": "013dfb8c66af4a748ab93e1fe139a685b583c2e3dc1968e1df35c76007427e1a",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-probe-offline-correction/probe-offline-final.json",
+      "original_sha256": "26c196039275337af6958d8580222d55c9eb84efc554f0ed3109f165946be6c4",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-probe-offline-correction/probe-offline-green.json",
+      "original_sha256": "03565049f8f54370b37408d2a16aa9728615670bd4e94da68cf4b13cba272834",
+      "exit_code": 2
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-probe-offline-correction/probe-offline-green2.json",
+      "original_sha256": "deb2693e0d13ddf5bcf4ff041cf11c88f6c1950e6c0b968265274f3e570b5bfd",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-probe-offline-correction/probe-shell-approved.json",
+      "original_sha256": "eaf7f41fc7be1031bd5b182f02a3feb231fd9ade952533ec108e0c148aa4f6a0",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-process-only-diagnostic/helper-diagnostic-green.json",
+      "original_sha256": "b36929db026ba3c3c3f2a11a3e8e12349984ebc505c0e28f39625657a0a43476",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-process-only-diagnostic/helper-diagnostic-lint-final.json",
+      "original_sha256": "6ae6849e54d116fd6acf907b62134832a2ee87232e62bd0b7fbef117ddbf3610",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-process-only-diagnostic/helper-diagnostic-lint.json",
+      "original_sha256": "d172ea71330da26a3cdbaf14b5183c367d5a783bd30cd249b962a8a5bf8cb9de",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-process-only-diagnostic/helper-diagnostic-red.json",
+      "original_sha256": "4a0cd7daa491a4fdf64a8853082cb6bc3abc76e2a6702b7b0d68c1b6fcad7d8a",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-process-only-diagnostic/helper-diagnostic-reviewed.json",
+      "original_sha256": "4a7da469875e63aba2295784e1fd31cf02541361abd1217fe345a8819e6fc2aa",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reconnect-verification/restart-reconnect-baseline.json",
+      "original_sha256": "4d009f26e66b94957e15a9e65ca8cca98427a22cf1d6abd77300080c43eba843",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reconnect-verification/restart-reconnect-characterization.json",
+      "original_sha256": "1c9515a1a25cb1688747f7e55c2343a48d5e90fa31720a4c3895b7ecc65cdf4e",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reconnect-verification/restart-reconnect-final.json",
+      "original_sha256": "3edaeb57a12b763c960396529f361bd821e6222b74596523aa5191111b5c0b18",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-harness/recovery-harness-final.json",
+      "original_sha256": "48db23a014d70aa568afdfc40cab7dcde0242d6f98b5cc7a0cb9ff9abfed6183",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-harness/recovery-harness-green.json",
+      "original_sha256": "57133db904493ee9f01344e41d7cfbf1fd90a4ee28d1b4885834c316273f0b5c",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-harness/recovery-harness-matrix.json",
+      "original_sha256": "fbfdf76de8b80ea3f36bd252cd5d253642366061467e4f42daa6893c5460fdb6",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-harness/recovery-harness-red.json",
+      "original_sha256": "d6b01fdfe9fe795acb6f260bffcbdb1c71ed872fab59529fdc5bf2016bb4f3fe",
+      "exit_code": 2
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-harness/recovery-harness-reentrant-red.json",
+      "original_sha256": "4376294fbcb80bb8b3dbe9f922f672f6ec3cab5a22344111026196aa14d71d7d",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-linux-trial/raw/evidence/after-primary.json",
+      "original_sha256": "6503d0e77b538e7684d9f2237c7f42c5643fa30ad0330b4c815e47086b1764a8",
+      "historical_status": "PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-linux-trial/raw/evidence/after-watermark.json",
+      "original_sha256": "8f174be28fb1c1458757307611680830a5dd238b8ce5e7ffc6d6d5e76c55a84e",
+      "historical_status": "PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-linux-trial/raw/evidence/before-watermark.json",
+      "original_sha256": "03d9f14f6efa349075274352f0b0a4676926f5b1df3c23e0cb6517f8932ceaec",
+      "historical_status": "PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-linux-trial/raw/evidence/normal.json",
+      "original_sha256": "8a9b5531b4fcc33d3c93f3da541c33c747cebfcae647ac78a413b457de0a44e9",
+      "historical_status": "PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-linux-trial/raw/evidence/summary.json",
+      "original_sha256": "1ecdbbd2895adb931622e78c505c4c57fb40c865cd0f7c25928d199577643d24",
+      "historical_status": "PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-recovery-linux-trial/raw/outer-result.json",
+      "original_sha256": "464b35c05836f50bf47335f7e10eb1998a0faa9c3f21f955abb2534e6eb0c040",
+      "historical_status": "COMPLETED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reviewed-source-commit/assembled-source-ruff.json",
+      "original_sha256": "4280ca8f3fed1e575dc965b7bf72cfe853187acd0a62048d8e15e7cf62e2f007",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reviewed-source-commit/assembled-source-tests.json",
+      "original_sha256": "cbaeb2fb5d1c26dd282d79d2d4faa44de641ffd6d7a50316eabc41e121812f28",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reviewed-source-commit/baseline-byte-preservation.json",
+      "original_sha256": "1de2699c35f4adce449203ec92b2d6a10a2bc2530aaf9510e35ec8541a85d6c3",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reviewed-source-commit/cleanup-diagnostic-green.json",
+      "original_sha256": "ef2300fe8a3fb89fee3fc0580ed8e74028a8ea42972c7b31370133e54533bb87",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reviewed-source-commit/cleanup-diagnostic-red.json",
+      "original_sha256": "2a93c3aa92a4aea8724ffd9a835477a98d1fc4d512a4175e07e6193e2034a3b4",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reviewed-source-commit/exact-blob-recovery.json",
+      "original_sha256": "d77809bc6a6a2e3e3264d1f13e6cfe036b8206b0df1f6743b263a50525b6fa72",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-reviewed-source-commit/source-overlay-assembled.json",
+      "original_sha256": "a8d492278b76d63949c90db18a890b3e7687aa8913a8719ae7fcbf17901ce4c8",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-rust-cache-corrected/result.json",
+      "original_sha256": "4f618fb6dafb0b8ccd9fc355bbb8e0c20d15619b7462e2803acfe0875e2eeec8",
+      "historical_status": "METADATA_OBSERVED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-rust-cache-probe-attempt/result.json",
+      "original_sha256": "ed5d055b19691eebdf38e3efe5d8e6ec0abefa9513847ce5d875df9e72ee2906",
+      "historical_status": "BLOCKED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-single-readonly-docker/result.json",
+      "original_sha256": "12c3abadf81c74435743ffe6eeb1c9be3b6074b48cba8ed173766df8796bf7da",
+      "historical_status": "PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-source-container-archive/capture-result.json",
+      "original_sha256": "21924eaaf9fd2abb667f2fc151b9b19e0afd085dcda6c82442b0b6ac01d8eb1f",
+      "historical_status": "COPIED_REVIEW_PENDING"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-source-container-archive/manifest.json",
+      "original_sha256": "b35e97c66ddad42b41f4e5d3f003e9830874a7634819731c97ddf18593013555",
+      "historical_status": "SELECTED_38_FILES_ARCHIVED_NOT_DELETION_CLEARED"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-sphere-integration-readiness/sphere-integration-preflight.json",
+      "original_sha256": "cf51003b414774d1b5fdf88bdccb6d9f7472a2f3dbb3a2726eab1b4f3648f04d",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-adapter-check.json",
+      "original_sha256": "c5842829c2fe115122501d18ca8eae6d527dc997adc87af82392d50296c7a656",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-core-green.json",
+      "original_sha256": "a1881ba48ffa5f3bb016c66739420b9bc35eabc0e29ee6ecd323f984e525eda9",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-deadline-red.json",
+      "original_sha256": "98306782cc5ad0c8490dcffcb30d06d90817fb800121773c1acacbbab434ce9f",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-focused-final.json",
+      "original_sha256": "8eb4cba28edada839500e538eb0ad0cce7a7ee6fccf794611a41ec16041c97b7",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-lint-final.json",
+      "original_sha256": "1bfe513587adb7781aa6e27a50f765a2190c324bbc4cd2b4757c4b55aa1d0f01",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-lint.json",
+      "original_sha256": "96888840ff3c809ccc800b8b009362419ca242e2e4c669c673d8c01f67a2b6dd",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-review-green.json",
+      "original_sha256": "3fd510c158d54b1780e3fe017d6adee5c389f6fea7075d1f3cdd6019423e2529",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-review-red.json",
+      "original_sha256": "90ff590e718a8dfadd052b12acc17a063f829c256dfbecc4ad9448a583b84554",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-watchdog/evidence/watchdog-supervisor-red.json",
+      "original_sha256": "d2930b98013e71c08931c564322278187b5b61dbe96aa74a7a3e32ee1906cb40",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/checkpoint.json",
+      "original_sha256": "6ad29f8fc79a7d0f4ac6c8eb2a0362998ff3e04fbded310be5be5b1dcc2525d7",
+      "historical_status": "OFFLINE_ADAPTER_PREPARED_LIVE_NOT_RUN"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/docker-provision-boundary-green.json",
+      "original_sha256": "f9e95469a9928cce4091f2d848657f102481a7155d17a0ebd6d58b7481e9686e",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/docker-provision-boundary-red.json",
+      "original_sha256": "eef0f238e2b154d765d2d2061e8a6a3dd4477e7b43eb3d4c849ca8496365d786",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/docker-provision-final.json",
+      "original_sha256": "4200aaeb78cf396bac5488a9f5a4f2e070c2f82abaa349528464f5e66f18bb0c",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/docker-provision-green.json",
+      "original_sha256": "29655a2acbeefef766dd735b3c5a24571c13fca4830cadc2a22f6a730ea2d612",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/docker-provision-red.json",
+      "original_sha256": "e22237e3b7e4c6d4211c95719a3225d959f5d8b4aa740a12621bb7ccf41233ff",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/docker-provision-review-red.json",
+      "original_sha256": "4690aac3e36eafb14dad05619d3801b83dc80d083c43ba56d4e9d9b645c47171",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/docker-provision-ruff.json",
+      "original_sha256": "fa130f99db28b42a69b5e3c0eea665fb247303ec2f766003725547a08c1acd4a",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-docker-provisioning/materialization-source-manifest.json",
+      "original_sha256": "b76d4daa6db6f67506a979cfb13797cef93205cd56395978168c57806e50a1a0",
+      "seconds": 16.779677499987883
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/materialization-source-manifest.json",
+      "original_sha256": "b76d4daa6db6f67506a979cfb13797cef93205cd56395978168c57806e50a1a0",
+      "seconds": 16.779677499987883
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-cancellation-red.json",
+      "original_sha256": "d0f81f37c8685045a380c3905838438c1fe0c843afd978104a537b13b08f224d",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-composition-green.json",
+      "original_sha256": "b354c29571bea34601e3a860b8291a5266f2c88c06a4783d129d06176dce24de",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-composition-red.json",
+      "original_sha256": "88fcb152d7cc788d921dcd8021f95d400f5fdc0c1e5731a16c7690d2a000439f",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-corrections-green.json",
+      "original_sha256": "ed5f280c05d05dad5b8b568af832975125d95cf21ce260084ce29cba778826a3",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-deadline-red.json",
+      "original_sha256": "72cf6d9e59f09d7fb943f62ade48a97c829680f639d1569030ec1f5202edd3f2",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-final.json",
+      "original_sha256": "6f8e8c037d59895823b2b6fdee962193386cef0468a34c8a15f2fb4909727a80",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-management-green.json",
+      "original_sha256": "09db0296b17de358b8e60c82a05d9dbc1de20da921d1c741557ba16d8981a3a2",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-management-red.json",
+      "original_sha256": "87f3c17f07ba7004a486cb893f36bd190c4b8b81c01c5c6c1ccdec61600f266e",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-native-binding-green.json",
+      "original_sha256": "55920b085cf99bee4241fa2f123e99be6564b092255cd60998c962d6025ff549",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-native-binding-red.json",
+      "original_sha256": "b8bfe758231dd122eb6dfc29d4c1d30637d8230d2e56ba4c5c9bfc2f8953c6e7",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-ruff-final.json",
+      "original_sha256": "dea732c9b95ab291fb20f67e12ea671920015ae858dba7c488da848472d39b54",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-runner-green.json",
+      "original_sha256": "11ba214e8047cb92b8fc8fe8996cb714c8b1e5c9227801f5c9591f3273537e28",
+      "exit_code": 0
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-13-windows-native-management/windows-runner-red.json",
+      "original_sha256": "89433aae5f6ba9a4d374675df847e6fa94c80b3afbfe3bbea0180deaa1768aa5",
+      "exit_code": 1
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-14-linux-build-execfix/manifest.json",
+      "original_sha256": "3d698d9ff4df7d04c1b80ece5e0e97cbcb694b505c1653743494e3c1841dd32e",
+      "historical_status": "BUILD_PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-14-linux-build-execfix/nbsr-execfix-offline-tests.json",
+      "original_sha256": "bcc2091a1492f2bbc77d120d4057f613c96abdad6e85a5b187707630422ef086",
+      "historical_status": "PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-14-linux-build-execfix/run/result.json",
+      "original_sha256": "8203d47a555910fe145bd537121ff3f985dce75876f7df0c31d00d9d1e4f492d",
+      "historical_status": "BUILD_PASS"
+    },
+    {
+      "source_label": "evidence/local-handoff/2026-10-14-single-linux-build/run/result.json",
+      "original_sha256": "d47860b2d536ad76e8d6e223c06929497c6e9f973bb1521c548a7e168fadd3dd",
+      "historical_status": "BUILD_FAILED"
+    }
+  ]
+}

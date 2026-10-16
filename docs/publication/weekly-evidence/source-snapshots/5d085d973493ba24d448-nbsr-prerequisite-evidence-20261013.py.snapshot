@@ -1,0 +1,119 @@
+from pathlib import Path
+import hashlib
+import json
+import shutil
+
+temp = Path('C:/Users/OPERATOR/AppData/Local/Temp')
+root = temp / 'nbsr-prerequisites-20261013'
+logs = temp / 'nbsr-kar-positive-evidence-20261012'
+out = Path('C:/Users/OPERATOR/OneDrive/Documents/NBSR/evidence/local-handoff/2026-10-13-local-prerequisites')
+out.mkdir(exist_ok=False)
+for p in root.rglob('*'):
+    if p.is_file():
+        target = out / 'raw' / p.relative_to(root)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(p, target)
+for name in ('containment', 'docker-inventory', 'source', 'cache-probe', 'evidence'):
+    p = temp / ('nbsr-prerequisite-' + name + '-20261013.py')
+    shutil.copyfile(p, out / p.name)
+for label in ('native-containment-authorized', 'prerequisites-source-assembly', 'prerequisites-source-assembly-corrected'):
+    for suffix in ('.json', '.stdout.log', '.stderr.log'):
+        shutil.copyfile(logs / (label + suffix), out / (label + suffix))
+source = temp / 'nbsr-kar-positive-20261012'
+dependencies = ['windows_docker_provisioning.py', 'windows_native_management.py', 'windows_job_backend.py', 'process_cancellation.py']
+checkpoint = {
+    'authorization': 'Sentinel_87ffe2ceb0c08191afa89fc72612ca31; three prerequisite steps only',
+    'source_commit': 'NOT_CREATED', 'linux_build': 'NOT_RUN', 'tls': 'NOT_TOUCHED', 'quic': 'NOT_RUN',
+    'native_containment': 'PASS_NATIVE_JOB_CONTAINMENT',
+    'native_elapsed_seconds': 0.478, 'native_supervised_seconds': 1.61,
+    'native_observed_job_processes': 4, 'native_after_termination': 0, 'native_handles_retained': False,
+    'docker_metadata': 'PASS_AFTER_SUPPORTED_COMMAND_APPROVAL',
+    'original_sandbox_query': 'Docker named pipe permission denied; preserved, no permission setting changed',
+    'cache_probe': 'FAILED_TIMEOUT_UNCONFIRMED_ORIGINAL_CLEANUP',
+    'cache_probe_output': 'stdout/stderr files exist and are empty; reply.json absent',
+    'cache_probe_repeat': False, 'cache_compatibility': 'NOT_ESTABLISHED',
+    'later_observations': {
+        'exact_name': 'nbsr-cache-metadata-20261013',
+        'inspect': 'Error response from daemon: No such container: nbsr-cache-metadata-20261013',
+        'exact_label_query': 'nbsr.prerequisite=cache-metadata-20261013 returned no rows',
+        'scoped_process_query': 'matching python request and Docker creation command returned no rows',
+        'meaning': 'Follow-up read-only reconciliation, not a successful original cleanup receipt or bounded trial PASS.',
+    },
+    'source_assembly': {
+        'root': str(temp / 'nbsr-two-stream-source-20261013'),
+        'head': 'ad77d59754651fee449bb1d9c14a946f9f3b2d15',
+        'head_meaning': 'Existing baseline reference only, not a newly created commit',
+        'index_entries': 0, 'status_entries': 18780,
+        'overlay_applied': False,
+        'failure_1': 'Windows text translation put CRLF into Git alternate path; corrected with LF bytes',
+        'failure_2': 'read-tree could not materialize three missing baseline Git blobs',
+        'missing_blobs': {
+            'AGENTS.md': '2054fa44cc59ba165d457a7c2e9584a3674bef16',
+            'scripts/ci/check.py': '2470f59ca79c8a11db609bdaac8f97866bc8717d',
+            'tests/ci/test_ci.py': '249435ebf814e195ceaae944480dc8a80b60b3d0',
+        },
+        'meaning': 'Partial fresh task-owned materialization retained. Original dirty source preserved. No commit/build on incomplete inputs.',
+    },
+    'selected_source_sha256': {n: hashlib.sha256((source / 'scripts/performance' / n).read_bytes()).hexdigest()
+                               for n in dependencies},
+    'resource_baseline_bytes': 14247788544,
+    'no_download_pull_credentials_signing_push_security_change': True,
+}
+(out / 'checkpoint.json').write_text(json.dumps(checkpoint, indent=2))
+(out / 'README.md').write_text('''# Approved local prerequisites — partial completion
+
+Native Windows containment PASS: one real helper/descendant case, suspended creation,
+Job assignment before resume, four active Job processes observed, termination to
+zero, and three exact handles closed. Trial0.478s, supervised1.61s; no resource abort.
+This proves that case only, not universal containment or transport behavior.
+
+Docker metadata succeeded through supported command-specific approval after the
+sandboxed named-pipe query was denied. Linux desktop engine and existing image IDs
+were observed. No persistent permission change or image pull occurred.
+
+The ONE subsequent readonly/network-none/no-mount cache probe timed out during its
+first create command. No container ID returned; stdout/stderr files exist but are
+empty, and reply.json is absent;
+the original result records owned=true and cleanup UNCONFIRMED. No retry or build.
+Later approved read-only reconciliation found no container under the exact attempt
+name or label and no matching helper/CLI process. Preserve this distinction: later
+absence is not a successful original trial/cleanup receipt, and its elapsed-time
+bound was not independently retained. Cache/toolchain compatibility remains unknown.
+
+Source allowlist review selected9 runtime files,8 regression files, one synthetic
+config and scoped docs over exact baseline ad77d597. Assembly first hit a CRLF Git
+alternate-path error, then failed because three baseline blobs are unavailable.
+The fresh partial materialization is retained with zero index entries. No new local
+commit, no overlay application and no Linux build. Do not interpret its baseline
+HEAD reference as a completed source snapshot or run/build from this tree.
+
+TLS/private credentials and QUIC were untouched. Original dirty sources, all prior
+evidence, existing images/volumes/caches were preserved. Missing baseline inputs
+and the failed cache-command path must be resolved before dependent work; no cold
+download, unreviewed source substitution or automatic native retry is authorized.
+''', encoding='utf-8')
+(out / 'independent-review.md').write_text('''# Independent prerequisite review
+
+Reviewer /root/kar_positive_review read the retained outcomes/scripts and known
+publication snapshots without edits or live operations. Native containment result
+supports that one case only. Docker metadata establishes Linux/amd64 image presence,
+not usable toolchain/cache contents. Cache probe remains failed with retained
+ownership uncertainty; later absence must remain separate from original cleanup.
+
+Correction applied before sealing this bundle: stdout/stderr files exist and are
+empty; reply.json is absent. Earlier draft wording claiming output files absent
+was unsupported. No exact matches for the three missing baseline Git blobs were
+established from known publication snapshots or in-memory reversal of the retained
+KAR patch. No alternate baseline is justified. No overlay, new commit or build.
+
+The source allowlist review selected nine runtime files, eight regression files,
+the existing synthetic finite config and scoped docs. Preserve baseline Rust and
+public fixtures; omit unrelated KAR/recovery/CI overlays and raw private evidence.
+''', encoding='utf-8')
+inventory = {p.relative_to(out).as_posix(): {'bytes':p.stat().st_size,
+             'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+             for p in sorted(out.rglob('*')) if p.is_file()}
+(out / 'inventory.json').write_text(json.dumps(inventory, indent=2))
+assert all(hashlib.sha256((out/n).read_bytes()).hexdigest()==v['sha256'] for n,v in inventory.items())
+print(json.dumps({'bundle': str(out), 'verified_entries': len(inventory),
+                  'inventory_sha256': hashlib.sha256((out/'inventory.json').read_bytes()).hexdigest()}))

@@ -1,0 +1,53 @@
+"""One exact diagnostic container; original two-container adapter is untouched."""
+import copy,hashlib,json,math,re,time
+from pathlib import Path
+from scripts.performance.linux_native_finite_run import validate_config
+HERE=Path(__file__).resolve().parent
+CONFIG_PIN='263490deb35214facaf9fae7eead431f4c593174a2ca7716c9522c83f05c0103'
+def bind_single(config,identity):
+ if type(identity) is not str or re.fullmatch('[0-9a-f]{64}',identity) is None:raise ValueError('exact container ID required')
+ wire=(HERE/'finite-config.proposed.json').read_bytes()
+ if hashlib.sha256(wire).hexdigest()!=CONFIG_PIN or config!=json.loads(wire):raise ValueError('approved exact configuration required')
+ validate_config(config);result=copy.deepcopy(config)
+ for role in ('source','destination'):result[role]['host']=identity
+ validate_config(result);return result
+class Budget60:
+ def __init__(self,started,*,clock=time.monotonic):
+  if type(started) not in (int,float) or not math.isfinite(started):raise ValueError('finite start required')
+  self.started=self.previous=started;self.clock=clock;self.failed=False
+ def now(self):
+  n=self.clock()
+  if type(n) not in (int,float) or not math.isfinite(n) or n<self.previous:raise ValueError('monotonic clock invalid')
+  self.previous=n;return n
+ def work(self):
+  if self.failed:raise TimeoutError('work already stopped')
+  try:
+   if self.now()>=self.started+60:raise TimeoutError('60-second work cutoff')
+  except BaseException:self.failed=True;raise
+ def total(self):
+  if self.now()>=self.started+120:raise TimeoutError('cleanup-inclusive cutoff')
+def run_owned(owner,budget,guard,cancel,*,sleep=time.sleep):
+ result={'work_pass':False,'host_handles_owned':True}
+ try:
+  budget.work();guard();cancel();owner.start()
+  while True:
+   budget.work();guard();cancel();code,active=owner.observe();budget.work()
+   if code is not None and not active:
+    owner.reap();budget.work()
+    if code!=0:raise RuntimeError('worker nonzero exit')
+    result['work_pass']=True;break
+   sleep(.02)
+ except BaseException as error:result['failure']={'type':type(error).__name__,'message':str(error)}
+ finally:
+  if owner.owned:
+   try:
+    owner.signal('KILL');end=min(budget.started+120,budget.now()+5)
+    while budget.now()<end:
+     code,active=owner.observe()
+     if code is not None and not active:owner.reap();break
+     sleep(.02)
+    if owner.owned:raise RuntimeError('native ownership retained')
+   except BaseException as error:result['cleanup_error']={'type':type(error).__name__,'message':str(error)}
+  result['host_handles_owned']=owner.owned
+  if owner.owned:result['work_pass']=False
+ return result

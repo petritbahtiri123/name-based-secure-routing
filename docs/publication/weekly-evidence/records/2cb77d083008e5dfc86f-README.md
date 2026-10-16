@@ -1,0 +1,9 @@
+# Targeted storage and Linux Rust cache review
+
+No deletion candidate is yet verified disposable. Four exact stopped-container candidates are listed in review.json (514, 484, 476 and 460 MB; rounded Docker writable-layer sizes, 1.934 GB total). They are historical test leftovers by name and retained recipe, but unique writable content remains unknown. Both retained raw-evidence roots are absent. No assertion that bind-mounted data or container layers are archived is made.
+
+One safe formatted Docker inspect failed with named-pipe permission denied in 1.16 seconds, with command ownership false. No retry, permission change or Docker mutation followed. Creation times and mount references come from the successful earlier inventory; mount types come only from historical recipes. Exact live image bindings and labels remain unverified.
+
+The green-cache image is a plausible existing Linux Rust environment based on a historical retained report. Current image metadata and offline coverage for the current lockfile are not verified. Preserve green/clippy/build caches and pinned Rust base. The Python runtime probe is scoped: /opt/nbsr/bin was not inspected.
+
+Smallest next request: restore authorized read-only Docker connectivity and inspect the exact existing cache image first; then, only if separately authorized, a bounded metadata/cache coverage probe. No download is justified yet. If missing dependencies are proven, request only their exact locked package artifacts and a bounded incremental build; download bytes and build growth cannot currently be estimated honestly. Latest host free space is about 12.33 GiB. The 8 GiB start, 6 GiB stop and 2 GiB growth limits remain controlling; Docker logical free space does not represent physical host headroom. No host reclamation estimate is made.

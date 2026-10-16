@@ -1,0 +1,52 @@
+"""Offline executable proposal only; no Docker or production supervisor changes."""
+import unittest
+
+def allocation(elapsed, requested, *, cleanup=False):
+    if elapsed < 0 or requested <= 2:
+        raise ValueError('invalid allocation')
+    boundary = 120 if cleanup else 95
+    total = min(requested, boundary-elapsed)
+    if total <= 2:
+        raise TimeoutError('insufficient bounded command and reap budget')
+    return total-2, 2
+
+class ProposedState:
+    def __init__(self):
+        self.attempted=False;self.uncertain=False;self.id=None;self.absence_observed=False
+    def create(self):
+        if self.attempted:raise RuntimeError('no create retry')
+        self.attempted=True;self.uncertain=True
+    def observe(self, *, identity=None, ownership=False, absent=False):
+        if absent:
+            self.absence_observed=True
+            return 'POINT_IN_TIME_ABSENCE'
+        if not identity or not ownership:raise RuntimeError('unverified ownership')
+        self.id=identity
+        return 'REMOVE_EXACT_ID'
+    def confirmed_removed(self, identity, *, absent, handles_released):
+        if identity != self.id or not absent or not handles_released:raise RuntimeError('cleanup unconfirmed')
+        self.uncertain=False
+
+class Contract(unittest.TestCase):
+    def test_create_candidate_32_total_30_work(self):self.assertEqual(allocation(1,32),(30,2))
+    def test_no_fresh_clock_at_late_create(self):self.assertEqual(allocation(90,32),(3,2))
+    def test_work_cannot_consume_final_reserve(self):
+        with self.assertRaises(TimeoutError):allocation(95,8)
+    def test_cleanup_clamped_to_total_deadline(self):
+        self.assertEqual(allocation(115,8,cleanup=True),(3,2))
+        with self.assertRaises(TimeoutError):allocation(119,8,cleanup=True)
+    def test_timeout_retains_uncertainty_no_retry(self):
+        s=ProposedState();s.create()
+        with self.assertRaises(RuntimeError):s.create()
+        self.assertTrue(s.uncertain)
+    def test_absence_does_not_prove_daemon_cancellation(self):
+        s=ProposedState();s.create();self.assertEqual(s.observe(absent=True),'POINT_IN_TIME_ABSENCE');self.assertTrue(s.uncertain)
+    def test_late_owned_id_can_be_reconciled(self):
+        s=ProposedState();s.create();s.observe(absent=True);self.assertEqual(s.observe(identity='owned',ownership=True),'REMOVE_EXACT_ID');s.confirmed_removed('owned',absent=True,handles_released=True);self.assertFalse(s.uncertain)
+    def test_foreign_id_and_failed_release_rejected(self):
+        s=ProposedState();s.create()
+        with self.assertRaises(RuntimeError):s.observe(identity='foreign',ownership=False)
+        s.observe(identity='owned',ownership=True)
+        with self.assertRaises(RuntimeError):s.confirmed_removed('owned',absent=True,handles_released=False)
+        self.assertTrue(s.uncertain)
+if __name__=='__main__':unittest.main()

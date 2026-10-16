@@ -1,0 +1,112 @@
+"""Offline reviewed preparation. CLI remains blocked pending explicit approval."""
+import hashlib,json,pathlib,re,sys,time,uuid
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent.parent))
+from build_budget import DiagnosticCommand,CreateReconciler,IMAGE
+from scripts.performance.local_container_disposal import Unconfirmed
+HERE=pathlib.Path(__file__).resolve().parent
+INPUT_PINS={'artifact-closure.json': '38f13d332a8af94e8930eb4f41a6a1f6cef7a072157d35fcd3fb35fc43923267', 'install_offline_v2.py': '7b6e1a7d89989415031a76e7071785272646995eb5e24488cff6eb3f8eedf54d', '../package-metadata-plan/diagnostic-requirements.lock': '822b768fe3c7ca92bdfda515a3c85906a6ed5184793143dfea0db019e3b55762', 'bookworm.InRelease': '77737fa4b34f2693e982cc9ee35736816c35a7778fc2d326cc1bbf5b301fe1aa', 'bookworm-updates.InRelease': '03db7de1342dfa8d0e971c99712d63d3dbdebdc1191e5b65dddbc7f06c1aa883', 'bookworm-security.InRelease': 'cb78293d247b4d301f3c1301beb9f78ce9a1958e73caf2f6c110d840e44ed1bd', 'verified-indexes.json': '69ee60c4462354d416a78af2ca51dc0d4d19bf6ace37a3a7836d7533175e06b0', 'dpkg-status': '646e182b3b4a1182c9b4a8f583d9f08e3148e243349f0e6bf5ff07c57000c3b0', 'debian-archive-keyring.gpg': '506b815cbb32d9b6066b4a2aa524071e071761e7e7f68c3ac74f3061ba852017', 'build_budget.py': '3e00f5524ca8e7a73618c03403b3485c5fefadea4fd10f6cf79549113ab82a9e', '../candidate_probe_budget.py': '47adb75ae83d27d24c98c642a5e62530a02216e6de9191ec566d79025a7a732c', '../diagnostic_absence.py': '7216acd04d325f35eb00f294e5155a26c642b53f6ddc85ee44855aaaf8105fc0', '../source_attempt09_retry1.py': 'd12bf517463d1c7c867b1a31448d713449a89945acc75b1ce3623f19fbeacf6b'}
+
+def prepare_and_launch(artifacts,root,baseline):
+    """Future activation entry; CLI cannot call this without a reviewed edit."""
+    from source_attempt09_retry1 import resources,FLOOR
+    started=time.monotonic();before=resources();growth_origin=baseline
+    assert INPUT_PINS
+    assert before['disk']>=FLOOR+500*1024**2 and min(before['ram'],before['commit'])>=2*1024**3
+    def guard():
+        r=resources()
+        if time.monotonic()>=started+60:raise TimeoutError('absolute work deadline')
+        if r['disk']<FLOOR or growth_origin['disk']-r['disk']>300*1024**2 or min(r['ram'],r['commit'])<2*1024**3:raise Unconfirmed('resource guard')
+    for name,digest in INPUT_PINS.items():
+        guard();assert hashlib.sha256((HERE/name).read_bytes()).hexdigest()==digest,name
+    import datetime,email.utils
+    for suite in ['bookworm','bookworm-updates','bookworm-security']:
+        for line in (HERE/(suite+'.InRelease')).read_text().splitlines():
+            if line.startswith('Valid-Until: '):assert email.utils.parsedate_to_datetime(line[13:])>datetime.datetime.now(datetime.timezone.utc)
+    m=json.loads((HERE/'artifact-closure.json').read_text())
+    root=pathlib.Path(root);root.mkdir(exist_ok=False);(root/'logs').mkdir();staging=root/'public-inputs';staging.mkdir()
+    artifacts=pathlib.Path(artifacts)
+    for r in m['packages']+m['wheels']:
+        guard();name=r['filename'];assert '/' not in name and '\\' not in name and name not in ('.','..')
+        source=artifacts/name;assert source.is_file() and not source.is_symlink() and source.stat().st_size==r['bytes']
+        b=source.read_bytes();assert len(b)==r['bytes'] and hashlib.sha256(b).hexdigest()==r['sha256'];(staging/name).write_bytes(b)
+    for source,name in [('artifact-closure.json','artifact-closure.json'),('../package-metadata-plan/diagnostic-requirements.lock','diagnostic-requirements.lock'),('install_offline_v2.py','install_offline.py')]:
+        guard();(staging/name).write_bytes((HERE/source).read_bytes())
+    command=DiagnosticCommand(root/'logs',started=started,extended_create=True,work_guard=guard,executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe')
+    name='nbsr-diagnostic-build-'+uuid.uuid4().hex[:12]
+    rec=CreateReconciler(root,command,name=name,image=IMAGE,task_labels={'nbsr.build-run':name})
+    result=launch(command,rec,staging,INPUT_PINS['artifact-closure.json'],guard)
+    result.update(before=before,after=resources(),elapsed=time.monotonic()-started)
+    (root/'result.json').write_text(json.dumps(result,indent=2))
+    return result
+
+def launch(command,rec,staging,manifest_digest,guard):
+    """Caller supplies a verified exclusive public-only staging directory.
+    One command owner and one absolute deadline survive every cleanup path.
+    """
+    root=rec.root;cid=None;tag='nbsr-public-diagnostic:'+rec.name
+    state={'status':'FAILED','commit_attempted':False,'commit_uncertain':False,'image':None,'container_absent':False}
+    def run(args,*,install=False):
+        guard();r=command(args,timeout=52 if install else 8,install=install)
+        guard()
+        if r.code:raise Unconfirmed('Docker command returned failure: '+args[0])
+        return r.stdout
+    try:
+        im=json.loads(run(['image','inspect','--format','{{json .}}',IMAGE]))
+        assert im['Id']==IMAGE and im['Os']=='linux' and im['Architecture']=='amd64' and im['Config'].get('Labels') in (None,{}) and not im['Config'].get('Volumes')
+        assert re.fullmatch('[0-9a-f]{64}',manifest_digest)
+        args=['create','--pull=never','--name',rec.name,'--label','nbsr.build-run='+rec.name,'--network','none','--user','0:0','--security-opt','no-new-privileges','--cpus','1','--memory','512m','--memory-swap','512m','--pids-limit','128','--entrypoint','python3',IMAGE,'-B','-c','import time; time.sleep(600)']
+        cid=rec.create(args);guard()
+        row=json.loads(run(['inspect','--format','{{json .}}',cid]));h=row['HostConfig']
+        assert row['Image']==IMAGE and row['Mounts']==[] and row['Config']['User']=='0:0' and h['NetworkMode']=='none' and not h['Privileged']
+        assert h['Memory']==h['MemorySwap']==512*1024**2 and h['NanoCpus']==1000000000 and h['PidsLimit']==128 and h['SecurityOpt']==['no-new-privileges']
+        assert row['Config']['Labels']==rec.labels
+        (root/'container-inspect.json').write_text(json.dumps(row,indent=2))
+        run(['cp',str(staging),cid+':/opt/nbsr-build-inputs'])
+        run(['start',cid])
+        output=run(['exec',cid,'python3','-B','/opt/nbsr-build-inputs/install_offline.py'],install=True)
+        (root/'install.stdout').write_text(output);assert 'OFFLINE_INSTALL_PAYLOAD_PASS' in output
+        run(['stop','--time','1',cid])
+        state.update(commit_attempted=True,commit_uncertain=True)
+        (root/'commit-intent.json').write_text(json.dumps({'tag':tag,'container':cid,'labels':rec.labels,'input_sha256':manifest_digest},indent=2))
+        reply=run(['commit','--change','USER 65532:65532','--change','ENTRYPOINT ["python3"]','--change','CMD ["--version"]','--change','LABEL nbsr.input-sha256='+manifest_digest,'--change','LABEL nbsr.build-run='+rec.name,cid,tag]).strip()
+        assert re.fullmatch('sha256:[0-9a-f]{64}',reply)
+        im=json.loads(run(['image','inspect','--format','{{json .}}',reply]))
+        assert im['Id']==reply and im['Config']['User']=='65532:65532' and im['Config']['Labels'].get('nbsr.build-run')==rec.name and im['Config']['Labels'].get('nbsr.input-sha256')==manifest_digest
+        (root/'image-inspect.json').write_text(json.dumps(im,indent=2))
+        state.update(status='BUILD_COMPLETED_PENDING_RUNTIME_PROBE',commit_uncertain=False,image=reply)
+    except BaseException as e:state['failure']={'type':type(e).__name__,'message':str(e)}
+    finally:
+        if rec.attempted:
+            rec.reconcile(allow_running=rec.returned_id is not None)
+            state['container_absent']=rec.state['status']=='REMOVED_EXACT_ID' and not rec.state['uncertain']
+        else:state['container_absent']=True
+        state['host_handles_owned']=command.owner is not None and command.owner.owned
+        state['reconciliation']=rec.state
+        if state['commit_uncertain']:
+            # A missing image snapshot cannot discharge an asynchronous commit.
+            state['image_obligation']={'tag':tag,'labels':rec.labels,'input_sha256':manifest_digest,'status':'UNRESOLVED_COMMIT_NO_RETRY_OR_DELETE'}
+        if not state['container_absent'] or state['host_handles_owned']:state['status']='FAILED'
+        (root/'result.json').write_text(json.dumps(state,indent=2))
+    return state
+
+def validate_download_completion(root):
+    root=pathlib.Path(root)
+    raw=(root/'result.json').read_bytes();result=json.loads(raw)
+    progress_raw=(root/'download-progress.json').read_bytes();progress=json.loads(progress_raw)
+    receipt=json.loads((root/'supervisor-exit-receipt.json').read_text())
+    assert result['status']=='ARTIFACTS_VERIFIED' and result['host_handles_owned'] is False
+    assert type(receipt['exit_code']) is int and receipt['exit_code']==0 and receipt['supervisor_completed'] is True
+    assert receipt['result_sha256']==hashlib.sha256(raw).hexdigest() and receipt['progress_sha256']==hashlib.sha256(progress_raw).hexdigest()
+    m=json.loads((HERE/'artifact-closure.json').read_text())
+    assert progress['status']=='ARTIFACTS_VERIFIED' and progress['bytes']==25271876
+    assert len(progress['verified'])==27 and set(progress['verified'])=={r['filename'] for r in m['packages']+m['wheels']}
+    return result
+
+def main():
+    if sys.argv[1:]!=['--approved-build-2026-10-16']:raise SystemExit('exact approved activation selector required')
+    validate_download_completion(HERE/'download-2026-10-16-attempt1')
+    baseline=json.loads((HERE/'ACTIVATION-PREFLIGHT-2026-10-16.json').read_text())['resources']
+    result=prepare_and_launch(HERE/'download-2026-10-16-attempt1/artifacts',HERE/'build-2026-10-16-attempt1',baseline)
+    print(json.dumps(result))
+    raise SystemExit(0 if result['status']=='BUILD_COMPLETED_PENDING_RUNTIME_PROBE' else 1)
+if __name__=='__main__':main()

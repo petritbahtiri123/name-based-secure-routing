@@ -1,0 +1,48 @@
+"""Authorized bounded Docker metadata inventory only; no containers or builds."""
+import importlib.util
+import json
+from pathlib import Path
+import sys
+
+SOURCE = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+ROOT = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-prerequisites-20261013')
+sys.path.insert(0, str(SOURCE))
+from scripts.performance.windows_docker_provisioning import DockerCommand
+
+spec = importlib.util.spec_from_file_location('guard', Path(__file__).with_name('nbsr-prerequisite-containment-20261013.py'))
+guard = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(guard)
+guard.resources(True)
+suffix = '-approved' if sys.argv[1:] == ['--approved-elevated'] else ''
+if sys.argv[1:] not in ([], ['--approved-elevated']):
+    raise SystemExit('unsupported mode')
+output = ROOT / ('docker-inventory' + suffix)
+output.mkdir(exist_ok=False)
+command = DockerCommand(output, executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe')
+queries = [
+    ['info', '--format', '{"os":{{json .OSType}},"memory":{{json .MemTotal}},"cpus":{{json .NCPU}},"root":{{json .DockerRootDir}}}'],
+    ['context', 'show'],
+    ['image', 'ls', '--no-trunc', '--format', '{{.ID}} {{.Repository}}:{{.Tag}}'],
+    ['image', 'inspect', 'sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769',
+     '--format', '{"id":{{json .Id}},"os":{{json .Os}},"architecture":{{json .Architecture}},"size":{{json .Size}}}'],
+    ['volume', 'ls', '--format', '{{.Name}}'],
+]
+results = []
+try:
+    for argv in queries:
+        guard.resources()
+        result = command(argv, timeout=8)
+        results.append(dict(argv=argv, code=result.code, stdout=result.stdout, stderr=result.stderr))
+        if result.code:
+            raise RuntimeError('metadata query failed; no dependent queries')
+    status = 'METADATA_COMPLETE'
+except BaseException as exc:
+    status = 'BLOCKED'
+    results.append(dict(error=repr(exc)))
+finally:
+    value = dict(status=status, results=results, resources=guard.resources(),
+                 command_owned=command.owner.owned if command.owner else False,
+                 no_containers_or_builds=True)
+    (ROOT / ('docker-inventory-result' + suffix + '.json')).write_text(json.dumps(value, indent=2))
+    print(json.dumps(value))
+raise SystemExit(0 if status == 'METADATA_COMPLETE' else 1)

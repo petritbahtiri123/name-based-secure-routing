@@ -1,0 +1,189 @@
+"""Guarded standalone proposal. Importing this module performs no native operations.
+
+The command loop is a reviewable copy of pinned DockerCommand.__call__, with
+create and exact-public-probe opt-in allocation and a shared absolute deadline. WindowsOwner,
+Cancellation, the worker, and the native backend are the pinned existing code.
+Fake-backend tests do not establish live containment or daemon cancellation.
+"""
+import hashlib
+import json
+import math
+from pathlib import Path
+import re
+import sys
+
+from scripts.performance import windows_docker_provisioning as provisioning
+from scripts.performance import windows_native_management as management
+from scripts.performance import windows_job_backend as native
+from scripts.performance import process_cancellation as cancellation_module
+from scripts.performance.local_container_disposal import Unconfirmed
+from diagnostic_absence import absence_confirmed
+from candidate_probe_budget import CreateReconciler as ReviewedReconciler
+
+WindowsOwner = management.WindowsOwner
+Cancellation = cancellation_module.Cancellation
+CommandResult = provisioning.CommandResult
+SUPPORT_ROOT = Path('C:/Users/PUBLIC_USER/AppData/Local/Temp/nbsr-runtime-47d2ae4-v5/repo/scripts/performance')
+SOURCE_PINS = {
+    'windows_docker_provisioning': 'e22c18ea76a34333f282612e367ff57c12732ffebd8ec2aaaaea86688955aca5',
+    'windows_native_management': 'e89d236476db0367ea45ac56d643e23ed3cef0eab0344f2e7bbf63689c8892f5',
+    'windows_job_backend': 'dc7c955c3159c4182b98eeb717ce27a9798409542d97f6f5c248afacffd3d1af',
+    'process_cancellation': '29adfd385bfdf9d51304269e576bed71fbd9cb3885653a5de50085549079107c',
+}
+PROFILE_PIN = 'b9c639a2fc87542f32c74b3afbd62f90f65f3e0e75c95b783c8a7bdac8c71fc8'
+
+
+REUSED_PINS={'candidate_probe_budget.py': '47adb75ae83d27d24c98c642a5e62530a02216e6de9191ec566d79025a7a732c', 'diagnostic_absence.py': '7216acd04d325f35eb00f294e5155a26c642b53f6ddc85ee44855aaaf8105fc0'}
+
+def verify_support_sources():
+    for name,digest in REUSED_PINS.items():
+        if hashlib.sha256((Path(__file__).parent.parent/name).read_bytes()).hexdigest()!=digest:
+            raise Unconfirmed("reviewed support drift: "+name)
+    for module in (provisioning, management, native, cancellation_module):
+        name = module.__name__.rsplit('.', 1)[-1]
+        path = Path(module.__file__).resolve()
+        if (path != (SUPPORT_ROOT / (name + '.py')).resolve()
+                or hashlib.sha256(path.read_bytes()).hexdigest() != SOURCE_PINS[name]):
+            raise Unconfirmed('standalone supervisor source identity mismatch: ' + name)
+
+
+class DiagnosticCommand(provisioning.DockerCommand):
+    def __init__(self, root, *, started, extended_create=False, work_guard=lambda: None, **kwargs):
+        verify_support_sources()
+        if type(extended_create) is not bool or type(started) not in (int, float) or not math.isfinite(started):
+            raise ValueError('explicit finite start and boolean opt-in required')
+        super().__init__(root, **kwargs)
+        self.started, self.previous = started, started
+        self.clock_invalid = False
+        self.extended_create, self.work_guard = extended_create, work_guard
+
+    def now(self):
+        value = self.clock()
+        if self.clock_invalid or type(value) not in (int, float) or not math.isfinite(value) or value < self.previous:
+            self.clock_invalid = True
+            raise Unconfirmed('shared monotonic clock invalid')
+        self.previous = value
+        return value
+
+    def __call__(self, args, *, timeout=8, cleanup=False, install=False):
+        verify_support_sources()
+        if (self.owner is not None and self.owner.owned) or type(args) is not list or not args or any(
+                type(v) is not str or '\x00' in v for v in args):
+            raise Unconfirmed('previous command owned or invalid argv')
+        if type(cleanup) is not bool or (cleanup and args[0] not in ('inspect','rm')):
+            raise ValueError('cleanup budget restricted to inspection/removal')
+        if type(install) is not bool:
+            raise ValueError('explicit boolean public-probe opt-in required')
+        if install and (cleanup or len(args)!=5 or args[0]!='exec'
+                or re.fullmatch('[0-9a-f]{64}',args[1]) is None
+                or args[2:]!=['python3','-B','/opt/nbsr-build-inputs/install_offline.py']):
+            raise ValueError('extended budget restricted to exact offline installer')
+        limit = 52 if install else (32 if self.extended_create and args[0]=='create' and not cleanup else 8)
+        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= limit:
+            raise ValueError('command exceeds explicit diagnostic allocation')
+        now = self.now
+        started = now()
+        deadline = min(started + timeout, self.started + (120 if cleanup else 60))
+        timeout = deadline - started
+        if timeout <= 2:
+            raise TimeoutError('insufficient command plus two-second host-reap reserve')
+        work_deadline = deadline - 2
+        self.count += 1
+        output = self.root / f'command-{self.count:04d}'
+        output.mkdir(parents=False, exist_ok=False)
+        request = output / 'request.json'
+        wire = json.dumps(dict(argv=[self.executable, *args], deadline=deadline)).encode()
+        request.write_bytes(wire)
+        self.owner = WindowsOwner([sys.executable, '-B', '-m',
+            'scripts.performance.windows_docker_provisioning', '--command', str(request)],
+            backend=self.backend_factory(), cancel=lambda: None)
+        failure = primary_failure = cleanup_failure = None
+        stage = 'startup_check'
+
+        def diagnostic(error, phase):
+            return dict(stage=phase, type=type(error).__name__, message=str(error),
+                        errno=getattr(error, 'errno', None), winerror=getattr(error, 'winerror', None))
+
+        with Cancellation() as cancellation:
+            try:
+                cancellation.check()
+                if not cleanup:
+                    self.work_guard()
+                if now() >= work_deadline:
+                    raise TimeoutError('no command startup budget')
+                stage = 'start'
+                self.owner.start()
+                while True:
+                    stage = 'observe'
+                    cancellation.check()
+                    if not cleanup:
+                        self.work_guard()
+                    code, active = self.owner.observe()
+                    # A late result cannot consume the host-reap reserve as work.
+                    if now() >= work_deadline:
+                        stage = 'work_deadline'
+                        raise TimeoutError('command work deadline')
+                    if code is not None and not active:
+                        stage = 'reap'
+                        self.owner.reap()
+                        if code != 0 or now() >= deadline:
+                            raise Unconfirmed('command helper failed or completed late')
+                        break
+                    stage = 'sleep'
+                    self.sleep(min(.02, max(0, work_deadline - now())))
+            except BaseException as exc:
+                failure = exc
+                primary_failure = diagnostic(exc, stage)
+            finally:
+                if self.owner.owned:
+                    cleanup_stage = 'terminate'
+                    try:
+                        self.owner.signal('KILL')
+                        while now() < deadline:
+                            cleanup_stage = 'observe'
+                            code, active = self.owner.observe()
+                            if code is not None and not active:
+                                cleanup_stage = 'reap'
+                                self.owner.reap()
+                                break
+                            self.sleep(min(.02, max(0, deadline - now())))
+                        if self.owner.owned:
+                            cleanup_stage = 'deadline'
+                            raise TimeoutError('command cleanup deadline; ownership retained')
+                    except BaseException as exc:
+                        cleanup_failure = diagnostic(exc, cleanup_stage)
+                        failure = failure or exc
+                (output / 'supervision.json').write_text(json.dumps(dict(
+                    owned=self.owner.owned, failure=None if failure is None else type(failure).__name__,
+                    primary_failure=primary_failure, cleanup_failure=cleanup_failure,
+                    retained_handles={name: getattr(self.owner, name) is not None
+                                      for name in ('job', 'process', 'thread')})))
+        if failure is not None or self.owner.owned:
+            raise Unconfirmed('command failed; retained supervision and ownership') from failure
+        try:
+            files = [output / name for name in ('reply.json', 'stdout.txt', 'stderr.txt')]
+            if any(p.stat().st_size > 1048576 for p in files):
+                raise Unconfirmed('command output limit')
+            reply = json.loads(files[0].read_bytes())
+            if (set(reply) != {'request_sha256', 'code'} or type(reply['code']) is not int
+                    or reply['request_sha256'] != hashlib.sha256(wire).hexdigest()):
+                raise Unconfirmed('unbound command reply')
+            result = CommandResult(reply['code'], files[1].read_text(encoding='utf-8'),
+                                   files[2].read_text(encoding='utf-8'))
+            if now() >= deadline:
+                raise Unconfirmed('late command evidence')
+            return result
+        except (OSError, ValueError) as exc:
+            raise Unconfirmed('missing or invalid command evidence') from exc
+
+
+IMAGE='sha256:ff83a535339812dd72e69c93b3c48ddf7c85a324d6330af5797c82a255dbeef4'
+class CreateReconciler(ReviewedReconciler):
+    """Only profile initialization differs; uncertainty and cleanup are inherited."""
+    def __init__(self,root,command,*,name,image,task_labels):
+        if re.fullmatch(r'nbsr-diagnostic-build-[0-9a-f]{12}',name) is None or image!=IMAGE or task_labels!={'nbsr.build-run':name}:
+            raise ValueError('exact build identity required')
+        self.labels=dict(task_labels) # Base inspect must verify no inherited labels.
+        self.root,self.command,self.name,self.image=Path(root),command,name,image
+        self.attempted=False;self.returned_id=None
+        self.state=dict(status='NOT_ATTEMPTED',uncertain=False,container_id=None,observations=[],failure=None,cleanup_error=None)

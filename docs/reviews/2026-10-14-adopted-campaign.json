@@ -1,0 +1,54 @@
+{
+  "schema": "nbsr-offline-adopted-campaign-review-v1",
+  "commit": "dfd94648167a310cdeaebf4e12440d2cb38dd1f9",
+  "tree": "79da4035661fb3f73124bf0acd7c4b3a039b5cee",
+  "parent": "e87a0273dec0f7ae4d7e26ec9344d77303032a45",
+  "rust_build_identity_unchanged": "b09a85187d1e27250a1aec2e76f7a5bcdef84611",
+  "files": [
+    "AGENTS.md",
+    "docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md",
+    "scripts/performance/windows_adopted_campaign.py",
+    "tests/performance/test_windows_adopted_campaign.py"
+  ],
+  "validation": {
+    "focused": {
+      "passed": 23,
+      "seconds": 1.35
+    },
+    "working_tree_neighbors": {
+      "passed": 184,
+      "seconds": 4.78,
+      "includes_prior_uncommitted_tests": true
+    },
+    "committed_dependency_export_neighbors": {
+      "passed": 140,
+      "seconds": 4.44,
+      "baseline": "e87a0273dec0f7ae4d7e26ec9344d77303032a45",
+      "tested_new_code_matches_commit_normalized_bytes": true
+    },
+    "ruff": "PASS",
+    "staged_diff_check": "PASS",
+    "independent_review": "/root/debug_correctness_review: final no remaining material findings",
+    "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+    "rust_build": "NOT_RUN"
+  },
+  "retained_negative_results": [
+    "12 missing-module red assertions",
+    "12 initial fake fixture ownership failures corrected in fixture",
+    "setup cancellation red:1failed14passed",
+    "configuration binding red:1failed18passed",
+    "cleanup remaining-time red:2failed17passed including config",
+    "network scope red:2failed21passed",
+    "initial Ruff23format errors fixed only in new files",
+    "small clean export:2collection errors due omitted transitive imports;12committed dependencies added;then140passed"
+  ],
+  "limitations": [
+    "No live containers/network/credentials/provisioning/mount/permission changes",
+    "Docker template evaluation and Windows/live containment not established by fakes",
+    "No new portable copy or manifest rebinding; old422file selection is not import-complete",
+    "Live recipe needs reviewed public environment, daemon paths, IDs, image availability, nonroot access, final manifest and resource approval",
+    "Supplied command/runner callbacks must honor bounds; actual integration uses DockerCommand/WindowsWorkload"
+  ],
+  "preservation": "Prior dirty files and original checkout preserved;four-file default local commit;no push or signing/hook changes",
+  "free_disk_bytes": 11095711744
+}

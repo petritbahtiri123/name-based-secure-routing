@@ -1,0 +1,300 @@
+{
+  "scope": "47 explicit task-2 candidates; source locations retained privately",
+  "files": [
+    {
+      "label": "AGENTS.md",
+      "original_sha256": "0a5fb99fdf7f3328df112430440c2ec148445aeac55c7b8b7673ee3030a55ba5",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "SPHERE-PREFLIGHT.md",
+      "original_sha256": "5e3b978895c5d4bb67fb7a9333b169b8505a41d2bee5ed5d07b8e950cfc5bcba",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records",
+      "inventory_sha256": "dec678a9d3dec0e624df1d157faad1f664ac09daee0ba5620b2581fcf35fb549",
+      "inventory_match": false
+    },
+    {
+      "label": "alias-preflight.py",
+      "original_sha256": "1005af0558d194b5f24afa3d75ff6e6cdf6b6b187bfa15c119bff08a4901f458",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/alias-preflight.py",
+      "outgoing_sha256": "7be707af4617bf793d8db993c44b3802221d4f733c60bdd4f5636c5dc3b4cd2b"
+    },
+    {
+      "label": "accounting.py",
+      "original_sha256": "a1aad2a2cf5a3dc2c356f99d4715ff5ae6e7de8c9c6c1e016649f5cad940a557",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/accounting.py",
+      "outgoing_sha256": "a1aad2a2cf5a3dc2c356f99d4715ff5ae6e7de8c9c6c1e016649f5cad940a557"
+    },
+    {
+      "label": "bounded.py",
+      "original_sha256": "04b7829d43665ffa7b6fc041e53ce10b11994f2620b23696d3f84b042ba2759d",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/bounded.py",
+      "outgoing_sha256": "7ef7cf6e8afc1eb196693a7740afa25aed5cc70ffae14c09d5564884679881da"
+    },
+    {
+      "label": "coherent_backend.py",
+      "original_sha256": "741fa69be840b6beaeff5656762a8cc04b1520b80400c1cfe7909bc0257385ad",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/coherent_backend.py",
+      "outgoing_sha256": "741fa69be840b6beaeff5656762a8cc04b1520b80400c1cfe7909bc0257385ad"
+    },
+    {
+      "label": "coordinator.py",
+      "original_sha256": "73645ab82e0d02b595b9c4076d8ec9d6ccfd64b311951c46cd56bfbca804b264",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/coordinator.py",
+      "outgoing_sha256": "73645ab82e0d02b595b9c4076d8ec9d6ccfd64b311951c46cd56bfbca804b264"
+    },
+    {
+      "label": "diagnostic_backend.py",
+      "original_sha256": "2649eb1745772bf32d729c34723e73fad7e52425deb370a54c6e8df8449c9be9",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/diagnostic_backend.py",
+      "outgoing_sha256": "2649eb1745772bf32d729c34723e73fad7e52425deb370a54c6e8df8449c9be9"
+    },
+    {
+      "label": "draining_owner.py",
+      "original_sha256": "fc38a9083dcac0fcaabd285e68a5d39a6ba05d7cb1e30a7dde70a8b6d3c98e26",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/draining_owner.py",
+      "outgoing_sha256": "95bc69bfeca323c76846e595d09e555c1216dbf2ffa90e7abacfe6ce48ea1c4e"
+    },
+    {
+      "label": "execute_step.py",
+      "original_sha256": "ec74c1910958fc5456e0a4ef18e3d372742a03c62fdf68721575642517f7b8b7",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/execute_step.py",
+      "outgoing_sha256": "7c8109c086486423c17f8232b76d70581abffa2565661e7b2169ae0b6370ba47"
+    },
+    {
+      "label": "make_commands.py",
+      "original_sha256": "486e98cb36768a6e2025e23ff88c806b8fb99429e0012ed7e52a6bd7a17b63a7",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/make_commands.py",
+      "outgoing_sha256": "791069792bd1d16f16776d3562060e420d14dce68e045d5aa6e336ac37fbe1dd"
+    },
+    {
+      "label": "mountpoints.py",
+      "original_sha256": "fcf5d9898bde57fa5733dd4d80316c999a31c278652558df54e2b6edb88993e1",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/mountpoints.py",
+      "outgoing_sha256": "b68cba071eeb72d611fb93d651f01a362e09d3bd5b54f0d22c340e2b5dcd8e6b"
+    },
+    {
+      "label": "package_review.py",
+      "original_sha256": "cc682a6006fedf21787ed29efbf1da9cd0d3600a8d1bb2f5e3464e2efea1c113",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/package_review.py",
+      "outgoing_sha256": "cc682a6006fedf21787ed29efbf1da9cd0d3600a8d1bb2f5e3464e2efea1c113"
+    },
+    {
+      "label": "peer_guard.py",
+      "original_sha256": "998e74cb9e4b62d29ff392c8118139872436d32d853edaba01a3817f36f1ed9a",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/peer_guard.py",
+      "outgoing_sha256": "42b193b8d94bfca47c1f3be20d8e6f4c29421da8ef0beb4c456f207e2e9fb628"
+    },
+    {
+      "label": "plan.py",
+      "original_sha256": "ec8c92b67d3a401d9d792ebaf1d00f126477f61583d40b07eca96b14aee6c675",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/plan.py",
+      "outgoing_sha256": "86db1c99804826ff69d879cdb41f5eb4d825323ea842702f094680e970e05435"
+    },
+    {
+      "label": "public_tls_sign.py",
+      "original_sha256": "49f56efbba9d032a1d18d10625481cc175f0c13bcf627d28531564410fbf13cd",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/public_tls_sign.py",
+      "outgoing_sha256": "33d8d0859103519feb4776fcc9b60ba52087b5791347b9a6670bc2b8ffc78401"
+    },
+    {
+      "label": "remote_ops.py",
+      "original_sha256": "9c6020abe704c080ec7fcf3676a99465a644f4ffe8b7da1e345606bfda18bb5b",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/remote_ops.py",
+      "outgoing_sha256": "2792054ffbab937404ac734fbfb1b668bc8a6ce31624aae6f57ce0f4b2e09dd2"
+    },
+    {
+      "label": "resource_boundary.py",
+      "original_sha256": "c453b6150bc826840565af270bc307f9715adaeab9505cbfc919e6eb6ccbb975",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/resource_boundary.py",
+      "outgoing_sha256": "7b7d058ee8adf82a0708523926d7e7f76411f64970e692b820daf76cb8e89495"
+    },
+    {
+      "label": "sparse_source.py",
+      "original_sha256": "95055e6e1ef914700c4466b430ed000f02d4edc47949902aa5532b879708e910",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/sparse_source.py",
+      "outgoing_sha256": "95055e6e1ef914700c4466b430ed000f02d4edc47949902aa5532b879708e910"
+    },
+    {
+      "label": "test_accounting.py",
+      "original_sha256": "cb5f8efd452a97b43420c3fb214dc18051e5a465a8349ec51210f24b9e8ff8cb",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_accounting.py",
+      "outgoing_sha256": "4d8b009ed280d11d4ab2a1f64d3cd8d95dfd5f81e53d7dfba8c4356bc4164106"
+    },
+    {
+      "label": "test_cadence.py",
+      "original_sha256": "2a715f4cc6f68f2ad198742a378aba6f4f71bc7ca8edb8d69959be46bdf3b727",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_cadence.py",
+      "outgoing_sha256": "258a3ac4fd80de86722cbc40ed9c3477ea4832de2ae974e9ad7ffefac6c91b6e"
+    },
+    {
+      "label": "test_draining.py",
+      "original_sha256": "9bcf249b2f1dc1fa3ef0166818284fe5e6a19f68c2f017692d07c3f962b1bdfa",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_draining.py",
+      "outgoing_sha256": "38fa5fe04e4b3e29f8ca23f9619eb6e7db551ef09f5544337bb5f4fb5349abba"
+    },
+    {
+      "label": "test_execution_gates.py",
+      "original_sha256": "f1b11b8cec8d80269c3345fee59382f672e1914246fef4ad81d7007ca4ec111f",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_execution_gates.py",
+      "outgoing_sha256": "bc390ff16393367dd6a00110cfbf0348e8e01c9a42533d1514cb630d309e8343"
+    },
+    {
+      "label": "test_mountpoints.py",
+      "original_sha256": "c87b172a12e20567c1b05ff273c010ce1a7bcb56fcbce1f232e51e069da7732f",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_mountpoints.py",
+      "outgoing_sha256": "8ff31ee6a716b2509c0d0df5159ffec5fa29b9007796d229ffa31d1f9386a11d"
+    },
+    {
+      "label": "test_output_parent.py",
+      "original_sha256": "e4f54e540e6fe1ed192ec5993b2f216e6d61e6614e9c3c95d0f6ad533e2d1197",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_output_parent.py",
+      "outgoing_sha256": "e4f54e540e6fe1ed192ec5993b2f216e6d61e6614e9c3c95d0f6ad533e2d1197"
+    },
+    {
+      "label": "test_proposed_grace.py",
+      "original_sha256": "407ca07b535fa8ca7324c56b5fcecc945c4b7eadad00310a9e141978053f0c62",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_proposed_grace.py",
+      "outgoing_sha256": "407ca07b535fa8ca7324c56b5fcecc945c4b7eadad00310a9e141978053f0c62"
+    },
+    {
+      "label": "test_system_revision.py",
+      "original_sha256": "b55ba7fe9d7a3ffde3605c12436df6faa754ca4d86efcafcafd9baa5c555e690",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_system_revision.py",
+      "outgoing_sha256": "e3eb7bd857e88958b3c9cfbe434e67e61c713fc7f0e5fde6d02b2e91571ee6c6"
+    },
+    {
+      "label": "test_tls_contract.py",
+      "original_sha256": "fa6e4150e60363f7aebe7852ba8d6d6916a866beb6a7286e16007914c8859a7b",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_tls_contract.py",
+      "outgoing_sha256": "6b2a16924e01cd33c9287b427b9f88e098151d874de05ee3e296890ffe0bbe41"
+    },
+    {
+      "label": "test_tls_lifetime.py",
+      "original_sha256": "70132ecde800ae788d8ea8b0f759b0531aad1dad80e8e5711ef1cd90865e68d1",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/test_tls_lifetime.py",
+      "outgoing_sha256": "246087701eb5feb0b330efc9f9c29e8ec1926fe23adc52cbae24fe824bcbf4da"
+    },
+    {
+      "label": "tls_lifetime.py",
+      "original_sha256": "c654b7b5af6864907ef21e2cbfe8f59e2024804db3c2426e379a417fc39e4fc2",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/tls_lifetime.py",
+      "outgoing_sha256": "a638f091b7ff627f68e137948ce6bfbea59f4f48a8e75976ead64770c2bbc141"
+    },
+    {
+      "label": "tls_roles.py",
+      "original_sha256": "e5834b0c3ef87d90528f757601f10240e38c66f361128c48e9e0c2c28380f3c4",
+      "disposition": "sanitized_reusable_source",
+      "path": "scripts/performance/sphere_support/tls_roles.py",
+      "outgoing_sha256": "c2754208935960f1a34202da812be35fa1acf2887d8644ad72d015b00b753fdc"
+    },
+    {
+      "label": "APPROVAL-SCOPE.md",
+      "original_sha256": "de45107e0f91f2177af489b108ce614b8ec58cdbb7830381ddab17e0db3c5024",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "APPROVAL.md",
+      "original_sha256": "5d0f5a8737bdcc8a2e6e9d227d45befe1838fe1657f19750a5c06181f812cfa2",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "PRODUCTION-DRAIN-PROPOSAL.md",
+      "original_sha256": "e34c7ced2fb59d993da9ced22cb09df37b880c318465115c6e58ac02e325dc23",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "RECONCILIATION-CADENCE.md",
+      "original_sha256": "99663e9bec935e01a94e3842942daeeb2e7f808f52c744e8dc532c033d5221c1",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "RECONCILIATION-OUTPUT-PARENT.md",
+      "original_sha256": "2ba74917161655f15ec79e55bfc80e0a61a00d801f3285d6696ebdea192edf84",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "RECONCILIATION.md",
+      "original_sha256": "1bbbd21b51b665bc021c4688b152a3fd6cb2d1542b8d1bbed8198efa6aac3caa",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "REVIEW-CADENCE.md",
+      "original_sha256": "0402662a6aad414cc0b357fbb640fcf6370ae5c6aaf52b0c7f22c7ef60cf2d07",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "REVIEW-OUTPUT-PARENT.md",
+      "original_sha256": "eeb54f05a0ee65337bf1b1ee5565948acc31d0cd3b2329f578c9acbafc8a5e52",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "REVIEW-PRODUCTION-DRAIN.md",
+      "original_sha256": "16c24db5f4cb57cd742e8955374efc4c86a990f98bfa964901b629373e9a9320",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "REVIEW-SUDO-LOGIN.md",
+      "original_sha256": "e0dd03b834b05f48380f0bec92ce63c84ed59ba61bf8365f8c0d5dd21be44c24",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "REVIEW-TLS-SYSTEM.md",
+      "original_sha256": "9099550cf0e364214bc94a744c41ec27f993677e1f62853054bf96fd0cb53eb5",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "REVIEW.md",
+      "original_sha256": "f72a346e97422e3760a3209f5de1847cf1e1129ff75a5b41a6178ad3a88560e9",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "RUN-ORDER.md",
+      "original_sha256": "6691dfdc13fc874eca9d7f93c69b9e326a668bcc443079b826100fba349d4fb4",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "RUN07-OUTCOME.json",
+      "original_sha256": "5bc5c2faec2ce898119460268b02aaeeeddb6efd7ea423f6c43a7180c6d05b0b",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "RUN07-RECONCILIATION.json",
+      "original_sha256": "c2fad79e3aac8bce2a7ffdfb4c6644d2db4d49bfe7c28df7a544907c8fc8f57a",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    },
+    {
+      "label": "RUN06-OUTCOME.json",
+      "original_sha256": "f3202c1f63327a6fe252f42192e46149df0f369df2c01a314425bb2361472fdf",
+      "disposition": "summarized_no_raw_infrastructure_or_approval_records"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+"""Exact-file read-only export; called inside the existing supervised Windows Job."""
+import hashlib
+import io
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tarfile
+
+RESOURCE = {'state', 'flags', 'cpu_ns', 'start_ticks', 'rss_bytes', 'pid', 'timestamp_ns',
+            'thread_ids', 'fd_count', 'fd_count_state', 'affinity'}
+LIFE = ['transport_sessions', 'service_channels', 'application_streams', 'nbsr_tasks',
+        'quic_connections', 'quic_streams']
+COLLECTION = ['pending_routes', 'channel_registry', 'stream_registry', 'audit_queue', 'replay_state']
+NUMERIC = {n + '_' + k for n in LIFE for k in ['created', 'completed', 'failed_or_cancelled', 'current_live', 'high_water_live']}
+NUMERIC |= {n + '_' + k for n in COLLECTION for k in ['inserts', 'removals', 'current_entries', 'high_water_entries', 'retained_capacity', 'high_water_retained_capacity']}
+
+
+def validate(data, kind):
+    if len(data) > 4 * 2**20:
+        raise ValueError('file size cap')
+    rows = data.splitlines()
+    if not rows:
+        return 0
+    for line in rows:
+        if len(line) > 65536:
+            raise ValueError('record size cap')
+        pairs = json.loads(line, object_pairs_hook=list)
+        if not isinstance(pairs, list) or any(not isinstance(p, tuple) or len(p) != 2 for p in pairs):
+            raise ValueError('object required')
+        row = dict(pairs)
+        if len(row) != len(pairs):
+            raise ValueError('duplicate keys')
+        if kind == 'resources.ndjson':
+            if not set(row) <= RESOURCE:
+                raise ValueError('unapproved resource fields')
+            for k,v in row.items():
+                if k == 'state':
+                    if v not in ['R','S','D','Z','T','t','X','I']:raise ValueError('state')
+                elif k == 'fd_count_state':
+                    if v not in ['MEASURED','UNAVAILABLE_ZOMBIE','UNAVAILABLE_EXITING']:raise ValueError('fd state')
+                elif k in ['thread_ids','affinity']:
+                    if not isinstance(v,list) or len(v)>4096 or any(type(i) is not int for i in v):raise ValueError('ids')
+                elif not (k=='fd_count' and v is None) and (type(v) is not int):raise ValueError('numeric')
+        else:
+            fixed={'event':'diagnostic','schema':'nbsr-rust-ownership-v1','role':'destination'}
+            if not set(row) <= NUMERIC | set(fixed) | {'phase','timestamp_ns'}:raise ValueError('unapproved diagnostic fields')
+            if any(row[k]!=v for k,v in fixed.items() if k in row) or ('phase' in row and row['phase'] not in ['initial','sample']):raise ValueError('diagnostic enum')
+            if any(type(row[k]) is not int for k in (NUMERIC | {'timestamp_ns'}) & set(row)):raise ValueError('numeric')
+    return len(rows)
+
+
+def main():
+    cid,path,destination=sys.argv[1:]
+    allow=json.loads(Path(__file__).with_name('nbsr-source-results-allowlist.json').read_text())
+    if not any(x['container_id']==cid and x['path']==path for x in allow):raise ValueError('not allowlisted')
+    target=Path(destination)
+    root=Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-source-results-20261013/files').resolve()
+    if target.parent.resolve()!=root or target.exists():raise ValueError('exact fresh destination required')
+    child=subprocess.Popen(['C:/Program Files/Docker/Docker/resources/bin/docker.exe','cp',cid+':'+path,'-'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,stdin=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
+    try:
+        raw=child.stdout.read(8*2**20+1)
+        if len(raw)>8*2**20:raise ValueError('tar byte cap')
+        if child.wait(timeout=1)!=0:raise ValueError('docker exact-file read failed')
+    finally:
+        if child.poll() is None:child.kill();child.wait(timeout=1)
+        child.stdout.close()
+    with tarfile.open(fileobj=io.BytesIO(raw),mode='r:') as archive:
+        members=archive.getmembers()
+        if len(members)!=1:raise ValueError('exact one member required')
+        member=members[0]
+        if not member.isfile() or member.name!=Path(path).name or member.size>4*2**20:raise ValueError('unexpected member/type/size')
+        data=archive.extractfile(member).read(4*2**20+1)
+        if len(data)!=member.size:raise ValueError('size mismatch')
+    observed=dict(container_id=cid,path=path,size=len(data),sha256=hashlib.sha256(data).hexdigest(),records=len(data.splitlines()),tar_declared_size=member.size,tar_regular_file=True,copy_exit=0)
+    target.with_suffix('.observation.json').write_text(json.dumps(observed,indent=2))
+    records=len(data.splitlines())
+    target.write_bytes(data)
+    print(json.dumps(dict(container_id=cid,path=path,filename=target.name,size=len(data),sha256=hashlib.sha256(data).hexdigest(),records=records,content_review_pending=True)))
+
+
+if __name__=='__main__':main()

@@ -10,6 +10,17 @@ import pytest
 from scripts.ci.check import command_groups, run_command, validate_workflow
 
 
+def test_composed_kar_checker_is_selected_and_runs_without_pythonpath():
+    root = Path(__file__).resolve().parents[2]
+    command = next(c for c in command_groups("python-protocol") if c.name == "connector-kar-positive")
+    assert command.argv[1:] == ("-m", "scripts.check_connector_kar_positive", "--check")
+    env = {key: value for key, value in os.environ.items() if key.upper() != "PYTHONPATH"}
+    result = subprocess.run(command.argv, cwd=root / command.cwd, env=env,
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "4 positive, 18 negative; supplied test trust only" in result.stdout
+
+
 def test_isolated_genesis_kar_target_selected_without_live_execution():
     rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
     assert rust.argv.count("connector_kar") == 1

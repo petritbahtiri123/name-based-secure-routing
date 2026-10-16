@@ -1,0 +1,26 @@
+
+import json,time,re
+from pathlib import Path
+from scripts.performance.windows_docker_provisioning import DockerCommand
+from scripts.performance.windows_adopted_campaign import _equal
+r=Path('C:/Users/PUBLIC_USER/AppData/Local/Temp/nbsr-47d2ae4-public-diagnostic-02');deadline=json.loads((r/'logs/command-0001/request.json').read_text())['deadline']+112
+c=DockerCommand(r/'logs',executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe');c.count=2
+result={'resolved_id':None,'removed':False,'absent':False}
+def call(args):
+ remaining=deadline-time.monotonic()
+ if remaining<=0:raise TimeoutError('Original total diagnostic deadline expired')
+ return c(args,timeout=min(8,remaining))
+try:
+ labels={'org.opencontainers.image.source':'https://github.com/rust-lang/docker-rust','nbsr.campaign':'47d2ae4-public-diagnostic','nbsr.run':'once','nbsr.role':'source'}
+ template='{"Id":{{json .Id}},"Image":{{json .Image}},"Name":{{json .Name}},"LabelsOK":{{'+_equal('.Config.Labels',labels)+'}},"Running":{{json .State.Running}}}'
+ q=call(['inspect','--format',template,'nbsr-47d2ae4-public-diagnostic-02'])
+ if q.code!=0:
+  if 'No such object' not in q.stderr and 'No such container' not in q.stderr:raise RuntimeError('Absence query inconclusive')
+  result['absent']=True
+ else:
+  v=json.loads(q.stdout);assert v['Name']=='/nbsr-47d2ae4-public-diagnostic-02' and v['Image']=='sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d' and v['LabelsOK'] is True and v['Running'] is False
+  cid=v['Id'];assert re.fullmatch('[0-9a-f]{64}',cid);result['resolved_id']=cid
+  q=call(['rm',cid]);assert q.code==0;result['removed']=True
+  q=call(['inspect','--format','{{.Id}}',cid]);result['absent']=q.code!=0 and ('No such object' in q.stderr or 'No such container' in q.stderr)
+except BaseException as e:result['failure']={'type':type(e).__name__,'message':str(e)}
+result['host_handles_owned']=c.owner is not None and c.owner.owned;result['seconds_remaining_original_deadline']=deadline-time.monotonic();(r/'cleanup-resolution.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))

@@ -1,0 +1,54 @@
+{
+  "schema": "nbsr-local-offline-change-v1",
+  "date": "2026-10-14",
+  "scope": "explicit debug correctness harness only",
+  "source_head": "b09a85187d1e27250a1aec2e76f7a5bcdef84611",
+  "branch": "local-two-stream-prerequisites",
+  "files": {
+    "scripts/performance/native_debug_correctness.py": "6c6ec31b7fc3adfb522f57e48d79970d7873f243e51d94e4c42e82a6809cac4f",
+    "scripts/performance/linux_native_peer.py": "61d356529f3f02d0965a9a30ac7376439f509232c9193c64949e4b2c5f6753da",
+    "scripts/performance/linux_native_pair.py": "a41b93109fbdf9bb2e410d18a62cd7143cdc429781140c85c79c2d7aa26021bb",
+    "scripts/performance/linux_native_finite_run.py": "ee1e6bd754cb72d6c0df825cd3990f536c466d8520b081c37f1fb60b2dafdcae",
+    "scripts/performance/linux_native_finite_endpoint.py": "f0c5b23723164d490becd207608e6c7e673ff3e149200daf11c45dffdb312390",
+    "scripts/performance/local_container_sequence.py": "d8bb477cd0e5c136b9a2e1339c6b633ed1a8ebb22bb57a43bb1f1fac85e89d83",
+    "scripts/performance/windows_native_management.py": "9ec3257aaea25f63b12b9daf7d6540913256199ccb92a788515810cd4f56000b",
+    "tests/performance/test_native_debug_correctness.py": "c8e3d0c5ec4a03dbd7d9f0d33b0a949b3a0fa6e713a482af27a15cb832140f03",
+    "AGENTS.md": "522905e987393469ae31b745ae91a0d291c27c90f34b55e79ae4c2abe2ab419c",
+    "docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md": "468037503255fa2c16ee920339995e41fbb90f8d143037a8b49f6f77452670a0"
+  },
+  "verification": {
+    "original_rejection": "1 passed in 1.65s; fake socket and process forbidden",
+    "first_suite": "149 passed in 7.71s",
+    "expanded_suite": "151 passed in 7.10s",
+    "final_suite": "153 passed in 7.19s",
+    "command": "python -m pytest -q -p no:cacheprovider tests/performance/test_native_debug_correctness.py tests/performance/test_linux_native_peer.py tests/performance/test_linux_native_pair.py tests/performance/test_linux_native_finite_run.py tests/performance/test_linux_native_finite_endpoint.py tests/performance/test_linux_native_post_close.py tests/performance/test_local_container_sequence.py tests/performance/test_windows_native_management.py --basetemp <fresh test-owned temporary root>",
+    "ruff": "PASS on eight changed Python files; initial test-file17style errors corrected",
+    "format": "PASS on two new Python files",
+    "diff_check": "PASS; pre-existing CRLF warnings retained",
+    "build_input_match": "63/63 retained input snapshot files match current source; no rebuild",
+    "public_fixtures": "source/destination COSE and route-grant signatures verified using public keys extracted from Rust source; all four inspected serialized artifacts match b09a851 build commit",
+    "public_fixture_failed_attempt": "Initial manually transcribed destination public key caused InvalidSignature; source-extracted keys passed. No fixture changed.",
+    "independent_review": "debug_correctness_review: initial and final static review no blocking findings; requested semantic repin tests and clean-checkout docs implemented"
+  },
+  "limitations": [
+    "Python3.14 focused local tests only, not full version matrix",
+    "No live container, protocol traffic, TLS generation/mounting or private-key read",
+    "No security setting change, deletion, commit/push or SPHERE action",
+    "Clean harness snapshot and new provenance manifest independent digest selection still required",
+    "Credential transmission requires exact user-controlled secure handoff, not broad test approval",
+    "No live transport or throughput/capacity readiness established"
+  ],
+  "cleanup": "All test commands exited; no live container or persistent helper created by this task; test-owned temporary evidence retained",
+  "existing_dirty_preserved": [
+    "AGENTS.md",
+    "docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md",
+    "scripts/performance/windows_docker_provisioning.py",
+    "scripts/performance/windows_job_backend.py",
+    "scripts/performance/windows_native_management.py",
+    "tests/performance/test_windows_docker_provisioning.py",
+    "tests/performance/test_windows_job_backend.py",
+    "tests/performance/test_windows_native_management.py",
+    "scripts/performance/rust_cache_metadata.py",
+    "tests/performance/test_rust_cache_metadata.py"
+  ]
+}

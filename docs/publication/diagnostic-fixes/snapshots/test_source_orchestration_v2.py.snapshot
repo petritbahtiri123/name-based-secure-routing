@@ -1,0 +1,64 @@
+"""Fake orchestration only; does not establish native containment."""
+import contextlib,io,json,tempfile,unittest
+from pathlib import Path
+from unittest.mock import patch
+import source_attempt09_retry1 as driver
+
+class Orchestration(unittest.TestCase):
+    def scenario(self,fail=None):
+        events=[];volumes=[];read_count=0
+        good={'disk':20*1024**3,'ram':4*1024**3,'commit':4*1024**3}
+        def resources():
+            nonlocal read_count
+            read_count+=1
+            if fail=='transition' and read_count==2:raise RuntimeError('injected transition guard')
+            return good
+        class Phase:
+            def __init__(self,kind,started,baseline):
+                self.kind=kind;self.command=kind;self.absent=True;self.cleaning=False
+                events.append('phase:'+kind)
+            def guard(self):pass
+            def success(self,args):return json.dumps({'Id':driver.IMAGE,'Os':'linux','Architecture':'amd64','Labels':{},'Environment':[None]})
+            def run(self,*args):
+                events.append('run:'+self.kind)
+                if fail=='stage_cleanup' and self.kind=='stage':self.absent=False
+                events.append('container_cleanup:'+self.kind)
+                return self.kind!=fail and self.absent
+            def owned(self):return False
+            def save(self):pass
+        class Volume:
+            def __init__(self,root,command,nonce):
+                self.command=command;self.labels={'nbsr.nonce':nonce};self.state={'snapshot':{},'uncertain':True};volumes.append(self)
+            def create(self):events.append('volume_create')
+            def inspect(self):events.append('volume_recheck');return {}
+            def cleanup(self,*,containers_absent):
+                events.append('volume_cleanup:'+str(containers_absent))
+                self.state['uncertain']=not containers_absent
+                return containers_absent
+        with tempfile.TemporaryDirectory(dir=driver.HERE,prefix='nbsr-orchestration-test-') as temp:
+            assert Path(temp).resolve().parent==driver.HERE.resolve()
+            with patch.object(driver,'ROOT',Path(temp)/'trial'),patch.object(driver,'resources',resources),patch.object(driver,'Phase',Phase),patch.object(driver,'SourceVolume',Volume),patch.object(driver,'load_profile',return_value={}),patch.object(driver,'verify_image'),contextlib.redirect_stdout(io.StringIO()):
+                code=driver.main();result=json.loads((Path(temp)/'trial/result.json').read_text())
+        return code,result,events,volumes[0]
+    def test_staging_failure_prevents_runtime_and_cleans_volume(self):
+        code,result,events,volume=self.scenario('stage')
+        self.assertEqual(code,1);self.assertNotIn('phase:runtime',events)
+        self.assertEqual(events[-2:],['container_cleanup:stage','volume_cleanup:True']);self.assertFalse(volume.state['uncertain'])
+    def test_transition_failure_cleans_retained_volume_without_runtime(self):
+        code,result,events,volume=self.scenario('transition')
+        self.assertEqual(code,1);self.assertNotIn('run:runtime',events)
+        self.assertEqual(events[-1],'volume_cleanup:True');self.assertFalse(volume.state['uncertain'])
+    def test_runtime_failure_orders_container_before_volume_cleanup(self):
+        code,result,events,volume=self.scenario('runtime')
+        self.assertEqual(code,1)
+        self.assertLess(events.index('container_cleanup:stage'),events.index('phase:runtime'))
+        self.assertEqual(events[-2:],['container_cleanup:runtime','volume_cleanup:True'])
+    def test_uncertain_stage_cleanup_retains_volume_and_blocks_runtime(self):
+        code,result,events,volume=self.scenario('stage_cleanup')
+        self.assertEqual(code,1);self.assertNotIn('phase:runtime',events)
+        self.assertEqual(events[-1],'volume_cleanup:False');self.assertTrue(volume.state['uncertain'])
+    def test_success_requires_both_phases_and_cleanup(self):
+        code,result,events,volume=self.scenario()
+        self.assertEqual(code,0);self.assertEqual(result['status'],'PASS')
+        self.assertEqual(events[-2:],['container_cleanup:runtime','volume_cleanup:True'])
+if __name__=='__main__':unittest.main()

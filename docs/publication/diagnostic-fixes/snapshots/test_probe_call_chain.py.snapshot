@@ -1,0 +1,104 @@
+import importlib.machinery
+import ast,contextlib,io,json,os,subprocess,tempfile,unittest,sys,types
+from pathlib import Path
+from unittest.mock import patch
+HERE=Path('C:/Users/PUBLIC_USER/AppData/Local/Temp/nbsr-public-diagnostic-label-fix');REPO=HERE.parent/'nbsr-runtime-47d2ae4-v5/repo';BIN=HERE.parent/'nbsr-linux-build-b09a851-20261014-once-execfix/artifacts/bin'
+BUILD=json.loads((REPO.parent/'debug-build-manifest.json').read_bytes())
+FIXTURES={'vectors/wp8-f75-route-open/route-open-body.cbor','vectors/wp8-local-admission/source.cose','vectors/wp8-local-admission/destination.cose'}
+SELECTORS=['crates/nbsr-transport/src','crates/nbsr-transport/Cargo.toml','crates/nbsr-transport/Cargo.lock','crates/nbsr-transport/build.rs']
+PREFIX=['git','--no-optional-locks','-c','safe.directory=','-c','safe.directory=/repo','-C','/repo']
+COMMANDS=[PREFIX+['ls-files','-z','--',*SELECTORS],PREFIX+['rev-parse','HEAD'],PREFIX+['status','--porcelain','--untracked-files=all']]
+def historical():
+ tree=ast.parse((HERE/'diagnostic-authorized-attempt-04.py').read_text())
+ return next(n.value.value for n in ast.walk(tree) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='probe' for t in n.targets))
+class ProbeTests(unittest.TestCase):
+ def execute(self,fault=None,old=False):
+  self.calls=[]
+  with tempfile.TemporaryDirectory(prefix='probe-chain-',dir=HERE) as temporary:
+   temp=Path(temporary);(temp/'dummy').mkdir();(temp/'output').mkdir()
+   for name in ['ca','source','source-key']:(temp/'dummy'/f'{name}.der').write_bytes(b'PUBLIC DIAGNOSTIC DUMMY; NOT TLS MATERIAL\n')
+   def mapped(value):
+    value=str(value)
+    for logical,physical in [('/repo',REPO),('/nbsr/bin',BIN),('/nbsr/build.json',REPO.parent/'debug-build-manifest.json'),('/private/tls',temp/'dummy'),('/evidence',temp/'output')]:
+     if value==logical:return physical
+     if value.startswith(logical+'/'):return physical/value[len(logical)+1:]
+    return Path(value)
+   def git(argv,**kwargs):
+    self.calls.append((argv,kwargs))
+    if argv not in COMMANDS or fault=='ownership':raise subprocess.CalledProcessError(128,argv,stderr=b'fatal: detected dubious ownership')
+    if argv==COMMANDS[0]:
+     names=sorted(set(BUILD['source_sha256'])-FIXTURES)
+     if fault=='inventory':names=names[1:]
+     return ('\0'.join(names)+'\0').encode()
+    if argv==COMMANDS[1]:return ('0'*40 if fault=='head' else BUILD['runtime_source_sha']).encode()
+    return b' M unexpected' if fault=='dirty' else b''
+   candidate=HERE/'public-probe-candidate.py'
+   text=historical() if old or not candidate.exists() else candidate.read_text()
+   tree=ast.parse(text)
+   # Model mount paths only. All control flow, helper imports, hashes and validators run.
+   tree.body=[n for n in tree.body if not (isinstance(n,ast.ImportFrom) and n.module=='pathlib')]
+   code=compile(tree,'integrated-public-probe','exec')
+   read=Path.read_bytes
+   def read_bytes(path):
+    if fault=='source' and path==REPO/'crates/nbsr-transport/src/lib.rs':return b'changed source'
+    if fault=='metadata' and path==REPO/'.git/config':return b'changed config'
+    if fault=='manifest' and path==REPO.parent/'debug-build-manifest.json':return b'{}'
+    if fault=='python' and path==REPO/'scripts/performance/native_debug_correctness.py':return b'changed python'
+    if fault=='binary' and path==BIN/'perf_direct_peer':return b'changed binary'
+    return read(path)
+   output=io.StringIO();err=io.StringIO()
+   with patch.object(subprocess,'check_output',side_effect=git),patch.object(subprocess,'Popen',side_effect=AssertionError('unlisted process')),patch.object(subprocess,'run',side_effect=AssertionError('unlisted run')),patch.object(os,'getuid',return_value=65532,create=True),patch.dict(os.environ,{'PATH':'/usr/bin'},clear=True),patch.object(Path,'read_bytes',read_bytes),contextlib.redirect_stdout(output),contextlib.redirect_stderr(err):
+    namespace=dict(__name__='offline_integrated_test',Path=mapped)
+    saved={k:v for k,v in sys.modules.items() if k.split('.')[0] in {'scripts','nbsr'}}
+    for k in saved:del sys.modules[k]
+    if fault=='preloaded':
+     injected=types.ModuleType('scripts.performance.native_debug_correctness')
+     injected.__file__='/outside/native_debug_correctness.py'
+     injected.validate_build=lambda *a,**k: self.fail('untrusted validator executed')
+     sys.modules[injected.__name__]=injected
+    try:
+     exec(code,namespace)
+     if 'run_probe' in namespace:namespace['run_probe']()
+    finally:
+     for k in tuple(sys.modules):
+      if k.split('.')[0] in {'scripts','nbsr'}:del sys.modules[k]
+     sys.modules.update(saved)
+   self.output=output.getvalue();self.wrote=(temp/'output/probe.txt').read_bytes()
+ def test_bytecode_loader_never_used(self):
+  # A hostile valid cache could affect SourceFileLoader.get_code; this path must
+  # never consult that loader for either protected namespace.
+  original=importlib.machinery.SourceFileLoader.get_code
+  def trap(loader,fullname):
+   if fullname.split('.')[0] in {'scripts','nbsr'}:
+    raise AssertionError('ordinary source/bytecode loader consulted')
+   return original(loader,fullname)
+  with patch.object(importlib.machinery.SourceFileLoader,'get_code',trap):self.execute()
+  self.assertEqual([a for a,k in self.calls],COMMANDS)
+ def test_preloaded_outside_rejected(self):
+  with self.assertRaisesRegex(AssertionError,'preloaded project module'):self.execute('preloaded')
+  self.assertEqual(self.calls,[])
+ def test_complete_probe_path(self):
+  self.execute();self.assertEqual([a for a,k in self.calls],COMMANDS)
+  self.assertEqual(self.wrote,b'PUBLIC PROBE PASS\n')
+  self.assertEqual(json.loads(self.output)['status'],'PUBLIC_DIAGNOSTIC_PASS')
+ def test_historical_nested_ownership_refusal(self):
+  with self.assertRaises(subprocess.CalledProcessError):self.execute(old=True)
+  self.assertEqual(self.calls[0][0],['git','ls-files','-z','--',*SELECTORS])
+ def test_ownership_refusal_stops(self):
+  with self.assertRaises(subprocess.CalledProcessError):self.execute('ownership')
+  self.assertEqual(len(self.calls),1)
+ def test_inventory_missing_stops(self):
+  with self.assertRaises((AssertionError,ValueError)):self.execute('inventory')
+  self.assertEqual(len(self.calls),1)
+ def test_head_mismatch_stops(self):
+  with self.assertRaises((AssertionError,ValueError)):self.execute('head')
+  self.assertEqual(len(self.calls),2)
+ def test_dirty_status_stops(self):
+  with self.assertRaises((AssertionError,ValueError)):self.execute('dirty')
+  self.assertEqual(len(self.calls),3)
+ def test_no_git_before_pins(self):
+  for fault in ['source','metadata','manifest','python','binary']:
+   with self.subTest(fault=fault):
+    with self.assertRaises((AssertionError,ValueError)):self.execute(fault)
+    self.assertEqual(self.calls,[])
+if __name__=='__main__':unittest.main()

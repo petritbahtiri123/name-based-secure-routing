@@ -1,0 +1,150 @@
+"""One authorized finite process-only diagnostic; production classification unchanged."""
+
+import ctypes as C
+import importlib.util
+import json
+import os
+from pathlib import Path
+import sys
+import time
+
+SOURCE = Path("C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013")
+OUT = Path("C:/Users/OPERATOR/AppData/Local/Temp/nbsr-helper-diagnostic-20261013")
+sys.path.insert(0, str(SOURCE))
+native = importlib.import_module("scripts.performance.windows_job_backend")
+Accounting, Win32Backend, W = native.Accounting, native.Win32Backend, native.W
+WindowsOwner = importlib.import_module("scripts.performance.windows_native_management").WindowsOwner
+Cancellation = importlib.import_module("scripts.performance.process_cancellation").Cancellation
+
+
+def sample(kernel, job, process, *, clock=time.monotonic):
+    row = {"calls": []}
+
+    def call(name, *args):
+        start = clock()
+        value = getattr(kernel, name)(*args)
+        end = clock()
+        row["calls"].append(dict(api=name, start=start, end=end, result=value))
+        return value
+
+    row["pid"] = call("GetProcessId", process)
+    if not row["pid"]:
+        raise OSError("GetProcessId failed")
+    count = Accounting()
+    if not call("QueryInformationJobObject", job, 1, C.byref(count), C.sizeof(count), None):
+        raise OSError("Job query failed")
+    row["active"] = count.ActiveProcesses
+    row["wait"] = call("WaitForSingleObject", process, 0)
+    if row["wait"] not in (0, 258):
+        raise OSError("process wait failed")
+    row["code"] = None
+    if row["wait"] == 0:
+        code = W.DWORD()
+        if not call("GetExitCodeProcess", process, C.byref(code)):
+            raise OSError("exit code failed")
+        row["code"] = code.value
+    return row
+
+
+def complete(row, pid):
+    return row["pid"] == pid and row["wait"] == 0 and row["code"] is not None and row["active"] == 0
+
+
+def run(cancel):
+    spec = importlib.util.spec_from_file_location("guard", Path(__file__).with_name("nbsr-prerequisite-containment-20261013.py"))
+    guard = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(guard)
+    initial = guard.resources(True)
+    OUT.mkdir(exist_ok=False)
+    result = dict(
+        approval="Sentinel_f35a09c38fb88191a401308b80cd67e5",
+        resources_start=initial,
+        samples=[],
+        production_observation_errors=[],
+        cleanup="UNCONFIRMED",
+    )
+    backend = Win32Backend()
+    backend.kernel.GetProcessId.argtypes = [W.HANDLE]
+    backend.kernel.GetProcessId.restype = W.DWORD
+    owner = WindowsOwner([sys.executable, "-B", str(Path(__file__).resolve()), "--helper"], backend=backend, cancel=lambda: None)
+    started = time.monotonic()
+    deadline = started + 8
+    pid = None
+
+    def save():
+        (OUT / "result.json").write_text(json.dumps(result, indent=2))
+
+    try:
+        owner.start()
+        pid = backend.kernel.GetProcessId(owner.process)
+        if not pid:
+            raise OSError("helper identity unavailable")
+        result["handle_pid"] = pid
+        result["handle_values"] = {n: getattr(owner, n) for n in ("job", "process", "thread")}
+        result["identity_verified"] = False
+        while time.monotonic() < started + 6:
+            cancel.check()
+            guard.resources()
+            receipt = OUT / "helper.json"
+            if receipt.exists() and not result["identity_verified"]:
+                data = json.loads(receipt.read_bytes())
+                result["helper_receipt"] = data
+                if data["pid"] != pid:
+                    raise RuntimeError("helper receipt and handle PID mismatch")
+                result["identity_verified"] = True
+            row = sample(backend.kernel, owner.job, owner.process)
+            row["phase"] = "work"
+            result["samples"].append(row)
+            if row["pid"] != pid:
+                raise RuntimeError("handle identity changed")
+            if row["wait"] == 0:
+                raise RuntimeError("finite helper ended before work cutoff")
+            time.sleep(0.02)
+        result["work_cutoff_elapsed"] = time.monotonic() - started
+    except BaseException as exc:
+        result["primary_error"] = dict(type=type(exc).__name__, message=str(exc))
+    finally:
+        try:
+            result["termination_enter"] = time.monotonic()
+            owner.signal("KILL")
+            result["termination_return"] = time.monotonic()
+            while owner.owned and time.monotonic() < deadline:
+                row = sample(backend.kernel, owner.job, owner.process)
+                row["phase"] = "cleanup"
+                result["samples"].append(row)
+                try:
+                    result["production_observation"] = owner.observe()
+                except Exception as exc:
+                    result["production_observation_errors"].append(dict(time=time.monotonic(), type=type(exc).__name__, message=str(exc)))
+                if complete(row, pid):
+                    owner.reap()
+                    result["cleanup"] = "EXACT_HANDLES_RELEASED"
+                    break
+                time.sleep(0.02)
+        except BaseException as exc:
+            result["cleanup_error"] = dict(type=type(exc).__name__, message=str(exc))
+        result["elapsed_seconds"] = time.monotonic() - started
+        result["owned"] = owner.owned
+        result["retained_handles"] = {n: getattr(owner, n) is not None for n in ("job", "process", "thread")}
+        try:
+            result["resources_end"] = guard.resources()
+        except Exception as exc:
+            result["resource_error"] = str(exc)
+        result["production_rejection_occurred"] = bool(result["production_observation_errors"])
+        save()
+        print(json.dumps({k: v for k, v in result.items() if k != "samples"}))
+
+
+def main():
+    with Cancellation() as cancel:
+        run(cancel)
+
+
+if __name__ == "__main__":
+    if sys.argv[1:] == ["--helper"]:
+        (OUT / "helper.json").write_text(json.dumps(dict(pid=os.getpid(), time=time.monotonic())))
+        time.sleep(20)  # Finite fallback; normally terminated at the six-second cutoff.
+    elif not sys.argv[1:]:
+        main()
+    else:
+        raise SystemExit("unexpected arguments")

@@ -1,0 +1,122 @@
+"""One explicitly authorized native helper/descendant trial; no Docker or keys."""
+import ctypes
+import json
+from pathlib import Path
+import os
+import shutil
+import subprocess
+import sys
+import time
+
+SOURCE = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+ROOT = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-prerequisites-20261013')
+BASELINE = 14247788544
+
+
+class Memory(ctypes.Structure):
+    _fields_ = [('length', ctypes.c_ulong), ('load', ctypes.c_ulong)] + [
+        (n, ctypes.c_ulonglong) for n in ('total', 'free', 'page_total', 'page_free',
+                                          'virtual_total', 'virtual_free', 'extended')]
+
+
+def resources(start=False):
+    value = Memory()
+    value.length = ctypes.sizeof(value)
+    if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(value)):
+        raise RuntimeError('memory observation unavailable')
+    disk = shutil.disk_usage(ROOT).free
+    result = dict(disk_free=disk, ram_free=value.free, commit_free=value.page_free)
+    if (disk < (8 if start else 6) * 2**30 or BASELINE - disk > 2 * 2**30
+            or min(value.free, value.page_free) < 2 * 2**30):
+        raise RuntimeError('resource guard: ' + json.dumps(result))
+    return result
+
+
+def main():
+    ROOT.mkdir(exist_ok=False)
+    sys.path.insert(0, str(SOURCE))
+    from scripts.performance.windows_native_management import WindowsOwner
+    from scripts.performance.windows_job_backend import Win32Backend
+    from scripts.performance.process_cancellation import Cancellation
+    started = time.monotonic()
+    result = dict(status='NOT_RUN', original_disk_baseline=BASELINE, events=[])
+    result['resources_start'] = resources(True)
+
+    class Backend(Win32Backend):
+        def create_suspended(self, argv):
+            handles = super().create_suspended(argv)
+            result['events'].append('created_suspended')
+            if (ROOT / 'helper.json').exists():
+                raise RuntimeError('helper ran before resume')
+            return handles
+
+        def assign(self, job, process):
+            super().assign(job, process)
+            result['events'].append('assigned_job_before_resume')
+
+        def resume(self, thread):
+            super().resume(thread)
+            result['events'].append('resumed')
+
+        def close(self, handle):
+            super().close(handle)
+            result['events'].append('exact_handle_closed')
+
+    backend = Backend()
+    owner = WindowsOwner([sys.executable, '-B', str(Path(__file__).resolve()), '--helper'],
+                         backend=backend, cancel=lambda: None)
+    problem = None
+    with Cancellation() as cancel:
+        try:
+            owner.start()
+            while True:
+                cancel.check()
+                resources()
+                code, active = backend.observe(owner.job, owner.process, owner.assigned)
+                if active >= 2 and (ROOT / 'helper.json').is_file() and (ROOT / 'descendant.json').is_file():
+                    result['observed_active_job_processes'] = active
+                    result['helper'] = json.loads((ROOT / 'helper.json').read_bytes())
+                    result['descendant'] = json.loads((ROOT / 'descendant.json').read_bytes())
+                    if result['helper']['child_pid'] != result['descendant']['pid']:
+                        raise RuntimeError('descendant identity mismatch')
+                    break
+                if code is not None or time.monotonic() - started > 10:
+                    raise RuntimeError('helper/descendant readiness not established')
+                time.sleep(.02)
+            result['events'].append('whole_job_termination_requested')
+        except BaseException as exc:
+            problem = exc
+        finally:
+            try:
+                owner.signal('KILL')
+                while owner.owned and time.monotonic() - started < 90:
+                    code, active = backend.observe(owner.job, owner.process, owner.assigned) if owner.process else (1, 0)
+                    if code is not None and active == 0:
+                        result['leader_exit'] = code
+                        result['active_after_termination'] = active
+                        owner.reap()
+                        break
+                    time.sleep(.02)
+            except BaseException as exc:
+                problem = problem or exc
+            result.update(status='PASS_NATIVE_JOB_CONTAINMENT' if problem is None and not owner.owned else 'UNCONFIRMED',
+                          error=None if problem is None else repr(problem), owned_handles=owner.owned,
+                          elapsed_seconds=round(time.monotonic() - started, 3), resources_end=resources())
+            (ROOT / 'containment-result.json').write_text(json.dumps(result, indent=2))
+    print(json.dumps(result))
+    return 0 if result['status'] == 'PASS_NATIVE_JOB_CONTAINMENT' else 1
+
+
+if __name__ == '__main__':
+    if sys.argv[1:] == ['--helper']:
+        child = subprocess.Popen([sys.executable, '-B', str(Path(__file__).resolve()), '--descendant'],
+                                 close_fds=True, creationflags=subprocess.CREATE_NO_WINDOW)
+        (ROOT / 'helper.json').write_text(json.dumps(dict(pid=os.getpid(), child_pid=child.pid)))
+        time.sleep(60)
+    elif sys.argv[1:] == ['--descendant']:
+        (ROOT / 'descendant.json').write_text(json.dumps(dict(pid=os.getpid())))
+        time.sleep(60)
+    elif not sys.argv[1:]:
+        raise SystemExit(main())
+    else:
+        raise SystemExit('unknown mode')

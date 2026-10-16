@@ -231,7 +231,7 @@ hosted pass; no publication or workflow security changes are part of this change
 The Rust connector group also selects `--test connector_signature`, a test-only
 exact COSE signature prerequisite with retained public single/threshold signature
 inputs. The Python protocol group runs
-`python scripts/extract_connector_signature_fixtures.py --check`; extraction uses
+`python -m scripts.extract_connector_signature_fixtures --check`; extraction uses
 existing signed bytes and generates no keys or signatures. Neither check grants
 registration authority or establishes threshold/governance acceptance. The
 development registry remains runtime/live-trust disabled. See

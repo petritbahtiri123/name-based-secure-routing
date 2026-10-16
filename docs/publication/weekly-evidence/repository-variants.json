@@ -1,0 +1,157 @@
+{
+  "scope": "Additional unique dirty source variants; current integrated fixes are authoritative. Older snapshots preserve history without replacing later safeguards.",
+  "entries": [
+    {
+      "source_group": "repository-06",
+      "source_label": "scripts/performance/windows_docker_provisioning.py",
+      "original_sha256": "a14d8420d920046a61a9e69b199d3b6fd3c6d80095ccbe7e3bc36f5ce6cc9939",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/71c5fc55246cbf446dbf-windows_docker_provisioning.py.snapshot",
+      "publication_sha256": "71c5fc55246cbf446dbf06607dba2af557918efeeea79be5da5e7ae5fc5512d4"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "crates/nbsr-transport/src/connector_kar.rs",
+      "original_sha256": "f40441803836dd70f9b53cbce9c7a9155b2b18fd85bc0d7077c34ea1eaee9442",
+      "disposition": "integrated_current_source",
+      "publication_path": "crates/nbsr-transport/src/connector_kar.rs",
+      "publication_sha256": "f40441803836dd70f9b53cbce9c7a9155b2b18fd85bc0d7077c34ea1eaee9442"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "crates/nbsr-transport/tests/support/connector_kar.rs",
+      "original_sha256": "5d2bce378336dd98d11522af59b5d01c29f5487dfd71f310e1608d03a17d4287",
+      "disposition": "integrated_current_source",
+      "publication_path": "crates/nbsr-transport/tests/support/connector_kar.rs",
+      "publication_sha256": "5d2bce378336dd98d11522af59b5d01c29f5487dfd71f310e1608d03a17d4287"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "docs/benchmarks/sphere-offline-20261012/preflight.py",
+      "original_sha256": "d58c71aa4c54f42b7dbaa0e9a1799975af86e8a8de8f1d338f19d94d220916ae",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/d58c71aa4c54f42b7dba-preflight.py.snapshot",
+      "publication_sha256": "d58c71aa4c54f42b7dbaa0e9a1799975af86e8a8de8f1d338f19d94d220916ae"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/check_connector_kar_positive.py",
+      "original_sha256": "205b629476b85f0af8def4cc688a4eae7557061ef4e262a8de1bb1851d42abab",
+      "disposition": "integrated_current_source",
+      "publication_path": "scripts/check_connector_kar_positive.py",
+      "publication_sha256": "205b629476b85f0af8def4cc688a4eae7557061ef4e262a8de1bb1851d42abab"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/inclusion_recovery_harness.py",
+      "original_sha256": "d69f4e1c32af4a9a68a6f59f99c911afb5dca29ef9b498df91d2649e0945a3f1",
+      "disposition": "integrated_current_source",
+      "publication_path": "scripts/inclusion_recovery_harness.py",
+      "publication_sha256": "d69f4e1c32af4a9a68a6f59f99c911afb5dca29ef9b498df91d2649e0945a3f1"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/ci/check.py",
+      "original_sha256": "6e5fd6a8b06dcb553033c137b246e4946ee325faecfda3f88454e306724a51bc",
+      "disposition": "integrated_current_source",
+      "publication_path": "scripts/ci/check.py",
+      "publication_sha256": "6e5fd6a8b06dcb553033c137b246e4946ee325faecfda3f88454e306724a51bc"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/performance/linux_native_finite_run.py",
+      "original_sha256": "1dfa8d2c5480d22fc2dbb84b9e892241d1a248ae84de8c2c4f956fe011b92c36",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/1dfa8d2c5480d22fc2db-linux_native_finite_run.py.snapshot",
+      "publication_sha256": "1dfa8d2c5480d22fc2dbb84b9e892241d1a248ae84de8c2c4f956fe011b92c36"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/performance/local_container_sequence.py",
+      "original_sha256": "3571b3361609023096a002e24cbc16152094eb5e51867044c6d6dbdcf23298d5",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/3571b3361609023096a0-local_container_sequence.py.snapshot",
+      "publication_sha256": "3571b3361609023096a002e24cbc16152094eb5e51867044c6d6dbdcf23298d5"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/performance/windows_docker_provisioning.py",
+      "original_sha256": "a14d8420d920046a61a9e69b199d3b6fd3c6d80095ccbe7e3bc36f5ce6cc9939",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/71c5fc55246cbf446dbf-windows_docker_provisioning.py.snapshot",
+      "publication_sha256": "71c5fc55246cbf446dbf06607dba2af557918efeeea79be5da5e7ae5fc5512d4"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/performance/windows_job_backend.py",
+      "original_sha256": "02a60ef0475c9f348ca115931cab9c5e56b8af2ace270d1416536ed375213f8c",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/02a60ef0475c9f348ca1-windows_job_backend.py.snapshot",
+      "publication_sha256": "02a60ef0475c9f348ca115931cab9c5e56b8af2ace270d1416536ed375213f8c"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "scripts/performance/windows_native_management.py",
+      "original_sha256": "89e5acb371457481193c0a5ba7aec987ce6950450d0e15edf3eab6a14d7c99bd",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/89e5acb371457481193c-windows_native_management.py.snapshot",
+      "publication_sha256": "89e5acb371457481193c0a5ba7aec987ce6950450d0e15edf3eab6a14d7c99bd"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "tests/test_connector_control_model.py",
+      "original_sha256": "fc130eb04385bd859a13e3ba5a4e791739c96bca2d8b89e90a18e2ae63b8a448",
+      "disposition": "integrated_current_source",
+      "publication_path": "tests/test_connector_control_model.py",
+      "publication_sha256": "fc130eb04385bd859a13e3ba5a4e791739c96bca2d8b89e90a18e2ae63b8a448"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "tests/ci/test_ci.py",
+      "original_sha256": "a89b4655fa85fbf1241742525f096b0c014993ccee21c0cf5a1fe8977d940ab4",
+      "disposition": "integrated_current_source",
+      "publication_path": "tests/ci/test_ci.py",
+      "publication_sha256": "a89b4655fa85fbf1241742525f096b0c014993ccee21c0cf5a1fe8977d940ab4"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "tests/federation/test_inclusion_recovery_harness.py",
+      "original_sha256": "55a08adee0ee213b2d763c46d1a9461b8f31eb5edc33263918f0c57c39c0a8cc",
+      "disposition": "integrated_current_source",
+      "publication_path": "tests/federation/test_inclusion_recovery_harness.py",
+      "publication_sha256": "55a08adee0ee213b2d763c46d1a9461b8f31eb5edc33263918f0c57c39c0a8cc"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "tests/performance/test_windows_job_backend.py",
+      "original_sha256": "6a9d15b5cf194c4bd03002b7cb7bb74367669886ac02dfe348d6fad43a149594",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/6a9d15b5cf194c4bd030-test_windows_job_backend.py.snapshot",
+      "publication_sha256": "6a9d15b5cf194c4bd03002b7cb7bb74367669886ac02dfe348d6fad43a149594"
+    },
+    {
+      "source_group": "repository-07",
+      "source_label": "tests/performance/test_windows_native_management.py",
+      "original_sha256": "29114b083c2719c88109f101f80f541377f4c9e9d89aec76d38aed79eb74de8b",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/29114b083c2719c88109-test_windows_native_management.py.snapshot",
+      "publication_sha256": "29114b083c2719c88109f101f80f541377f4c9e9d89aec76d38aed79eb74de8b"
+    },
+    {
+      "source_group": "repository-10",
+      "source_label": "scripts/performance/windows_adopted_campaign.py",
+      "original_sha256": "b1d8d7755debc0c3c34b497712d756468e16156be408851433f6f825dc7dbe07",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/b1d8d7755debc0c3c34b-windows_adopted_campaign.py.snapshot",
+      "publication_sha256": "b1d8d7755debc0c3c34b497712d756468e16156be408851433f6f825dc7dbe07"
+    },
+    {
+      "source_group": "repository-10",
+      "source_label": "scripts/performance/windows_docker_provisioning.py",
+      "original_sha256": "a14d8420d920046a61a9e69b199d3b6fd3c6d80095ccbe7e3bc36f5ce6cc9939",
+      "disposition": "retained_historical_variant_not_executed",
+      "publication_path": "docs/publication/weekly-evidence/source-snapshots/71c5fc55246cbf446dbf-windows_docker_provisioning.py.snapshot",
+      "publication_sha256": "71c5fc55246cbf446dbf06607dba2af557918efeeea79be5da5e7ae5fc5512d4"
+    }
+  ]
+}

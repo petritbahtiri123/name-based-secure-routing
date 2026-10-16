@@ -1,0 +1,34 @@
+import copy,json,unittest
+from pathlib import Path
+from diagnostic_labels import load_profile, verify_image, container_labels
+ROOT=Path(__file__).parent
+class Labels(unittest.TestCase):
+    def setUp(self):
+        self.wire=(ROOT/'label-profile.json').read_bytes()
+        self.pin=(ROOT/'profile-pin.txt').read_text().strip()
+        self.p=load_profile(self.wire,self.pin)
+    def test_recorded_image_positive(self):
+        verify_image(self.p,self.p['image'],self.p['image_labels'])
+    def test_missing_changed_extra_and_task_image_labels(self):
+        for kind in ['missing','changed','extra','task']:
+            with self.subTest(kind=kind):
+                labels=dict(self.p['image_labels'])
+                if kind=='missing':labels.pop('desktop.docker.io/ports.scheme')
+                elif kind=='changed':labels['desktop.docker.io/ports.scheme']='changed'
+                elif kind=='extra':labels['foreign']='unexpected'
+                else:labels['nbsr.role']='unexpected'
+                with self.assertRaises(ValueError):verify_image(self.p,self.p['image'],labels)
+    def test_image_id_mismatch(self):
+        with self.assertRaises(ValueError):verify_image(self.p,'sha256:'+'0'*64,self.p['image_labels'])
+    def test_profile_tamper(self):
+        with self.assertRaises(ValueError):load_profile(self.wire+b' ',self.pin)
+    def test_image_metadata_is_not_container_ownership(self):
+        task={'nbsr.campaign':'test','nbsr.run':'once','nbsr.role':'source'}
+        actual=container_labels(self.p,task)
+        self.assertEqual(actual,{**self.p['container_inherited_labels'],**task})
+        self.assertNotIn('desktop.docker.io/mounts/0/Source',actual)
+        for key in ['foreign','nbsr.extra']:
+            self.assertNotEqual(actual,{**actual,key:'unexpected'})
+    def test_incomplete_task_map(self):
+        with self.assertRaises(ValueError):container_labels(self.p,{'nbsr.role':'source'})
+if __name__=='__main__':unittest.main()

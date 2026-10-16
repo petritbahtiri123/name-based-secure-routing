@@ -1,0 +1,19 @@
+import json,time,sys
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent))
+from single_container_adapter import Budget60,run_owned
+from diagnostic_tls_budget import verify_support_sources
+from scripts.performance.windows_native_management import WindowsOwner
+from scripts.performance.windows_job_backend import Win32Backend
+from source_attempt10_retry1 import resources,FLOOR
+p=Path(__file__).resolve().parent
+verify_support_sources();before=resources();baseline=json.loads((p.parent/'debian-closure-plan/ACTIVATION-PREFLIGHT-2026-10-16.json').read_text())['resources']
+assert before['disk']>=FLOOR+500*1024**2 and min(before['ram'],before['commit'])>=2*1024**3
+def guard():
+ r=resources();assert r['disk']>=FLOOR and baseline['disk']-r['disk']<=300*1024**2 and min(r['ram'],r['commit'])>=2*1024**3
+owner=WindowsOwner([sys.executable,'-B',str(p/'containment_child.py')],backend=Win32Backend(),cancel=lambda:None)
+started=time.monotonic();result=run_owned(owner,Budget60(started-58),guard,lambda:None)
+result['descendant']=json.loads((p/'containment-descendant.json').read_text())
+result.update(elapsed=time.monotonic()-started,before=before,after=resources(),intent='leader exits with retained descendant; existing cutoff reached after two real seconds; exact Job tree killed/reaped')
+(p/'containment-result-v2.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+assert result['work_pass'] is False and result['host_handles_owned'] is False and result['failure']['type']=='TimeoutError'

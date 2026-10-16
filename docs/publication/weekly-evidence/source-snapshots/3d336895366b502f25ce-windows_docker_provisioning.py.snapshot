@@ -1,0 +1,552 @@
+"""Exact-ID Docker provisioning for an explicitly approved local rehearsal.
+
+Construction is offline. Calls require approved daemon-visible paths and a bounded
+Windows-host command transport. No socket is delegated. Unknown creation is
+terminal; known IDs remain available for cleanup even when validation fails.
+"""
+from contextlib import contextmanager
+from dataclasses import dataclass
+import json
+import hashlib
+import math
+import os
+from pathlib import Path, PurePosixPath
+import re
+import subprocess
+import sys
+import time
+
+from scripts.performance.local_container_disposal import Container, Creation, Observation, Probe, Unconfirmed
+from scripts.performance.process_cancellation import Cancellation
+from scripts.performance.windows_native_management import CellBudget, WindowsOwner
+from scripts.performance.windows_job_backend import Win32Backend
+
+
+@dataclass(frozen=True)
+class CommandResult:
+    code: int
+    stdout: str
+    stderr: str
+
+
+@dataclass(frozen=True)
+class EndpointSpec:
+    checkout_source: str
+    checkout_target: str
+    binaries_source: str
+    manifest_source: str
+    ca_source: str
+    certificate_source: str
+    key_source: str
+    evidence_source: str
+    address: str
+
+
+def _name(value):
+    if type(value) is not str or not re.fullmatch(r'[a-zA-Z0-9_-]{1,80}', value):
+        raise ValueError('invalid task name')
+    return value
+
+
+def _path(value):
+    if (type(value) is not str or not value.startswith('/') or value == '/'
+            or str(PurePosixPath(value)) != value or '..' in PurePosixPath(value).parts
+            or any(c in value for c in ',\n\r\x00\\')):
+        raise ValueError('explicit canonical daemon-visible path required')
+    return value
+
+
+def _id(value):
+    if type(value) is not str or not re.fullmatch('[0-9a-f]{64}', value):
+        raise Unconfirmed('immutable full engine ID required')
+    return value
+
+
+class DockerProvisioner:
+    """Serialized trusted local adapter; observations are not signed receipts."""
+
+    def __init__(self, command, *, campaign, image, specs, clock=time.monotonic):
+        self.command, self.campaign, self.clock = command, _name(campaign), clock
+        if type(image) is not str or not re.fullmatch('sha256:[0-9a-f]{64}', image):
+            raise ValueError('pinned local image ID required')
+        if set(specs) != {'source', 'destination'}:
+            raise ValueError('exact two endpoint specifications required')
+        self.image, self.specs = image, dict(specs)
+        for role, address in [('source', '192.0.2.10'), ('destination', '192.0.2.10')]:
+            spec = self.specs[role]
+            if type(spec) is not EndpointSpec or spec.address != address:
+                raise ValueError('fixed internal endpoint address required')
+            for field in spec.__dataclass_fields__:
+                if field != 'address':
+                    _path(getattr(spec, field))
+            targets = [PurePosixPath(m['Destination']) for m in self._mounts(role)]
+            if any(a == b or a in b.parents or b in a.parents
+                   for i, a in enumerate(targets) for b in targets[i + 1:]):
+                raise ValueError('overlapping endpoint mount targets')
+        private = [PurePosixPath(getattr(spec, field)) for spec in self.specs.values()
+                   for field in ('checkout_source', 'binaries_source', 'manifest_source',
+                                 'ca_source', 'certificate_source', 'key_source')]
+        outputs = [PurePosixPath(s.evidence_source) for s in self.specs.values()]
+        if any(a == b or a in b.parents or b in a.parents
+               for a in outputs for b in private) or outputs[0] == outputs[1] or any(
+                   a in b.parents for a, b in (outputs, outputs[::-1])):
+            raise ValueError('evidence sources must be disjoint from inputs and each other')
+        self.network = None
+        self._owners, self._removed, self._absent, self._attempts = {}, set(), set(), set()
+        self.uncertain = self.unknown_creation = self.closed = self._busy = False
+        self.events = []
+
+    @property
+    def owned_ids(self):
+        return tuple(i for i in self._owners if i not in self._absent)
+
+    @property
+    def retained_owners(self):
+        return tuple(self._owners[i] for i in self.owned_ids)
+
+    def _mounts(self, role):
+        s = self.specs[role]
+        return [dict(Type='bind', Source=source, Destination=target, RW=rw) for source, target, rw in (
+            (s.checkout_source, s.checkout_target, False),
+            (s.binaries_source, '/nbsr/bin', False),
+            (s.manifest_source, '/nbsr/build.json', False),
+            (s.ca_source, '/private/tls/ca.der', False),
+            (s.certificate_source, f'/private/tls/{role}.der', False),
+            (s.key_source, f'/private/tls/{role}-key.der', False),
+            (s.evidence_source, '/evidence', True))]
+
+    @contextmanager
+    def _operation(self, remaining):
+        if self._busy or type(remaining) not in (int, float) or not math.isfinite(remaining) or remaining <= 0:
+            raise Unconfirmed('invalid or reentrant operation budget')
+        self._busy = True
+        try:
+            started = previous = self.clock()
+            if type(started) not in (int, float) or not math.isfinite(started):
+                raise Unconfirmed('invalid clock')
+
+            def call(args, retain=None):
+                nonlocal previous
+                now = self.clock()
+                if not math.isfinite(now) or now < previous or now - started >= remaining:
+                    raise Unconfirmed('command budget exhausted or clock uncertain')
+                previous = now
+                result = self.command(args, timeout=min(8, remaining - (now - started)))
+                self.events.append((tuple(args), result))
+                if retain is not None:
+                    retain(result)  # Retain returned identity even if the result arrived late.
+                now = self.clock()
+                if not math.isfinite(now) or now < previous or now - started >= remaining:
+                    raise Unconfirmed('late command result')
+                previous = now
+                if (type(result) is not CommandResult or type(result.code) is not int
+                        or type(result.stdout) is not str or type(result.stderr) is not str
+                        or len(result.stdout) + len(result.stderr) > 1048576):
+                    raise Unconfirmed('invalid command result')
+                return result
+
+            yield call
+        finally:
+            self._busy = False
+
+    @staticmethod
+    def _success(result):
+        if result.code != 0:
+            raise Unconfirmed('engine command failed; inspect retained command evidence')
+        return result.stdout.strip()
+
+    def _network_row(self, call):
+        row = json.loads(self._success(call(['network', 'inspect', '--format', '{{json .}}', self.network])))
+        expected = dict(Id=self.network, Name='nbsr-' + self.campaign, Driver='bridge', Internal=True,
+                        EnableIPv6=False, Labels={'nbsr.campaign': self.campaign})
+        if (any(row.get(k) != v for k, v in expected.items())
+                or row.get('IPAM', {}).get('Config') not in (
+                    [{'Subnet': '192.0.2.10/29'}],
+                    [{'Subnet': '192.0.2.10/29', 'Gateway': '192.0.2.10'}])
+                or type(row.get('Containers')) is not dict
+                or not set(row['Containers']).issubset(self._owners)):
+            raise Unconfirmed('network identity, isolation or membership mismatch')
+        return row
+
+    def _labels(self, owner):
+        return {'nbsr.campaign': self.campaign, 'nbsr.run': owner.run, 'nbsr.role': owner.role}
+
+    def _inspect(self, call, owner):
+        # Select public topology/ownership fields; do not collect image environment.
+        fields = {'Id': '.Id', 'Image': '.Image', 'Labels': '.Config.Labels', 'User': '.Config.User',
+                  'HostConfig': '.HostConfig', 'Mounts': '.Mounts', 'State': '.State',
+                  'Networks': '.NetworkSettings.Networks'}
+        template = '{' + ','.join('"' + k + '":{{json ' + v + '}}' for k, v in fields.items()) + '}'
+        result = call(['inspect', '--type', 'container', '--format', template, owner.container_id])
+        if (result.code == 1 and not result.stdout.strip()
+                and result.stderr.strip().lower() in (
+                    'error: no such object: ' + owner.container_id,
+                    'error: no such container: ' + owner.container_id)):
+            return None
+        row = json.loads(self._success(result))
+        expected_host = dict(NetworkMode=self.network, PidMode='', IpcMode='private', UTSMode='',
+                             Privileged=False, ReadonlyRootfs=True, CapDrop=['ALL'], CapAdd=None,
+                             SecurityOpt=['no-new-privileges'], PortBindings={}, Devices=[], Binds=None,
+                             VolumesFrom=None, PidsLimit=128, NanoCpus=1000000000,
+                             Memory=536870912, MemorySwap=536870912, Init=True)
+        mounts = [{k: m.get(k) for k in ('Type', 'Source', 'Destination', 'RW')} for m in row.get('Mounts', [])]
+        networks = list(row.get('Networks', {}).values())
+        if (row.get('Id') != owner.container_id or row.get('Image') != self.image
+                or row.get('Labels') != self._labels(owner) or row.get('User') != '65532:65532'
+                or any(row.get('HostConfig', {}).get(k) != v for k, v in expected_host.items())
+                or sorted(mounts, key=lambda m: str(m['Destination'])) != sorted(
+                    self._mounts(owner.role), key=lambda m: m['Destination'])
+                or len(networks) != 1 or networks[0].get('NetworkID') not in (
+                    (self.network,) if row.get('State', {}).get('Running') is True else ('', self.network))
+                or networks[0].get('IPAddress') not in (
+                    (self.specs[owner.role].address,) if row.get('State', {}).get('Running') is True
+                    else ('', self.specs[owner.role].address))
+                or row.get('State', {}).get('OOMKilled') is not False):
+            raise Unconfirmed('container identity, isolation, mounts or limits mismatch')
+        return row
+
+    def create(self, request, *, remaining):
+        if (type(request) is not Creation or request.role not in self.specs or self.uncertain or self.closed
+                or (request.run, request.role) in self._attempts):
+            raise Unconfirmed('invalid/replayed creation or terminal uncertainty')
+        _name(request.run)
+        if any(o.run != request.run for i, o in self._owners.items() if i not in self._absent):
+            raise Unconfirmed('previous cell ownership retained')
+        self._attempts.add((request.run, request.role))
+        try:
+            with self._operation(remaining) as call:
+                if self.network is None:
+                    self.unknown_creation = True
+
+                    def retain_network(result):
+                        self.network = _id(self._success(result))
+                        self.unknown_creation = False
+
+                    call(['network', 'create', '--driver', 'bridge', '--internal',
+                          '--subnet', '192.0.2.10/29', '--gateway', '192.0.2.10',
+                          '--label', 'nbsr.campaign=' + self.campaign, 'nbsr-' + self.campaign], retain_network)
+                self._network_row(call)
+                argv = ['create', '--pull=never', '--name', f'nbsr-{self.campaign}-{request.run}-{request.role}',
+                        '--network', self.network, '--ip', self.specs[request.role].address,
+                        '--user', '65532:65532', '--read-only', '--cap-drop', 'ALL',
+                        '--security-opt', 'no-new-privileges', '--ipc', 'private', '--init',
+                        '--pids-limit', '128', '--cpus', '1', '--memory', '512m', '--memory-swap', '512m']
+                for k, v in self._labels(request).items():
+                    argv += ['--label', k + '=' + v]
+                for m in self._mounts(request.role):
+                    argv += ['--mount', f"type=bind,source={m['Source']},target={m['Destination']}" +
+                             ('' if m['RW'] else ',readonly')]
+                argv += ['--entrypoint', 'python3', self.image, '-B', '-c', 'import time; time.sleep(3600)']
+                self.unknown_creation = True
+
+                def retain_container(result):
+                    identity = _id(self._success(result))
+                    if identity in self._owners:
+                        raise Unconfirmed('engine reused an identity')
+                    self._owners[identity] = Container(request.run, request.role, identity, True)
+                    self.unknown_creation = False
+
+                result = call(argv, retain_container)
+                identity = _id(self._success(result))
+                owner = self._owners[identity]
+                if self._inspect(call, owner) is None:
+                    raise Unconfirmed('created container absent')
+                self._success(call(['start', identity]))
+                row = self._inspect(call, owner)
+                if row is None or row['State'].get('Running') is not True:
+                    raise Unconfirmed('endpoint did not start')
+                return owner
+        except BaseException as exc:
+            self.uncertain = True
+            raise Unconfirmed('creation unconfirmed; inspect retained exact IDs and attempted names') from exc
+
+    def remove(self, identity, *, remaining):
+        if identity not in self._owners or identity in self._absent:
+            raise Unconfirmed('unowned removal')
+        with self._operation(remaining) as call:
+            # An earlier successful rm followed by a failed inspect may be retried.
+            if identity not in self._removed:
+                self._success(call(['rm', '--force', identity]))
+                self._removed.add(identity)
+
+    def observe(self, probe, *, remaining):
+        if type(probe) is not Probe or self._owners.get(probe.container.container_id) != probe.container:
+            raise Unconfirmed('unowned probe')
+        with self._operation(remaining) as call:
+            row = self._inspect(call, probe.container)
+            if row is None:
+                if probe.container.container_id not in self._removed:
+                    raise Unconfirmed('unexpected absence before removal')
+                self._absent.add(probe.container.container_id)
+            return Observation(probe, None if row is None else probe.container)
+
+    def close_network(self, *, remaining):
+        if self.owned_ids or self.unknown_creation or self.network is None or self.closed:
+            raise Unconfirmed('network ownership unresolved')
+        with self._operation(remaining) as call:
+            if self._network_row(call)['Containers']:
+                raise Unconfirmed('network still has endpoints')
+            self._success(call(['network', 'rm', self.network]))
+            result = call(['network', 'inspect', '--format', '{{json .}}', self.network])
+            if (result.code != 1 or result.stdout.strip() or result.stderr.strip() !=
+                    'Error response from daemon: network ' + self.network + ' not found'):
+                raise Unconfirmed('network absence unconfirmed')
+            self.closed = True
+
+    def config(self, run, *, source_sha):
+        from scripts.performance.linux_native_finite_run import validate_config
+        _name(run)
+        config = dict(schema='nbsr-native-finite-coordinator-v1', source_sha=source_sha,
+                      path='nbsr', payload=1024, streams=2, depth=1, post_close_reports=True,
+                      diagnostic_rate=[100, 1], source_live_guard=True, paired_live_guards=True)
+        for role, spec in self.specs.items():
+            config[role] = dict(transport='docker', host=role, checkout=spec.checkout_target,
+                                binaries='/nbsr/bin', build_manifest='/nbsr/build.json', authority='/private/tls',
+                                output=f'/evidence/{run}-{role}', bind=spec.address + ':0', cores=1)
+        return validate_config(config)
+
+
+class _CommandTrace:
+    """Bounded local diagnostics; no argv, environment or credential capture."""
+
+    def __init__(self, path, *, clock=time.monotonic):
+        self.path, self.clock = path, clock
+        self.events, self.dropped, self.write_errors = [], 0, 0
+
+    def record(self, stage, **fields):
+        try:
+            if len(self.events) == 128:
+                self.events.pop(32)  # Preserve startup and the most recent tail.
+                self.dropped += 1
+            self.events.append(dict(time=self.clock(), stage=stage, **fields))
+            self.path.write_text(json.dumps(dict(events=self.events, dropped=self.dropped,
+                                                write_errors=self.write_errors)))
+        except Exception:
+            # Diagnostics must not interrupt transfer/cleanup of newly created handles.
+            self.write_errors += 1
+
+
+class _TracedBackend:
+    def __init__(self, backend, trace):
+        self.backend, self.trace = backend, trace
+        self.last_observation = object()
+
+    def __getattr__(self, name):
+        if name not in ('create_job', 'create_suspended', 'assign', 'resume',
+                        'observe', 'terminate', 'close'):
+            raise AttributeError(name)
+        method = getattr(self.backend, name)
+
+        def call(*args):
+            if name != 'observe':
+                self.trace.record(name + '_enter')
+            try:
+                value = method(*args)
+            except BaseException as exc:
+                self.trace.record(name + '_error', error_type=type(exc).__name__)
+                raise
+            if name == 'observe':
+                if value != self.last_observation:
+                    self.trace.record('observe_return', leader_code=value[0], active_processes=value[1])
+                    self.last_observation = value
+            else:
+                self.trace.record(name + '_return')
+            return value
+        return call
+
+
+def windows_argv_units(argv):
+    """CreateProcess UTF-16 units including NUL, using Popen's serialization."""
+    units = len(subprocess.list2cmdline(argv).encode('utf-16-le')) // 2 + 1
+    if units > 30000:
+        raise ValueError('Windows command line exceeds conservative 30000-unit limit')
+    return units
+
+
+class DockerCommand:
+    """Bound each host CLI invocation and its descendants to one Windows Job.
+
+    The helper opens private command logs, so no inheritable host handles are
+    needed. A timeout is failure even if termination subsequently succeeds.
+    Engine effects can outlive a CLI; the provisioner retains that uncertainty.
+    """
+
+    def __init__(self, root, *, executable, backend_factory=Win32Backend,
+                 clock=time.monotonic, sleep=time.sleep, max_timeout=8, trial_budget=None, guard=None):
+        if not Path(executable).is_absolute():
+            raise ValueError('exact approved Docker executable required')
+        if trial_budget is not None and type(trial_budget) is not CellBudget:
+            raise ValueError('exact finite trial budget required')
+        ceiling = 122 if trial_budget is not None else 32
+        if type(max_timeout) not in (int, float) or not math.isfinite(max_timeout) or not 0 < max_timeout <= ceiling:
+            raise ValueError('explicit command limit exceeds finite ceiling')
+        self.trial_budget, self.guard = trial_budget, guard
+        self.max_timeout = max_timeout
+        self.root, self.executable = Path(root), str(executable)
+        self.backend_factory, self.clock, self.sleep = backend_factory, clock, sleep
+        self.owner, self.count = None, 0
+
+    def __call__(self, args, *, timeout, cleanup=False):
+        if (self.owner is not None and self.owner.owned) or type(args) is not list or not args or any(
+                type(v) is not str or '\x00' in v for v in args):
+            raise Unconfirmed('previous command owned or invalid argv')
+        if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= self.max_timeout:
+            raise ValueError('command exceeds its explicit finite budget')
+        if type(cleanup) is not bool:
+            raise ValueError('explicit cleanup phase required')
+        if self.trial_budget is not None:
+            timeout = self.trial_budget.command_timeout(timeout, cleanup=cleanup)
+        windows_argv_units([self.executable, *args])
+        started = previous = self.clock()
+        deadline = started + timeout
+        if self.trial_budget is not None:
+            boundary = self.trial_budget.total_seconds if cleanup else self.trial_budget.work_seconds
+            deadline = min(deadline, self.trial_budget.started + boundary)
+            timeout = deadline - started
+            if timeout <= 0:
+                raise TimeoutError('trial deadline reached before command startup')
+
+        def now():
+            nonlocal previous
+            value = self.clock()
+            if not math.isfinite(value) or value < previous:
+                raise Unconfirmed('command clock invalid')
+            previous = value
+            return value
+
+        self.count += 1
+        output = self.root / f'command-{self.count:04d}'
+        output.mkdir(parents=False, exist_ok=False)
+        request = output / 'request.json'
+        wire = json.dumps(dict(argv=[self.executable, *args], deadline=deadline)).encode()
+        request.write_bytes(wire)
+        trace = _CommandTrace(output / 'host-trace.json', clock=self.clock)
+        self.owner = WindowsOwner([sys.executable, '-B', '-m',
+            'scripts.performance.windows_docker_provisioning', '--command', str(request)],
+            backend=_TracedBackend(self.backend_factory(), trace), cancel=lambda: None)
+        failure = primary_failure = cleanup_failure = None
+        stage = 'startup_check'
+
+        def diagnostic(error, phase):
+            return dict(stage=phase, type=type(error).__name__, message=str(error),
+                        errno=getattr(error, 'errno', None), winerror=getattr(error, 'winerror', None))
+
+        with Cancellation() as cancellation:
+            try:
+                cancellation.check()
+                if self.guard is not None and not cleanup:
+                    self.guard()
+                if now() >= deadline - min(2, timeout / 2):
+                    raise TimeoutError('no command startup budget')
+                stage = 'start'
+                self.owner.start()
+                while True:
+                    stage = 'observe'
+                    cancellation.check()
+                    if self.guard is not None and not cleanup:
+                        self.guard()
+                    code, active = self.owner.observe()
+                    if code is not None and not active:
+                        stage = 'reap'
+                        self.owner.reap()
+                        if code != 0 or now() >= deadline:
+                            raise Unconfirmed('command helper failed or completed late')
+                        break
+                    stage = 'work_deadline'
+                    if now() >= deadline - min(2, timeout / 2):
+                        raise TimeoutError('command work deadline')
+                    stage = 'sleep'
+                    self.sleep(min(.02, max(0, deadline - now())))
+            except BaseException as exc:
+                failure = exc
+                primary_failure = diagnostic(exc, stage)
+            finally:
+                if self.owner.owned:
+                    cleanup_stage = 'terminate'
+                    try:
+                        self.owner.signal('KILL')
+                        while now() < deadline:
+                            cleanup_stage = 'observe'
+                            code, active = self.owner.observe()
+                            if code is not None and not active:
+                                cleanup_stage = 'reap'
+                                self.owner.reap()
+                                break
+                            self.sleep(min(.02, max(0, deadline - now())))
+                        if self.owner.owned:
+                            cleanup_stage = 'deadline'
+                            raise TimeoutError('command cleanup deadline; ownership retained')
+                    except BaseException as exc:
+                        cleanup_failure = diagnostic(exc, cleanup_stage)
+                        failure = failure or exc
+                (output / 'supervision.json').write_text(json.dumps(dict(
+                    timeout_seconds=timeout, max_timeout=self.max_timeout, cleanup_phase=cleanup,
+                    trial_work_seconds=None if self.trial_budget is None else self.trial_budget.work_seconds,
+                    trial_total_seconds=None if self.trial_budget is None else self.trial_budget.total_seconds,
+                    work_budget_seconds=timeout - min(2, timeout / 2),
+                    trace_write_errors=trace.write_errors,
+                    owned=self.owner.owned, failure=None if failure is None else type(failure).__name__,
+                    primary_failure=primary_failure, cleanup_failure=cleanup_failure,
+                    retained_handles={name: getattr(self.owner, name) is not None
+                                      for name in ('job', 'process', 'thread')})))
+        if failure is not None or self.owner.owned:
+            raise Unconfirmed('command failed; retained supervision and ownership') from failure
+        try:
+            files = [output / name for name in ('reply.json', 'stdout.txt', 'stderr.txt')]
+            if any(p.stat().st_size > 1048576 for p in files):
+                raise Unconfirmed('command output limit')
+            reply = json.loads(files[0].read_bytes())
+            if (set(reply) == {'request_sha256', 'code', 'launch_error'}
+                    and reply['request_sha256'] == hashlib.sha256(wire).hexdigest()
+                    and reply['code'] is None):
+                raise Unconfirmed('command launch failed; original exception retained in reply.json')
+            if (set(reply) != {'request_sha256', 'code'} or type(reply['code']) is not int
+                    or reply['request_sha256'] != hashlib.sha256(wire).hexdigest()):
+                raise Unconfirmed('unbound command reply')
+            result = CommandResult(reply['code'], files[1].read_text(encoding='utf-8'),
+                                   files[2].read_text(encoding='utf-8'))
+            if now() >= deadline:
+                raise Unconfirmed('late command evidence')
+            return result
+        except (OSError, ValueError) as exc:
+            raise Unconfirmed('missing or invalid command evidence') from exc
+
+
+def _command_worker(request):
+    """Private entrypoint: only launch beneath the already assigned host job."""
+    if os.name != 'nt':
+        raise RuntimeError('Windows host required')
+    wire = request.read_bytes()
+    if len(wire) > 65536:
+        raise ValueError('oversize command request')
+    value = json.loads(wire)
+    if set(value) != {'argv', 'deadline'} or time.monotonic() >= value['deadline']:
+        raise ValueError('invalid or expired command')
+    trace = _CommandTrace(request.parent / 'worker-trace.json', clock=time.monotonic)
+    with (request.parent / 'stdout.txt').open('xb') as stdout, (request.parent / 'stderr.txt').open('xb') as stderr:
+        # Descendants inherit the assigned job, never a daemon socket or host handles.
+        trace.record('popen_enter')
+        try:
+            windows_argv_units(value['argv'])
+            child = subprocess.Popen(value['argv'], stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr,
+                                     close_fds=True, creationflags=subprocess.CREATE_NO_WINDOW)
+        except Exception as exc:
+            error = dict(type=type(exc).__name__, message=str(exc),
+                         errno=getattr(exc, 'errno', None), winerror=getattr(exc, 'winerror', None))
+            (request.parent / 'reply.json').write_text(json.dumps(dict(
+                request_sha256=hashlib.sha256(wire).hexdigest(), code=None, launch_error=error)))
+            trace.record('launch_failed', **error)
+            return
+        trace.record('popen_return', pid=child.pid)
+        trace.record('wait_enter')
+        code = child.wait(timeout=max(.001, value['deadline'] - time.monotonic()))
+        trace.record('wait_return', code=code)
+    (request.parent / 'reply.json').write_text(json.dumps(dict(
+        request_sha256=hashlib.sha256(wire).hexdigest(), code=code)))
+    trace.record('reply_written')
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 3 or sys.argv[1] != '--command':
+        raise SystemExit('private --command request entrypoint required')
+    _command_worker(Path(sys.argv[2]))

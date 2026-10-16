@@ -1,0 +1,102 @@
+"""Offline build launcher; explicit authorization and previously fetched files required.
+No download capability. Syntax/review only until user authorizes execution.
+"""
+import argparse,datetime,email.utils,hashlib,io,json,pathlib,subprocess,sys,tarfile,time,uuid
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent.parent))
+from source_attempt09_retry1 import resources,FLOOR
+HERE=pathlib.Path(__file__).resolve().parent
+D='C:/Program Files/Docker/Docker/resources/bin/docker.exe'
+IMAGE='sha256:ff83a535339812dd72e69c93b3c48ddf7c85a324d6330af5797c82a255dbeef4'
+PINS={'artifact-closure.json': '38f13d332a8af94e8930eb4f41a6a1f6cef7a072157d35fcd3fb35fc43923267', 'install_offline.py': 'c0f12255b514e64923652cb9f34988f23d3524b7acd26cc5a76d22e1d868aa21', '../package-metadata-plan/diagnostic-requirements.lock': '822b768fe3c7ca92bdfda515a3c85906a6ed5184793143dfea0db019e3b55762', 'bookworm.InRelease': '77737fa4b34f2693e982cc9ee35736816c35a7778fc2d326cc1bbf5b301fe1aa', 'bookworm-updates.InRelease': '03db7de1342dfa8d0e971c99712d63d3dbdebdc1191e5b65dddbc7f06c1aa883', 'bookworm-security.InRelease': 'cb78293d247b4d301f3c1301beb9f78ce9a1958e73caf2f6c110d840e44ed1bd', 'verified-indexes.json': '69ee60c4462354d416a78af2ca51dc0d4d19bf6ace37a3a7836d7533175e06b0', 'dpkg-status': '646e182b3b4a1182c9b4a8f583d9f08e3148e243349f0e6bf5ff07c57000c3b0', 'debian-archive-keyring.gpg': '506b815cbb32d9b6066b4a2aa524071e071761e7e7f68c3ac74f3061ba852017'}
+
+def main():
+    raise SystemExit("EXECUTION BLOCKED: independent review requires retained Job ownership, strict uncertain-create reconciliation, and late-completion tests. This draft is not runnable.")
+    ap=argparse.ArgumentParser();ap.add_argument('--approved-build',action='store_true',required=True);ap.add_argument('--artifacts',type=pathlib.Path,required=True);a=ap.parse_args()
+    started=time.monotonic();before=resources();cleaning=False;proc=None;attempted=False;cid=None
+    name='nbsr-diagnostic-build-'+uuid.uuid4().hex[:12];tag='nbsr-public-diagnostic:'+name
+    out=HERE/name;out.mkdir(exist_ok=False)
+    result={'name':name,'output_tag':tag,'base':IMAGE,'status':'FAILED','downloaded':False,'container_absent':False,'generated_image':None}
+    def guard():
+        elapsed=time.monotonic()-started
+        if elapsed>(115 if cleaning else 60):raise TimeoutError('cleanup/work deadline')
+        if not cleaning:
+            r=resources()
+            if r['disk']<FLOOR or before['disk']-r['disk']>300*1024**2 or min(r['ram'],r['commit'])<2*1024**3:raise RuntimeError('resource guard')
+    def command(args,data=None,limit=10,check=True):
+        nonlocal proc
+        guard();begin=time.monotonic();proc=subprocess.Popen([D]+args,stdin=subprocess.PIPE if data is not None else None,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        try:
+            first=True
+            while True:
+                try:
+                    stdout,stderr=proc.communicate(input=data if first else None,timeout=.5);break
+                except subprocess.TimeoutExpired:
+                    first=False;guard()
+                    if time.monotonic()-begin>=limit:raise TimeoutError('Docker '+args[0])
+            code=proc.returncode;proc=None
+        except BaseException:
+            subprocess.run(['taskkill','/PID',str(proc.pid),'/T','/F'],capture_output=True,timeout=5)
+            proc.communicate(timeout=3);proc=None;raise
+        with (out/'commands.jsonl').open('a') as f:f.write(json.dumps({'args':args,'returncode':code,'stderr':stderr.decode(errors='replace')})+'\n')
+        if check and code:raise RuntimeError(stderr.decode(errors='replace'))
+        return code,stdout,stderr
+    try:
+        assert before['disk']>=FLOOR+500*1024**2 and min(before['ram'],before['commit'])>=2*1024**3
+        assert PINS
+        for relative,digest in PINS.items():assert hashlib.sha256((HERE/relative).read_bytes()).hexdigest()==digest,relative
+        for suite in ['bookworm','bookworm-updates','bookworm-security']:
+            text=(HERE/(suite+'.InRelease')).read_text()
+            for line in text.splitlines():
+                if line.startswith('Valid-Until: '):assert email.utils.parsedate_to_datetime(line[13:])>datetime.datetime.now(datetime.timezone.utc)
+        m=json.loads((HERE/'artifact-closure.json').read_text())
+        files={r['filename']:(a.artifacts/r['filename']).read_bytes() for r in m['packages']+m['wheels']}
+        for r in m['packages']+m['wheels']:
+            b=files[r['filename']];assert len(b)==r['bytes'] and hashlib.sha256(b).hexdigest()==r['sha256']
+        files.update({'artifact-closure.json':(HERE/'artifact-closure.json').read_bytes(),'install_offline.py':(HERE/'install_offline.py').read_bytes(),'diagnostic-requirements.lock':(HERE/'../package-metadata-plan/diagnostic-requirements.lock').read_bytes()})
+        expected={n:hashlib.sha256(b).hexdigest() for n,b in files.items()}
+        buf=io.BytesIO()
+        with tarfile.open(fileobj=buf,mode='w') as tf:
+            for n,b in files.items():
+                ti=tarfile.TarInfo(n);ti.size=len(b);ti.mode=0o644;tf.addfile(ti,io.BytesIO(b))
+        payload=buf.getvalue();assert len(payload)<32*1024**2
+        boot="import sys,tarfile,io,pathlib,hashlib,runpy; expected="+repr(expected)+"; raw=sys.stdin.buffer.read(33554433);assert len(raw)<=33554432;t=tarfile.open(fileobj=io.BytesIO(raw));ms=t.getmembers();assert len(ms)==len(expected) and {m.name for m in ms}==set(expected) and all(m.isfile() for m in ms);p=pathlib.Path('/tmp/nbsr-build-inputs');p.mkdir();data={m.name:t.extractfile(m).read() for m in ms};assert all(hashlib.sha256(b).hexdigest()==expected[n] for n,b in data.items());[(p/n).write_bytes(b) for n,b in data.items()];runpy.run_path(str(p/'install_offline.py'),run_name='__main__')"
+        _,wire,_=command(['image','inspect','--format','{{json .}}',IMAGE]);im=json.loads(wire);assert im['Id']==IMAGE and im['Architecture']=='amd64' and im['Os']=='linux'
+        code,_,err=command(['image','inspect',tag],check=False);assert code and b'no such' in err.lower()
+        attempted=True
+        _,wire,_=command(['create','--pull=never','--name',name,'--label','nbsr.build-run='+name,'--network','none','--user','0:0','--security-opt','no-new-privileges','--cpus','1','--memory','512m','--memory-swap','512m','--pids-limit','128','--tmpfs','/tmp:rw,noexec,nosuid,size=96m,mode=1777','--interactive','--entrypoint','python3',IMAGE,'-B','-c',boot])
+        cid=wire.decode().strip()
+        _,wire,_=command(['inspect','--format','{{json .}}',cid]);row=json.loads(wire);h=row['HostConfig']
+        assert row['Image']==IMAGE and row['Mounts']==[] and row['Config']['User']=='0:0' and h['NetworkMode']=='none' and not h['Privileged']
+        assert h['Memory']==h['MemorySwap']==512*1024**2 and h['NanoCpus']==1000000000 and h['PidsLimit']==128 and h['SecurityOpt']==['no-new-privileges']
+        (out/'container-inspect.json').write_text(json.dumps(row,indent=2))
+        _,wire,_=command(['start','--attach','--interactive',cid],data=payload,limit=52);(out/'install.stdout').write_bytes(wire);assert b'OFFLINE_INSTALL_PAYLOAD_PASS' in wire
+        guard()
+        _,wire,_=command(['commit','--change','USER 65532:65532','--change','ENTRYPOINT ["python3"]','--change','CMD ["--version"]','--change','LABEL nbsr.input-sha256='+PINS['artifact-closure.json'],'--change','LABEL nbsr.build-run='+name,cid,tag],limit=10)
+        result['commit_response']=wire.decode().strip();result['status']='BUILD_COMPLETED_PENDING_RUNTIME_PROBE'
+    except BaseException as e:result['error']=type(e).__name__+': '+str(e)
+    finally:
+        cleaning=True
+        try:
+            if attempted:
+                code,wire,err=command(['inspect','--format','{{json .}}',name],check=False)
+                if code==0:
+                    row=json.loads(wire);assert row['Image']==IMAGE and row['Config']['Labels'].get('nbsr.build-run')==name and row['Name']=='/'+name
+                    if row['State']['Running']:command(['kill',row['Id']])
+                    command(['rm',row['Id']])
+                else:assert b'no such' in err.lower()
+                code,_,err=command(['inspect',name],check=False);assert code and b'no such' in err.lower()
+            result['container_absent']=True
+            code,wire,err=command(['image','inspect','--format','{{json .}}',tag],check=False)
+            if code==0:
+                im=json.loads(wire);assert im['Config']['Labels'].get('nbsr.build-run')==name
+                result['generated_image']=im['Id'];(out/'image-inspect.json').write_text(json.dumps(im,indent=2))
+                assert im['Config']['User']=='65532:65532' and im['Config']['Labels'].get('nbsr.input-sha256')==PINS['artifact-closure.json']
+            else:
+                assert b'no such' in err.lower()
+                if result['status']=='BUILD_COMPLETED_PENDING_RUNTIME_PROBE':raise RuntimeError('committed image missing')
+            if 'error' in result:result['output_reconciliation']='Image lookup is a snapshot; timed-out daemon commit may still finish. Do not retry/delete without reconciliation.'
+        except BaseException as e:result['cleanup_error']=type(e).__name__+': '+str(e);result['status']='FAILED'
+        result.update(before=before,after=resources(),elapsed=time.monotonic()-started,host_process_owned=proc is not None)
+        (out/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+    return 0 if result['status']=='BUILD_COMPLETED_PENDING_RUNTIME_PROBE' and result['container_absent'] else 1
+if __name__=='__main__':raise SystemExit(main())

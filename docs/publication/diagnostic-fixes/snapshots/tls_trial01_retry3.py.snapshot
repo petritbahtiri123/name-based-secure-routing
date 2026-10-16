@@ -1,0 +1,191 @@
+"""Approved two-phase public diagnostic. Importing does not start native work."""
+import ctypes,hashlib,json,shutil,sys,time,uuid
+from pathlib import Path
+from diagnostic_labels import load_profile,verify_image
+from diagnostic_tls_budget_v3 import DiagnosticCommand,CreateReconciler
+from diagnostic_tls_lifecycle import SourceVolume,NAME as VOLUME
+from scripts.performance.windows_adopted_campaign import _equal,MountMapping,validate_mapping
+
+HERE=Path(__file__).parent
+BASE=HERE.parent
+ROOT=BASE/'nbsr-tls-proof-01-retry3'
+REPO=BASE/'nbsr-runtime-47d2ae4-v5/repo'
+BIN=BASE/'nbsr-linux-build-b09a851-20261014-once-execfix/artifacts/bin'
+IMAGE='sha256:4e24792049e09cd8431ad9d74bf9349a07230d6c5889468d825af820d1ae75a2'
+FLOOR=8*1024**3
+MAPPING_PIN='053aa380ecca9c2b7f2501c29fbc25e43ea90ea390cc72b37aef919594c3c281'
+def observed_source(path):
+    wire=(HERE/'tls-proof-authorization/public-mount-map-v4.json').read_bytes()
+    assert hashlib.sha256(wire).hexdigest()==MAPPING_PIN,'mapping drift'
+    bindings=json.loads(wire)['bindings']
+    assert len(bindings)==9 and len({x['controller'] for x in bindings})==9
+    matches=[x['observed'] for x in bindings if x['controller']==str(path)]
+    assert len(matches)==1,'unlisted controller path'
+    return matches[0]
+
+class M(ctypes.Structure):
+    _fields_=[('length',ctypes.c_ulong),('load',ctypes.c_ulong)]+[(n,ctypes.c_ulonglong) for n in ['total','available','page_total','page_available','virtual_total','virtual_available','extended']]
+def resources():
+    m=M();m.length=ctypes.sizeof(m)
+    assert ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m))
+    return dict(disk=shutil.disk_usage('C:/').free,ram=m.available,commit=m.page_available)
+def payload(kind):
+    if kind=='runtime':return (HERE/'tls-proof-authorization/prepared-payload-v2.txt').read_text()
+    name,entry={'stage':('source_stage_payload.py','main'),'runtime':('source_runtime_payload.py','run_probe')}[kind]
+    return "ns={'__name__':'authorized_source_presentation'};exec("+repr((HERE/name).read_text())+",ns);ns['"+entry+"']()"
+IMAGE_TEMPLATE='{"Id":{{json .Id}},"Os":{{json .Os}},"Architecture":{{json .Architecture}},"Labels":{{json .Config.Labels}},"Environment":[{{range .Config.Env}}{{$parts := split . "="}}{{$key := index $parts 0}}{{if or (eq $key "PATH") (eq $key "LANG") (eq $key "GPG_KEY") (eq $key "PYTHON_VERSION") (eq $key "PYTHON_SHA256")}}{{json .}}{{else}}{{json $key}}{{end}},{{end}}null]}'
+def inspection_template(labels,env):
+    return '{"Id":{{json .Id}},"Image":{{json .Image}},"Mounts":{{json .Mounts}},"User":{{json .Config.User}},"Network":{{json .HostConfig.NetworkMode}},"Readonly":{{json .HostConfig.ReadonlyRootfs}},"Memory":{{json .HostConfig.Memory}},"Swap":{{json .HostConfig.MemorySwap}},"NanoCpus":{{json .HostConfig.NanoCpus}},"Pids":{{json .HostConfig.PidsLimit}},"Caps":{{json .HostConfig.CapDrop}},"Security":{{json .HostConfig.SecurityOpt}},"Log":{{json .HostConfig.LogConfig.Type}},"Ipc":{{json .HostConfig.IpcMode}},"Init":{{json .HostConfig.Init}},"Ports":{{json .HostConfig.PortBindings}},"LabelsOK":{{' + _equal('.Config.Labels', labels) + '}},"EnvironmentOK":{{' + _equal('.Config.Env', env) + '}},"CommandOK":{{and ' + _equal('.Config.Entrypoint', ['python3']) + ' ' + _equal('.Config.Cmd', ['-B', '-c', 'import time; time.sleep(3600)']) + '}}}'
+
+class Phase:
+    def __init__(self,kind,started,baseline):
+        self.kind=kind;self.started=started;self.baseline=baseline;self.cleaning=False
+        self.root=ROOT/kind;self.root.mkdir();(self.root/'logs').mkdir()
+        self.command=DiagnosticCommand(self.root/'logs',executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe',started=started,extended_create=True,work_guard=self.guard)
+        self.reconciler=None;self.cid=None;self.absent=True;self.failure=None
+    def guard(self):
+        now=time.monotonic();r=resources()
+        if now-self.started>=120:raise TimeoutError('phase total deadline')
+        if not self.cleaning:
+            if now-self.started>=60:raise TimeoutError('phase work deadline; reserve60seconds cleanup')
+            if r['disk']<FLOOR or self.baseline['disk']-r['disk']>300*1024**2:
+                (self.root/'disk-guard-sample.json').write_text(json.dumps({'observed':r,'baseline':self.baseline,'elapsed':now-self.started,'physical_floor':FLOOR,'growth_cap':300*1024**2,'physical_floor_breached':r['disk']<FLOOR,'growth_cap_breached':self.baseline['disk']-r['disk']>300*1024**2},indent=2))
+                raise RuntimeError('disk guard')
+            if min(r['ram'],r['commit'])<2*1024**3:raise RuntimeError('memory guard')
+    def success(self,args,probe=False):
+        self.guard();reply=self.command(args,timeout=32 if probe else 8,public_probe=probe)
+        if reply.code:raise RuntimeError('Docker command failed: '+args[0])
+        return reply.stdout
+    def run(self,im,profile,nonce,volume_snapshot):
+        kind=self.kind;name='nbsr-tls-stage-01' if kind=='stage' else 'nbsr-tls-proof-01'
+        labels={**profile['container_inherited_labels'],'nbsr.campaign':'47d2ae4-source-presentation-10','nbsr.run':nonce,'nbsr.role':kind}
+        env=im['Environment'][:-1];assert all('=' in value for value in env),'unreviewed environment'
+        sources=[(ROOT/'output','/evidence',True)]
+        if kind=='stage':sources += [(HERE/'source-presentation-440.tar','/input/source.tar',False),(HERE/'source-presentation-inventory.json','/input/inventory.json',False)]
+        else:
+            sources += [(REPO/'.git','/repo/.git',False),(BIN,'/nbsr/bin',False),(REPO.parent/'debug-build-manifest.json','/nbsr/build.json',False),(HERE/'source-presentation-inventory.json','/nbsr/source-inventory.json',False)]
+            sources += [(REPO/n,'/'+n,False) for n in ['vectors/wp8-f75-route-open/route-open-body.cbor', 'vectors/wp8-local-admission/source.cose', 'vectors/wp8-local-admission/destination.cose']]
+        destination='/tmp' if kind=='stage' else '/repo'
+        try:
+            self.guard()
+            mapping=json.dumps({'schema':'nbsr-local-mount-mapping-v1','bindings':[{'controller':str(p),'observed':observed_source(p)} for p,_,_ in sources]},sort_keys=True).encode()
+            (self.root/'mapping.json').write_bytes(mapping)
+            for p,_,_ in sources:validate_mapping(MountMapping(str(p),observed_source(p),hashlib.sha256(mapping).hexdigest()))
+            args=['create','--pull=never','--name',name,'--network','none','--user','65532:65532','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--ipc','private','--init','--pids-limit','128','--cpus','1','--memory','512m','--memory-swap','512m','--log-driver','none','--workdir',destination]
+            for k,v in labels.items():
+                if k.startswith('nbsr.'):args+=['--label',k+'='+v]
+            args+=['--mount','type=volume,source='+VOLUME+',target='+destination+('' if kind=='stage' else ',readonly')]
+            for p,d,rw in sources:args+=['--mount','type=bind,source='+str(p)+',target='+d+('' if rw else ',readonly')]
+            if kind=='runtime':args+=['--mount','type=volume,source='+VOLUME+',target=/input,readonly']
+            if kind=='runtime':args+=['--tmpfs','/private:rw,nosuid,nodev,noexec,size=1048576,uid=65532,gid=65532,mode=0700']
+            args+=['--entrypoint','python3',IMAGE,'-B','-c','import time; time.sleep(3600)']
+            self.reconciler=CreateReconciler(self.root,self.command,name=name,image=IMAGE,task_labels={k:labels[k] for k in ('nbsr.campaign','nbsr.run','nbsr.role')})
+            self.absent=False;self.cid=self.reconciler.create(args)
+            (self.root/'container-id.txt').write_text(self.cid+'\n')
+            template=inspection_template(labels,env)
+            row=json.loads(self.success(['inspect','--format',template,self.cid]));(self.root/'public-inspect.json').write_text(json.dumps(row,indent=2))
+            assert row['Id']==self.cid and row['Image']==IMAGE and row['User']=='65532:65532' and row['Network']=='none' and row['Readonly'] is True
+            assert row['Memory']==row['Swap']==512*1024**2 and row['NanoCpus']==1000000000 and row['Pids']==128 and row['Caps']==['ALL'] and row['Security']==['no-new-privileges'] and row['Log']=='none' and row['Ipc']=='private' and row['Init'] is True and not row['Ports']
+            assert all(row[k] is True for k in ['LabelsOK','EnvironmentOK','CommandOK'])
+            mounts=row['Mounts'];volumes=[x for x in mounts if x['Type']=='volume'];binds=[x for x in mounts if x['Type']=='bind']
+            tmp=[x for x in mounts if x['Type']=='tmpfs']
+            assert len(volumes)==(1 if kind=='stage' else 2) and len(binds)+len(volumes)+len(tmp)==len(mounts)
+            assert not tmp or (kind=='runtime' and len(tmp)==1 and tmp[0]['Destination']=='/private' and tmp[0]['RW'] is True and tmp[0].get('Source','')=='')
+            if kind=='runtime':
+                private=json.loads(self.success(['inspect','--format','{{json .HostConfig.Tmpfs}}',self.cid]))
+                assert private=={'/private':'rw,nosuid,nodev,noexec,size=1048576,uid=65532,gid=65532,mode=0700'},'private tmpfs exact options'
+            if kind=='runtime':
+                alias=[x for x in volumes if x['Destination']=='/input'];assert len(alias)==1 and alias[0]['Name']==VOLUME and alias[0]['RW'] is False and alias[0]['Driver']=='local' and alias[0]['Source']==volume_snapshot['Mountpoint']
+            v=next(x for x in volumes if x['Destination']==destination);assert v['Name']==VOLUME and v['Destination']==destination and v['RW']==(kind=='stage') and v['Driver']=='local' and v['Source']==volume_snapshot['Mountpoint']
+            assert {(x['Source'],x['Destination'],x['RW'],x['Propagation']) for x in binds}=={(observed_source(p),d,rw,'rprivate') for p,d,rw in sources},'exact bind mounts'
+            self.success(['start',self.cid])
+            result=self.success(['exec',self.cid,'python3','-B','-c',payload(kind)],probe=True)
+            (self.root/'probe-result.txt').write_text(result)
+            outcome=json.loads(result);assert outcome['status']==('STAGED_VERIFIED' if kind=='stage' else 'TLS_PREPARED')
+            if kind=='stage':assert outcome['files']==440
+            else:run_workload(self)
+        except BaseException as error:self.failure={'type':type(error).__name__,'message':str(error)}
+        finally:
+            self.cleaning=True
+            if getattr(self,'worker_owner',None) is not None and self.worker_owner.owned:self.absent=False
+            elif self.reconciler is not None and self.reconciler.attempted:
+                if self.cid:self.reconciler.reconcile(allow_running=True)
+                self.absent=self.reconciler.state['status']=='REMOVED_EXACT_ID' and not self.reconciler.state['uncertain']
+            self.save()
+        return self.failure is None and self.absent and not self.owned()
+    def owned(self):return (self.command.owner is not None and self.command.owner.owned) or (getattr(self,'worker_owner',None) is not None and self.worker_owner.owned)
+    def save(self):
+        (self.root/'result.json').write_text(json.dumps({'failure':self.failure,'container_id':self.cid,'container_absent':self.absent,'host_handles_owned':self.owned(),'elapsed':time.monotonic()-self.started,'reconciliation':None if self.reconciler is None else self.reconciler.state},indent=2))
+
+def run_workload(phase):
+    from scripts.performance.windows_native_management import WindowsOwner
+    from scripts.performance.windows_job_backend import Win32Backend
+    from scripts.performance.process_cancellation import Cancellation
+    sys.path.insert(0,str(HERE/'tls-proof-authorization'))
+    from single_container_adapter import Budget60,run_owned
+    pins=json.loads((HERE/'tls-proof-authorization/live-input-pins-v4.json').read_text())
+    for name,pin in pins.items():assert hashlib.sha256((HERE/name).read_bytes()).hexdigest()==pin,'live input drift'
+    root=phase.root/'management';root.mkdir()
+    request=root/'request.json';request.write_text(json.dumps({'root':str(root),'container_id':phase.cid,'started':phase.started}))
+    phase.worker_owner=WindowsOwner([sys.executable,'-B',str(HERE/'tls-proof-authorization/single_container_worker.py'),'--owned-request',str(request)],backend=Win32Backend(),cancel=lambda:None)
+    with Cancellation() as cancel:
+        result=run_owned(phase.worker_owner,Budget60(phase.started),phase.guard,cancel.check)
+    (root/'supervision.json').write_text(json.dumps(result,indent=2))
+    assert result['work_pass'] and not result['host_handles_owned'],'coordinator or host cleanup failed'
+    reply=json.loads((root/'reply.json').read_text())
+    assert reply['request_sha256']==hashlib.sha256(request.read_bytes()).hexdigest()
+    assert reply['status']=='PASS_CONTROLLED_FINITE_PAIR_DEBUG_CORRECTNESS'
+    # Independently inspect the isolated namespace after both endpoints exited.
+    code="import json,pathlib; p=pathlib.Path('/proc'); peers=[];\nfor x in p.iterdir():\n if x.name.isdigit():\n  try:\n   e=(x/'exe').readlink().as_posix()\n   if e.startswith('/nbsr/bin/'):peers.append(x.name)\n  except (FileNotFoundError,PermissionError):pass\nrows={n:(p/'net'/n).read_text().splitlines()[1:] for n in ('udp','udp6')}; assert not peers and not any(rows.values()); print(json.dumps({'status':'PEERS_AND_UDP_ABSENT','peer_pids':peers,'udp_rows':rows}))"
+    wire=phase.success(['exec',phase.cid,'python3','-B','-c',code]);(phase.root/'socket-process-cleanup.json').write_text(wire)
+
+def main():
+    blocked=json.loads((BASE/'nbsr-tls-proof-01-retry2/result.json').read_text())
+    assert blocked['all_created_containers_absent'] and not blocked['host_handles_owned'] and not blocked['volume']['attempted']
+    absence=json.loads((HERE/'tls-proof-authorization/resource-absence-recheck-01/result.json').read_text())
+    assert all(x['absent'] for x in absence['containers']) and absence['volume_absent'] and not absence['host_handles_owned']
+    last=json.loads((BASE/'nbsr-tls-proof-01-retry1/result.json').read_text())
+    assert last['all_created_containers_absent'] and not last['host_handles_owned'] and last['volume']['status']=='REMOVED_ABSENCE_CONFIRMED'
+    previous=json.loads((BASE/'nbsr-tls-proof-01/result.json').read_text())
+    assert previous['all_created_containers_absent'] and not previous['host_handles_owned'] and previous['volume']['status']=='REMOVED_ABSENCE_CONFIRMED'
+    pins=json.loads((HERE/'tls-proof-authorization/live-input-pins-v4.json').read_text())
+    for name,pin in pins.items():assert hashlib.sha256((HERE/name).read_bytes()).hexdigest()==pin,'live input drift before any create'
+    failed=json.loads((BASE/'nbsr-47d2ae4-source-presentation-10/result.json').read_text())
+    assert failed['all_created_containers_absent'] is True and failed['host_handles_owned'] is False and failed['volume']['status']=='REMOVED_ABSENCE_CONFIRMED'
+    prior=json.loads((HERE/'debian-closure-plan/runtime-probe-2026-10-16-retry1/result.json').read_text())
+    assert prior['status']=='INSPECTION_COMPLETE' and prior['container_absent'] is True and prior['host_handles_owned'] is False
+    baseline=json.loads((HERE/'debian-closure-plan/ACTIVATION-PREFLIGHT-2026-10-16.json').read_text())['resources']
+    before=resources();assert before['disk']>=FLOOR+500*1024**2 and min(before['ram'],before['commit'])>=2*1024**3
+    import source_stage_payload as stage
+    wire=(HERE/'source-presentation-440.tar').read_bytes();raw=(HERE/'source-presentation-inventory.json').read_bytes()
+    assert hashlib.sha256(wire).hexdigest()==stage.ARCHIVE_PIN and hashlib.sha256(raw).hexdigest()==stage.INVENTORY_PIN
+    stage.verify_archive(wire,json.loads(raw)['files'])
+    ROOT.mkdir(exist_ok=False);(ROOT/'output').mkdir()
+    overall=time.monotonic();phase=Phase('stage',overall,baseline);phases=[phase];volume=SourceVolume(ROOT,phase.command,uuid.uuid4().hex)
+    failure=None;passed=False;volume_absent=False
+    try:
+        phase.guard()
+        image_template=IMAGE_TEMPLATE
+        im=json.loads(phase.success(['image','inspect','--format',image_template,IMAGE]))
+        assert im['Id']==IMAGE and im['Os']=='linux' and im['Architecture']=='amd64'
+        profile=load_profile((HERE/'debian-closure-plan/runtime-image-profile-v2.json').read_bytes(),'2e5266b2aff4b82b82ea3ad2ffbf622c398ca8335b45dab2fef4b6b2871ed7e9');verify_image(profile,im['Id'],im['Labels'])
+        volume.create()
+        if not phase.run(im,profile,volume.labels['nbsr.nonce'],volume.state['snapshot']):raise RuntimeError('source staging failed or cleanup unconfirmed')
+        assert phase.absent and not phase.owned()
+        phase=Phase('runtime',min(time.monotonic(),overall+120),baseline);phases.append(phase);volume.command=phase.command
+        fresh=resources();assert fresh['disk']>=FLOOR+500*1024**2 and min(fresh['ram'],fresh['commit'])>=2*1024**3
+        phase.guard()
+        if volume.inspect()!=volume.state['snapshot']:raise RuntimeError('volume identity changed between phases')
+        passed=phase.run(im,profile,volume.labels['nbsr.nonce'],volume.state['snapshot'])
+    except BaseException as error:failure={'type':type(error).__name__,'message':str(error)}
+    finally:
+        phase.cleaning=True
+        volume_absent=volume.cleanup(containers_absent=all(p.absent and not p.owned() for p in phases))
+        for p in phases:p.save()
+        result={'status':'PASS' if passed and failure is None and volume_absent else 'FAILED','failure':failure,'before':before,'after':resources(),'elapsed':time.monotonic()-overall,'volume':volume.state,'all_created_containers_absent':all(p.absent for p in phases),'host_handles_owned':any(p.owned() for p in phases),'approved_tls_trial':True,'phase_work_seconds':60,'phase_total_seconds':120,'overall_limit_seconds':240}
+        (ROOT/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+    return 0 if result['status']=='PASS' else 1
+
+if __name__=='__main__':
+    if sys.argv!=[sys.argv[0],'--approved-tls-proof-01']:raise SystemExit('Explicit approved trial argument required')
+    raise SystemExit(main())

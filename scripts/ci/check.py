@@ -58,6 +58,7 @@ def command_groups(profile: str) -> list[Command]:
                 Command("core-vectors", (py, "scripts/generate_core_v02_vectors.py", "--check", "vectors/core-v0.2")),
                 Command("federation-v2-vectors", (py, "scripts/generate_federation_v01_vectors.py", "--version", "federation-v0.1-development-v2", "--check", "vectors/federation-v0.1-development-v2")),
                 Command("connector-signature-fixtures", (py, "-m", "scripts.extract_connector_signature_fixtures", "--check")),
+                Command("connector-kar-positive", (py, "-m", "scripts.check_connector_kar_positive", "--check")),
                 Command("normal-revocation-conformance", (py, "-m", "scripts.normal_revocation_conformance", "--check")),
                 Command("revocation-inclusion-v2", (py, "-m", "scripts.revocation_inclusion_v2", "--check")),
                 Command("connected-authority-vectors", (py, "-m", "scripts.check_connected_authority_vectors", "--check")),

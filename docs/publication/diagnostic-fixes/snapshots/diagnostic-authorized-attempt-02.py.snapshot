@@ -1,0 +1,79 @@
+
+import os,sys,time,json,ctypes,shutil,re,hashlib
+from pathlib import Path
+from diagnostic_labels import load_profile,verify_image
+from scripts.performance.windows_docker_provisioning import DockerCommand
+from scripts.performance.windows_adopted_campaign import _equal,MountMapping,validate_mapping
+BASE=Path('C:/Users/PUBLIC_USER/AppData/Local/Temp');ROOT=BASE/'nbsr-47d2ae4-public-diagnostic-02';REPO=BASE/'nbsr-runtime-47d2ae4-v5/repo';MANIFEST=REPO.parent/'debug-build-manifest.json';BIN=BASE/'nbsr-linux-build-b09a851-20261014-once-execfix/artifacts/bin';IMAGE='sha256:7d59795425e21fc5ff09eabea1aad314806e8f20d3a505c5e47cc2df0e20e53d';NAME='nbsr-47d2ae4-public-diagnostic-02';FLOOR=8*1024**3
+class M(ctypes.Structure):
+ _fields_=[('length',ctypes.c_ulong),('load',ctypes.c_ulong)]+[(n,ctypes.c_ulonglong) for n in ['total','available','page_total','page_available','virtual_total','virtual_available','extended']]
+def resources():
+ m=M();m.length=ctypes.sizeof(m);assert ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m));return dict(disk=shutil.disk_usage('C:/').free,ram=m.available,commit=m.page_available)
+before=resources();assert before['disk']>=FLOOR+500*1024**2,'start disk threshold';assert min(before['ram'],before['commit'])>=2*1024**3,'start memory threshold'
+ROOT.mkdir(exist_ok=False);(ROOT/'logs').mkdir();(ROOT/'dummy').mkdir();(ROOT/'output').mkdir()
+for n in ['ca','source','source-key']:(ROOT/'dummy'/f'{n}.der').write_bytes(b'PUBLIC DIAGNOSTIC DUMMY; NOT TLS MATERIAL\n')
+started=time.monotonic();cleaning=False;cid=None;events=[];failure=None;cleanup_error=None;absent=False
+def guard():
+ r=resources();elapsed=time.monotonic()-started
+ if elapsed>=120:raise TimeoutError('total deadline')
+ if not cleaning:
+  if elapsed>=95:raise TimeoutError('work deadline')
+  if r['disk']<FLOOR or before['disk']-r['disk']>300*1024**2:raise RuntimeError('disk guard')
+  if min(r['ram'],r['commit'])<2*1024**3:raise RuntimeError('memory guard')
+def sleep(seconds):guard();time.sleep(seconds)
+command=DockerCommand(ROOT/'logs',executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe',sleep=sleep)
+def call(args):
+ guard();remaining=(120 if cleaning else 95)-(time.monotonic()-started);assert remaining>0
+ reply=command(args,timeout=min(8,remaining));events.append({'verb':args[0],'code':reply.code,'elapsed':time.monotonic()-started})
+ return reply
+def success(args):
+ r=call(args)
+ if r.code:raise RuntimeError('Docker command failed: '+args[0])
+ return r.stdout
+try:
+ image_template='{"Id":{{json .Id}},"Os":{{json .Os}},"Architecture":{{json .Architecture}},"Labels":{{json .Config.Labels}},"Environment":[{{range .Config.Env}}{{$parts := split . "="}}{{$key := index $parts 0}}{{if or (eq $key "PATH") (eq $key "CARGO_HOME") (eq $key "RUSTUP_HOME") (eq $key "RUST_VERSION")}}{{json .}}{{else}}{{json $key}}{{end}},{{end}}null]}'
+ im=json.loads(success(['image','inspect','--format',image_template,IMAGE]));assert im['Id']==IMAGE and im['Os']=='linux' and im['Architecture']=='amd64'
+ profile=load_profile((Path(__file__).parent/'label-profile.json').read_bytes(),'ec3029fbadcb42692c0bc12b8d7b87bd0dca720ff77216d556843980a71737f2');verify_image(profile,im['Id'],im['Labels']);inherited=profile['container_inherited_labels']
+ env=im['Environment'][:-1];assert all('=' in value for value in env),'unreviewed environment name'
+ labels={**inherited,'nbsr.campaign':'47d2ae4-public-diagnostic','nbsr.run':'once','nbsr.role':'source'}
+ sources=[(REPO,'/repo',False),(BIN,'/nbsr/bin',False),(MANIFEST,'/nbsr/build.json',False)]+[(ROOT/'dummy'/f'{n}.der','/private/tls/'+n+'.der',False) for n in ['ca','source','source-key']]+[(ROOT/'output','/evidence',True)]
+ mapping_wire=json.dumps({'schema':'nbsr-local-mount-mapping-v1','bindings':[{'controller':str(p),'observed':str(p)} for p,_,_ in sources]},sort_keys=True).encode();mapping_pin=hashlib.sha256(mapping_wire).hexdigest();(ROOT/'mapping.json').write_bytes(mapping_wire)
+ for p,_,_ in sources:validate_mapping(MountMapping(str(p),str(p),mapping_pin))
+ args=['create','--pull=never','--name',NAME,'--network','none','--user','65532:65532','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--ipc','private','--init','--pids-limit','128','--cpus','1','--memory','512m','--memory-swap','512m','--log-driver','none','--workdir','/repo']
+ for k,v in labels.items():
+  if k.startswith('nbsr.'):args+=['--label',k+'='+v]
+ for p,d,rw in sources:args+=['--mount','type=bind,source='+str(p)+',target='+d+('' if rw else ',readonly')]
+ args+=['--entrypoint','python3',IMAGE,'-B','-c','import time; time.sleep(3600)']
+ cid=success(args).strip();assert re.fullmatch('[0-9a-f]{64}',cid)
+ (ROOT/'container-id.txt').write_text(cid+'\n')
+ template='{"Id":{{json .Id}},"Image":{{json .Image}},"Mounts":{{json .Mounts}},"User":{{json .Config.User}},"Network":{{json .HostConfig.NetworkMode}},"Readonly":{{json .HostConfig.ReadonlyRootfs}},"Memory":{{json .HostConfig.Memory}},"Swap":{{json .HostConfig.MemorySwap}},"NanoCpus":{{json .HostConfig.NanoCpus}},"Pids":{{json .HostConfig.PidsLimit}},"Caps":{{json .HostConfig.CapDrop}},"Security":{{json .HostConfig.SecurityOpt}},"Log":{{json .HostConfig.LogConfig.Type}},"Ipc":{{json .HostConfig.IpcMode}},"Init":{{json .HostConfig.Init}},"Ports":{{json .HostConfig.PortBindings}},"LabelsOK":{{'+_equal('.Config.Labels',labels)+'}},"EnvironmentOK":{{'+_equal('.Config.Env',env)+'}},"CommandOK":{{and '+_equal('.Config.Entrypoint',['python3'])+' '+_equal('.Config.Cmd',['-B','-c','import time; time.sleep(3600)'])+'}}}'
+ row=json.loads(success(['inspect','--format',template,cid]));(ROOT/'public-inspect.json').write_text(json.dumps(row,indent=2))
+ assert row['Id']==cid and row['Image']==IMAGE and row['User']=='65532:65532' and row['Network']=='none' and row['Readonly'] is True
+ assert row['Memory']==row['Swap']==512*1024**2 and row['NanoCpus']==1000000000 and row['Pids']==128 and row['Caps']==['ALL'] and row['Security']==['no-new-privileges'] and row['Log']=='none' and row['Ipc']=='private' and row['Init'] is True and not row['Ports']
+ assert all(row[k] is True for k in ['LabelsOK','EnvironmentOK','CommandOK'])
+ actual={(x['Source'],x['Destination'],x['RW'],x['Type'],x['Propagation']) for x in row['Mounts']};expected={(str(p),d,rw,'bind','rprivate') for p,d,rw in sources};assert actual==expected,'exact mount mismatch'
+ success(['start',cid])
+ probe="""import os,json,hashlib,subprocess,importlib
+from pathlib import Path
+from scripts.performance import native_debug_correctness as d
+assert os.getuid()==65532
+r=Path('/repo');sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=r).decode().strip();assert sha=='47d2ae41df49fedd21768db5fa6be71377acebf3';assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=all'],cwd=r)
+b=json.loads(Path('/nbsr/build.json').read_bytes());pin='6ccc7a97451ffc424e1f4f7dfdeb61d125406f35b7962d4cd24d6b3ee735049d';hashes={n:hashlib.sha256((Path('/nbsr/bin')/n).read_bytes()).hexdigest() for n in b['binary_sha256']};d.validate_build(b,sha,hashes,pin,actual_source=d.source_inventory(r))
+for n in hashes:assert os.access('/nbsr/bin/'+n,os.R_OK|os.X_OK)
+for name in ['linux_native_finite_control','linux_native_finite_endpoint','linux_native_finite_run','linux_native_peer','windows_adopted_campaign']:importlib.import_module('scripts.performance.'+name)
+for n in ['ca','source','source-key']:assert Path('/private/tls/'+n+'.der').read_bytes()==b'PUBLIC DIAGNOSTIC DUMMY; NOT TLS MATERIAL\\n'
+p=Path('/evidence/probe.txt');p.write_bytes(b'PUBLIC PROBE PASS\\n');assert p.stat().st_size<64
+print(json.dumps({'status':'PUBLIC_DIAGNOSTIC_PASS','uid':os.getuid(),'commit':sha,'binary_count':len(hashes),'source_count':len(b['source_sha256'])}))
+"""
+ result=success(['exec',cid,'python3','-B','-c',probe]);(ROOT/'probe-result.txt').write_text(result);assert json.loads(result)['status']=='PUBLIC_DIAGNOSTIC_PASS'
+except BaseException as e:failure={'type':type(e).__name__,'message':str(e)}
+finally:
+ cleaning=True
+ if cid and re.fullmatch('[0-9a-f]{64}',cid):
+  try:
+   success(['rm','--force',cid]);r=call(['inspect','--format','{{.Id}}',cid]);absent=r.code!=0 and ('No such object' in r.stderr or 'No such container' in r.stderr)
+   if not absent:raise RuntimeError('container absence unconfirmed')
+  except BaseException as e:cleanup_error={'type':type(e).__name__,'message':str(e)}
+ owned=command.owner is not None and command.owner.owned
+ record={'status':'PASS' if failure is None and cleanup_error is None and absent and not owned else 'FAILED','failure':failure,'cleanup_error':cleanup_error,'container_id':cid,'container_absent':absent,'host_handles_owned':owned,'before':before,'after':resources(),'elapsed':time.monotonic()-started,'events':events,'historical_disk_baseline':14247788544,'growth_limit':300*1024**2,'no_protocol_or_TLS':True}
+ (ROOT/'result.json').write_text(json.dumps(record,indent=2));print(json.dumps(record))

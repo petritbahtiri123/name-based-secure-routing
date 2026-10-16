@@ -1,0 +1,34 @@
+import hashlib,importlib.util,json,sys,time,zipfile
+from pathlib import Path
+sys.path.insert(0,'C:/Users/OPERATOR/AppData/Local/Temp/nbsr-two-stream-source-20261013')
+from scripts.performance.windows_docker_provisioning import DockerCommand
+base=Path(__file__).parent
+spec=importlib.util.spec_from_file_location('guard',base/'nbsr-prerequisite-containment-20261013.py');g=importlib.util.module_from_spec(spec);spec.loader.exec_module(g)
+root=base/'nbsr-source-results-20261013';root.mkdir(exist_ok=False)
+for name in ['files','docker','copy']:(root/name).mkdir()
+allow=json.loads((base/'nbsr-source-results-allowlist.json').read_text())
+r={'action':'exact file read and ZIP; no starts or removal','resources_start':g.resources(True),'files':[]}
+docker=DockerCommand(root/'docker',executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe',max_timeout=32)
+copy=DockerCommand(root/'copy',executable=sys.executable,max_timeout=32)
+start=time.monotonic()
+try:
+ ids=list(dict.fromkeys(x['container_id'] for x in allow))
+ q=docker(['inspect','--format','{{json .Id}} {{json .Image}} {{json .State.Status}}',*ids],timeout=32)
+ r['identity']=q.stdout
+ if q.code or len(q.stdout.splitlines())!=len(ids):raise RuntimeError('identity inspect failed')
+ for line,cid in zip(q.stdout.splitlines(),ids):
+  if line.split()!=[json.dumps(cid),json.dumps('sha256:dd08db4a391b16a9d303a251d2693808baf470f2fc4870d8e3c54b7523deed71'),'"exited"']:raise RuntimeError('identity/state mismatch')
+ for i,x in enumerate(allow):
+  g.resources()
+  if time.monotonic()-start>75:raise TimeoutError('export work cutoff')
+  name=str(i+4).zfill(2)+'-'+x['container_id'][:12]+'-'+Path(x['path']).parent.name+'-'+Path(x['path']).name
+  q=copy(['-B',str(base/'nbsr-source-results-copy.py'),x['container_id'],x['path'],str(root/'files'/name)],timeout=min(32,90-(time.monotonic()-start)))
+  if q.code:raise RuntimeError('copy/schema rejected; retain supervision, do not archive')
+  row=json.loads(q.stdout);r['files'].append(row);(root/'result.json').write_text(json.dumps(r,indent=2))
+ r.update(status='COPIED_REVIEW_PENDING')
+except BaseException as e:r.update(status='BLOCKED',error_type=type(e).__name__,error=str(e))
+finally:
+ r.update(elapsed=time.monotonic()-start,owned=[None if c.owner is None else c.owner.owned for c in [docker,copy]])
+ try:r['resources_end']=g.resources()
+ except BaseException as e:r['resource_error']=type(e).__name__+': '+str(e)
+ (root/'result.json').write_text(json.dumps(r,indent=2));print(json.dumps(r))

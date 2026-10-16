@@ -1,0 +1,60 @@
+"""Approved download phase with retained Windows Job ownership, no retries."""
+import hashlib,json,pathlib,sys,time
+sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent.parent))
+from build_budget import WindowsOwner,Cancellation,verify_support_sources,native
+from source_attempt09_retry1 import resources,FLOOR
+HERE=pathlib.Path(__file__).resolve().parent
+WORKER_SHA='c01a4251db28b1ea0051ba94aabff12afc19575ab05b3c7333ba7fbb2bdd5104'
+RETAINED_OWNER=None
+def supervise(root,baseline,*,clock=time.monotonic,sleep=time.sleep,backend_factory=native.Win32Backend,measure=resources):
+    global RETAINED_OWNER
+    if RETAINED_OWNER is not None and RETAINED_OWNER.owned:raise RuntimeError("prior download owner retained")
+    verify_support_sources();assert hashlib.sha256((HERE/'download_worker_v1.py').read_bytes()).hexdigest()==WORKER_SHA
+    started=clock();previous=started
+    def now():
+        nonlocal previous
+        value=clock()
+        if value<previous:raise RuntimeError('backward clock')
+        previous=value;return value
+    def guard():
+        r=measure()
+        if now()>=started+60:raise TimeoutError('work deadline')
+        if r['disk']<FLOOR or baseline['disk']-r['disk']>300*1024**2 or min(r['ram'],r['commit'])<2*1024**3:raise RuntimeError('resource guard')
+    current=measure();assert current['disk']>=FLOOR+500*1024**2 and min(current['ram'],current['commit'])>=2*1024**3
+    root=pathlib.Path(root);root.mkdir(exist_ok=False)
+    owner=WindowsOwner([sys.executable,'-B',str(HERE/'download_worker_v1.py'),str(root),str(started+60)],backend=backend_factory(),cancel=lambda:None)
+    RETAINED_OWNER=owner
+    result={'status':'FAILED','baseline':baseline,'before':current};deadline=started+120
+    with Cancellation() as cancellation:
+        try:
+            guard();cancellation.check();owner.start()
+            while True:
+                cancellation.check();guard();code,active=owner.observe()
+                guard() # Never accept completion after the work boundary.
+                if code is not None and not active:
+                    owner.reap()
+                    if now()>=started+60 or code!=0:raise RuntimeError('worker failed/late')
+                    progress=json.loads((root/'download-progress.json').read_text())
+                    assert progress['status']=='ARTIFACTS_VERIFIED' and progress['bytes']==25271876 and len(progress['verified'])==27
+                    result['status']='ARTIFACTS_VERIFIED';break
+                sleep(.02)
+        except BaseException as e:result['failure']=type(e).__name__+': '+str(e)
+        finally:
+            if owner.owned:
+                try:
+                    owner.signal('KILL')
+                    while now()<deadline:
+                        code,active=owner.observe()
+                        if code is not None and not active:owner.reap();break
+                        sleep(.02)
+                    if owner.owned:raise RuntimeError('cleanup deadline; ownership retained')
+                except BaseException as e:result['cleanup_error']=str(e)
+            result.update(host_handles_owned=owner.owned,after=measure(),elapsed=now()-started)
+            if owner.owned:result['status']='FAILED'
+            (root/'result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result))
+    return result
+if __name__=='__main__':
+    if sys.argv[1:2]!=['--approved-download-2026-10-16']:raise SystemExit('exact approval selector required')
+    baseline=json.loads((HERE/'ACTIVATION-PREFLIGHT-2026-10-16.json').read_text())['resources']
+    r=supervise(HERE/'download-2026-10-16-attempt1',baseline)
+    raise SystemExit(0 if r['status']=='ARTIFACTS_VERIFIED' else 1)

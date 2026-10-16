@@ -1,0 +1,25 @@
+import ast,pathlib,types,unittest
+from unittest.mock import Mock
+P=pathlib.Path(__file__).parent
+class LocalInstall(unittest.TestCase):
+    def function(self):
+        tree=ast.parse((P/'install_offline_v3.py').read_text())
+        definition=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='install_debian_files')
+        run=Mock();ns={'pathlib':pathlib,'subprocess':types.SimpleNamespace(run=run)}
+        exec(compile(ast.Module(body=[definition],type_ignores=[]),'installer-function','exec'),ns)
+        return ns['install_debian_files'],run
+    def test_exact_order_local_dpkg_no_force(self):
+        f,run=self.function();paths=[f'/opt/nbsr-build-inputs/{i}.deb' for i in range(23)];f(paths)
+        run.assert_called_once_with(['dpkg','--install',*paths],check=True,timeout=35)
+    def test_relative_path_rejected_before_install(self):
+        f,run=self.function();paths=[f'/opt/nbsr-build-inputs/{i}.deb' for i in range(23)];paths[0]='perl.deb'
+        with self.assertRaises(ValueError):f(paths)
+        run.assert_not_called()
+    def test_incomplete_set_rejected(self):
+        f,run=self.function()
+        with self.assertRaises(ValueError):f(['/opt/nbsr-build-inputs/a.deb'])
+        run.assert_not_called()
+    def test_nonzero_install_stops(self):
+        f,run=self.function();run.side_effect=RuntimeError('install failure')
+        with self.assertRaisesRegex(RuntimeError,'install failure'):f([f'/opt/nbsr-build-inputs/{i}.deb' for i in range(23)])
+if __name__=='__main__':unittest.main()

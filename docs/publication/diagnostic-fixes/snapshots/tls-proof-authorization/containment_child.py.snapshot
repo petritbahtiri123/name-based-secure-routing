@@ -1,0 +1,4 @@
+import subprocess,sys,json,os
+from pathlib import Path
+child=subprocess.Popen([sys.executable,'-B','-c','import time; time.sleep(30)'])
+with (Path(__file__).parent/'containment-descendant.json').open('x') as f:json.dump({'parent_pid':os.getpid(),'child_pid':child.pid},f)

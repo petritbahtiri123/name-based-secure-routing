@@ -1,0 +1,68 @@
+"""Offline payload tests. Filesystem modes are simulated; no chmod or Docker."""
+import hashlib
+import importlib.util
+import os
+from pathlib import Path
+import stat
+import tempfile
+import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
+
+HERE=Path(__file__).parent
+def load(name):
+    spec=importlib.util.spec_from_file_location(name,HERE/(name+'.py'))
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module
+stage=load('source_stage_payload');runtime=load('source_runtime_payload')
+REAL_LSTAT=Path.lstat
+def linux_mode(path):
+    row=REAL_LSTAT(path);fields=list(row)
+    fields[0]=stat.S_IFMT(row.st_mode)|(0o755 if stat.S_ISDIR(row.st_mode) else 0o644)
+    return SimpleNamespace(st_mode=fields[0],st_size=row.st_size,st_file_attributes=getattr(row,'st_file_attributes',0))
+
+class PayloadTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='nbsr-payload-unit-',dir=HERE)
+        self.root=Path(self.temp.name).resolve()
+        assert self.root.parent==HERE.resolve() and self.root.name.startswith('nbsr-payload-unit-')
+        self.addCleanup(self.temp.cleanup)
+        (self.root/'a').mkdir();(self.root/'a/b').write_bytes(b'fixture');(self.root/'.git').mkdir()
+        self.inventory={'a/b':dict(mode=0o644,size=7,sha256=hashlib.sha256(b'fixture').hexdigest())}
+        self.modes=patch.object(Path,'lstat',linux_mode);self.modes.start();self.addCleanup(self.modes.stop)
+    def test_exact_tree_both_verifiers(self):
+        self.assertEqual(stage.verify_tree(self.root,self.inventory,git_placeholder=True),1)
+        runtime.verify_presented_tree(self.root,self.inventory)
+    def test_extra_empty_directory_both_reject(self):
+        (self.root/'extra').mkdir()
+        for check in (lambda:stage.verify_tree(self.root,self.inventory,git_placeholder=True),lambda:runtime.verify_presented_tree(self.root,self.inventory)):
+            with self.assertRaises((AssertionError,ValueError)):check()
+    def test_scan_error_both_propagate(self):
+        def denied(*args,**kwargs):
+            kwargs['onerror'](PermissionError('injected scan error'))
+            return iter(())
+        with patch.object(os,'walk',denied):
+            for check in (lambda:stage.verify_tree(self.root,self.inventory,git_placeholder=True),lambda:runtime.verify_presented_tree(self.root,self.inventory)):
+                with self.assertRaises(PermissionError):check()
+    def test_directory_mode_both_reject(self):
+        def wrong(path):
+            row=linux_mode(path)
+            if path==self.root/'a':row.st_mode=stat.S_IFDIR|0o777
+            return row
+        with patch.object(Path,'lstat',wrong):
+            for check in (lambda:stage.verify_tree(self.root,self.inventory,git_placeholder=True),lambda:runtime.verify_presented_tree(self.root,self.inventory)):
+                with self.assertRaises((AssertionError,ValueError)):check()
+    def test_file_drift_both_reject(self):
+        (self.root/'a/b').write_bytes(b'changed')
+        for check in (lambda:stage.verify_tree(self.root,self.inventory,git_placeholder=True),lambda:runtime.verify_presented_tree(self.root,self.inventory)):
+            with self.assertRaises((AssertionError,ValueError)):check()
+    def test_runtime_requires_git_mountpoint(self):
+        (self.root/'.git').rmdir()
+        with self.assertRaisesRegex(AssertionError,'directory completeness'):runtime.verify_presented_tree(self.root,self.inventory)
+    def test_native_population_requires_platform_primitives(self):
+        with patch.object(stage,'verify_archive'),patch.object(stage.os,'fchmod',None,create=True):
+            # Windows lacks O_NOFOLLOW: validation must stop before any file write.
+            if not hasattr(os,'O_NOFOLLOW'):
+                with self.assertRaisesRegex(RuntimeError,'Linux no-follow'):stage.populate(self.root,b'',{})
+
+if __name__=='__main__':unittest.main()

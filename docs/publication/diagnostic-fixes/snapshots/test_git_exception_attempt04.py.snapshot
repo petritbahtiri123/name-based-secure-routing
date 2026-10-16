@@ -1,0 +1,54 @@
+import ast,json,unittest,hashlib,types
+from pathlib import Path
+from unittest.mock import Mock
+HERE=Path('C:/Users/PUBLIC_USER/AppData/Local/Temp/nbsr-public-diagnostic-label-fix')
+REPO=HERE.parent/'nbsr-runtime-47d2ae4-v5/repo'
+PROPOSAL=json.loads((HERE/'git-ownership-proposal.json').read_bytes())
+TREE=ast.parse((HERE/'diagnostic-authorized-attempt-04.py').read_text())
+PROBE=next(n.value.value for n in ast.walk(TREE) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='probe' for t in n.targets))
+FRAGMENT=PROBE[PROBE.index('git_metadata_pins ='):PROBE.index("print(json.dumps({'git_read_checks'")]
+class Item:
+ def __init__(self,name='',fault=None):self.name,self.fault=name,fault
+ def __truediv__(self,name):return Item(self.name+'/'+name if self.name else name,self.fault)
+ def is_dir(self):return True
+ def is_file(self):return True
+ def is_symlink(self):return self.fault=='link' and self.name=='.git/config'
+ def exists(self):return self.fault=='external' and self.name=='.git/objects/info/alternates'
+ def read_bytes(self):return b'bad' if self.fault=='drift' and self.name=='.git/config' else (REPO/self.name).read_bytes()
+class Tests(unittest.TestCase):
+ def run_fragment(self,fault=None):
+  self.calls=[]
+  def check(argv,**kwargs):
+   self.calls.append((argv,kwargs))
+   if len(self.calls)==1:return ('0'*40 if fault=='head' else PROPOSAL['head']).encode()
+   return b' M file' if fault=='dirty' else b''
+  env={'PATH':'/usr/bin'}
+  if fault=='env':env['GIT_DIR']='/wrong'
+  exec(FRAGMENT,dict(r=Item(fault=fault),sha=PROPOSAL['head'],hashlib=hashlib,os=types.SimpleNamespace(environ=env),subprocess=types.SimpleNamespace(check_output=check)))
+ def test_exact_two_commands(self):
+  self.run_fragment();self.assertEqual([a for a,k in self.calls],PROPOSAL['proposed_argv'])
+  for a,k in self.calls:self.assertEqual(k['env'],{'PATH':'/usr/bin','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null'})
+ def test_metadata_drift_before_git(self):
+  with self.assertRaises(AssertionError):self.run_fragment('drift')
+  self.assertEqual(self.calls,[])
+ def test_link_before_git(self):
+  with self.assertRaises(AssertionError):self.run_fragment('link')
+  self.assertEqual(self.calls,[])
+ def test_external_before_git(self):
+  with self.assertRaises(AssertionError):self.run_fragment('external')
+  self.assertEqual(self.calls,[])
+ def test_environment_before_git(self):
+  with self.assertRaises(AssertionError):self.run_fragment('env')
+  self.assertEqual(self.calls,[])
+ def test_wrong_head_stops_second(self):
+  with self.assertRaises(AssertionError):self.run_fragment('head')
+  self.assertEqual(len(self.calls),1)
+ def test_dirty_status_rejected(self):
+  with self.assertRaises(AssertionError):self.run_fragment('dirty')
+  self.assertEqual(len(self.calls),2)
+ def test_source_and_metadata_precede_git(self):
+  self.assertLess(PROBE.index('d.validate_build('),PROBE.index('git_metadata_pins ='))
+  self.assertLess(PROBE.index('Git metadata drift'),PROBE.index('subprocess.check_output('))
+  calls=sorted([n for n in ast.walk(ast.parse(PROBE)) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='check_output'],key=lambda n:n.lineno)
+  self.assertEqual([ast.literal_eval(n.args[0]) for n in calls],PROPOSAL['proposed_argv'])
+if __name__=='__main__':unittest.main()

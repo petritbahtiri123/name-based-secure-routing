@@ -1,0 +1,13 @@
+import unittest,tempfile,hashlib
+from pathlib import Path
+import tls_prepare_payload as p
+class Projection(unittest.TestCase):
+ def test_missing_projection_rejected_and_exact_public_bytes_accepted(self):
+  self.assertTrue(hasattr(p,'verify_projection'),'projection gate missing')
+  with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as t:
+   root=Path(t);(root/'build/input').mkdir(parents=True);names=['vectors/wp8-f75-route-open/route-open-body.cbor','vectors/wp8-local-admission/source.cose','vectors/wp8-local-admission/destination.cose'];pins={n:hashlib.sha256(n.encode()).hexdigest() for n in names}
+   with self.assertRaises((AssertionError,FileNotFoundError)):p.verify_projection(root/'build/input',pins)
+   for n in names:q=root/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(n.encode())
+   p.verify_projection(root/'build/input',pins);(root/names[0]).write_bytes(b'drift')
+   with self.assertRaises(AssertionError):p.verify_projection(root/'build/input',pins)
+if __name__=='__main__':unittest.main()

@@ -1,0 +1,38 @@
+"""PROPOSED BUILD PAYLOAD. Never execute without build/download authorization."""
+import hashlib,json,pathlib,subprocess,sys,importlib.metadata,platform
+p=pathlib.Path('/opt/nbsr-build-inputs')
+m=json.loads((p/'artifact-closure.json').read_text())
+assert sys.version_info[:3]==(3,14,6) and platform.machine()=='x86_64'
+assert hashlib.sha256(pathlib.Path('/var/lib/dpkg/status').read_bytes()).hexdigest()==m['base_status_sha256']
+assert 'VERSION_CODENAME=bookworm' in pathlib.Path('/usr/lib/os-release').read_text()
+def inventory():
+    rows={}
+    for block in pathlib.Path('/var/lib/dpkg/status').read_text().split('\n\n'):
+        fields=dict(line.split(': ',1) for line in block.splitlines() if line and not line[0].isspace() and ': ' in line)
+        if 'Package' in fields:
+            assert fields['Package'] not in rows
+            rows[fields['Package']]={k:fields.get(k) for k in ['Version','Architecture','Status']}
+    return rows
+expected=inventory()
+for row in m['packages']:expected[row['package']]={'Version':row['version'],'Architecture':row['architecture'],'Status':'install ok installed'}
+for row in m['packages']+m['wheels']:
+    b=(p/row['filename']).read_bytes()
+    assert len(b)==row['bytes'] and hashlib.sha256(b).hexdigest()==row['sha256']
+debs=[str(p/r['filename']) for r in m['packages']]
+def install_debian_files(paths):
+    if len(paths)!=23 or any(pathlib.PurePosixPath(x).parent!=pathlib.PurePosixPath('/opt/nbsr-build-inputs') or not x.endswith('.deb') for x in paths):
+        raise ValueError('exact absolute local package paths required')
+    subprocess.run(['dpkg','--install',*paths],check=True,timeout=35)
+install_debian_files(debs)
+subprocess.run([sys.executable,'-m','pip','install','--no-index','--find-links',str(p),'--only-binary=:all:','--require-hashes','--no-cache-dir','--no-compile','-r',str(p/'diagnostic-requirements.lock')],check=True,timeout=15)
+for row in m['packages']:
+    actual=subprocess.check_output(['dpkg-query','-W','-f=${Version}',row['package']],text=True).strip()
+    assert actual==row['version'],(row['package'],actual)
+assert inventory()==expected, 'Unexpected package, version, architecture or installed-status delta'
+for row in m['wheels']:assert importlib.metadata.version(row['name'])==row['version']
+import cryptography.x509,cffi,pycparser,cbor2
+subprocess.run(['git','--version'],check=True,timeout=2)
+for name in [r['filename'] for r in m['packages']+m['wheels']]+['artifact-closure.json','diagnostic-requirements.lock','install_offline.py']:
+    (p/name).unlink()
+p.rmdir()
+print('OFFLINE_INSTALL_PAYLOAD_PASS',flush=True)

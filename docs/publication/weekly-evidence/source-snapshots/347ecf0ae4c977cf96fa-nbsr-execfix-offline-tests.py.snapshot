@@ -1,0 +1,9 @@
+import ast,json,subprocess,os
+from pathlib import Path
+T=Path('C:/Users/OPERATOR/AppData/Local/Temp');s=(T/'nbsr-linux-build-execfix-20261014.py').read_text();tree=ast.parse(s);script=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='script' for t in n.targets));awk=script.split("awk '",1)[1].split("' /proc/self/mountinfo",1)[0]
+assert 'rw,exec,nosuid,nodev,size=768m' in s and script.index('DIRECT_EXEC_PASS')<script.index('cargo build');assert script.index('/scratch/target/exec-preflight\n')<script.index('cargo build');assert '--cap-drop' in s and 'no-new-privileges' in s
+valid='30 20 0:1 / /scratch rw,nosuid,nodev,relatime - tmpfs tmpfs rw,size=786432k\n';cases=[('valid',valid,0),('noexec',valid.replace('nodev,','nodev,noexec,'),42),('missing','',42),('duplicate',valid+valid,42),('nested',valid+'31 30 0:2 / /scratch/target rw - tmpfs tmpfs rw\n',42),('wrongfs',valid.replace('- tmpfs','- ext4'),42),('nosuid_missing',valid.replace('nosuid,',''),42),('readonly',valid.replace('/scratch rw,','/scratch ro,'),42),('super_noexec',valid.replace('rw,size','rw,noexec,size'),42)]
+r=[]
+for name,data,expected in cases:
+ p=subprocess.run(['C:/Program Files/Git/usr/bin/awk.exe',awk],input=data,text=True,capture_output=True,timeout=5,env=dict(os.environ,MSYS_NO_PATHCONV='1'));assert p.returncode==expected,(name,p.returncode,p.stderr);r.append(dict(case=name,code=p.returncode))
+(T/'nbsr-execfix-offline-tests.json').write_text(json.dumps({'status':'PASS','mount_cases':r,'launcher_order_and_security_assertions':'PASS'},indent=2));print('9 mount cases PASS; launcher preflight-order/security assertions PASS')

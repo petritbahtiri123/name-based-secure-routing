@@ -61,6 +61,13 @@ passes but is insufficient to resolve that live condition. CLI launch completed
 promptly; its subsequent wait reached the work cutoff. Daemon receipt and internal
 delay remain unknown. Any further live diagnosis requires fresh approval.
 
+Command diagnostics retain at most 128 timestamped events (initial 32 and recent
+96), suppress repeated identical observations, and count dropped events and
+diagnostic failures. Host records cover create/assign/resume, changed process/Job
+observations, terminate and close; worker records cover CLI launch/PID, wait and
+reply. Ordinary diagnostic errors cannot interrupt handle transfer or cleanup.
+These file writes can stall and are not an unconditional real-time guarantee;
+missing/truncated diagnostics never prove cleanup or daemon cancellation.
 
 ## Asynchronous termination: pending ownership
 
@@ -79,6 +86,29 @@ Job/process handles across observations and keep later descendant activity block
 This offline fix has not been exercised live; prior UNCONFIRMED records and the
 unexplained Docker creation delay remain unchanged.
 
+An explicitly approved cold-start diagnostic may construct DockerCommand with
+max_timeout=32 and call create with timeout=32:30s work plus2s helper cleanup.
+The default remains8s (6s work); other commands in that trial retain8s, and the
+overall cleanup-inclusive deadline remains120s. This is an opt-in trial budget,
+not a latency guarantee or performance pass. Cached inspections do not establish
+engine readiness. No resource-saving or other persistent setting changes follow.
+
+Windows Docker command preparation checks the actual Popen serialization before launch,
+with a conservative 30,000 UTF-16-unit ceiling including NUL. Worker launch errors
+retain their original type/message/errno/winerror in the request-bound reply; existing
+timeout and cleanup supervision remain independent. The offline rust_cache_metadata
+probe reads only the approved Cargo.lock file mount, with no additional script mount.
+Its package/archive observations do not establish offline build readiness.
+
+An explicitly approved metadata-only trial may use CellBudget(work_seconds=240,
+total_seconds=300) and DockerCommand(max_timeout=122, trial_budget=budget).
+Both must use the same monotonic clock. Each command is capped by the original
+trial deadline; 62s creation and 122s metadata waits include 2s helper cleanup,
+leaving at most 60s and 120s of work respectively. Extended budgets reserve at
+least 60s for cleanup; defaults remain 95/120s and an 8s command ceiling.
+Resource checks apply during work, never as a prerequisite to owned cleanup.
+These limits require task-specific authorization and do not authorize builds,
+downloads, retries or broader mounts. Metadata resolution is not compilation.
 
 ## Explicit debug correctness mode
 
@@ -102,9 +132,9 @@ do not reconstruct their provenance from a later checkout. Current execution
 must match that complete inventory before and after the cell. The manifest pin
 binds the whole provenance record, but is not a signature or build attestation.
 
-The original clean-checkout gate remains: execution requires the exact committed
-harness snapshot with no working-tree changes and a reviewed manifest/pin handoff.
-The Rust build commit is recorded separately from this harness commit. The existing
+The original clean-checkout gate remains: the current uncommitted preparation
+cannot run through this harness. A separately authorized immutable harness
+snapshot and reviewed manifest/pin handoff remain prerequisites. The existing
 build evidence is retained unchanged and is not automatically converted into this
 new manifest schema. No rebuild or relabelling as release follows from this mode.
 

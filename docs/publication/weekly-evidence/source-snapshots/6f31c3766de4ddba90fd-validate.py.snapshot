@@ -1,0 +1,77 @@
+"""Six authorized process-only scenarios. No sockets or remote commands."""
+import json
+import os
+from pathlib import Path
+import signal
+import sys
+import time
+
+sys.path.insert(0, '/source')
+from scripts.performance.linux_native_watchdog import LinuxGroup, supervise
+
+OUT = Path('/evidence')
+IGNORE = 'import signal; signal.signal(signal.SIGINT, signal.SIG_IGN); signal.signal(signal.SIGTERM, signal.SIG_IGN); '
+BLOCK = IGNORE + 'import os; r,w=os.pipe();\nwhile True: os.write(w,b"x"*4096)'
+SLEEP = IGNORE + 'import time; time.sleep(60)'
+DESCENDANT = IGNORE + 'import os,sys,time; os.write(int(sys.argv[1]),b"R"); time.sleep(60)'
+ORPHAN = ('import os,subprocess,sys; r,w=os.pipe(); '
+          f'subprocess.Popen([sys.executable,"-B","-c",{DESCENDANT!r},str(w)],pass_fds=(w,)); '
+          'os.close(w); assert os.read(r,1)==b"R"')
+
+
+def one(name, program):
+    started = time.monotonic()
+    with (OUT / (name + '.stdout')).open('xb', buffering=0) as stdout, (OUT / (name + '.stderr')).open('xb', buffering=0) as stderr:
+        class Owner(LinuxGroup):
+            def start(self):
+                super().start()
+                identity = Path(f'/proc/{self.process.pid}/stat').read_text()
+                (OUT / (name + '.owner.json')).write_text(json.dumps(dict(pid=self.process.pid, stat=identity)))
+                if name == 'partial-start':
+                    raise OSError('injected after ownership assignment')
+
+        owner = Owner([sys.executable, '-B', '-c', program], stdout, stderr)
+
+        def cancel():
+            if name == 'cancel' and time.monotonic() - started >= .15:
+                raise InterruptedError('injected repeated cancellation request')
+
+        result = supervise(owner, clock=lambda: (time.monotonic() - started) * 10,
+                           sleep=lambda seconds: time.sleep(seconds / 10), check_cancelled=cancel)
+        real_seconds = time.monotonic() - started
+        absent = False
+        if owner.owned:
+            try:
+                os.killpg(owner.process.pid, 0)  # Observation only, never a signal.
+            except ProcessLookupError:
+                absent = True
+        expected = dict(normal=None, blocked='deadline', disconnect='worker_exit',
+                        cancel='cancel', **{'partial-start': 'startup', 'exited-leader': 'remaining_group'})[name]
+        passed = (result['reason'] == expected and result['leader_reaped']
+                  and result['group_exit_observed'] and absent and real_seconds < 12.5
+                  and result['remote_cleanup'] == 'UNCONFIRMED'
+                  and result['status'] == ('LOCAL_WORKER_COMPLETED' if name == 'normal' else 'INVALID_PARTIAL'))
+        if name == 'blocked':
+            passed = passed and [a['signal'] for a in result['actions']] == ['INT', 'TERM', 'KILL']
+        if name == 'exited-leader':
+            passed = passed and bool(result['actions'])
+        row = dict(case=name, passed=bool(passed), real_seconds=real_seconds,
+                   group_absent_after_reap=absent, result=result)
+        (OUT / (name + '.json')).write_text(json.dumps(row, indent=2) + '\n')
+        print(json.dumps(row), flush=True)
+        return row
+
+
+if __name__ == '__main__':
+    rows = []
+    try:
+        for name, program in [('normal', 'import time; time.sleep(.1)'), ('blocked', BLOCK),
+                              ('disconnect', 'raise SystemExit(17)'), ('cancel', SLEEP),
+                              ('partial-start', SLEEP), ('exited-leader', ORPHAN)]:
+            rows.append(one(name, program))
+            if not rows[-1]['passed']:
+                raise RuntimeError('scenario failed; outer supervisor owns cleanup')
+    finally:
+        (OUT / 'summary.json').write_text(json.dumps(dict(passed=sum(x['passed'] for x in rows),
+            completed=len(rows), expected=6, clock_scale=10, real_120_second_test=False,
+            remote_cleanup='UNCONFIRMED', scenarios=rows), indent=2) + '\n')

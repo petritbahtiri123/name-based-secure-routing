@@ -1,0 +1,26 @@
+from pathlib import Path
+import importlib.util,sys,os,subprocess,json,shutil
+here=Path(__file__).parent
+spec=importlib.util.spec_from_file_location('bounded',here/'nbsr-ci-clean-check.py');b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
+# Enforce the original aggregate baseline throughout each supervised run.
+_original_disk_usage = b.shutil.disk_usage
+def cumulative_disk_usage(path):
+    value = _original_disk_usage(path)
+    if 14247788544 - value.free > 2*2**30:
+        return value._replace(free=0)
+    return value
+b.shutil.disk_usage = cumulative_disk_usage
+b.SOURCE=here/'nbsr-publication-validation-20261011';b.ROOT=here/'nbsr-kar-positive-20261012';b.EVIDENCE=here/'nbsr-kar-positive-evidence-20261012';b.SHA='ad77d59754651fee449bb1d9c14a946f9f3b2d15'
+os.environ['CARGO_TARGET_DIR']='C:/Users/OPERATOR/Documents/Codex/2026-10-04/task/nbsr-handshake-target'
+if sys.argv[1]=='_setup':
+    assert not b.ROOT.exists();b.ROOT.mkdir();b.git('init','--initial-branch=kar-positive-local')
+    b.git('config','core.autocrlf','false');b.git('config','core.sparseCheckout','true')
+    (b.ROOT/'.git/info/sparse-checkout').write_text('/*\n!/evidence/performance/\n')
+    (b.ROOT/'.git/objects/info/alternates').write_text((b.SOURCE/'.git/objects').as_posix()+'\n')
+    b.git('fetch','--no-tags','https://github.com/petritbahtiri123/name-based-secure-routing.git',b.SHA)
+    b.git('checkout','--detach',b.SHA)
+elif sys.argv[1]=='setup':sys.exit(b.supervised('setup',[sys.executable,__file__,'_setup'],here))
+else:
+    baseline=14247788544
+    if baseline-shutil.disk_usage(here).free>2*2**30:raise RuntimeError('cumulative task disk guard')
+    sys.exit(b.supervised(sys.argv[1],sys.argv[2:],b.ROOT))

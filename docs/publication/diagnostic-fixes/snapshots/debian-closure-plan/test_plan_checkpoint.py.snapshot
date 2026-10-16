@@ -1,0 +1,24 @@
+import hashlib,json,pathlib,runpy,sys,unittest
+from unittest.mock import patch
+P=pathlib.Path(__file__).resolve().parent
+class Checkpoint(unittest.TestCase):
+    def test_disabled_even_with_approval_flag(self):
+        with patch.object(sys,'argv',['build_from_verified_artifacts.py','--approved-build','--artifacts','unused']), patch('subprocess.Popen',side_effect=AssertionError('process forbidden')),patch('subprocess.run',side_effect=AssertionError('process forbidden')):
+            with self.assertRaisesRegex(SystemExit,'EXECUTION BLOCKED'):
+                runpy.run_path(str(P/'build_from_verified_artifacts.py'),run_name='__main__')
+    def test_independent_input_hashes(self):
+        for name,digest in json.loads((P/'approved-input-hashes.json').read_text()).items():
+            self.assertEqual(hashlib.sha256((P/name).read_bytes()).hexdigest(),digest,name)
+    def test_closure_counts_and_totals(self):
+        d=json.loads((P/'artifact-closure.json').read_text())
+        self.assertEqual(len(d['packages']),23);self.assertEqual(len(d['wheels']),4)
+        self.assertEqual([r['package'] for r in d['packages'] if r['previous_version']],['perl-base'])
+        self.assertEqual(sum(r['bytes'] for r in d['packages']+d['wheels']),25271876)
+    def test_v2_pins_match_actual_bytes_and_launcher_embedded_inputs(self):
+        from build_launcher_v2 import INPUT_PINS
+        pins=json.loads((P/'reviewed-input-hashes-v2.json').read_text())
+        self.assertTrue(INPUT_PINS)
+        for name,digest in pins.items():
+            self.assertEqual(hashlib.sha256((P/name).read_bytes()).hexdigest(),digest,name)
+        for name,digest in INPUT_PINS.items():self.assertEqual(pins[name],digest,name)
+if __name__=='__main__':unittest.main()

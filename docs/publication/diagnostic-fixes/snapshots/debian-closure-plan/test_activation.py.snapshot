@@ -1,0 +1,70 @@
+import io,json,pathlib,tempfile,unittest,hashlib
+import download_worker_v1 as worker
+import download_supervisor_v1 as supervisor
+from test_create_reconciliation import Clock
+P=pathlib.Path(__file__).parent
+GOOD={'disk':20*1024**3,'ram':5*1024**3,'commit':5*1024**3}
+class Backend:
+    def __init__(self,clock,root,*,late=False,unreaped=False):self.clock=clock;self.root=root;self.late=late;self.unreaped=unreaped;self.killed=False;self.closed=[]
+    def create_job(self):return 'job'
+    def create_suspended(self,argv):return 'process','thread'
+    def assign(self,*a):pass
+    def resume(self,*a):pass
+    def observe(self,*a):
+        if self.killed:return (None,1) if self.unreaped else (1,0)
+        if self.unreaped:return None,1
+        if self.late:self.clock.value=61
+        (self.root/'download-progress.json').write_text(json.dumps({'status':'ARTIFACTS_VERIFIED','bytes':25271876,'verified':['fixture']*27}))
+        return 0,0
+    def terminate(self,*a):self.killed=True
+    def close(self,h):self.closed.append(h)
+class Activation(unittest.TestCase):
+    def setUp(self):
+        self.t=tempfile.TemporaryDirectory(dir=P);self.addCleanup(self.t.cleanup);self.p=pathlib.Path(self.t.name);supervisor.RETAINED_OWNER=None
+    def tearDown(self):supervisor.RETAINED_OWNER=None
+    def test_redirect_rejected(self):
+        with self.assertRaisesRegex(RuntimeError,'redirect'):worker.NoRedirect().redirect_request(None,None,None,None,None,None)
+    def test_deadline_prevents_network(self):
+        class Opener:
+            def open(self,*a,**kw):raise AssertionError('network forbidden')
+        with self.assertRaises(TimeoutError):worker.fetch(self.p,0,Opener(),lambda:1)
+        self.assertEqual(json.loads((self.p/'download-progress.json').read_text())['bytes'],0)
+    def test_short_artifact_retained_and_no_retry(self):
+        class Response(io.BytesIO):
+            status=200
+            def geturl(self):return self.url
+        class Opener:
+            calls=0
+            def open(self,url,**kw):
+                self.calls+=1;r=Response(b'x');r.url=url;return r
+        op=Opener()
+        with self.assertRaises(AssertionError):worker.fetch(self.p,10,op,lambda:0)
+        state=json.loads((self.p/'download-progress.json').read_text());self.assertEqual(state['status'],'FAILED');self.assertEqual(state['bytes'],1);self.assertEqual(op.calls,1)
+    def test_late_success_rejected_and_owner_reaped(self):
+        clock=Clock();root=self.p/'late';b=Backend(clock,root,late=True)
+        result=supervisor.supervise(root,GOOD,clock=clock,sleep=clock.sleep,backend_factory=lambda:b,measure=lambda:GOOD)
+        self.assertEqual(result['status'],'FAILED');self.assertFalse(result['host_handles_owned']);self.assertTrue(b.killed)
+    def test_unreaped_owner_blocks_next_attempt(self):
+        clock=Clock();root=self.p/'owned';b=Backend(clock,root,unreaped=True)
+        result=supervisor.supervise(root,GOOD,clock=clock,sleep=clock.sleep,backend_factory=lambda:b,measure=lambda:GOOD)
+        self.assertTrue(result['host_handles_owned']);self.assertAlmostEqual(result['elapsed'],120,places=1)
+        with self.assertRaisesRegex(RuntimeError,'prior download owner'):supervisor.supervise(self.p/'retry',GOOD)
+    def test_success_releases_handles(self):
+        clock=Clock();root=self.p/'ok';b=Backend(clock,root)
+        result=supervisor.supervise(root,GOOD,clock=clock,sleep=clock.sleep,backend_factory=lambda:b,measure=lambda:GOOD)
+        self.assertEqual(result['status'],'ARTIFACTS_VERIFIED');self.assertFalse(result['host_handles_owned']);self.assertEqual(b.closed,['thread','process','job'])
+    def test_total_campaign_disk_guard_prevents_start(self):
+        clock=Clock();root=self.p/'growth';current={**GOOD,'disk':GOOD['disk']-301*1024**2};b=Backend(clock,root)
+        result=supervisor.supervise(root,GOOD,clock=clock,sleep=clock.sleep,backend_factory=lambda:b,measure=lambda:current)
+        self.assertEqual(result['status'],'FAILED');self.assertEqual(b.closed,[])
+    def test_complete_artifacts_do_not_override_retained_download_owner(self):
+        from build_launcher_v3 import validate_download_completion
+        m=json.loads((P/'artifact-closure.json').read_text());names=[r['filename'] for r in m['packages']+m['wheels']]
+        (self.p/'artifacts').mkdir()
+        for name in names:(self.p/'artifacts'/name).write_bytes(b'fixture')
+        result=json.dumps({'status':'ARTIFACTS_VERIFIED','host_handles_owned':True}).encode()
+        progress=json.dumps({'status':'ARTIFACTS_VERIFIED','bytes':25271876,'verified':names}).encode()
+        (self.p/'result.json').write_bytes(result);(self.p/'download-progress.json').write_bytes(progress)
+        (self.p/'supervisor-exit-receipt.json').write_text(json.dumps({'exit_code':0,'supervisor_completed':True,'result_sha256':hashlib.sha256(result).hexdigest(),'progress_sha256':hashlib.sha256(progress).hexdigest()}))
+        with self.assertRaises(AssertionError):validate_download_completion(self.p)
+if __name__=='__main__':unittest.main()

@@ -1,0 +1,18 @@
+{
+  "command": "python -B scripts/performance/sphere_support/run_offline_tests.py",
+  "tests_run": 59,
+  "failures": 0,
+  "errors": 0,
+  "exit_code": 0,
+  "elapsed_seconds": 0.261,
+  "python": "3.14",
+  "platform": "Windows",
+  "external_processes": "blocked by runner",
+  "network_sockets": "blocked by runner",
+  "tls_key_generation": "not exercised",
+  "signing": "not exercised",
+  "source_candidate_count": 47,
+  "source_hashes_unchanged_during_review": true,
+  "inventory_discrepancy": "Only preflight document; both digests recorded in provenance.json",
+  "limits": "Fake and filesystem regression validation only; no runtime infrastructure validation"
+}

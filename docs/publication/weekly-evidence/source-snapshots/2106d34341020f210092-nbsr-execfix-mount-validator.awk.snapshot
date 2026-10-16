@@ -1,0 +1,1 @@
+$5 == "/scratch" { n++; print; opts="," $6 ","; if (opts !~ /,rw,/ || opts !~ /,nosuid,/ || opts !~ /,nodev,/ || opts ~ /,noexec,/) bad=1; found=0; for(i=7;i<=NF;i++) if($i=="-") { found=1; if($(i+1)!="tmpfs" || ("," $(i+3) ",") ~ /,noexec,/) bad=1; } if(!found) bad=1 } index($5,"/scratch/")==1 { bad=1; print } END { if(n!=1 || bad) exit 42 }

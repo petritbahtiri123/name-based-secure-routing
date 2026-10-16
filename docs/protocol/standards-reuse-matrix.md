@@ -18,15 +18,28 @@
 One row can contain all three layers. A blank "New NBSR semantic" cell means
 NBSR does not need a new semantic for that problem.
 
-## Repository evidence
+## Repository evidence: October 13 reconciliation
 
-The current implementation has `cbor2`, `cryptography`, `dnslib`, Python
-`ssl`, and `httpx`. It has no QUIC, HTTP/3, MASQUE, CONNECT-UDP, CONNECT-IP,
-or broad COSE dependency. Therefore references to those standards below are
-architecture choices and dependency-selection inputs, not implementation
-claims. Existing Core v0.1 code and tests retain exactly 17 message codes, 19
-error codes, the frozen state machines, and the six frozen Core v0.1 wire
-schemas. No frozen registry or schema change is made by this package.
+The original July 28 inventory described a Python-only implementation before
+QUIC integration. Its "no QUIC" statement is historical. The published
+`ad77d59754651fee449bb1d9c14a946f9f3b2d15` baseline includes Rust/Quinn with rustls
+and an independent Go/quic-go peer, plus Python/Node/Go semantic verification.
+See [transport dependencies](../../crates/nbsr-transport/Cargo.toml), the
+[federation wire evidence](wp8-federation-v0.1-decision.md) and the
+[explicit-proxy demo](../demo/nbsr-end-to-end-demo.md).
+
+QUIC v1/TLS 1.3 provides the implemented transport substrate; NBSR adds the
+profile's service/authority/channel/stream binding and admission checks. Existing
+COSE signature verification is also used. This does not establish implementation
+of every standard named in the matrix, including HTTP/3 or MASQUE CONNECT-UDP/
+CONNECT-IP. A local HTTP CONNECT proxy is not evidence of those protocols.
+
+The matrix below retains its July 28 architecture/planning classification; its
+"planned" labels are not a current completion ledger. Consult
+[implementation status](status.md) for later scoped evidence and open gates.
+The original Core v0.1 counts (17 message codes, 19 errors, six wire schemas)
+remain historical frozen-version facts, not totals for later versioned profiles.
+No registry, schema, protocol allocation or runtime authorization changes here.
 
 ## Matrix
 

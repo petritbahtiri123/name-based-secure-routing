@@ -1,0 +1,110 @@
+"""One approved read-only, network-none probe of an existing cached Linux image."""
+import importlib.util
+import json
+from pathlib import Path
+import re
+import sys
+import time
+import tomllib
+
+SOURCE = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-kar-positive-20261012')
+ROOT = Path('C:/Users/OPERATOR/AppData/Local/Temp/nbsr-prerequisites-20261013')
+IMAGE = 'sha256:eea25eb5d0349845e4939fe5847f45637c529e6665a679193681e21048cd8769'
+sys.path.insert(0, str(SOURCE))
+from scripts.performance.windows_docker_provisioning import DockerCommand
+spec = importlib.util.spec_from_file_location('guard', Path(__file__).with_name('nbsr-prerequisite-containment-20261013.py'))
+guard = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(guard)
+guard.resources(True)
+output = ROOT / 'cache-probe'
+output.mkdir(exist_ok=False)
+command = DockerCommand(output, executable='C:/Program Files/Docker/Docker/resources/bin/docker.exe')
+started = time.monotonic()
+cid = None
+events = []
+lock = tomllib.loads((SOURCE / 'crates/nbsr-transport/Cargo.lock').read_text())
+packages = [p['name'] + '-' + p['version'] for p in lock['package'] if p.get('source', '').startswith('registry+')]
+probe = '''import importlib.util,json,os,platform,shutil,subprocess,sys
+from pathlib import Path
+memory={line.split(':')[0]:int(line.split()[1])*1024 for line in Path('/proc/meminfo').read_text().splitlines() if ':' in line and len(line.split())>=2}
+assert memory['MemAvailable']>=2*2**30 and memory['CommitLimit']-memory['Committed_AS']>=2*2**30, 'guest memory/commit reserve'
+value={'platform':platform.platform(),'python':sys.version,'cwd':os.getcwd(),'guest_available':memory['MemAvailable'],'guest_commit_free':memory['CommitLimit']-memory['Committed_AS']}
+value['modules']={name:importlib.util.find_spec(name) is not None for name in ['cryptography','cbor2','psutil']}
+value['tools']={name:shutil.which(name) for name in ['rustc','cargo','git','taskset','rustup']}
+value['versions']={}
+for name,args in [('rustc',['--version','--verbose']),('cargo',['--version']),('git',['--version'])]:
+ if value['tools'][name]:
+  try:
+   p=subprocess.run([value['tools'][name],*args],capture_output=True,text=True,timeout=3)
+   value['versions'][name]={'code':p.returncode,'stdout':p.stdout,'stderr':p.stderr}
+  except Exception as e: value['versions'][name]={'error':type(e).__name__}
+homes=list(dict.fromkeys([os.environ.get('CARGO_HOME','/usr/local/cargo'),'/usr/local/cargo','/root/.cargo']))
+cached=set(); value['cargo_homes']={}
+for name in homes:
+ home=Path(name); value['cargo_homes'][name]=home.is_dir()
+ for directory in (home/'registry/cache',home/'registry/src'):
+  if directory.is_dir():
+   for registry in directory.iterdir():
+    if registry.is_dir(): cached.update(p.name.removesuffix('.crate') for p in registry.iterdir())
+value['cached_locked_packages']=sorted(set(PACKAGES)&cached)
+value['missing_locked_packages']=sorted(set(PACKAGES)-cached)
+targets=list(dict.fromkeys([os.environ.get('CARGO_TARGET_DIR','/app/target'),'/app/target','/work/target','/nbsr/target','/opt/nbsr/target',str(Path.cwd()/'crates/nbsr-transport/target')]))
+value['target_candidates']={n:{'exists':Path(n).is_dir(),'release_binaries':[b for b in ['perf_direct_peer','perf_rust_source','wp8_interop_server'] if (Path(n)/'release'/b).is_file()]} for n in targets}
+print(json.dumps(value))
+'''.replace('PACKAGES', repr(packages))
+
+
+def call(argv, cleanup=False):
+    remaining = (118 if cleanup else 95) - (time.monotonic() - started)
+    if remaining <= 0:
+        raise TimeoutError('original operation deadline')
+    if not cleanup:
+        guard.resources()
+    result = command(argv, timeout=min(8, remaining))
+    events.append(dict(argv=argv, code=result.code, stdout=result.stdout, stderr=result.stderr))
+    if result.code:
+        raise RuntimeError('Docker operation failed: ' + argv[0])
+    return result.stdout.strip()
+
+
+result = dict(status='NOT_RUN', image=IMAGE, build='NOT_RUN', private_inputs=False)
+try:
+    identity = call(['create', '--pull=never', '--name', 'nbsr-cache-metadata-20261013',
+        '--label', 'nbsr.prerequisite=cache-metadata-20261013', '--network', 'none', '--read-only',
+        '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--pids-limit', '64',
+        '--cpus', '1', '--memory', '512m', '--memory-swap', '512m', '--entrypoint', 'python3', IMAGE, '-B', '-c', probe])
+    if not re.fullmatch('[0-9a-f]{64}', identity):
+        raise RuntimeError('unknown creation identity')
+    cid = identity
+    call(['start', cid])
+    while True:
+        state = json.loads(call(['inspect', '--type', 'container', '--format', '{{json .State}}', cid]))
+        if not state['Running']:
+            break
+        time.sleep(.05)
+    raw = call(['logs', cid])
+    if state['ExitCode'] != 0:
+        raise RuntimeError('runtime probe rejected prerequisites: exit ' + str(state['ExitCode']))
+    result['metadata'] = json.loads(raw)
+    result['status'] = 'CACHE_METADATA_OBSERVED'
+except BaseException as exc:
+    result.update(status='BLOCKED', error=repr(exc))
+finally:
+    result['container_id'] = cid
+    result['cleanup'] = 'UNCONFIRMED'
+    if cid:
+        try:
+            call(['rm', '--force', cid], cleanup=True)
+            remaining = 118 - (time.monotonic() - started)
+            absence = command(['inspect', '--type', 'container', '--format', '{{.Id}}', cid], timeout=min(8, remaining))
+            events.append(dict(argv=['inspect', cid], code=absence.code, stdout=absence.stdout, stderr=absence.stderr))
+            if (absence.code == 1 and not absence.stdout.strip() and absence.stderr.strip().lower() in
+                    ('error: no such container: ' + cid, 'error: no such object: ' + cid)):
+                result['cleanup'] = 'EXACT_CONTAINER_ABSENT'
+        except BaseException as exc:
+            result['cleanup_error'] = repr(exc)
+    result.update(events=events, elapsed_seconds=round(time.monotonic()-started, 3), resources=guard.resources(),
+                  command_owned=command.owner.owned if command.owner else False)
+    (ROOT / 'cache-probe-result.json').write_text(json.dumps(result, indent=2))
+    print(json.dumps({k:v for k,v in result.items() if k!='events'}))
+raise SystemExit(0 if result['status']=='CACHE_METADATA_OBSERVED' and result['cleanup']=='EXACT_CONTAINER_ABSENT' else 1)
