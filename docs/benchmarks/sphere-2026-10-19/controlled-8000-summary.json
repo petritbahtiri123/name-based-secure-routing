@@ -1,0 +1,159 @@
+{
+  "schema": "nbsr-sphere-controlled-load-summary-v1",
+  "date": "2026-10-19",
+  "classification": "CONTROLLED_LOAD_COMPLETION_NOT_MAXIMUM_CAPACITY",
+  "measured_sender_source_commit": "4a2d93f881a62c326416e1379579c99663c70c59",
+  "runtime_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+  "measured_binary_sha256": {
+    "perf_rust_source": "8b04e0a77c4c5c1d40f2d0559c73477c25197f8744a96af0a898cbce42424def",
+    "wp8_interop_server": "3f1ae36f1986eb1b94d085d5c457670d9219649d25ab07bd4369ea03624616cd"
+  },
+  "server_provenance": "Unchanged server retained from earlier release; not rebuilt from sender publication commit.",
+  "shape": {
+    "connections": 1,
+    "streams": 2,
+    "depth": 1,
+    "request_bytes": 1024,
+    "response_bytes": 1024,
+    "warmup_seconds": 3,
+    "aggregate_offered_operations_per_second": 8000
+  },
+  "limits": {
+    "interface_direction_mbps": 100,
+    "consecutive_samples": 2,
+    "cpu_quota_percent": 100,
+    "memory_max_mib": 512,
+    "memory_swap_max": 0,
+    "tasks_max": 128,
+    "tls_lifetime_seconds": 600
+  },
+  "topology": "Two VMs on the same physical host and bridge; not WAN or independent physical hosts.",
+  "smoke": {
+    "measurement_seconds": 20.0,
+    "drain_seconds": 0.000249883,
+    "offered_operations": 160000,
+    "completed_operations": 159886,
+    "missed_offer_slots": 114,
+    "achieved_offered_ratio": 0.9992875,
+    "useful_payload_mbps_each_direction": 65.48848737701545,
+    "errors": 0,
+    "timeouts": 0,
+    "collector_overflow": 0,
+    "drift_flags": [],
+    "latency_stability": "NO_DETECTED_DRIFT_IN_THIS_RUN",
+    "capacity": "NOT_ESTABLISHED",
+    "median_window_quantiles_us": {
+      "p50": 166.949,
+      "p95": 200.937,
+      "p99": 217.727
+    },
+    "interface_and_resource_guards": {
+      "source": {
+        "role": "source",
+        "failure": null,
+        "exit": 0,
+        "samples": 34,
+        "elapsed": 33.70413349696901,
+        "peak_memory_mib": 37.08203125,
+        "peak_tasks": 6,
+        "min_available_mib": 3366.64453125,
+        "max_tx_mbps": 75.48263057600397,
+        "max_rx_mbps": 75.5044996163452,
+        "drops_delta": 0,
+        "errors_delta": 0
+      },
+      "destination": {
+        "role": "destination",
+        "failure": null,
+        "exit": 0,
+        "samples": 26,
+        "elapsed": 25.12293828697875,
+        "peak_memory_mib": 36.93359375,
+        "peak_tasks": 4,
+        "min_available_mib": 3377.02734375,
+        "max_tx_mbps": 75.46650228310457,
+        "max_rx_mbps": 75.4807502537958,
+        "drops_delta": 0,
+        "errors_delta": 0
+      }
+    },
+    "owned_process_tls_and_mount_cleanup_confirmed": true,
+    "raw_sha256": {
+      "source": {
+        "stdout": "938c1718bf4db1a3415f3f50b9f74376c4beb96db93ddbff46ab2f0ca7aa3175",
+        "guard": "7cdd012acc44c31f8c7ce60fcd70ea9918a68d3816e4def7e63245c2f459531e"
+      },
+      "destination": {
+        "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "guard": "76ddc07d744b41df6271241fe1f1941da07160176550757f040f9e6b491ed966"
+      }
+    }
+  },
+  "measurement": {
+    "measurement_seconds": 300.0,
+    "drain_seconds": 0.000218873,
+    "offered_operations": 2400000,
+    "completed_operations": 2397718,
+    "missed_offer_slots": 2282,
+    "achieved_offered_ratio": 0.9990491666666667,
+    "useful_payload_mbps_each_direction": 65.4736384186278,
+    "errors": 0,
+    "timeouts": 0,
+    "collector_overflow": 0,
+    "drift_flags": [],
+    "latency_stability": "NO_DETECTED_DRIFT_IN_THIS_RUN",
+    "capacity": "NOT_ESTABLISHED",
+    "median_window_quantiles_us": {
+      "p50": 164.39,
+      "p95": 196.338,
+      "p99": 212.049
+    },
+    "interface_and_resource_guards": {
+      "source": {
+        "role": "source",
+        "failure": null,
+        "exit": 0,
+        "samples": 311,
+        "elapsed": 310.78907756099943,
+        "peak_memory_mib": 38.1484375,
+        "peak_tasks": 6,
+        "min_available_mib": 3363.30859375,
+        "max_tx_mbps": 76.09901743996198,
+        "max_rx_mbps": 76.12443753380126,
+        "drops_delta": 0,
+        "errors_delta": 0
+      },
+      "destination": {
+        "role": "destination",
+        "failure": null,
+        "exit": 0,
+        "samples": 306,
+        "elapsed": 305.08113425195916,
+        "peak_memory_mib": 37.7578125,
+        "peak_tasks": 4,
+        "min_available_mib": 3375.3828125,
+        "max_tx_mbps": 76.4166602670566,
+        "max_rx_mbps": 76.41054793056247,
+        "drops_delta": 0,
+        "errors_delta": 0
+      }
+    },
+    "owned_process_tls_and_mount_cleanup_confirmed": true,
+    "raw_sha256": {
+      "source": {
+        "stdout": "8bd7d3f9bb0f658bf3d3696d926bf42bf5ed954355fa1f4cadb2d1ce1018477a",
+        "guard": "b49f536c855bae73fcb3f1e8636325f8b2c1ed5ce9cca8badc47cd3f791dbd4f"
+      },
+      "destination": {
+        "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "guard": "374dd3f60c1f2f650d8545f19b137506fb45509ae490846ffbb8b4705a4ae978"
+      }
+    }
+  },
+  "latency_method": "Every 64th completion sampled; median of steady one-second window quantiles, not pooled percentiles. No detected drift in this run does not establish general latency stability.",
+  "remaining": [
+    "Authoritative interpretation of NIC EQ100000000 and provider enforcement/entitlement",
+    "Separately authorized controlled capacity sweep",
+    "Fair laptop comparison with matched workload and methodology"
+  ]
+}
