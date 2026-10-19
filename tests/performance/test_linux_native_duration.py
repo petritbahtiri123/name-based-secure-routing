@@ -22,7 +22,7 @@ def test_duration_changes_real_command_and_bounded_control_budget(seconds, tmp_p
     manager.close()
 
 
-@pytest.mark.parametrize('seconds', [True, 20, 0, -1, 61, 3600.0, '3600', 7201])
+@pytest.mark.parametrize('seconds', [True, 21, 0, -1, 61, 3600.0, '3600', 7201])
 def test_duration_is_explicit_bounded_profile(seconds):
     from scripts.performance.linux_native_duration import bounds
     with pytest.raises(ValueError):

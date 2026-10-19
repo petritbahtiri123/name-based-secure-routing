@@ -98,7 +98,8 @@ def native_command(cell, role, binaries, authority, output, *, bind, endpoint, p
     server, client, env = build_commands(cell, binaries, authority, output, endpoint, warmup, duration if duration is not None else 20)
     if 'diagnostic_rate' in cell:
         numerator, denominator = cell['diagnostic_rate']
-        client += ['--p2a-groups', '1', '--p2a-progress-seconds', '5',
+        cadence = '1' if cell.get('diagnostic_seconds') in (20, 300) else '5'
+        client += ['--p2a-groups', '1', '--p2a-progress-seconds', cadence,
                    '--b5-rate-numerator', str(numerator), '--b5-rate-denominator', str(denominator)]
     if post_close_reports and cell['path'] == 'nbsr':
         server += ['--p2a-cleanup-report', str(output / 'cleanup.json')]
@@ -354,7 +355,7 @@ def argument_parser():
                         help='Short diagnostic B5 ops/s rate; requires post-close reports, never a stable reference')
     parser.add_argument('--source-live-guard', action='store_true',
                         help='Opt-in source-only paced private-memory diagnostic; observer unqualified')
-    parser.add_argument('--diagnostic-seconds', type=int, choices=(60, 3600, 7200))
+    parser.add_argument('--diagnostic-seconds', type=int, choices=(20, 60, 300, 3600, 7200))
     parser.add_argument('--paired-live-guards', action='store_true',
                         help='Private endpoint-only paired paced telemetry; never a standalone capacity claim')
     parser.add_argument('--path', choices=('direct', 'nbsr'), required=True)

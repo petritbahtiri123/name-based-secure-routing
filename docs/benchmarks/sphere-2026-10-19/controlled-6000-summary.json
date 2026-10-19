@@ -1,0 +1,193 @@
+{
+  "schema": "nbsr-sphere-controlled-load-summary-v1",
+  "date": "2026-10-19",
+  "classification": "CONTROLLED_LOAD_COMPLETION_NOT_MAXIMUM_CAPACITY",
+  "measured_source_base": "b09a85187d1e27250a1aec2e76f7a5bcdef84611",
+  "runtime_commit": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+  "measured_binary_sha256": {
+    "perf_rust_source": "f6b9e25ecd24783ef55c2cdb7d9ed94e44f1cc4b54f5199e0b6f51f48d3a445e",
+    "wp8_interop_server": "3f1ae36f1986eb1b94d085d5c457670d9219649d25ab07bd4369ea03624616cd"
+  },
+  "measured_sender_patch_sha256": "e8955d98e4fad34de59fa198a5568758c097bb2276f066d9b282a17cc05eb158",
+  "shape": {
+    "connections": 1,
+    "streams": 2,
+    "depth": 1,
+    "request_bytes": 1024,
+    "response_bytes": 1024,
+    "warmup_seconds": 3,
+    "aggregate_offered_operations_per_second": 6000
+  },
+  "limits": {
+    "interface_direction_mbps": 100,
+    "consecutive_samples": 2,
+    "cpu_quota_percent": 100,
+    "memory_max_mib": 512,
+    "memory_swap_max": 0,
+    "tasks_max": 128,
+    "tls_lifetime_seconds": 600
+  },
+  "smoke": {
+    "measurement_seconds": 20.0,
+    "drain_seconds": 0.000215455,
+    "offered_operations": 120000,
+    "completed_operations": 119998,
+    "missed_offer_slots": 2,
+    "achieved_offered_ratio": 0.9999833333333333,
+    "useful_payload_mbps_each_direction": 49.150651312321074,
+    "errors": 0,
+    "timeouts": 0,
+    "collector_overflow": 0,
+    "latency_median_of_window_quantiles_us": {
+      "p50_latency_ns": 164.609,
+      "p95_latency_ns": 196.958,
+      "p99_latency_ns": 218.568
+    },
+    "drift_flags": [
+      {
+        "reason": "p99",
+        "window": 10
+      },
+      {
+        "reason": "p99",
+        "window": 11
+      },
+      {
+        "reason": "p99",
+        "window": 12
+      }
+    ],
+    "latency_stability": "NOT_ESTABLISHED",
+    "capacity": "NOT_ESTABLISHED",
+    "interface_and_resource_guards": {
+      "source": {
+        "role": "source",
+        "failure": null,
+        "exit": 0,
+        "samples": 31,
+        "elapsed": 30.632883089012466,
+        "peak_memory_mib": 37.2265625,
+        "peak_tasks": 6,
+        "min_available_mib": 3376.125,
+        "max_tx_mbps": 57.04745214116084,
+        "max_rx_mbps": 57.0534976078958,
+        "drops_delta": 0,
+        "errors_delta": 0
+      },
+      "destination": {
+        "role": "destination",
+        "failure": null,
+        "exit": 0,
+        "samples": 26,
+        "elapsed": 25.104380983044393,
+        "peak_memory_mib": 36.90625,
+        "peak_tasks": 4,
+        "min_available_mib": 3378.37109375,
+        "max_tx_mbps": 56.9795629016703,
+        "max_rx_mbps": 56.97487416000681,
+        "drops_delta": 0,
+        "errors_delta": 0
+      }
+    },
+    "owned_process_tls_and_mount_cleanup_confirmed": true,
+    "raw_sha256": {
+      "source": {
+        "stdout": "9a67aebc501190cf2c8078156512ac9d9071f304f3e496cb3ec552a4332f7132",
+        "guard": "89b045db47274cc5fdf035ed424bc724550b73d4c104e4596c701f4ca7b31ddb"
+      },
+      "destination": {
+        "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "guard": "682abf78214dea396083f160389f16fd09a7f66ade588473e580242a19a55890"
+      }
+    }
+  },
+  "measurement": {
+    "measurement_seconds": 300.0,
+    "drain_seconds": 0.000222415,
+    "offered_operations": 1800000,
+    "completed_operations": 1799914,
+    "missed_offer_slots": 86,
+    "achieved_offered_ratio": 0.9999522222222222,
+    "useful_payload_mbps_each_direction": 49.149615187961125,
+    "errors": 0,
+    "timeouts": 0,
+    "collector_overflow": 0,
+    "latency_median_of_window_quantiles_us": {
+      "p50_latency_ns": 167.38,
+      "p95_latency_ns": 200.389,
+      "p99_latency_ns": 224.847
+    },
+    "drift_flags": [
+      {
+        "reason": "p99",
+        "window": 30
+      },
+      {
+        "reason": "p99",
+        "window": 31
+      },
+      {
+        "reason": "p99",
+        "window": 32
+      },
+      {
+        "reason": "p99",
+        "window": 33
+      },
+      {
+        "reason": "p99",
+        "window": 34
+      },
+      {
+        "reason": "p99",
+        "window": 37
+      }
+    ],
+    "latency_stability": "NOT_ESTABLISHED",
+    "capacity": "NOT_ESTABLISHED",
+    "interface_and_resource_guards": {
+      "source": {
+        "role": "source",
+        "failure": null,
+        "exit": 0,
+        "samples": 311,
+        "elapsed": 310.8042715039919,
+        "peak_memory_mib": 38.33984375,
+        "peak_tasks": 6,
+        "min_available_mib": 3357.63671875,
+        "max_tx_mbps": 57.182455462369106,
+        "max_rx_mbps": 57.18717080794199,
+        "drops_delta": 0,
+        "errors_delta": 0
+      },
+      "destination": {
+        "role": "destination",
+        "failure": null,
+        "exit": 0,
+        "samples": 306,
+        "elapsed": 305.1587718289811,
+        "peak_memory_mib": 37.7734375,
+        "peak_tasks": 4,
+        "min_available_mib": 3369.19921875,
+        "max_tx_mbps": 57.14758574389099,
+        "max_rx_mbps": 57.143051638446806,
+        "drops_delta": 0,
+        "errors_delta": 0
+      }
+    },
+    "owned_process_tls_and_mount_cleanup_confirmed": true,
+    "raw_sha256": {
+      "source": {
+        "stdout": "f532d8de9ca6aa5b7d652146f9f2f8bacfe48362d3811fb909e3ad07745e259b",
+        "guard": "f78ebd5346e4937f0ef200deb0faed840ac1fafd2cf0723fcd12609c1a75ec79"
+      },
+      "destination": {
+        "stdout": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "guard": "803223e6d71dd9f01b52d266b665e63f2f87ba017a74155bcd54788f332d9ca9"
+      }
+    }
+  },
+  "provenance_note": "Measured binaries predate this integration. Integrated source reuses driver pacing primitives, preserves zero warmup, and uses the existing diagnostic_seconds field. A rebuilt integrated sender requires its own live result.",
+  "topology": "Two VMs on one physical host and bridge; not WAN or independent physical hosts.",
+  "exclusions": "No credentials, private keys, hostnames, addresses, usernames, absolute local paths, binaries or raw TLS material included."
+}

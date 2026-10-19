@@ -123,7 +123,7 @@ def check_peer(root, role, source_sha, *, debug_correctness_manifest_sha256=None
                 'paced mode requires reports without phase observer')
     paced_flags = ('--p2a-groups', '--p2a-progress-seconds', '--b5-rate-numerator', '--b5-rate-denominator')
     if paced and role == 'source':
-        for flag, value in zip(paced_flags, (1, 5, *cell['diagnostic_rate'])):
+        for flag, value in zip(paced_flags, (1, 1 if cell.get('diagnostic_seconds') in (20, 300) else 5, *cell['diagnostic_rate'])):
             option(flag, value)
     else:
         require(not any(flag in argv for flag in paced_flags), 'undeclared paced command')

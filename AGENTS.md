@@ -1,5 +1,12 @@
 # NBSR agent guidance
 
+For explicit SPHERE paced 20/300-second diagnostics, see
+`docs/benchmarks/SPHERE_PACED_2026-10-19.md`. Keep warmup aggregate-paced, preserve
+legacy duration/cadence defaults and release provenance gates, and distinguish
+sampled window latency from pooled percentiles. Pure support guard helpers do not
+activate or reconfigure a runner. Live trials and longer bounds require explicit
+task authority; this documentation grants none.
+
 ## Local two-stream preparation snapshot
 
 The weekly publication includes finite/lifecycle cleanup, watchdog, disposal,

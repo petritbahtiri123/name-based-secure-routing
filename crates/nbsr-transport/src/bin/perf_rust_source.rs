@@ -64,6 +64,12 @@ mod lifecycle_shards;
 #[path = "benchmark_support/lifecycle_teardown.rs"]
 mod lifecycle_teardown;
 #[cfg(feature = "benchmark-harness")]
+#[path = "b5_support/warmup.rs"]
+mod paced_warmup;
+#[cfg(all(test, feature = "benchmark-harness"))]
+#[path = "b5_support/warmup_tests.rs"]
+mod paced_warmup_tests;
+#[cfg(feature = "benchmark-harness")]
 #[path = "benchmark_support/post_close.rs"]
 mod post_close;
 use lifecycle_completion::{CompletionCoordinator, CompletionSender, TerminalKind};
@@ -1481,7 +1487,8 @@ async fn run(
         b1_support::counter_phase(counter_control, "setup-complete").unwrap();
         let ready = Arc::new(Barrier::new(stream_count as usize + 1));
         let measure = Arc::new(Barrier::new(stream_count as usize + 1));
-        let warmup_deadline = Instant::now() + warmup;
+        let warmup_origin = Instant::now();
+        let warmup_deadline = warmup_origin + warmup;
         let mut tasks = JoinSet::new();
         for (ordinal, mut application) in applications.into_iter().enumerate() {
             let ready = Arc::clone(&ready);
@@ -1498,8 +1505,20 @@ async fn run(
                 decode_frame(&response, sequence, payload.len()).unwrap();
                 sequence += 1;
                 let mut warmup_tracker = OutstandingTracker::new(outstanding_per_stream).unwrap();
+                let mut warmup_pacer = paced.as_ref().filter(|_| !warmup.is_zero()).map(|driver| {
+                    paced_warmup::WarmupPacer::new(
+                        driver.config.numerator, driver.config.denominator,
+                        driver.config.groups * driver.config.streams,
+                        driver.partition(group_ordinal, ordinal).unwrap(),
+                        u64::try_from(warmup.as_nanos()).unwrap(),
+                    ).unwrap()
+                });
                 while Instant::now() < warmup_deadline || warmup_tracker.in_flight() > 0 {
                     while Instant::now() < warmup_deadline && warmup_tracker.can_issue() {
+                        if let Some(pacer) = &mut warmup_pacer {
+                            let elapsed = u64::try_from(warmup_origin.elapsed().as_nanos()).unwrap();
+                            if !pacer.reserve(elapsed).unwrap() { break; }
+                        }
                         let started = Instant::now();
                         let wire = encode_measured_frame(sequence, &payload);
                         application.benchmark_write_frame(&wire).await.unwrap();
@@ -1510,6 +1529,13 @@ async fn run(
                         let response = application.benchmark_read_frame().await.unwrap();
                         decode_measured_frame(&response, expected, &payload).unwrap();
                         warmup_tracker.complete(expected).unwrap();
+                    } else if let (Some(pacer), Some(driver)) = (&warmup_pacer, &paced) {
+                        let elapsed = u64::try_from(warmup_origin.elapsed().as_nanos()).unwrap();
+                        let next = warmup_origin + Duration::from_nanos(pacer.next_tick(elapsed));
+                        tokio::select! {
+                            _ = tokio::time::sleep_until(next.into()) => {}
+                            _ = driver.run.wait_failed() => panic!("paced warmup failed"),
+                        }
                     }
                 }
                 if let Some(driver) = &paced {
