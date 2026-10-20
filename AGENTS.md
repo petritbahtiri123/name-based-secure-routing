@@ -89,6 +89,16 @@ those gates; do not run every repository-wide or deployment check for a small fi
 Demo/bootstrap scripts can regenerate credentials and start/build infrastructure;
 read their effects and confirm they are within the task before running them.
 
+## SPHERE two-endpoint operations
+
+For a client/server SPHERE allocation, start with
+`docs/benchmarks/SPHERE_CLIENT_SERVER_HANDOFF_2026-10-17.md` and recheck its source
+snapshot against the deployed build. Keep reported results separate from verified
+run evidence. A co-located controller changes measurement scope; the local Linux
+watchdog does not prove remote cleanup or guard peer resources. Require independent
+run-owned endpoint containment and original aggregate limits before execution.
+Do not overwrite historical three-node or archived NOT_RUN records to imply success.
+
 ## Bounded local experiments and evidence
 
 - On constrained development machines, default to at most two build jobs. Require
