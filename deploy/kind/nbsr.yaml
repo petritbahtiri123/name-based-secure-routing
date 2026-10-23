@@ -281,7 +281,7 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: envoyproxy/envoy:v1.34.4
+          image: envoyproxy/envoy:v1.37.9
           args: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warning"]
           volumeMounts:
             - {name: config, mountPath: /etc/envoy, readOnly: true}

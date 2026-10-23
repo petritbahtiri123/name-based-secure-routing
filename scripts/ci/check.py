@@ -18,7 +18,7 @@ GO_MODULES = (
     "verifiers/federation-go", "deploy/isp-federation-poc/adapter",
 )
 CORE_TESTS = (
-    "test_control_plane", "test_destination_policy", "test_dns_stub", "test_name_node",
+    "test_control_plane", "test_dependency_security", "test_destination_policy", "test_dns_stub", "test_name_node",
     "test_name_registry", "test_name_relay", "test_name_security", "test_originset",
     "test_resolution_state", "test_route_registry", "test_secure_files", "test_security",
     "test_service_tls", "test_services", "test_synthetic", "test_verifier",
