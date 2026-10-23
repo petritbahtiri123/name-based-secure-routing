@@ -116,7 +116,7 @@ services:
       retries: 20
 
   gateway:
-    image: envoyproxy/envoy:v1.34.4
+    image: envoyproxy/envoy:v1.37.9
     command: ["-c", "/etc/envoy/envoy.yaml", "--log-level", "warning"]
     ports: ["127.0.0.1:8080:8080"]
     volumes:
