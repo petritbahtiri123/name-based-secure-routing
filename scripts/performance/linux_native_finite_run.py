@@ -121,9 +121,10 @@ def check_endpoint(root, role):
                 telemetry=telemetry)
 
 
-def execute(config, output, *, check_cancelled=not_cancelled, on_validated_event=None):
+def execute(config, output, *, check_cancelled=not_cancelled, on_validated_event=None, before_collection=None):
     validate_config(config)
     require(on_validated_event is None or callable(on_validated_event), 'invalid event observer')
+    require(before_collection is None or callable(before_collection), 'invalid pre-collection observer')
     require(not output.is_symlink() and not output.resolve().is_relative_to(ROOT), 'external evidence directory required')
     output.mkdir(parents=False, exist_ok=False)
     problem = None
@@ -151,6 +152,14 @@ def execute(config, output, *, check_cancelled=not_cancelled, on_validated_event
             finally:
                 if problem is not None:
                     write_json(output / 'driver-failure.json', dict(error_type=type(problem).__name__))
+        # Finish observations before slow archive transfer; the callback must
+        # enforce its own deadline. Existing callers remain unchanged.
+        # Observer failure must not prevent owned evidence collection or sealing.
+        if problem is None and before_collection is not None:
+            try:
+                before_collection()
+            except BaseException as error:
+                problem = error
         for role in ROLES:
             if role not in manager.children:
                 continue
