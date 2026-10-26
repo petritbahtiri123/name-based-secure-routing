@@ -19,6 +19,12 @@ NBSR is an experimental open protocol and reference implementation. Contribution
 4. Update protocol documentation when semantics, schemas, states, registries, security boundaries, or non-claims change.
 5. Run the applicable checks before opening a pull request.
 
+Choose the smallest affected check using the [agent test navigation](AGENTS.md#read-only-the-relevant-area)
+and the area's linked requirements. The commands below are broader contribution
+gates, not a requirement to run every suite for a small change. Local agent work
+uses existing provisioned offline caches, supervision and resource limits from
+[AGENTS.md](AGENTS.md); these commands grant no download or infrastructure authority.
+
 Primary checks:
 
 ```bash

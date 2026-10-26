@@ -1,0 +1,410 @@
+# Area-specific agent requirements
+
+These requirements were relocated from root AGENTS.md without changing their
+scope. Read the sections relevant to the task before editing that area. Root
+[AGENTS.md](../../AGENTS.md) still supplies authority, resource and evidence rules.
+All code/test paths in backticks below are relative to the repository root;
+headings and references to sections "above" retain their original ordering.
+
+## SPHERE diagnostics and local preparation
+
+For explicit SPHERE paced 20/300-second diagnostics, see
+`docs/benchmarks/SPHERE_PACED_2026-10-19.md`. Keep warmup aggregate-paced, preserve
+legacy duration/cadence defaults and release provenance gates, and distinguish
+sampled window latency from pooled percentiles. Pure support guard helpers do not
+activate or reconfigure a runner. Live trials and longer bounds require explicit
+task authority; this documentation grants none.
+
+## Local two-stream preparation snapshot
+
+The weekly publication includes finite/lifecycle cleanup, watchdog, disposal,
+Windows provisioning, offline cache, KAR/recovery tests and sanitized evidence.
+See docs/publication/2026-10-16-weekly-reconciliation.md for source mappings,
+validation and exclusions. Historical protocol pins remain unchanged.
+See docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md for the scope and checks.
+Keep the tracked per-path CRLF exceptions: they preserve historical raw bytes,
+not permission to normalize pinned content or hide working-tree changes.
+Preserve primary and secondary command-cleanup failures with their exact stages;
+diagnostic improvements never rewrite historical UNCONFIRMED outcomes.
+Docker/native execution and credential handoff require task-specific authority.
+Keep exact-ID ownership, uncertain creation/disposal, original deadlines and
+private role inputs separate from evidence. No socket delegation or download
+fallback. A clean Git snapshot alone is not runtime or transport validation.
+
+
+## Project CI
+
+The isolated `nbsr/connector_control_model.py` is a synchronous mock-only design
+model, not a transport or authority implementation. Its focused checks are
+`python -m pytest -q -p no:cacheprovider tests/test_connector_control_model.py tests/protocol/test_states.py tests/federation/test_revocation.py`.
+Fake verifier/clock/transport results do not establish cryptographic proof,
+wire interoperability, asynchronous cancellation, durable identity or deployment
+readiness. Preserve the frozen state map and keep model policy choices distinct
+from approved protocol semantics.
+Active-work fixtures name admission eligibility, ongoing authority and a finite
+profile-labelled completion grace separately. Registration expiry starts drain
+from its actual boundary; polling or repeated denial cannot restart that grace.
+Explicit work renewal preserves ownership and the request bound, and cannot
+resurrect expired work. These fake inputs do not settle real authority mapping.
+Typed enforcement accepts the exact federation enum, never a numeric cast from
+Core revocation modes. Failed cleanup must retain visible ownership.
+The offline `nbsr/connector_federation_model.py` adapter additionally checks
+`tests/test_connector_federation_model.py`, `tests/federation/test_authorization.py`
+and `tests/federation/test_outage.py` alongside the model neighbors above. Reuse
+existing bilateral COSE/authorization and state result types. Bare results are
+not authenticated evidence; cache freshness is not authority validity. Ordinary
+outage's temporary new-use gate is distinct from a revocation latch. The adapter's
+incident input remains explicitly simulated, with no cryptographic revocation
+delivery or real connector identity mapping. Historical source hashes remain
+snapshots; preserve them when extending the local model.
+
+
+`docs/CI.md` defines the bounded GitHub-hosted profiles in `scripts/ci/check.py`
+and the manual extended workflow. Hosted dependency installation does not
+authorize local downloads or override the laptop limits above. Run only the
+affected profile or command locally with provisioned caches; `--list` inspects
+the exact commands without executing them. Workflow security contract tests
+are in `tests/ci/`; JSON-syntax YAML permits standard-library validation.
+Local structural validation is not evidence of a successful hosted run.
+
+The current-source authority gate uses the separately approved transport lifecycle
+overlay: retain the 110-file legacy inventory and its historical ancestors plus
+the five explicitly pinned implementation/build dependencies. Test-source hashes
+are evidence, not extra runtime gates. Later changes to pinned source require
+their own reviewed versioned authority; never refresh an older overlay in place.
+The receive/ACK-drop successor adds exactly one adapter override bound to its
+reviewed source commit. Keep the lifecycle validator historical; the current-source
+gate explicitly selects `assert_receive_ack_drop_core_overlay`. Its registry is
+`docs/protocol/registries/core-v0.2-receive-ack-drop-overlay.json`; the other six
+transport bindings and original inventory remain inherited unchanged.
+Focused regressions include `tests/federation/test_receive_ack_drop_overlay.py`,
+`tests/federation/test_transport_lifecycle_overlay.py`,
+`test_baseline_immutability.py` and historical `test_demo_ack_core_overlay.py`
+in the same directory. Keep historical fixture checks distinct from the current
+source gate; selected-source acceptance is not whole-crate or production proof.
+For missing committed evidence in sparse checkouts, inspect skip-worktree flags
+and exact Git blobs first. Validate a temporary materialization without restoring
+excluded files over user work; retain the original missing-input outcome.
+Initialize runner-dependent CI environment paths in execution steps; the GitHub
+`runner` context is unavailable in job-level `env`. Local contract checks do not
+replace hosted workflow validation.
+Cross-platform fixture checks must preserve semantic rejection without relying
+on filesystem-specific diagnostics. Windows enrollment tests provision exact
+protected ACLs only on their own temporary directories; preserve the production
+writer allowlist and reject unexpected explicit grants instead of trusting them.
+Storage tests resolve only freshly created test-owned temporary roots before
+constructing paths, because Windows short-name temp paths can fail the production
+alias check. Keep caller-supplied alias rejection and record hosted confirmation
+separately from a local short-path reproduction. Demo tests share this fresh-root helper at
+`client/nbsr-go-client/demo/internal/testfixture/temp.go`; production startup must
+continue rejecting caller-supplied aliases.
+
+## Large live-bundle harness checks
+
+For explicit 8192 live-bundle support, use the focused boundary tests documented
+in `docs/benchmarks/NATIVE_ARCHIVE_COLLECTION.md`. Increased parser/observer
+bounds are not permission to run a larger trial: independently verify current
+host and guest memory/commit headroom, sustained-pressure aborts, disk guards,
+and the authorized cleanup-inclusive runtime. Do not modify host/global network
+settings or infer an 8192 capacity result from harness regression success.
+
+
+## Federation package version checks
+
+The default immutable federation development-v1 package retains its original
+manifest pin and uses the pinned archive under `docs/protocol/registries/archive/`.
+Development-v2 requires explicit `--version federation-v0.1-development-v2` and
+`vectors/federation-v0.1-development-v2` selection. Never replace one version's
+pin or resolve missing archived authority through current-registry fallback.
+Check both versions; preserve exact purpose separation and negative selection,
+authority-drift and alias cases. CI command profiles include explicit v2 checks.
+
+## Connector registration offline vectors
+
+`nbsr/connector_registration_offline.py` is a serialized offline CRP-1 model,
+not a runtime trust boundary. Its `OfflineDecision`, dependency invalidation and
+exporter callbacks are explicit fixtures; they cannot authenticate registration
+authority or revocation delivery. Action/message/profile/ALPN allocations remain
+unassigned. Keep registration lease limits separate from application-work policy.
+Use `tests/protocol/test_connector_registration_vectors.py` with the connector
+model/adapter neighbors above and `tests/protocol/test_cbor.py`. Check retained
+artifacts with `python scripts/generate_connector_registration_vectors.py --check`
+and `node scripts/verify_connector_registration_vectors.mjs` using provisioned
+runtimes. Current draft-2 artifacts are in
+`vectors/connector-registration-v1-counter/`; preserve the original package.
+The Node verifier checks bytes/transcripts/exporter derivation and independent
+counter/cache traces; Python executes lifecycle scenarios. Neither establishes live wire interoperability.
+The offline coordinator requires explicit timer polling and a read-only revision
+snapshot. Failed cleanup retains quota. Keep four completed results plus one
+pending operation separate from constant-size replay/current-acceptance state.
+Session-bound 64-bit operation counters start at one, never wrap and are separate
+from directional envelope sequences. Evicted counters never execute again;
+cache eviction and renewal must preserve ownership and independently bounded work.
+Proof revalidation must match both the challenge's authority revision and the
+current read-only revision. A stale challenge is consumed without changing an
+existing owner's lease; retry requires the next operation counter.
+The development Rust gateway also requires a positive authority revision before
+creating a challenge; equality between two zero fixture revisions is insufficient.
+Exhaustion does not imply reconnect or takeover. Two-service fixtures do not enable multiple live
+services. Preserve the historical proposal/review hashes when extending evidence.
+
+
+## Single-instance offline configuration
+
+`deploy/single-instance/validate_config.py` and its adjacent schema/example are
+an offline configuration gate only. Run the adjacent `test_validate_config.py`
+with the connector registration/model neighbors. Reuse provisioned Pydantic;
+never instantiate service Settings, merge environment defaults, open references
+or generate credentials during preflight. Keep client config origin-free,
+service-keyed entries limited to one, unknown/duplicate fields rejected and
+accepted registration bounds unchanged. Schema validation alone does not cover
+cross-role bindings or authorize origin DNS/traffic. Reference existence and
+provenance are later runtime/provisioning checks; CONFIG_VALID_OFFLINE is never
+READY. Input paths must be stable, local, materialized and free of links/reparse
+points; inspection is not a concurrent filesystem sandbox. See the adjacent
+README for exact limitations. On Windows use a fresh test-owned `--basetemp`
+under the writable temporary root when the default pytest temp is unavailable;
+never point it at existing user data. Preserve earlier evidence manifests.
+
+Gateway IDs in single-instance config are the approved canonical `text64`, not
+32-byte operator/service identities. Keep a config-example-to-actual-registration
+body regression; isolated config validation is insufficient. Preserve values
+unchanged across the boundary, with no hashing, truncation or normalization.
+
+## Connector development-only Go/Rust slice
+
+`interop/nbsr-go-peer/connector/` requires the `connector_development` build tag;
+Rust `connector_control.rs`, `connector_registration.rs` and `connector_cleanup.rs` compile only in their
+integration-test targets. The separate development registry/shared vectors do
+not alter frozen Core/Federation allocations or authorize live trust. Keep
+synthetic authority/exporter fixtures explicit, failed cleanup ownership visible,
+and production source pins unchanged. Focused commands and scope limits are in
+`interop/nbsr-go-peer/connector/README.md`; reuse verified caches under the existing
+supervisor/resource guards. Python package checks are in
+`tests/protocol/test_connector_development_vectors.py`; its generator supports
+`--check`. Shared decoding and in-memory tests do not establish live Go/Rust
+interoperability, cryptographic authority or Stage 3 closure.
+
+The development `CleanupPeer` adapter treats wait cancellation/timeout as
+unconfirmed cleanup, never released ownership. Backend completion callbacks
+must target their exact attempt; only serialized coordinator cleanup applies
+success. Failure requires explicit retry, with one outstanding close and no
+replacement before confirmation. This adds no application-work grace or real
+backend completion guarantee. Keep callback/wait tests deterministic without sleeps.
+
+Rust cleanup tickets remain retained by the exact connection when a wait future
+is dropped. Only serialized confirmation matching the current attempt, session
+and owner generation may release quota. Do not route synchronous close or expiry
+around an outstanding async ticket; failed confirmation requires explicit retry.
+Callback completion is synthetic evidence, not a real transport shutdown guarantee.
+
+The development Go coordinator retains an observed-time floor across injected
+clock reads. Backward/out-of-range time latches admission off; no later sample
+restores eligibility. Retain peer/owner until confirmed explicit cleanup, and
+test callback-time changes and lost-ACCEPT retries without real sleeps or keys.
+The test-only Rust gateway applies the same observed-time floor at attach/handle/
+poll. Invalid time retains all owned resources; direct cleanup and exact retained
+async confirmation must still work without resetting the clock/admission latch.
+
+The development loopback integration is explicitly opt-in: Rust
+`tests/connector_loopback.rs` is ignored by default and needs the prebuilt Go test
+worker described in `interop/nbsr-go-peer/connector/README.md`. Local sockets and
+temporary test PKI require task authorization. Keep both endpoints on IPv4 loopback,
+fixture keys in memory/private stdin, and authority/revocation fixtures labelled.
+Retain failed trials and verify child reap/socket release before confirming cleanup.
+Real TLS/exporter success does not establish signed registration authority, verified
+revocation delivery, real authority timers, application traffic or Stage 3 closure.
+
+## Offline signed registration fixtures
+
+`nbsr/connector_registration_authority_offline.py` verifies signed genesis fixtures
+only under explicit `connector-registration-development-v1` selection and an exact
+record/signer inventory. Action 24576 is fixture-scoped, not a global allocation.
+Run `tests/test_connector_registration_authority_offline.py` with the existing
+provisioned Python environment. Use public deterministic test-key material only;
+some older federation neighbors generate random keys, so exclude those tests when
+key generation is outside task authority. Exact exclusions are retained in the
+signed-authority review manifest. Preserve the monotonic observed logical-time
+floor through rejected expiry checks and revision changes. Inventory pins and
+freshness/denial inputs remain fixtures; receipt identity is instance-local, not
+a hostile-process trust boundary. No authenticated revocation producer, real
+timer or live coordinator/provider integration is established by these tests.
+
+## Offline authority timer fixtures
+
+`nbsr/connector_authority_timer_offline.py` attaches one explicitly polled
+scheduler to a mock model. Poll once per fixture step before operations: it
+samples the injected clock once and model operations use that snapshot until
+the next poll. The bounded event-ID inventory never evicts or resets denials;
+revision and exact owner/session/dependency checks are repeated at dispatch.
+Late dispatch anchors drain at effective time, not observation time. Registration
+expiry preserves admitted work under its independent authority/request/grace
+bounds. Run `tests/test_connector_authority_timer_offline.py` plus model/adapter,
+signed-authority, registration-vector, state/revocation/outage neighbors recorded
+in `docs/reviews/2026-10-10-connector-authority-timer.json`. Events remain explicitly
+simulated; no authenticated receipt, delivery, real timer or runtime trust follows.
+
+Offline registration current-revision callbacks must return exact positive
+integers; booleans and numeric lookalikes are not revision snapshots. Sample the
+callback once and reject invalid types before committing ownership.
+
+CI selects root connector/offline-config suites explicitly, Go fixtures with
+`connector_development`, and Rust connector targets with the live test ignored.
+The `connector-loopback` profile is an explicit manual workflow choice; it owns
+a temporary Go worker and directly supervises each command. Listing the profile
+does not run it. Local execution still needs socket/test-PKI authorization and
+the existing resource supervisor. Local passes do not establish hosted success.
+Gateway CI includes `tests/test_gateway_cli.py` with plan/profile/verify/journal
+neighbors. CLI subprocess success proves offline command contracts only, not
+SCM lifecycle, privileged routing installation or deployed rollback acceptance.
+
+The full-model connector signature prerequisite is test-only:
+`crates/nbsr-transport/src/connector_signature.rs` compiles in the
+`connector_signature` integration-test target, selected by the Rust CI profile.
+`python -m scripts.extract_connector_signature_fixtures --check` independently
+checks retained public signed bytes with the Python COSE primitive; it is selected
+by python-protocol CI and generates no keys or signatures. The native result
+proves signature/payload/kid binding only, not signer purpose, lifecycle, current
+authority, threshold acceptance or registration readiness. Keep all applicable
+controller/normal/emergency governance requirements; controller-only operation is
+not a fallback. The full acceptance matrix is
+`docs/reviews/2026-10-11-registration-full-model-acceptance.md`. Normal revocation
+3/5 must not reuse global-trust-v1 merely because its quorum matches: that named
+policy applies to trust-bundle replacement. No runtime registry flags or pinned
+source overlays change for this isolated test prerequisite.
+
+The approved revision-2 normal-revocation mapping is a separate local conformance
+amendment, not a change to historical Option C registries or runtime authority.
+Check `python -m scripts.normal_revocation_conformance --check` plus
+`tests/federation/test_normal_revocation_conformance.py` and threshold/revocation
+neighbors. Preserve the pinned parents and historical literals. Reuse only the
+existing public deterministic fixture keys. Explicit five-member IDs and control
+domains are fixture inputs; unsigned members must also meet roster independence.
+Context-specific witness outcomes are simulated, not authenticated proof. Keep
+exact typed normal enforcement, runtime/live flags false, and the final audit gate.
+
+`tests/federation/test_normal_revocation_witness_integration.py` composes existing
+COSE/checkpoint/consistency/witness verification with the normal record's exact
+checkpoint reference. Run it with normal-conformance, witness and transparency
+neighbors. Reuse existing public fixture material only. Signed checkpoint witness
+confirmation is not record inclusion, governing configuration provenance or a
+durable restart floor. Check freshness even for idempotent checkpoint reuse;
+do not turn context-specific witness policy into a universal new requirement.
+
+Historical version-1 TypedRevocationRecord inclusion has no approved cycle-free
+leaf/reference mapping. Do not silently omit fields, insert placeholders or
+reinterpret its field 39. The separately approved local v2 amendment logs the full
+canonical v2 payload with a prior anchor and detached signed inclusion evidence.
+Run `tests/federation/test_revocation_inclusion_v2.py` and
+`python -m scripts.revocation_inclusion_v2 --check` with threshold/witness/transparency
+neighbors. Preserve old profile defaults and historical registry/vector bytes.
+An applied record requires F=C on reuse; retain fresh event bindings without
+reapplying revocation. Rejects must preserve floors and retained denial markers.
+The immutable test-state oracle is not durable storage or runtime authority.
+
+`scripts/inclusion_persistence.py` adds the approved local snapshot codec and
+storage-neutral coordinator. Run
+`python -m pytest -q -p no:cacheprovider tests/federation/test_inclusion_persistence.py`;
+`python-protocol` explicitly selects this memory-backend suite. Preserve original
+R bytes, every event binding/retained marker, exact independently supplied restore
+digests and watermark-first replacement. Post-write ownership-release failure is
+an uncertain commit; reentrant operations must not clear that latch. No filesystem
+adapter, runtime trust or power-loss durability follows from these tests. Existing
+private writers change Windows ACLs and need separate action-time authorization
+for an exact disposable test root. See
+`docs/reviews/2026-10-11-inclusion-persistence-design.md` for the approved scope.
+
+The opt-in `scripts/inclusion_filesystem_trial.py` is an exact-root test harness,
+not CI or a production adapter. Its child Windows PowerShell explicitly imports
+the matching Security module from `$PSHOME`; inherited PowerShell 7 module paths
+can otherwise break a 5.1 child. Never solve that mismatch with policy changes.
+Each filesystem/ACL run still requires action-time authorization for its exact
+root; retain root identity, reject unexpected cleanup entries and verify absence.
+A post-replace injected exception is not a process-crash or power-loss test.
+
+The `connector_authority` Rust integration target is a test-only normal negative
+enforcement bridge under explicit `SuppliedTestTrust`, not a registration provider.
+Its local canonical dependency inventory must hash to the exact owner binding and
+contain the signed target. Validate bundle/key/policy consistency even for pinned
+fixtures. Current containing checkpoints must be fresh; prior retained anchors
+remain authenticated and identity-bound without a current-age requirement.
+Retain same-record fresh event bindings without reapplying effects. Termination
+keeps the original cleanup ticket and quota until exact successful confirmation.
+Use the focused Rust target with codec/registration/signature neighbors and
+`tests/federation/test_connected_authority_vectors.py`; check retained bytes with
+`python -m scripts.check_connected_authority_vectors --check`. CI selects both.
+Fixture key inventories and governing obligations do not establish bootstrap
+provenance. Positive admission/READY and runtime/live flags remain disabled.
+Preserve historical checkpoint failures and source hashes when extending evidence.
+
+## Isolated genesis KAR prerequisite
+
+`crates/nbsr-transport/src/connector_kar.rs` compiles only in the `connector_kar`
+integration-test target selected by Rust CI. Run that target with the existing
+offline/resource guards, plus `connector_signature` and `connector_control`.
+`tests/federation/test_key_authorization.py` is the unsigned Python neighbor.
+The gate preserves inclusive expiry and exact purpose/identity/root-authorizer
+binding, accepts only active unrevoked genesis records, and rejects rotation and
+recovery. It has no authority/owner/READY conversion. Semantic positives and
+unchanged signed composed negatives are separate evidence. The retained public
+connector-kar-genesis-positive.json fixture now supplies composed verification
+without creating signatures; runtime_authorized remains false. Do not adjust
+historical root validity or synthesize purpose-12 normal-roster authorization.
+See `docs/reviews/2026-10-11-kar-genesis-implementation.md` for this limitation.
+
+Windows Job observation reads membership before the leader handle so termination
+between samples conservatively retains ownership until another poll. Keep the
+fake-kernel race regression and require both exited leader and empty Job before
+closing handles. This offline correction does not explain Docker creation
+timeouts or replace historical UNCONFIRMED cleanup evidence.
+
+An empty Windows Job with an unsignalled owned helper is pending during
+asynchronous termination. Retain exact handles and poll only within the existing
+deadline; require both signalled leader and empty Job before normal reaping.
+Preserve native query errors, failed-close ownership and the primary work timeout.
+
+Explicit cold-start diagnostic approval may select DockerCommand max_timeout=32
+(30s work plus2s helper cleanup); defaults remain8s and overall trials120s.
+This requires per-trial authority and does not authorize starts or settings changes.
+
+Windows Docker command preparation checks the actual Popen serialization before launch,
+with a conservative 30,000 UTF-16-unit ceiling including NUL. Worker launch errors
+retain their original type/message/errno/winerror in the request-bound reply; existing
+timeout and cleanup supervision remain independent. The offline rust_cache_metadata
+probe reads only the approved Cargo.lock file mount, with no additional script mount.
+Its package/archive observations do not establish offline build readiness.
+
+Explicitly approved metadata-only Docker trials may opt into the validated
+240s work/300s total CellBudget, with 60s reserved for cleanup and the same
+monotonic clock in DockerCommand. Defaults remain unchanged. See
+`docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md`; these opt-in limits do not
+provide standing authorization for longer experiments or dependency downloads.
+
+The finite harness has an explicit pinned debug correctness mode documented in
+`docs/benchmarks/LOCAL_TWO_STREAM_PREREQUISITES.md`. Preserve default release gates,
+independent manifest digest selection, exact current source/binary inventories,
+clean checkout enforcement, distinct debug result statuses and benchmark
+ineligibility. It is limited to two application streams on one QUIC connection,
+depth one and one core per endpoint. Run
+`tests/performance/test_native_debug_correctness.py` with native peer/pair,
+finite endpoint/run, post-close, local sequence and Windows management neighbors.
+Credential transmission remains a separate user-controlled secure handoff;
+broad trial approval never authorizes copying/mounting/transmitting private keys.
+
+The adoption-only local campaign uses six exact user-provisioned stopped endpoint
+IDs, consumed as three fresh pairs. Never substitute arbitrary IDs or invoke
+credential-bearing creation. Keep rejected IDs unresolved, failed cleanup owned,
+and per-cell 95/120-second limits inside the single 420-second campaign deadline.
+Run tests/performance/test_windows_adopted_campaign.py with ownership/sequence,
+Windows management/Job/provisioning and debug provenance neighbors. The integration
+recipe and live-validation limits are in docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md.
+
+
+Adopted endpoint metadata compatibility retains exact task labels plus explicitly
+pinned inherited image labels; never ignore extra labels. Windows controller
+sources require a complete recorded controller/observed-source mapping with an
+independently pinned public record digest. Reject aliases, shares, reparse points,
+namespace ambiguity and overlapping output/input mounts; inspect sources exactly.
+Run tests/performance/test_adopted_metadata_compatibility.py with the adoption
+neighbors. See docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md for Windows-only checks,
+trusted-local mapping limits and the unexecuted standalone staging/diagnostic plan.
