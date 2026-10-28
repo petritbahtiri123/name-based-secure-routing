@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import replace
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -324,3 +325,88 @@ def test_empty_route_context_digest_rejects_instead_of_defaulting() -> None:
     value = context()
     result = BilateralAuthorizer().authorize_source(authenticated_context(value), evidence(), route_context_digest=b"")
     assert result.outcome is DecisionOutcome.REJECT
+
+
+@pytest.mark.parametrize("side", ["source", "destination"])
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"revoked_dependencies": frozenset({BUNDLE})},
+        {"checkpoint_compatible": False},
+        {"policy_digest": b"X" * 32},
+        {"allowed_protocols": frozenset({17})},
+        {"allowed_ports": frozenset({80})},
+        {"allowed_actions": frozenset({2})},
+        {"peer_operator_id": b"X" * 32},
+        {"canonical_name": "other.example"},
+        {"authority_proof": None},
+    ],
+)
+def test_cached_accept_rechecks_current_authority(side: str, change: dict[str, object]) -> None:
+    authenticated = authenticated_context(context())
+    authorizer = BilateralAuthorizer()
+    assert authorizer.authorize_source(authenticated, evidence()).outcome is DecisionOutcome.ACCEPT
+    bindings = {} if side == "source" else dict(operator_id=DEST, peer_operator_id=SOURCE, endpoint_operator_id=DEST)
+    authorize = getattr(authorizer, f"authorize_{side}")
+    assert authorize(authenticated, evidence(**bindings)).outcome is DecisionOutcome.ACCEPT
+    # Evidence can change within the same logical second as an accepted retry.
+    result = authorize(authenticated, evidence(**(bindings | change)))
+    assert result.outcome is DecisionOutcome.REJECT
+
+
+@pytest.mark.parametrize("side", ["source", "destination"])
+def test_cached_accept_rechecks_pending_proof(side: str) -> None:
+    authenticated = authenticated_context(context())
+    authorizer = BilateralAuthorizer()
+    assert authorizer.authorize_source(authenticated, evidence()).outcome is DecisionOutcome.ACCEPT
+    bindings = {} if side == "source" else dict(operator_id=DEST, peer_operator_id=SOURCE, endpoint_operator_id=DEST)
+    authorize = getattr(authorizer, f"authorize_{side}")
+    assert authorize(authenticated, evidence(**bindings)).outcome is DecisionOutcome.ACCEPT
+    result = authorize(authenticated, evidence(**bindings, authority_proof=None, proof_pending_until=160))
+    assert result.outcome is DecisionOutcome.PENDING
+
+
+@pytest.mark.parametrize("side", ["source", "destination"])
+def test_cached_accept_cannot_issue_attestations_after_revocation(side: str) -> None:
+    from nbsr.federation.local_attestation import LocalAdmissionAttestor, LocalAdmissionAuthority
+
+    attestor = LocalAdmissionAttestor(
+        LocalAdmissionAuthority(b"source-local", Ed25519PrivateKey.from_private_bytes(bytes(range(32)))),
+        LocalAdmissionAuthority(b"destination-local", Ed25519PrivateKey.from_private_bytes(bytes(range(1, 33)))),
+    )
+    authenticated = authenticated_context(context())
+    authorizer = BilateralAuthorizer()
+    source = evidence()
+    destination = evidence(operator_id=DEST, peer_operator_id=SOURCE, endpoint_operator_id=DEST)
+    attestor.authorize_and_attest(authorizer, authenticated, source, destination, route_grant_digest=ROUTE, protocol=6, port=443)
+    revoked = dict(revoked_dependencies=frozenset({BUNDLE}))
+    if side == "source":
+        source = replace(source, **revoked)
+    else:
+        destination = replace(destination, **revoked)
+    with pytest.raises(FederationValidationError, match=f"{side} federation admission failed"):
+        attestor.authorize_and_attest(authorizer, authenticated, source, destination, route_grant_digest=ROUTE, protocol=6, port=443)
+
+
+@pytest.mark.parametrize("side", ["source", "destination"])
+@pytest.mark.parametrize("change", ["tampered", "revoked", "expired", "purpose", "payload"])
+def test_bilateral_authentication_rejects_invalid_signer_or_signature(side: str, change: str) -> None:
+    authenticated = authenticated_context(context())
+    source_key = Ed25519PrivateKey.from_private_bytes(bytes(range(32)))
+    destination_key = Ed25519PrivateKey.from_private_bytes(bytes(range(1, 33)))
+    authorities = [authenticated.source_authority, authenticated.destination_authority]
+    keys = [source_key, destination_key]
+    messages = [sign1(authenticated.context.canonical_bytes(), authority.kid, key) for authority, key in zip(authorities, keys)]
+    index = 0 if side == "source" else 1
+    if change == "tampered":
+        messages[index] = messages[index][:-1] + bytes([messages[index][-1] ^ 1])
+    elif change == "revoked":
+        authorities[index] = replace(authorities[index], revoked=True)
+    elif change == "expired":
+        authorities[index] = replace(authorities[index], expires_at=149)
+    elif change == "purpose":
+        authorities[index] = replace(authorities[index], purpose=KeyPurpose.IDENTITY_ROOT)
+    else:
+        messages[index] = sign1(context(**{"39": b"X" * 32}).canonical_bytes(), authorities[index].kid, keys[index])
+    with pytest.raises(FederationValidationError):
+        authenticate_bilateral_context(messages[0], authorities[0], messages[1], authorities[1], 150)

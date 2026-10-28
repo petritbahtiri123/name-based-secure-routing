@@ -307,8 +307,6 @@ class BilateralAuthorizer:
             route_context_digest,
             evidence.now,
         )
-        if replay_key in self._decisions:
-            return self._decisions[replay_key]
         proof = evidence.authority_proof
         if proof is None:
             outcome = (
@@ -365,6 +363,10 @@ class BilateralAuthorizer:
         )
         if invalid:
             return FederationResult(DecisionOutcome.REJECT, ReasonCode.ERR_AUTHORITY)
+        # Idempotent retries must still satisfy the current authority evidence.
+        # Revocation and policy changes can arrive within the same timestamp.
+        if replay_key in self._decisions:
+            return self._decisions[replay_key]
         result = FederationResult(DecisionOutcome.ACCEPT, ReasonCode.NONE)
         self._decisions[replay_key] = result
         return result
