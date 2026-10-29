@@ -26,22 +26,31 @@ func forwardBounded(ctx context.Context, application, secure io.ReadWriteCloser)
 	}
 	go copyDirection(secure, application)
 	go copyDirection(application, secure)
-	var first result
+	var combined error
+	done := ctx.Done()
 	closed := false
-	select {
-	case first = <-results:
-	case <-ctx.Done():
-		_ = application.Close()
-		_ = secure.Close()
-		closed = true
-		first.err = ctx.Err()
+	closeEndpoints := func() {
+		if !closed {
+			closed = true
+			_ = application.Close()
+			_ = secure.Close()
+		}
 	}
-	if first.err != nil && !closed {
-		_ = application.Close()
-		_ = secure.Close()
+	for remaining := 2; remaining > 0; {
+		select {
+		case completed := <-results:
+			remaining--
+			combined = errors.Join(combined, completed.err)
+			if completed.err != nil {
+				closeEndpoints()
+			}
+		case <-done:
+			combined = errors.Join(combined, ctx.Err())
+			done = nil
+			closeEndpoints()
+		}
 	}
-	second := <-results
-	return errors.Join(first.err, second.err)
+	return combined
 }
 
 type onceReadWriteCloser struct {
