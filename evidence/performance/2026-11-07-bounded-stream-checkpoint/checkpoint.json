@@ -1,0 +1,159 @@
+{
+  "schema": "nbsr-reviewed-benchmark-publication-v1",
+  "status": "VERIFIED_BENCHMARK_SOURCE_CHECKPOINT",
+  "branch_base": "0d93c86a24c07b5f59b2fc90fc3062baff889533",
+  "authorization": "Petriti explicitly requested pushing the working benchmark changes on 2026-11-07.",
+  "scope": "Exact measured release source, patched vendor, controller, collector, qualification tests, workload inputs and results. Source checkpoint only; no runtime integration, merge, protocol authority changes, or new live trial.",
+  "benchmark": {
+    "status": "THREE_BOUNDED_CELLS_COMPLETE",
+    "rows": [
+      {
+        "label": "baseline8",
+        "streams": 8,
+        "rate": 16000,
+        "offered": 320000,
+        "completed": 320000,
+        "unissued": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "useful_payload_mbps_each_direction": 131.072,
+        "measurement_ns": 20000000000,
+        "drain_ns": 254416,
+        "sampled_window_median_p99_us": 335.857,
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "drift_flags": [],
+        "source_cpu_usec": 8034463,
+        "destination_cpu_usec": 7234476,
+        "peak_memory_mib": {
+          "source": 38.4296875,
+          "destination": 38.15234375
+        },
+        "max_interface_mbps": 145.13118186693129,
+        "advance": true,
+        "cleanup_confirmed": true,
+        "accepted_evidence_sha256": "5a1b31f02816dfd9ad1e6ac49e01395704b8b0a3bb492ac5182be939ecc19d45"
+      },
+      {
+        "label": "streams16",
+        "streams": 16,
+        "rate": 16000,
+        "offered": 320000,
+        "completed": 320000,
+        "unissued": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "useful_payload_mbps_each_direction": 131.072,
+        "measurement_ns": 20000000000,
+        "drain_ns": 304152,
+        "sampled_window_median_p99_us": 456.846,
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "drift_flags": [],
+        "source_cpu_usec": 7543602,
+        "destination_cpu_usec": 6959702,
+        "peak_memory_mib": {
+          "source": 38.5859375,
+          "destination": 38.21484375
+        },
+        "max_interface_mbps": 145.21055930045645,
+        "advance": true,
+        "cleanup_confirmed": true,
+        "accepted_evidence_sha256": "2182ee298bfd13822ee3518b0adadae35bcc86bb0552ea8c49d52ffa340e1d2b"
+      },
+      {
+        "label": "rate24k",
+        "streams": 16,
+        "rate": 24000,
+        "offered": 480000,
+        "completed": 480000,
+        "unissued": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "useful_payload_mbps_each_direction": 196.608,
+        "measurement_ns": 20000000000,
+        "drain_ns": 264002,
+        "sampled_window_median_p99_us": 514.056,
+        "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+        "drift_flags": [],
+        "source_cpu_usec": 10167410,
+        "destination_cpu_usec": 9115737,
+        "peak_memory_mib": {
+          "source": 38.58203125,
+          "destination": 38.11328125
+        },
+        "max_interface_mbps": 217.57432542196753,
+        "advance": true,
+        "cleanup_confirmed": true,
+        "accepted_evidence_sha256": "386dd8b190c31033629afa062a81fc718068a4f820f118879c9cbcb5a8db8fcb"
+      }
+    ],
+    "unrun_cells": [],
+    "stop": null,
+    "release_pins": {
+      "build_manifest_sha256": "2789558794e885099a3db24dd4cc3fc8ee2624f9d2f86fc7abd0b7d743ff41b5",
+      "client_binary_sha256": "fb1183a486bce963b4e10b11ff3bf21fd99c54d9b787beec2d96abe21b037c0e",
+      "server_binary_sha256": "bfdd00369b77ce272d187d7558b51ddb29a0e28e05bfccf6de4f4898ea4f8d23",
+      "runtime_source_sha": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "manifest_canonical_sha256": "d684f60f7b686630e42149e880af9ae8039de7e406db20174e9b336fe09f7eee"
+    },
+    "purpose12_worktree_deployed": false,
+    "classification": "CONTROLLED_OFFERED_LOAD_AND_STREAM_OBSERVATIONS_NOT_MAXIMUM_CAPACITY",
+    "same_physical_host": true,
+    "limits": {
+      "work": 60,
+      "collection": 80,
+      "finalization": 100,
+      "coordinator": 105,
+      "wrapper": 115,
+      "service_runtime": 70,
+      "cpu_percent": 100,
+      "memory_bytes": 536870912,
+      "tasks": 128,
+      "swap_bytes": 0,
+      "local_retained_gib": 7,
+      "free_start_gib": 11,
+      "free_runtime_gib": 10,
+      "arm_growth_mib": 32,
+      "command_output_mib": 16
+    },
+    "network_guard_mbps": 300,
+    "no_replacements": true,
+    "measured_seconds": 60,
+    "tools": {
+      "python": "3.14.6",
+      "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+      "cargo": "1.97.1 (c980f4866 2026-06-30)"
+    },
+    "review": {
+      "agent": "review_purpose12_option_a",
+      "blocking_finding": "stale qualification could silently repin changed sources",
+      "fixed": "qualification-time manifest plus exact workload/identity checked before enable; reuse verified pins for staging",
+      "red": "5 failures/1 pass",
+      "green": "6 passed plus all3exactworkloadqualifications"
+    },
+    "qualification_initial_failure": "Test helper passed remote endpoint to destination command; corrected to None before qualifications/VM actions. No workload launched by this failure.",
+    "next_decision": "Use measured CPU/latency/offer data to select next controlled increment; 10Gbit/s needs separately justified network/CPU/topology envelope. No investor contact."
+  },
+  "benchmark_index_sha256": "b58c0e35382fdd6820a4ed3c7d5038a0e0b6681c38196abd435d5f28f998d570",
+  "snapshot": {
+    "path": "source-and-controller-snapshot.zip",
+    "sha256": "98930338cf604b5ef69670ead1acdf96dea9242d20ad24168967587a0379989e",
+    "bytes": 2284444,
+    "entries": 767,
+    "source_checkpoint_sha256": "ce0a8b4b745f290d6026798d5a04f26dc79c56e7458ddff0e1a01cde2a4d92d4",
+    "excluded_unrelated_entry": "performance/development-inventory.json",
+    "transformation": "Only the broader development inventory was omitted and the archive member manifest regenerated. All retained source/data bytes are identical."
+  },
+  "reuse": [
+    "Check snapshot SHA-256 and each member against snapshot-manifest.json before reading or restoring selected files.",
+    "release-source preserves the measured application, patched Quinn sources, lockfiles, build script, manifest and binary hashes; binaries and dependency caches are not embedded.",
+    "performance preserves the exact collector/controller and historical workload qualifications; machine paths, VM aliases, run identities and prior-state requirements are historical inputs, not a portable ready-to-run launcher.",
+    "Fresh environment/identity/source changes require new qualification and applicable live authorization; do not reuse historical hashes as approval for changed code.",
+    "Full raw VM evidence remains retained locally under throughput-streams01 and is pinned by the published evidence index."
+  ],
+  "interpretation": [
+    "Intermittent issue remains unexplained; do not claim fixed.",
+    "10Gbit/s remains objective; current guard300Mbit/s and same-host topology cannot prove it.",
+    "More offered load plus more streams is not evidence that stream count alone caused throughput change.",
+    "No READY/real trust activation, pilot or investor communication."
+  ]
+}
