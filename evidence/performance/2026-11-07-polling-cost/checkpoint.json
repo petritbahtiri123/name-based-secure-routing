@@ -1,0 +1,61 @@
+{
+  "schema": "nbsr-polling-cost-checkpoint-v1",
+  "status": "STOP_LOCAL_CONTROL_POST_HEADROOM_FAILED",
+  "promoted": false,
+  "local_tests": 108,
+  "local_arms_attempted": 1,
+  "replacements": 0,
+  "benchmark_workloads": 0,
+  "remote_sessions": 0,
+  "observed_control_only": {
+    "local_idle_seconds": 12.0473736,
+    "job_cpu_ns": 437500000,
+    "monitor_cpu_ns": 140625000,
+    "job_cpu_percent": 3.631496909832696,
+    "monitor_cpu_percent": 1.1672668638747952,
+    "job_peak_bytes": 20877312,
+    "pre_seconds": 5.908841099939309,
+    "post_seconds": 6.10042169992812,
+    "close_seconds": 6.03537579998374,
+    "post_begin_to_broker_request_seconds": 2.991296899970621,
+    "post_request_to_reply_publication_seconds": 0.0016512000001966953,
+    "post_publication_to_client_admission_seconds": 3.107473599957302
+  },
+  "cleanup_confirmed": true,
+  "source_scope": {
+    "changed": [
+      "cells/controller/session_broker.py",
+      "cells/controller/session_owner.py"
+    ],
+    "new_helper": "session_wait.py",
+    "control_files": 283,
+    "manifest_sha256": "9cbf081e2d5d292fc18543de5ece697554c53ab20aa6587d616d4dc31a0d9d28",
+    "pinned_inputs": 616
+  },
+  "not_run": [
+    "b1 candidate",
+    "b2 candidate",
+    "a2 return control",
+    "q1/q2 VM qualification",
+    "32/16 VM benchmark",
+    "protocol quick wins"
+  ],
+  "interpretation": "A1 used unchanged PRE15/control polling, not the50ms candidate. Its POST remained inside hard10s but failed fixed5s headroom, so this finite screen stopped. No candidate CPU comparison or improvement result exists. Local pipe reproduces slow guarded admission without SSH/VM; existing timestamps bracket delay before request and after reply, not exact guard/OS causation. CPU values are descriptive retained control data, not an accepted qualification or cross-environment regression.",
+  "unresolved": [
+    "Whether50ms idle polling reduces CPU while preserving response/cleanup screens.",
+    "The intermittent NBSR/Direct QUIC issue and exact cause of local controller delay.",
+    "A valid fresh32/16 benchmark comparison; sustainable/maximum throughput and10Gbit/s remain unproved."
+  ],
+  "resume": "Session stopped as requested. Do not rerun spent slots or relax thresholds. A later session must review this control-only failure and existing guard evidence before defining any new bounded discriminator; no new series is started now.",
+  "index": {
+    "sha256": "86aa411849adfbbe2c2f7bfe77e525a401936c803beccbe4439362f00ce0081a",
+    "indexed_files": 2373
+  },
+  "archive": {
+    "file": "polling-cost-diagnostic.zip",
+    "sha256": "cc03266d6758175a68ec2bd339f82d8231c9a74eca4273df2bf936dda0dedbfb",
+    "bytes": 2200815,
+    "members": 2374
+  },
+  "scope": "Preserve reviewed candidate and failed control-only qualification. No runtime promotion, accepted benchmark, protocol/architecture or access-policy change. Session stopped as requested."
+}
