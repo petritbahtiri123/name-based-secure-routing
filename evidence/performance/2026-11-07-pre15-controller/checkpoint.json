@@ -1,0 +1,115 @@
+{
+  "schema": "nbsr-pre15-controller-checkpoint-v1",
+  "status": "PRE15_TIME_GATES_PASSED_IDLE_CPU_QUALIFICATION_FAILED",
+  "promoted": false,
+  "local_tests": 86,
+  "benchmark_workloads": 0,
+  "cost": {
+    "local_idle_seconds": 10.1356559,
+    "remote_idle_seconds": 13.480669016,
+    "job_cpu_percent": 1.3874287109529835,
+    "monitor_cpu_percent": 1.2332699652915406,
+    "remote_cpu_percent": 0.0023144251938067165,
+    "job_cpu_ns": 140625000,
+    "monitor_cpu_ns": 125000000,
+    "remote_cpu_ns": 312000,
+    "job_peak_bytes": 23126016,
+    "remote_peak_bytes": 14024704,
+    "pre_seconds": 11.577924199984409,
+    "post_seconds": 3.307774000102654,
+    "close_seconds": 3.298776299925521
+  },
+  "time_screens": {
+    "pre_hard": 15,
+    "pre_screen": 13,
+    "post_hard": 10,
+    "post_screen": 5,
+    "close_hard": 10,
+    "passed_in_this_observation": true
+  },
+  "calibration": {
+    "server_minus_client_ns": [
+      -2157676210,
+      -2154422696
+    ],
+    "span_ns": 14042037087,
+    "conditional_relative_drift_ppm": 100,
+    "all_samples_retained": true,
+    "maximum_informative_event_width_ns": 200000000,
+    "scope": "Temporal association only; actual counter brackets and origin uncertainty must also be included."
+  },
+  "history": {
+    "historical_note": {
+      "path": "C:\\Users\\bajra\\Documents\\Codex\\2026-11-03\\task\\expiry-source-audit\\edge-candidate\\server-availability01\\stream-frame-discriminator01\\frame-diagnostic-header07\\CONTROL-RESULT-2026-11-05.md",
+      "sha256": "cd79a8c57fa7d31b529b408eefd7f04d9b446bf04800236c18be60cf29864437"
+    },
+    "historical_window15": {
+      "path": "C:\\Users\\bajra\\Documents\\Codex\\2026-11-03\\task\\expiry-source-audit\\edge-candidate\\server-availability01\\stream-frame-discriminator01\\frame-diagnostic-header07\\calibration_sequence.py",
+      "sha256": "cf18d3eb0b5f5556b74c3bb5d63d8958cf8cae9259948dc5e89507b5029beac1"
+    },
+    "inherited_window10": {
+      "path": "C:\\Users\\bajra\\Documents\\Codex\\2026-11-03\\task\\expiry-source-audit\\fs-reserve-candidate01\\pair-candidate01\\run-sea1\\calibration_sequence.py",
+      "sha256": "d3233c40a523cf22b2bc2a25abb4893171983d8771eee8b8717a3afd59a9e3dc"
+    },
+    "coordinator_support": {
+      "path": "C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\recv-error-coordinator01\\support\\calibration_sequence.py",
+      "sha256": "d3233c40a523cf22b2bc2a25abb4893171983d8771eee8b8717a3afd59a9e3dc"
+    },
+    "current_window10": {
+      "path": "C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\pre-guard-boundaries01\\cells\\controller\\calibration_sequence.py",
+      "sha256": "4cc544b95503ff5b0e20d5951f1540a29b0880de18af98ea0b6778fa7df56481"
+    },
+    "internal_clock": {
+      "path": "C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\pre-guard-boundaries01\\cells\\controller\\internal_clock.py",
+      "sha256": "3d2555f94b873897ef286b12677bf040f22619108ecfbe9bfd2eb0f7a2d8fc21"
+    },
+    "current_vs_historical_diff": [
+      "--- current10\n",
+      "+++ historical15\n",
+      "@@ -4,7 +4,7 @@\n",
+      "     def __init__(self,anchor,clock=time.monotonic):",
+      "         self.anchor=anchor;self.clock=clock;self.phase_end=anchor+78;self.end=anchor+88",
+      "     def admit_pre(self):",
+      "-        if not 0<=self.clock()-self.anchor<=10:raise TimeoutError('pre calibration/startup budget')",
+      "+        if not 0<=self.clock()-self.anchor<=15:raise TimeoutError('pre calibration/startup budget')",
+      "     def check_work(self):",
+      "         if self.clock()>=self.phase_end:raise TimeoutError('calibration workload phase budget')",
+      "     def post_budget(self):"
+    ],
+    "current_matches_inherited_run_sea1": false,
+    "support_matches_run_sea1": true,
+    "confirmed": "10s is an internally introduced controller sub-budget. A prior 15s PRE correction retained anchor+78, anchor+88 and actual <=90s envelope. Current support was inherited from the older run-sea1 10s branch.",
+    "not_established": "No retained statement inspected explains a quantitative derivation for exactly 10s or why the prior 15s correction was not selected for the newer coordinator.",
+    "possible_change_not_applied": "PRE-only 15s would change the initial admission criterion, not extend 78/88/90 totals. Extra startup consumes existing later-phase slack. Current OwnedSession/Client per-request clamps also require explicit PRE-vs-POST separation; POST must not silently become15s. Fresh boundary/remaining-budget/cleanup tests and preregistered management qualification required. No historical invalid attempt is reclassified.",
+    "current_matches_inherited_normalized_text": true,
+    "raw_difference_explanation": "Text equals inherited source; raw bytes differ in line ending normalization."
+  },
+  "indexes": {
+    "pre15-controller01": {
+      "sha256": "5bb6a9d668e3d3e68f2a020f192fc6e82b3f483c04624d064c204f4bd95fd156",
+      "indexed_files": 1471
+    },
+    "split-resource-guard01": {
+      "sha256": "7ff0f731d0c7353e9607ecaf82e7abbe7500fc84d7e20d286a9b25f28d657d54",
+      "indexed_files": 454
+    }
+  },
+  "cleanup_confirmed": true,
+  "attempted_management_sessions": 1,
+  "q2": "NOT_RUN_AFTER_STOP",
+  "replacements": 0,
+  "rejected_split_guard": {
+    "path": "split-resource-guard01",
+    "status": "NOT_QUALIFIED_ABANDONED_DIRECTORY_LEASE_PATH",
+    "index_sha256": "7ff0f731d0c7353e9607ecaf82e7abbe7500fc84d7e20d286a9b25f28d657d54"
+  },
+  "next_hypothesis": "The existing20ms polling loops in the local Job monitor and broker request wait may contribute to added localCPU. Aggregate Job CPU does not identify which child consumed it; this is a hypothesis, not a proved cause.",
+  "next_discriminator": "A separately declared finite local paired polling-cost/response/cleanup test could evaluate a smaller polling rate while preserving all absolute deadlines and original1% threshold. Do not rerun q1/q2 or widen CPU thresholds; no VM workload until a new qualified candidate exists.",
+  "archive": {
+    "file": "pre15-and-split-diagnostics.zip",
+    "sha256": "6927d6df9b574052fe65cc52531c12684667cf2bd989a1c993c5171e18ee2c95",
+    "bytes": 2033713,
+    "members": 1927
+  },
+  "scope": "Archive two bounded controller investigations and their failures. No runtime promotion, accepted benchmark, NBSR protocol change or claim of historical equivalence."
+}
