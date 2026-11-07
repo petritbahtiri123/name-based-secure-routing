@@ -1,0 +1,139 @@
+{
+  "schema": "nbsr-pre-guard-boundary-diagnostic-v1",
+  "status": "PRE_OBSERVATION_DELAY_MEASURED_BENCHMARK_STILL_BLOCKED",
+  "promoted": false,
+  "local_tests": 26,
+  "analysis": {
+    "finding": "REPLY_BUFFERED_DURING_GUARD_WITHOUT_DEADLINE_CROSSING",
+    "pre_status": "REJECTED_AT_ORIGINAL_PRE_DEADLINE",
+    "guards": [
+      {
+        "guard": 1,
+        "phase": "before_start",
+        "begin_s": 0.0031378,
+        "end_s": 1.5844101,
+        "wall_s": 1.5812723,
+        "resource_check_s": 1.5745524,
+        "other_guard_s": 0.0067199
+      },
+      {
+        "guard": 2,
+        "phase": "waiting_for_PRE",
+        "begin_s": 1.6054178,
+        "end_s": 3.2923651,
+        "wall_s": 1.6869473,
+        "resource_check_s": 1.6867232,
+        "other_guard_s": 0.0002241
+      },
+      {
+        "guard": 3,
+        "phase": "waiting_for_PRE",
+        "begin_s": 3.3129279,
+        "end_s": 4.9326121,
+        "wall_s": 1.6196842,
+        "resource_check_s": 1.6193985,
+        "other_guard_s": 0.0002857
+      },
+      {
+        "guard": 4,
+        "phase": "waiting_for_PRE",
+        "begin_s": 4.9536279,
+        "end_s": 6.5766062,
+        "wall_s": 1.6229783,
+        "resource_check_s": 1.6224719,
+        "other_guard_s": 0.0005064
+      },
+      {
+        "guard": 5,
+        "phase": "waiting_for_PRE",
+        "begin_s": 6.5977419,
+        "end_s": 8.2233171,
+        "wall_s": 1.6255752,
+        "resource_check_s": 1.6252993,
+        "other_guard_s": 0.0002759
+      },
+      {
+        "guard": 6,
+        "phase": "waiting_for_PRE",
+        "begin_s": 8.2442999,
+        "end_s": 9.9916575,
+        "wall_s": 1.7473576,
+        "resource_check_s": 1.7471067,
+        "other_guard_s": 0.0002509
+      }
+    ],
+    "guard_count": 6,
+    "guard_total_s": 9.8838149,
+    "resource_check_total_s": 9.875552,
+    "resource_fraction_of_guard_time": 0.9991639968895006,
+    "ready_s": 7.778234700090252,
+    "pre_request_s": 7.786106700077653,
+    "pre_reply_s": 8.91711490007583,
+    "reply_inside_guard": 6,
+    "deadline_crossing_guards": [],
+    "reply_to_containing_guard_end_s": 1.07454259992417,
+    "after_initial_guard_to_ready_s": 6.193824600090252,
+    "last_guard_margin_to_cutoff_s": 0.008342499999999475,
+    "limitations": [
+      "Current instrumented observation only; cannot reconstruct historical exit or guard times.",
+      "Resource-check wall time includes traversal, its thread join and scheduling; it does not isolate disk I/O,CPU or contention.",
+      "Between initial guard and READY are owned launch/client setup and the existing SSH route; this is not a packet-level network measurement.",
+      "Broker uses monotonic seconds and guards use monotonic nanoseconds; conversion/float rounding is submicrosecond at this observation scale."
+    ]
+  },
+  "failure_site": "Final client check after PRE and READY validation; the last guard itself ended8.3425ms before10s.",
+  "attempts": {
+    "cold_pre": 1,
+    "read_only_cleanup_ssh": 1,
+    "replacements": 0,
+    "post": 0,
+    "endpoint_workloads": 0
+  },
+  "cleanup": {
+    "local_closed": true,
+    "local_closed_seconds": 10.029296800028533,
+    "remote_confirmed": true,
+    "remote_execution_valid": false,
+    "remote_identities": [
+      {
+        "identity": {
+          "pid": 299427,
+          "pgrp": 299426,
+          "start_ticks": 87225353,
+          "uid": 1001,
+          "gid": 1001
+        },
+        "current": null,
+        "original_present": false,
+        "group_present": false
+      },
+      {
+        "identity": {
+          "pid": 299428,
+          "pgrp": 299428,
+          "start_ticks": 87225378,
+          "exit": 0,
+          "group_empty": true
+        },
+        "current": null,
+        "original_present": false,
+        "group_present": false
+      }
+    ]
+  },
+  "evidence_index_sha256": "e74db8141ecdf312ee9ae03707403ff829159e971ed90b1602babe88b7711f68",
+  "source_provenance": {
+    "copied_parent_files": 283,
+    "copied_parent_bytes_unchanged": true,
+    "capture_inputs": 296,
+    "capture_manifest_sha256": "e2bf87e507bfd39141bf391caba15688a9c5cfc726552e085bb7de03243dd481"
+  },
+  "archive": {
+    "file": "guard-boundary-diagnostic.zip",
+    "sha256": "9270e7788f88ad95da07db96c90de15cbd7a08680976ffb721a77b458225aaea",
+    "bytes": 844944,
+    "members": 425
+  },
+  "scope": "Archive one approved diagnostic and its source/evidence. No benchmark result, architecture change or controller promotion.",
+  "pending": "Broader resource-guard contract changes require Petriti approval; the diagnosis does not authorize replacing checks or changing10s."
+}
