@@ -1,0 +1,186 @@
+{
+  "schema": "nbsr-bounded-rate28k-checkpoint-v1",
+  "status": "ONE_ACCEPTED_20S_RATE_CELL",
+  "summary": {
+    "status": "COMPLETED_ONE_BOUNDED_RATE_CELL",
+    "streams": 16,
+    "offered_rate": 28000,
+    "measurement_seconds": 20,
+    "accounting": {
+      "integrity_complete": true,
+      "scheduled": 560000,
+      "issued": 560000,
+      "completed": 560000,
+      "unissued": 0,
+      "failed": 0,
+      "unresolved": 0
+    },
+    "useful_payload_mbps_each_direction": 229.376,
+    "max_interface_mbps": 253.95213877676446,
+    "sampled_window_median_p50_us": 402.608,
+    "sampled_window_median_p95_us": 474.167,
+    "sampled_window_median_p99_us": 496.307,
+    "latency_scope": "median of steady-window quantiles, not pooled quantiles",
+    "steady_windows": 19,
+    "max_source_reservation_lateness_ns": 9706761,
+    "source_interior_cpu_one_core_fraction_bounds": [
+      0.4803007620167865,
+      0.48030838963694195
+    ],
+    "source_interior_seconds_bounds": [
+      19.882217771,
+      19.882533519
+    ],
+    "source_interior_counter_delta": {
+      "usage_usec": 9549596,
+      "user_usec": 4796616,
+      "system_usec": 4752979,
+      "core_sched.force_idle_usec": 0,
+      "nr_periods": 199,
+      "nr_throttled": 0,
+      "throttled_usec": 0,
+      "nr_bursts": 0,
+      "burst_usec": 0
+    },
+    "final_errors": 0,
+    "final_timeouts": 0,
+    "collector_overflow": 0,
+    "drain_ns": 271083,
+    "drift_flags": [],
+    "metrics": {
+      "source": {
+        "role": "source",
+        "failure": null,
+        "exit": 0,
+        "samples": 31,
+        "elapsed": 30.6930284940172,
+        "peak_memory_mib": 38.6015625,
+        "peak_tasks": 6,
+        "min_available_mib": 3360.3515625,
+        "max_tx_mbps": 253.80839723309518,
+        "max_rx_mbps": 253.71324278671355,
+        "drops_delta": 0,
+        "errors_delta": 0,
+        "service_cpu_usec": 11725454
+      },
+      "destination": {
+        "role": "destination",
+        "failure": null,
+        "exit": 0,
+        "samples": 26,
+        "elapsed": 25.09573000401724,
+        "peak_memory_mib": 38.2421875,
+        "peak_tasks": 4,
+        "min_available_mib": 3377.46484375,
+        "max_tx_mbps": 253.95213877676446,
+        "max_rx_mbps": 253.9141935647264,
+        "drops_delta": 0,
+        "errors_delta": 0,
+        "service_cpu_usec": 11004350
+      }
+    },
+    "owned_cleanup_confirmed": true,
+    "advance_gate_passed": true,
+    "stop": null,
+    "replacement_runs": 0,
+    "release_pins": {
+      "build_manifest_sha256": "2789558794e885099a3db24dd4cc3fc8ee2624f9d2f86fc7abd0b7d743ff41b5",
+      "client_binary_sha256": "fb1183a486bce963b4e10b11ff3bf21fd99c54d9b787beec2d96abe21b037c0e",
+      "server_binary_sha256": "bfdd00369b77ce272d187d7558b51ddb29a0e28e05bfccf6de4f4898ea4f8d23",
+      "runtime_source_sha": "47d2ae41df49fedd21768db5fa6be71377acebf3",
+      "manifest_canonical_sha256": "d684f60f7b686630e42149e880af9ae8039de7e406db20174e9b336fe09f7eee"
+    },
+    "qualification_sha256": "49cb4dea2f8d121f9fdec86af4105bf4cf3164d479b8e9c2b5d40a87931d67a7",
+    "accepted_sha256": "88ca492c4d54daa8d785251aa97f3e05a136ec2a46dadaea110573fd465de632",
+    "parent_index_sha256": "b58c0e35382fdd6820a4ed3c7d5038a0e0b6681c38196abd435d5f28f998d570",
+    "plan_sha256": "607ed426e61850042890897f03d6cb48ae67a12eaf30b240e6831ec0f71c5ed5",
+    "same_physical_host": true,
+    "interpretation": [
+      "Controlled offered-load observation, not maximum or sustainable capacity.",
+      "Source interior CPU samples include support and do not rule out scheduler/host effects.",
+      "The prior 24k cell is historical context, not a matched randomized before/after control.",
+      "Unissued offers are distinct from failed packets; no intermittent-cause fix is established.",
+      "10 Gbit/s remains unachieved; 300Mbit/s/one-core/512MiB bounds remain unchanged.",
+      "VM release remains 47d2ae4; no protocol trust activation, main change or new Git branch."
+    ]
+  },
+  "plan": {
+    "schema": "nbsr-bounded-stream-throughput-followup-v1",
+    "parent": "throughput-streams01",
+    "parent_index_sha256": "b58c0e35382fdd6820a4ed3c7d5038a0e0b6681c38196abd435d5f28f998d570",
+    "authorization": "Petriti authorized continued bounded VM development/testing; parent delegated the next valuable approved step after benchmark push. No architecture or resource-envelope change.",
+    "maximum_cells": 1,
+    "maximum_measured_seconds": 20,
+    "retry_or_replacement": false,
+    "purpose": "Increasing only offered rate from 24000 to 28000 at 16 streams may approach the unchanged 10ms reservation expiry before sustained CPU quota or network guard saturation. A clean pass extends observed capability only; a miss must be interpreted with existing counters, not called packet loss.",
+    "limits": {
+      "work": 60,
+      "collection": 80,
+      "finalization": 100,
+      "coordinator": 105,
+      "wrapper": 115,
+      "service_runtime": 70,
+      "cpu_percent": 100,
+      "memory_bytes": 536870912,
+      "tasks": 128,
+      "swap_bytes": 0,
+      "local_retained_gib": 7,
+      "free_start_gib": 11,
+      "free_runtime_gib": 10,
+      "arm_growth_mib": 32,
+      "command_output_mib": 16
+    },
+    "unchanged": {
+      "connections": 1,
+      "depth": 1,
+      "payload_bytes": 1024,
+      "warmup_seconds": 3,
+      "measurement_seconds": 20,
+      "expiry_ms": 10,
+      "mode": "off",
+      "network_guard_mbps_each_direction": 300,
+      "guard_samples": 2,
+      "runtime_source_sha": "47d2ae41df49fedd21768db5fa6be71377acebf3"
+    },
+    "advance_gate": "All integrity/provenance/cleanup/resource gates pass; completed/offered>=0.999; no overflow or failed/unresolved operations. Stop if observed sampled-window p99 doubles without throughput benefit. No automatic retry.",
+    "report": [
+      "offered/reserved/issued/completed/unissued separately",
+      "goodput per direction and interface rate separately",
+      "sampled window quantiles; not pooled p99",
+      "CPU use and memory; throttling observations",
+      "exact release/runtime/control hashes and cleanup"
+    ],
+    "non_claims": [
+      "10 Gbit/s not achieved or guaranteed",
+      "same physical host not WAN or multi-host",
+      "test-only KAR patch not deployed into transport benchmark",
+      "unissued offer slots are not packet loss",
+      "existing intermittent issue not declared solved"
+    ],
+    "cells": [
+      {
+        "label": "rate28k",
+        "id": 28,
+        "streams": 16,
+        "rate": 28000,
+        "scheduled": 560000,
+        "nominal_payload_mbps_each_direction": 229.376
+      }
+    ],
+    "prior_analysis_sha256": "6b0d51b2036ec1d896cfc8d5e879ffea2b052f7c3cfdeb39ba7ff291e4b8341d"
+  },
+  "evidence_index_sha256": "712cd48c195661b05308021213da59396420078baf472b57aad41174c33c6cdd",
+  "input_delta": {
+    "file": "qualified-input-delta.zip",
+    "sha256": "52fd12db8024316f9b997cd958ce1822a294d7b0785182c684a7f87e617f8637",
+    "bytes": 85353,
+    "archive_members": 21,
+    "reconstructed_targets": 284,
+    "reused_base_entries": 264,
+    "base_archive": "evidence/performance/2026-11-07-bounded-stream-checkpoint/source-and-controller-snapshot.zip",
+    "base_sha256": "98930338cf604b5ef69670ead1acdf96dea9242d20ad24168967587a0379989e"
+  },
+  "source_scope": "Exact qualified workload/controller delta and existing source references. No protocol implementation, architecture, resource-budget or benchmark-binary change.",
+  "raw_evidence": "Retained locally at throughput-followup02; full inventory is included in the delta. No private keys, credentials or release binaries included.",
+  "next_hypothesis": "At fixed 28000 operations/s, a separately qualified stream-count comparison could test whether more in-flight streams reduce reservation lateness. Current maximum 9.706761ms is close to the unchanged 10ms expiry. No next trial is activated by this checkpoint."
+}
