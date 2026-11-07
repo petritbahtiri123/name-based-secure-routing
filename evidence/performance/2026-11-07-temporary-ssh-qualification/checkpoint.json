@@ -1,0 +1,78 @@
+{
+  "schema": "nbsr-temporary-ssh-diagnostic-checkpoint-v1",
+  "status": "NOT_QUALIFIED_NOT_PROMOTED",
+  "promoted": false,
+  "local_tests": 58,
+  "independent_review_model": "GPT-6 Astra",
+  "review_important_findings_addressed": 5,
+  "parent_loss_fixture": {
+    "status": "PASS_PARENT_LOSS_ABSOLUTE_EXPIRY",
+    "helper_exit": -9,
+    "probe_identity": {
+      "pid": 299167,
+      "pgrp": 299167,
+      "start_ticks": 87081752
+    },
+    "absolute_deadline_seconds": 2.5,
+    "exit_observed_seconds": 2.5091962220612913,
+    "group_absent_seconds": 2.509207802009769,
+    "observation_poll_seconds": 0.01,
+    "observation_allowance_seconds": 0.15,
+    "limitation": "The .15s allowance is observation scheduling only; watchdog deadline remains original70+2 mapping, not extended.",
+    "endpoint_workloads": 0
+  },
+  "qualification": {
+    "attempted_sessions": 1,
+    "maximum_sessions": 2,
+    "replacements": 0,
+    "q1": "STOP_INVALID_OR_UNQUALIFIED",
+    "q2": "NOT_RUN_AFTER_STOP",
+    "reason": "PRE original10s admission deadline crossed at Client.wait check immediately after the fresh synchronous resource guard.",
+    "timing_events": [
+      {
+        "event": "reply",
+        "operation": "READY",
+        "seconds": 7.832713799900375
+      },
+      {
+        "event": "request",
+        "operation": "PRE",
+        "seconds": 7.841003199922852
+      },
+      {
+        "event": "reply",
+        "operation": "PRE",
+        "seconds": 8.98283899994567
+      }
+    ],
+    "broker_cancelled_seconds": 10.254050499992445,
+    "local_empty_reaped_closed_seconds": 10.282434099935926,
+    "pre_inner_rtts_ns": [
+      422176,
+      324907,
+      343107
+    ],
+    "post": "NOT_RUN",
+    "idle_cost": "NOT_MEASURED",
+    "promotion_screen_post_seconds": 5,
+    "actual_exchange_cutoff_seconds": 10
+  },
+  "cleanup": {
+    "local_confirmed": true,
+    "remote_confirmed": true,
+    "remote_execution_valid": false,
+    "independent_remote_observation": "management/q1/calibration-remote-observation.json",
+    "interpretation": "Raw qualification.remote_closed=false means the success-only REMOTE_CLOSED gate failed. Independent receipt separately confirms absent helper/probe PID+start identities and both groups; raw status is retained unchanged."
+  },
+  "endpoint_workloads": 0,
+  "scope": "Preserved diagnostic source, tests and stopped qualification evidence only. Existing NBSR runtime, protocol, access policies and controllers are not replaced.",
+  "archive": {
+    "file": "diagnostic-candidate.zip",
+    "sha256": "0be7ea77325d732c75332183a3c551e7b3f4276963ef8797b57d239d34d74ed2",
+    "bytes": 1074790,
+    "members": 1081
+  },
+  "evidence_index_sha256": "9b492e1470c7a527eeb45f8126ba4ccefd6ad0f77f3faf50266033c36ea7868f",
+  "reproduction": "Historical exact Windows task/VM inputs, not a portable authorized launcher. Keep LIVE-DISABLED and the stopped attempt; any new candidate requires fresh qualification.",
+  "narrative": "Existing SHARED-EVIDENCE-AND-NEXT-TEST-2026-11-06.md remains canonical; no new narrative document."
+}
