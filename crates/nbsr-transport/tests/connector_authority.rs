@@ -17,6 +17,9 @@ use codec::{Value as V, bytes, get, map};
 use owner::{Binding, Gateway, Owner};
 use sha2::{Digest, Sha256};
 
+#[path = "support/connector_normal_kar.rs"]
+mod normal_kar;
+
 fn fixture() -> serde_json::Value {
     serde_json::from_str(include_str!(
         "../../../vectors/connector-authority-local-v1/cases.json"

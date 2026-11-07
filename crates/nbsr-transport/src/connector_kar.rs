@@ -8,29 +8,41 @@ use crate::{
 
 const MAX_TIME: u64 = 253_402_300_799;
 #[derive(Clone)]
-struct SuppliedTestRoot {
-    operator: [u8; 32],
-    kid: Vec<u8>,
-    key: [u8; 32],
-    purpose: u64,
-    lifecycle: u64,
-    generation: u64,
-    sequence: u64,
-    not_before: u64,
-    expires: u64,
-    revoked: bool,
+pub(crate) struct SuppliedTestRoot {
+    pub(crate) operator: [u8; 32],
+    pub(crate) kid: Vec<u8>,
+    pub(crate) key: [u8; 32],
+    pub(crate) purpose: u64,
+    pub(crate) lifecycle: u64,
+    pub(crate) generation: u64,
+    pub(crate) sequence: u64,
+    pub(crate) not_before: u64,
+    pub(crate) expires: u64,
+    pub(crate) revoked: bool,
 }
 #[derive(Clone)]
-struct ExpectedKey {
-    operator: [u8; 32],
-    kid: Vec<u8>,
-    key: [u8; 32],
-    purpose: u64,
+pub(crate) struct ExpectedKey {
+    pub(crate) operator: [u8; 32],
+    pub(crate) kid: Vec<u8>,
+    pub(crate) key: [u8; 32],
+    pub(crate) purpose: u64,
     // Explicit fixture context, not an authenticated revocation source.
-    terminal_ids: Vec<Vec<u8>>,
+    pub(crate) terminal_ids: Vec<Vec<u8>>,
 }
-struct VerifiedFixtureKar {
+pub(crate) struct VerifiedFixtureKar {
     _payload: Vec<u8>,
+    not_before: u64,
+    expires: u64,
+}
+impl VerifiedFixtureKar {
+    // Only the composed signature/semantic gate can create this receipt.
+    pub(crate) fn valid_window(&self, earliest: u64, latest: u64) -> Result<u64> {
+        require(
+            self.not_before <= earliest && earliest <= latest && latest <= self.expires,
+            "checked KAR/root validity window",
+        )?;
+        Ok(self.expires)
+    }
 }
 
 fn require(ok: bool, why: &'static str) -> Result<()> {
@@ -165,7 +177,7 @@ fn semantics(
     Ok(())
 }
 
-fn verify_genesis(
+pub(crate) fn verify_genesis(
     wire: &[u8],
     expected_payload: &[u8],
     root: &SuppliedTestRoot,
@@ -174,8 +186,12 @@ fn verify_genesis(
 ) -> Result<VerifiedFixtureKar> {
     let signed = signature::verify_exact(wire, expected_payload, &root.kid, &root.key)?;
     semantics(signed.payload(), root, expected, now)?;
+    let payload = codec::decode_value(signed.payload())?;
+    let fields = map(&payload)?;
     Ok(VerifiedFixtureKar {
         _payload: signed.payload().to_vec(),
+        not_before: root.not_before.max(uint(get(fields, 6)?)?),
+        expires: root.expires.min(uint(get(fields, 7)?)?),
     })
 }
 

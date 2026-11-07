@@ -25,6 +25,8 @@ fn composed_genesis_accepts_exact_subject_and_inclusive_validity() {
     for now in [1000, 1500, 2000] {
         let checked = verify_genesis(&wire, &payload, &root, &expected, now).unwrap();
         assert_eq!(checked._payload, payload);
+        assert_eq!(checked.valid_window(now, now).unwrap(), 2000);
+        assert!(checked.valid_window(now, 2001).is_err());
     }
     root.expires = 1500;
     assert!(verify_genesis(&wire, &payload, &root, &expected, 1500).is_ok());

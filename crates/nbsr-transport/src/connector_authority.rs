@@ -12,6 +12,10 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::Arc,
 };
+#[path = "connector_kar.rs"]
+mod kar;
+#[path = "connector_normal_kar.rs"]
+mod normal_kar;
 
 const PROFILE: &str = "nbsr-federation-revocation-inclusion-dev-v1";
 const GROUP: &str = "normal-revocation";
@@ -134,6 +138,7 @@ pub enum Applied {
     Idempotent,
 }
 pub struct LocalAuthorityProvider {
+    normal_eligibility: Option<normal_kar::Eligibility>,
     trust: J,
     policy: V,
     bundle: V,
@@ -148,16 +153,39 @@ pub struct LocalAuthorityProvider {
     events: BTreeMap<Vec<u8>, Vec<u8>>,
 }
 impl LocalAuthorityProvider {
+    pub fn from_normal_roster_kar_test_trust(
+        raw: &[u8],
+        expected: [u8; 32],
+        binding: Binding,
+        time: TimeWindow,
+    ) -> Result<Self> {
+        Self::from_context(raw, expected, binding, time, true)
+    }
     pub fn from_supplied_test_trust(
         raw: &[u8],
         expected: [u8; 32],
         binding: Binding,
         time: TimeWindow,
     ) -> Result<Self> {
+        Self::from_context(raw, expected, binding, time, false)
+    }
+    fn from_context(
+        raw: &[u8],
+        expected: [u8; 32],
+        binding: Binding,
+        time: TimeWindow,
+        with_kar: bool,
+    ) -> Result<Self> {
         check(raw.len() <= 262144 && hash(raw) == expected)?;
         let trust: J = serde_json::from_slice(raw).map_err(|_| "test trust JSON")?;
         check(trust["label"] == "SuppliedTestTrust" && trust["profile"] == PROFILE)?;
         let bundle = jv(&trust, "bundle")?;
+        let normal_eligibility = if with_kar {
+            Some(normal_kar::verify(&trust, &bundle, time)?)
+        } else {
+            check(trust.get("normal_kar").is_none() && trust.get("context_version").is_none())?;
+            None
+        };
         let policy = jv(&trust, "policy")?;
         let anchor = jv(&trust, "anchor")?;
         check(hash(&jb(&trust, "bundle")?) == jb(&trust, "bundle_digest")?)?;
@@ -190,7 +218,7 @@ impl LocalAuthorityProvider {
         let mut controls = BTreeSet::new();
         let mut refs = Vec::new();
         let mut public_keys = BTreeSet::new();
-        for signer in signers {
+        for (index, signer) in signers.iter().enumerate() {
             active(signer, time, 12)?;
             check(ju(signer, "class")? == 4)?;
             key_reference(signer, 4, 12, time)?;
@@ -210,11 +238,16 @@ impl LocalAuthorityProvider {
                     ),
             )?;
             let id = V::Bytes(jb(signer, "id")?);
+            let operator = if with_kar {
+                V::Bytes(jb(&trust["normal_kar"][index], "operator")?)
+            } else {
+                id.clone()
+            };
             refs.push(obj(vec![
                 (1, V::Uint(4)),
                 (2, id.clone()),
                 (3, V::Bytes(jb(signer, "kid")?)),
-                (4, id),
+                (4, operator),
             ]));
         }
         refs.sort_by_key(codec::encode);
@@ -301,6 +334,9 @@ impl LocalAuthorityProvider {
         )?;
         // These are explicitly supplied reference inventories, not verified genesis.
         for (field, class) in [(33, 1), (39, 14)] {
+            if with_kar && field == 33 {
+                continue;
+            } // Exact five checked roots above.
             let refs = a(f(&bundle, field)?)?;
             check(refs.len() == 1)?;
             exact(&refs[0], &[1, 2, 3, 4])?;
@@ -312,6 +348,7 @@ impl LocalAuthorityProvider {
             )?;
         }
         let mut provider = Self {
+            normal_eligibility,
             trust,
             policy,
             bundle,
@@ -345,6 +382,9 @@ impl LocalAuthorityProvider {
         Ok(())
     }
     fn fresh(&self, t: TimeWindow) -> Result<()> {
+        if let Some(eligibility) = &self.normal_eligibility {
+            eligibility.valid_window(t)?;
+        }
         check(
             n(&self.bundle, 6)? <= t.earliest
                 && t.latest <= n(&self.bundle, 7)?
@@ -452,6 +492,9 @@ impl LocalAuthorityProvider {
         ]);
         // The opaque event must not outlive any evidence used to mint it.
         let mut expires = n(&r, 7)?.min(n(auth, 4)?);
+        if let Some(eligibility) = &self.normal_eligibility {
+            expires = expires.min(eligibility.valid_window(t)?);
+        }
         let mut seen = BTreeSet::new();
         let mut order = Vec::new();
         for entry in entries {

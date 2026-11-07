@@ -339,8 +339,20 @@ Preserve historical checkpoint failures and source hashes when extending evidenc
 
 ## Isolated genesis KAR prerequisite
 
-`crates/nbsr-transport/src/connector_kar.rs` compiles only in the `connector_kar`
-integration-test target selected by Rust CI. Run that target with the existing
+The explicitly approved `normal-roster-kar-v2` supplied test context preserves
+the five class-4 authority IDs and existing purpose-12 keys, but binds each to a
+derived operator, purpose-1 test root and retained signed genesis KAR. Select
+`from_normal_roster_kar_test_trust` explicitly; the historical constructor rejects
+this context. The `connector_authority` target checks all five members and bounds
+verify/apply by every checked root/KAR/child validity window, including unsigned
+members. `python -m scripts.check_normal_roster_kar` is read-only, creates no
+signatures, and is covered by `tests/federation/test_normal_roster_kar.py`.
+These five public deterministic roots are test trust only. No membership/control
+provenance, purpose-14 authorization, registration admission, READY or live/runtime
+activation follows. Historical purpose-3 and normal-v1 fixture bytes remain pinned.
+
+`crates/nbsr-transport/src/connector_kar.rs` compiles in the `connector_kar` and
+`connector_authority` integration-test targets selected by Rust CI. Run with the existing
 offline/resource guards, plus `connector_signature` and `connector_control`.
 `tests/federation/test_key_authorization.py` is the unsigned Python neighbor.
 The gate preserves inclusive expiry and exact purpose/identity/root-authorizer
@@ -349,7 +361,8 @@ recovery. It has no authority/owner/READY conversion. Semantic positives and
 unchanged signed composed negatives are separate evidence. The retained public
 connector-kar-genesis-positive.json fixture now supplies composed verification
 without creating signatures; runtime_authorized remains false. Do not adjust
-historical root validity or synthesize purpose-12 normal-roster authorization.
+historical root validity or synthesize further purpose-12 authorization beyond the
+explicitly approved five-root test context above.
 See `docs/reviews/2026-10-11-kar-genesis-implementation.md` for this limitation.
 
 Windows Job observation reads membership before the leader handle so termination
