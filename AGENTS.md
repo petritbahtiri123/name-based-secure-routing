@@ -120,6 +120,25 @@ read their effects and confirm they are within the task before running them.
 - Clean up only resources created by the task. Preserve existing images, volumes,
   caches and unrelated containers. Do not publish private keys, tokens or raw secrets.
 
+## SPHERE SSH from the connected laptop
+
+- Use the existing Windows OpenSSH aliases: `ssh nbsr-client` and
+  `ssh nbsr-server`. Inspect the current user SSH config first; these aliases
+  already route through `nbsr-xdc` and `sphere-jump`. Do not remove ProxyJump
+  or assume the private VM addresses are directly reachable from Windows.
+- Run from the connected laptop, not the cloud workspace. A successful Jupyter
+  login does not establish workstation SSH or CLI authentication. Start with a
+  bounded read-only hostname check using the existing identity and host-key checks.
+- For authorized administrative work after logging into the test VM, use
+  `sudo -i` (lowercase i). This does not authorize security-setting changes.
+- If SSH fails, preserve the exact error and execution environment. Distinguish
+  socket/connect failures from authentication failures and tool denials; do not
+  bypass a denial, regenerate credentials, or alter network settings as a retry.
+- Reachability and a generic process-name scan do not prove prior run cleanup.
+  Verify the exact run receipts/process identities before another measured run.
+  Do not overlap live dashboard collection with measurement until its transport
+  and resource overhead satisfy the existing measurement gates.
+
 ## Maintain this guidance with the change
 
 When a change alters setup/test commands, repository layout, verified workflows,
