@@ -424,6 +424,16 @@ trusted-local mapping limits and the unexecuted standalone staging/diagnostic pl
 
 ## Local Demo Lab
 
+The Demo Lab fixture generator manifest is explicitly registered in
+`scripts/verify_wp8_repository_safety.py`: only module
+`nbsr.local/demo-lab/fixturegen` and Go `1.26.5` are accepted. Preserve the
+closed inventory and historical dependency hashes; additional directives or
+`go.sum` require a separate dependency review. Focused synthetic regressions:
+`python -m pytest -q -p no:cacheprovider tests/federation/test_repository_safety.py -k demo_`.
+The full repository inventory check requires a complete checkout; synthetic
+fixtures do not establish that full-checkout result.
+
+
 Read `tools/demo-lab/README.md` before changing the active local dashboard,
 `scripts/demo/setup-demo.*` or `scripts/demo/start-demo-lab.*`. Run focused
 component checks with `python -m pytest -q -p no:cacheprovider tools/demo-lab/tests`
