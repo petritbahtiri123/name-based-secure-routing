@@ -157,3 +157,9 @@ instructions, model settings, approval/sandbox/network permissions or credential
 as part of documentation upkeep. Codex loading behavior is described in the
 [official AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md/);
 other agents may need explicit loading and have different instruction precedence.
+
+## Local Demo Lab
+
+For `tools/demo-lab` and its setup/launcher wrappers, read
+[Local Demo Lab guidance](docs/agents/AREA_GUIDANCE.md#local-demo-lab).
+Historical demo verification pins remain separate from current-source receipts.

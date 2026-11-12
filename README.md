@@ -298,3 +298,11 @@ safety, crash durability, or live resource scheduling.
 
 The current Windows adapter behavior is unit/in-process tested. It is not a
 validated full-device Windows networking deployment.
+
+## Local Demo Lab development preview
+
+[Demo Lab setup and presentation playbook](tools/demo-lab/README.md) describes
+local browser controls, fixed scenarios and independent receipt verification.
+Windows live acceptance is pending; Mac-hosted Linux container execution awaits
+verified image preparation and native host acceptance. This preview is separate from historical demo evidence
+and benchmark results.

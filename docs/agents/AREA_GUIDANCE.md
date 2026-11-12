@@ -421,3 +421,38 @@ namespace ambiguity and overlapping output/input mounts; inspect sources exactly
 Run tests/performance/test_adopted_metadata_compatibility.py with the adoption
 neighbors. See docs/benchmarks/LOCAL_ADOPTED_CAMPAIGN.md for Windows-only checks,
 trusted-local mapping limits and the unexecuted standalone staging/diagnostic plan.
+
+## Local Demo Lab
+
+Read `tools/demo-lab/README.md` before changing the active local dashboard,
+`scripts/demo/setup-demo.*` or `scripts/demo/start-demo-lab.*`. Run focused
+component checks with `python -m pytest -q -p no:cacheprovider tools/demo-lab/tests`
+using an existing environment; the HTTP boundary test needs loopback permission
+and uses a fake coordinator, not live NBSR. Preserve fixed scenario allowlists,
+exact Host/Origin/session checks, owned cleanup and source/binary provenance.
+Keep historical `scripts/demo/verify-nbsr-demo.py` pins unchanged. Negative
+fixture regressions must not be relabeled live unauthorized traffic. macOS uses the approved local Linux-container adapter, explicitly labeled as
+Mac host / Linux container. Preserve local-only daemon targeting, immutable image
+identity, disjoint source/artifact/watchdog mounts, owned cleanup, and v2 or failed
+attempt evidence. Native Mac acceptance remains pending; image preparation and
+build orchestration are separate reviewed actions. Do not substitute an
+ordinary path spawn for Windows verified staging or Linux sealed memfd behavior.
+Do not overlap collectors, benchmarks, historical demos and Demo Lab workloads.
+Source preparation, building and live execution are distinct authorized actions;
+check does not install or demonstrate readiness. Preserve failed receipts and
+uncertain cleanup locks. Never delete a stale lock without reconciling its owner.
+
+For Demo Lab evidence-path/frontend changes, run the dependency-free focused
+regression with an existing Node installation:
+`node tools/demo-lab/tests/test_ui.cjs tools/demo-lab/static/app.js`. Do not install
+Node merely for this check. Keep expected schematic steps distinct from verified
+receipt assertions. A disconnected UI must disable actions, retain last evidence
+as historical and never automatically replay a POST.
+
+For Windows setup changes, use
+`python -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_windows_setup.py`.
+Keep check read-only: MSVC/SDK inventory is preliminary admission only. The explicit
+build-time staging probe must preserve unrelated files and clean only its unique
+probe. Dependency fetch does not warm compiler outputs; retain cold-build failures
+and existing time/disk limits. Never describe uncommitted source as a published
+release or claim clean-machine/native Mac acceptance from this laptop.

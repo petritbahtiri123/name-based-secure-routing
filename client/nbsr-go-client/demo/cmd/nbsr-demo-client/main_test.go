@@ -32,6 +32,14 @@ func TestClientCommandAcceptsOnlyOneTask5Run(t *testing.T) {
 	if runtime.GOOS == "linux" {
 		buildParent = "/opt/nbsr-build/nbsr-demo"
 	}
+	if runtime.GOOS == "darwin" {
+		home, err := filepath.EvalSymlinks(t.TempDir())
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Setenv("HOME", home)
+		buildParent = filepath.Join(home, "Library", "Caches", "NBSR", "demo-build")
+	}
 	valid := []string{"--config", filepath.ToSlash(filepath.Join(root, "client", "config.json")), "--bootstrap", filepath.ToSlash(filepath.Join(root, "client", "bootstrap")), "--ready", filepath.ToSlash(filepath.Join(root, "readiness", "client.json")), "--runtime-root", filepath.ToSlash(root), "--build-root", filepath.Join(buildParent, "client-run")}
 	options, err := parseArgs(valid)
 	if err != nil {

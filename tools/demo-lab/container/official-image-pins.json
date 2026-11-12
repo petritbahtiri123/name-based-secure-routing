@@ -1,0 +1,34 @@
+{
+  "schema": "nbsr-demo-official-image-pins-v1",
+  "observed_utc": "2026-11-11T19:21:12.974831+00:00",
+  "validation": "Official registry metadata only; images not pulled, executed or compatibility-tested",
+  "images": {
+    "go": {
+      "reference": "docker.io/library/golang@sha256:53eeac89074db483fdf0ab3be1df32bf6e47562263d2d0d6baa7f26acb4957dd",
+      "reviewed_tag": "1.26.5-bookworm",
+      "architectures": {
+        "amd64": "sha256:0d327c83532d3cdeeeebab56ce85962bf09cb89545355b10207c7771b0c3713f",
+        "arm64": "sha256:b1a0cc29a7e13e0595e21087eeb930dc494976b18ba68279bf52c665f3170aa0"
+      },
+      "source": "https://hub.docker.com/v2/namespaces/library/repositories/golang/tags/1.26.5-bookworm"
+    },
+    "rust": {
+      "reference": "docker.io/library/rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+      "reviewed_tag": "1.97.1-bookworm",
+      "architectures": {
+        "amd64": "sha256:408fe88047cef61a2087653b0c5255fa51c0f2d6d94ddedd7a2562a9b91a46f6",
+        "arm64": "sha256:6e957ef098dcc77d33e310261e4ed5843bb108d5c3b5dc2b476cbc8b6caf53fa"
+      },
+      "source": "https://hub.docker.com/v2/namespaces/library/repositories/rust/tags/1.97.1-bookworm"
+    },
+    "python": {
+      "reference": "docker.io/library/python@sha256:cc55e4ded9c95f6ce2133b3d096db43f214d280c2a8af65d83e246c8fa7d168c",
+      "reviewed_tag": "3.13-bookworm",
+      "architectures": {
+        "amd64": "sha256:2784af835b90070d9d37d3aa5aa01a3e825d88436b0d58f7776d2cdcb6780f9e",
+        "arm64": "sha256:af216654499743863e46609864d8477c7b8a98f4b9ec9568964c075626c56887"
+      },
+      "source": "https://hub.docker.com/v2/namespaces/library/repositories/python/tags/3.13-bookworm"
+    }
+  }
+}

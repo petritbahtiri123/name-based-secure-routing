@@ -266,6 +266,12 @@ func demoBuildParent(platform string) (string, error) {
 	switch platform {
 	case "windows":
 		return `C:\NBSR-build\nbsr-demo`, nil
+	case "darwin":
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		return darwinBuildParent(home)
 	case "linux":
 		return "/opt/nbsr-build/nbsr-demo", nil
 	default:
@@ -357,4 +363,33 @@ func safeRuntimePath(path string) bool {
 	}
 	clean := filepath.ToSlash(filepath.Clean(path))
 	return strings.HasPrefix(clean, "test-results/nbsr-demo/")
+}
+
+// darwinBuildParent binds the cache to the canonical home and rejects existing
+// symlink components, including a redirected Library or Caches directory.
+func darwinBuildParent(home string) (string, error) {
+	if !filepath.IsAbs(home) {
+		return "", errors.New("home must be absolute")
+	}
+	canonical, err := filepath.EvalSymlinks(home)
+	if err != nil {
+		return "", err
+	}
+	parent := filepath.Join(canonical, "Library", "Caches", "NBSR", "demo-build")
+	current := canonical
+	for _, part := range []string{"Library", "Caches", "NBSR", "demo-build"} {
+		current = filepath.Join(current, part)
+		info, err := os.Lstat(current)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return "", err
+		}
+		resolved, err := filepath.EvalSymlinks(current)
+		if err != nil || resolved != current || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+			return "", errors.New("demo cache contains an alias or non-directory")
+		}
+	}
+	return parent, nil
 }

@@ -1,0 +1,13 @@
+# Supply a clean explicit export as context. This is defense in depth.
+.git
+**/.git
+**/.state
+**/test-results
+**/__pycache__
+**/.pytest_cache
+**/target
+**/node_modules
+**/.venv
+**/*.der
+**/*.pem
+**/*-key.*

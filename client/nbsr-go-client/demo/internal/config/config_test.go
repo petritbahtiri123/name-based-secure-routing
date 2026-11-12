@@ -38,10 +38,11 @@ func TestRunConfigBindsUniqueRuntimeAndFreshArtifact(t *testing.T) {
 		}
 	}
 	t.Cleanup(func() { _ = os.RemoveAll(runtimeRoot) })
-	buildRoot := filepath.Join(`C:\NBSR-build\nbsr-demo`, runID)
-	if runtime.GOOS == "linux" {
-		buildRoot = filepath.Join("/opt/nbsr-build/nbsr-demo", runID)
+	parent, err := demoBuildParent(runtime.GOOS)
+	if err != nil {
+		t.Fatal(err)
 	}
+	buildRoot := filepath.Join(parent, runID)
 	if err := os.MkdirAll(buildRoot, 0o700); err != nil {
 		t.Fatal(err)
 	}

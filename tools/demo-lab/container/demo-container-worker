@@ -1,0 +1,15 @@
+#!/usr/local/bin/python3
+"""Fixed image entry point. Never executes a file from the host mounts."""
+import os
+import re
+import sys
+
+SCENARIOS = {"allowed_service_a", "unknown_service", "stale_authority",
+             "digest_mismatch", "expired_mapping", "shared_ip_isolation"}
+if len(sys.argv) != 2 or sys.argv[1] not in SCENARIOS:
+    raise SystemExit("Exactly one allowlisted scenario is required")
+if not re.fullmatch(r"demo-[0-9a-f]{32}", os.environ.get("NBSR_DEMO_RUN_ID", "")):
+    raise SystemExit("Valid owned run ID required")
+os.execv("/usr/local/bin/python3", [
+    "/usr/local/bin/python3", "/src/tools/demo-lab/demo.py",
+    "_container-worker", "--scenario", sys.argv[1]])
