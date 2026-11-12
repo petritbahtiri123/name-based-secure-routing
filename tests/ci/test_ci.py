@@ -61,6 +61,62 @@ def test_failure_summary_contains_only_fixed_metadata():
     assert "argv" not in json.dumps(result)
 
 
+
+def _assert_proc_gone_or_zombie(stat):
+    try:
+        contents = stat.read_text()
+    except (FileNotFoundError, ProcessLookupError):
+        # Reaping can remove procfs state before open or during the read itself.
+        return
+    assert contents.rsplit(") ", 1)[1].startswith("Z ")
+
+
+@pytest.mark.parametrize("error", [FileNotFoundError, ProcessLookupError])
+def test_proc_disappearance_during_read_is_reaped(error):
+    class DisappearingStat:
+        def exists(self):
+            return True
+
+        def read_text(self):
+            raise error("process reaped during read")
+
+    _assert_proc_gone_or_zombie(DisappearingStat())
+
+
+@pytest.mark.parametrize("state", ["R", "S", "D", "T", "I"])
+def test_proc_active_state_is_not_reaped(tmp_path, state):
+    stat = tmp_path / "stat"
+    stat.write_text(f"123 (child ) name) {state} 1 2 3")
+    with pytest.raises(AssertionError):
+        _assert_proc_gone_or_zombie(stat)
+
+
+def test_proc_zombie_is_reaped(tmp_path):
+    stat = tmp_path / "stat"
+    stat.write_text("123 (child ) name) Z 1 2 3")
+    _assert_proc_gone_or_zombie(stat)
+
+
+@pytest.mark.parametrize("error", [PermissionError, OSError])
+def test_proc_unexpected_read_error_is_not_suppressed(error):
+    class UnreadableStat:
+        def exists(self):
+            return True
+
+        def read_text(self):
+            raise error("unreadable stat")
+
+    with pytest.raises(error):
+        _assert_proc_gone_or_zombie(UnreadableStat())
+
+
+def test_proc_malformed_stat_is_not_reaped(tmp_path):
+    stat = tmp_path / "stat"
+    stat.write_text("invalid")
+    with pytest.raises(IndexError):
+        _assert_proc_gone_or_zombie(stat)
+
+
 def test_timeout_is_failure_and_reaps_descendant(tmp_path):
     pid_file = tmp_path / "child.pid"
     script = (
@@ -92,7 +148,7 @@ def test_timeout_is_failure_and_reaps_descendant(tmp_path):
     else:
         stat = Path(f"/proc/{pid}/stat")
         # A killed orphan may remain a zombie until the runner's init reaps it.
-        assert not stat.exists() or stat.read_text().split(") ", 1)[1].startswith("Z ")
+        _assert_proc_gone_or_zombie(stat)
 
 
 @pytest.mark.parametrize("final_cleanup_fails", [False, True])
