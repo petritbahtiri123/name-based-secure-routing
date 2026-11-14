@@ -100,6 +100,7 @@ class ResolutionContextStore:
         self._max_entries = max_entries
         self._by_name: dict[str, ResolutionBinding] = {}
         self._by_address: dict[str, ResolutionBinding] = {}
+        self._next_expiry: int | None = None
         self._lock = RLock()
 
     def commit(self, binding: ResolutionBinding, *, now: int) -> None:
@@ -132,6 +133,9 @@ class ResolutionContextStore:
             self._by_name[binding.mapping.hostname] = binding
             self._by_address[binding.mapping.ipv4] = binding
             self._by_address[binding.mapping.ipv6] = binding
+            # A longer replacement may leave a stale-low bound, never a high one.
+            if self._next_expiry is None or binding.expires_at < self._next_expiry:
+                self._next_expiry = binding.expires_at
 
     def lookup(self, synthetic_address: str, *, now: int) -> ResolutionBinding | None:
         checked_now = require_timestamp(now, message="Invalid ResolutionContextStore time")
@@ -147,8 +151,18 @@ class ResolutionContextStore:
             return self._by_address.get(checked_address)
 
     def _expire_locked(self, now: int) -> None:
-        expired_names = [name for name, binding in self._by_name.items() if binding.expires_at <= now]
+        if self._next_expiry is None or now < self._next_expiry:
+            return
+
+        expired_names = []
+        next_expiry: int | None = None
+        for name, binding in self._by_name.items():
+            if binding.expires_at <= now:
+                expired_names.append(name)
+            elif next_expiry is None or binding.expires_at < next_expiry:
+                next_expiry = binding.expires_at
         for name in expired_names:
             binding = self._by_name.pop(name)
             self._by_address.pop(binding.mapping.ipv4, None)
             self._by_address.pop(binding.mapping.ipv6, None)
+        self._next_expiry = next_expiry

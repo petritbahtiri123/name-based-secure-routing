@@ -387,3 +387,206 @@ def test_expired_entry_frees_capacity_for_a_new_binding() -> None:
 
     assert store.lookup(first.mapping.ipv4, now=101) is None
     assert store.lookup(second.mapping.ipv4, now=101) == second
+
+
+class CountingNameIndex(dict[str, ResolutionBinding]):
+    """Keep real index behavior while counting full-scan entry points."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.scans = 0
+
+    def items(self):
+        self.scans += 1
+        return super().items()
+
+
+def other_binding(*, expires_at: int = 170) -> ResolutionBinding:
+    return resolution_binding(
+        synthetic_mapping=mapping(
+            hostname="other.example.com",
+            ipv4="127.80.0.2",
+            ipv6="fd00:6e62:7372::2",
+        ),
+        intent=route_intent(canonical_name="other.example.com"),
+        expires_at=expires_at,
+    )
+
+
+def test_live_operations_skip_expiry_scans_before_earliest_expiry() -> None:
+    store = ResolutionContextStore(max_entries=2)
+    index = CountingNameIndex()
+    store._by_name = index
+    first = resolution_binding()
+    second = other_binding()
+    replacement = replace(first, expires_at=160)
+
+    assert store.lookup("127.80.0.99", now=100) is None
+    store.commit(first, now=100)
+    store.commit(second, now=101)
+    store.commit(replacement, now=102)
+
+    assert store.lookup(first.mapping.ipv4, now=149) is replacement
+    assert store.lookup(first.mapping.ipv6, now=149) is replacement
+    assert store.lookup(second.mapping.ipv4, now=149) is second
+    assert store.lookup("127.80.0.99", now=149) is None
+    assert index.scans == 0
+
+
+def test_expiry_scan_reuses_survivor_bound_and_skips_empty_store() -> None:
+    store = ResolutionContextStore(max_entries=2)
+    index = CountingNameIndex()
+    store._by_name = index
+    first = resolution_binding(expires_at=110)
+    second = other_binding(expires_at=150)
+    store.commit(first, now=100)
+    store.commit(second, now=100)
+    index.scans = 0
+
+    assert store.lookup(first.mapping.ipv4, now=110) is None
+    assert store.lookup(first.mapping.ipv6, now=110) is None
+    assert store.lookup(second.mapping.ipv4, now=149) is second
+    assert store.lookup(second.mapping.ipv6, now=149) is second
+    assert index.scans == 1
+
+    assert store.lookup(second.mapping.ipv4, now=150) is None
+    assert store.lookup(second.mapping.ipv6, now=150) is None
+    assert store.lookup("127.80.0.99", now=151) is None
+    assert index.scans == 2
+
+
+def test_shorter_replacement_expires_at_its_new_boundary() -> None:
+    store = ResolutionContextStore(max_entries=2)
+    first = resolution_binding(expires_at=150)
+    second = other_binding()
+    replacement = replace(first, expires_at=110)
+    store.commit(first, now=100)
+    store.commit(second, now=100)
+    store.commit(replacement, now=101)
+
+    assert store.lookup(first.mapping.ipv4, now=109) is replacement
+    assert store.lookup(first.mapping.ipv6, now=109) is replacement
+    assert store.lookup(first.mapping.ipv4, now=110) is None
+    assert store.lookup(first.mapping.ipv6, now=110) is None
+    assert store.lookup(second.mapping.ipv4, now=110) is second
+
+
+def test_longer_replacement_preserves_the_next_other_expiry() -> None:
+    store = ResolutionContextStore(max_entries=2)
+    first = resolution_binding(expires_at=110)
+    second = other_binding(expires_at=130)
+    replacement = replace(first, expires_at=150)
+    store.commit(first, now=100)
+    store.commit(second, now=100)
+    store.commit(replacement, now=101)
+
+    assert store.lookup(first.mapping.ipv4, now=110) is replacement
+    assert store.lookup(first.mapping.ipv6, now=110) is replacement
+    assert store.lookup(second.mapping.ipv4, now=129) is second
+    assert store.lookup(second.mapping.ipv6, now=130) is None
+    assert store.lookup(second.mapping.ipv4, now=130) is None
+    assert store.lookup(first.mapping.ipv4, now=149) is replacement
+    assert store.lookup(first.mapping.ipv4, now=150) is None
+    assert store.lookup(first.mapping.ipv6, now=150) is None
+
+
+def test_equal_expiries_remove_all_aliases_without_clock_rollback_resurrection() -> None:
+    store = ResolutionContextStore(max_entries=2)
+    first = resolution_binding(expires_at=110)
+    second = other_binding(expires_at=110)
+    store.commit(first, now=100)
+    store.commit(second, now=100)
+
+    for binding in (first, second):
+        assert store.lookup(binding.mapping.ipv4, now=109) is binding
+        assert store.lookup(binding.mapping.ipv6, now=109) is binding
+
+    assert store.lookup(first.mapping.ipv4, now=110) is None
+    for now in (110, 100):
+        for binding in (first, second):
+            assert store.lookup(binding.mapping.ipv4, now=now) is None
+            assert store.lookup(binding.mapping.ipv6, now=now) is None
+
+
+def test_expired_pair_and_capacity_can_be_reused_by_another_name() -> None:
+    store = ResolutionContextStore(max_entries=1)
+    first = resolution_binding(expires_at=110)
+    second = resolution_binding(
+        synthetic_mapping=replace(first.mapping, hostname="other.example.com"),
+        intent=route_intent(canonical_name="other.example.com"),
+    )
+    store.commit(first, now=100)
+
+    store.commit(second, now=110)
+
+    assert store.lookup(first.mapping.ipv4, now=110) is second
+    assert store.lookup(first.mapping.ipv6, now=110) is second
+    assert store.lookup(first.mapping.ipv4, now=100) is second
+    assert store.lookup(first.mapping.ipv4, now=150) is None
+    assert store.lookup(first.mapping.ipv6, now=150) is None
+
+
+@pytest.mark.parametrize("rejection", ("changed-pair", "address-collision", "capacity"))
+def test_rejected_commit_preserves_live_state_and_expiry_scan_bound(rejection: str) -> None:
+    store = ResolutionContextStore(max_entries=1)
+    index = CountingNameIndex()
+    store._by_name = index
+    first = resolution_binding(expires_at=150)
+    candidate = other_binding(expires_at=110)
+    if rejection == "changed-pair":
+        candidate = replace(candidate, mapping=replace(first.mapping, ipv4="127.80.0.2"), route_intent=first.route_intent)
+    elif rejection == "address-collision":
+        candidate = replace(candidate, mapping=replace(candidate.mapping, ipv6=first.mapping.ipv6))
+    store.commit(first, now=100)
+    index.scans = 0
+
+    with pytest.raises(ProtocolViolation) as rejected:
+        store.commit(candidate, now=101)
+
+    expected_code = ErrorCode.NBSR_E_HANDLE_EXHAUSTED if rejection == "capacity" else ErrorCode.NBSR_E_PROFILE_UNSUPPORTED
+    assert rejected.value.code is expected_code
+    assert store.lookup(first.mapping.ipv4, now=110) is first
+    assert store.lookup(first.mapping.ipv6, now=110) is first
+    assert store.lookup(candidate.mapping.ipv4, now=110) is None
+    assert index.scans == 0
+    assert store.lookup(first.mapping.ipv4, now=150) is None
+    assert store.lookup(first.mapping.ipv6, now=150) is None
+
+
+def test_rejected_commit_still_expires_other_entries_before_collision_check() -> None:
+    store = ResolutionContextStore(max_entries=2)
+    first = resolution_binding(expires_at=110)
+    second = other_binding(expires_at=150)
+    collision = replace(first, mapping=replace(first.mapping, ipv6=second.mapping.ipv6), expires_at=160)
+    store.commit(first, now=100)
+    store.commit(second, now=100)
+
+    with pytest.raises(ProtocolViolation) as rejected:
+        store.commit(collision, now=110)
+
+    assert_profile_unsupported(rejected)
+    assert store.lookup(first.mapping.ipv4, now=100) is None
+    assert store.lookup(first.mapping.ipv6, now=100) is None
+    assert store.lookup(second.mapping.ipv4, now=100) is second
+    assert store.lookup(second.mapping.ipv6, now=100) is second
+    assert store.lookup(second.mapping.ipv4, now=150) is None
+    assert store.lookup(second.mapping.ipv6, now=150) is None
+
+
+@pytest.mark.parametrize("invalid_operation", ("expired-commit", "invalid-binding", "invalid-address"))
+def test_validation_rejection_does_not_expire_state_before_lock(invalid_operation: str) -> None:
+    store = ResolutionContextStore(max_entries=1)
+    first = resolution_binding(expires_at=110)
+    store.commit(first, now=100)
+
+    with pytest.raises(ProtocolViolation) as rejected:
+        if invalid_operation == "expired-commit":
+            store.commit(other_binding(expires_at=120), now=130)
+        elif invalid_operation == "invalid-binding":
+            store.commit({}, now=130)
+        else:
+            store.lookup("invalid-address", now=130)
+
+    assert_profile_unsupported(rejected)
+    assert store.lookup(first.mapping.ipv4, now=100) is first
+    assert store.lookup(first.mapping.ipv6, now=100) is first
