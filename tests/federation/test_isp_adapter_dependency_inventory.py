@@ -19,6 +19,7 @@ def repository(tmp_path, monkeypatch):
     paths = (
         safety.ORIGINAL_DEPENDENCY_FILES | safety.TASK10B_DEPENDENCY_FILES
         | safety.TRANCHE2B_DEPENDENCY_FILES | safety.DEMO_DEPENDENCY_FILES
+        | set(safety.PERFORMANCE_LAB_DEPENDENCY_HASHES)
         | {ADAPTER, safety.DEMO_LAB_MANIFEST, "interop/nbsr-go-peer/dependency-lock.json"}
     )
     for relative in paths:
