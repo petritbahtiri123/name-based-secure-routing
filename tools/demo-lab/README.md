@@ -20,6 +20,9 @@ have not been built/run on a Mac. Official image digest metadata is recorded;
 image compatibility/assembly and Intel/Apple Silicon acceptance remain prerequisites. Cross-platform path
 tests and fake Docker tests on Windows are not native Mac evidence.
 
+For a short setup/readiness/start/stop sequence, see the
+[operational checklist](OPERATIONS.md).
+
 ## Prerequisites and transparent setup
 
 Use a full checkout of `codex/nbsr-v3-wp0-wp1`. The check command does not restore
