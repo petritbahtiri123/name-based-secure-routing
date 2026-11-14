@@ -1,0 +1,28 @@
+{
+  "schema": "nbsr-performance-lab-export-contract-v1",
+  "lab_version": "0.2.0",
+  "mode": "explicit local import only; no live source connected",
+  "formats": ["UTF-8 JSON object", "UTF-8 NDJSON of grouped progress/final records"],
+  "limits": {"artifact_bytes": 4194304, "ndjson_line_bytes": 65536, "records": 4096},
+  "accepted_producer_schemas": ["nbsr-b5-grouped-progress-v1", "nbsr-b5-grouped-final-v1"],
+  "optional_envelope": {
+    "schema": "nbsr-performance-lab-snapshot-v1",
+    "metadata": {
+      "label": "Optional human-readable name, 1–120 characters",
+      "implementation": "Optional: direct-quic, rust-rust or go-rust; declared, not verified",
+      "payload_bytes": "Optional: 1024 or 16384. A final record supplies its own payload shape."
+    },
+    "records": "An ordered array of unchanged grouped progress/final objects; no invented fields or synthetic measurement values"
+  },
+  "rules": [
+    "Every snapshot starts at window 1 and contains contiguous intervals from source time zero.",
+    "Each artifact remains independent. No filename-based merging or automatic run identity inference.",
+    "A final marker must reconcile with the last progress window. Silence never means completed or failed.",
+    "A syntactically cut-off final NDJSON line can be retained as a partial tail, after complete progress records; duplicate keys or invalid complete JSON are quarantined.",
+    "No other stdout diagnostic schemas are accepted in this release. Export only the reviewed grouped records.",
+    "Payload rate is bidirectional application payload, not interface traffic or per-direction throughput.",
+    "Timestamps are relative to the source clock; receipt time is not a benchmark timestamp.",
+    "Do not export credentials, private TLS material, host identifiers or unrelated logs.",
+    "No source watcher, exporter or VM connection is installed or activated. Any future connection needs a reviewed source and authorization."
+  ]
+}

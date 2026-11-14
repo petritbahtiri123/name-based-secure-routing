@@ -1,0 +1,11 @@
+node_modules/
+.npm-cache/
+.venv/
+__pycache__/
+.pytest*/
+data/
+inbox/
+*.log
+*.sqlite*
+static/app.js
+docs/verification/
