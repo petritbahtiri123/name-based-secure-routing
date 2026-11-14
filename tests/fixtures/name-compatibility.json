@@ -1,0 +1,251 @@
+{
+  "scope": "Observed federation name predicates and development-only CBOR text decoder; not normative IDNA vectors",
+  "columns": [
+    "python_ownership",
+    "python_scope",
+    "rust_federation_name",
+    "rust_development_text_decode"
+  ],
+  "cases": [
+    {
+      "id": "ordinary",
+      "name": "service.example",
+      "expected": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "empty",
+      "name": "",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "uppercase",
+      "name": "EXAMPLE.com",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "unicode",
+      "name": "b\u00fccher.example",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "ace-valid",
+      "name": "xn--bcher-kva.example",
+      "expected": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "ace-invalid",
+      "name": "xn--a.example",
+      "expected": [
+        false,
+        false,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "ace-edition-sensitive",
+      "name": "xn--fa-hia.example",
+      "expected": [
+        false,
+        false,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "ace-misleading-invalid",
+      "name": "xn--invalid.example",
+      "expected": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "ace-empty",
+      "name": "xn--.example",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "leading-hyphen",
+      "name": "-a.example",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "trailing-hyphen",
+      "name": "a-.example",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "empty-label",
+      "name": "a..b",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "trailing-dot",
+      "name": "a.example.",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "underscore",
+      "name": "a_b.example",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "ip-shaped",
+      "name": "127.0.0.1",
+      "expected": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "label-63",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "label-64",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": [
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    {
+      "id": "total-127",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "total-128",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.a",
+      "expected": [
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": "total-129",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.a",
+      "expected": [
+        true,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "id": "total-253",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": [
+        true,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "id": "total-254",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": [
+        true,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "id": "total-255",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": [
+        true,
+        true,
+        true,
+        false
+      ]
+    },
+    {
+      "id": "total-256",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.a",
+      "expected": [
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  ]
+}
