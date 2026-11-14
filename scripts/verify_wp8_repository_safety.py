@@ -23,6 +23,14 @@ TRANCHE2B_DEPENDENCY_FILES = {"client/nbsr-go-client/go.mod", "client/nbsr-go-cl
 DEMO_DEPENDENCY_FILES = {"client/nbsr-go-client/demo/go.mod", "client/nbsr-go-client/demo/go.sum"}
 DEMO_LAB_MANIFEST = "tools/demo-lab/fixturegen/go.mod"
 ISP_ADAPTER_MANIFEST = "deploy/isp-federation-poc/adapter/go.mod"
+# Approved source-only Lab dependency files; hashes normalize checkout line endings.
+PERFORMANCE_LAB_DEPENDENCY_HASHES = {
+    "tools/performance-lab/package.json": "c1cccba15861d8190ba80dd36f24b6738c0e3cbeecac44e4b038952cac909ce0",
+    "tools/performance-lab/package-lock.json": "9f854030cc6d489232936ca058268b30ca73a15743a03317a8520693627bcd69",
+    "tools/performance-lab/requirements.txt": "28b3c13a315d011749e30c5884ed8ddbb099880d33f0d7cef3b8a985ddbe08e6",
+    "tools/performance-lab/requirements-dev.txt": "cd704ee23ea4171c534e5aa4fb6722d8ab4c78c1033cf4bf34a90b033627a6d7",
+}
+PERFORMANCE_LAB_MANIFESTS = {"tools/performance-lab/package.json", "tools/performance-lab/package-lock.json"}
 DEPENDENCY_NAMES = {"Cargo.lock", "Cargo.toml", "go.mod", "go.sum", "package.json", "package-lock.json", "pyproject.toml"}
 PRIVATE_SUFFIXES = {".env", ".key", ".p12", ".pfx", ".pkcs8"}
 BINARY_SUFFIXES = {".bin", ".cbor", ".cose", ".pcapng"}
@@ -56,9 +64,14 @@ def dependency_inspection(root: Path) -> str:
     expected = (
         ORIGINAL_DEPENDENCY_FILES | TASK10B_DEPENDENCY_FILES
         | TRANCHE2B_DEPENDENCY_FILES | DEMO_DEPENDENCY_FILES | {ISP_ADAPTER_MANIFEST, DEMO_LAB_MANIFEST}
+        | PERFORMANCE_LAB_MANIFESTS
     )
     if found != expected:
         raise ValueError(f"dependency manifest inventory differs: {sorted(found ^ expected)}")
+    for relative, expected_digest in PERFORMANCE_LAB_DEPENDENCY_HASHES.items():
+        path = root / relative
+        if not path.is_file() or hashlib.sha256(path.read_text(encoding="utf-8").encode()).hexdigest() != expected_digest:
+            raise ValueError(f"Performance Lab dependency digest differs: {relative}")
     # This approved adapter is stdlib-only; no other Go directives are allowed.
     adapter_lines = [
         line.split() for line in (root / ISP_ADAPTER_MANIFEST).read_text(encoding="utf-8").splitlines()

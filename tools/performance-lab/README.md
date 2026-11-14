@@ -45,3 +45,19 @@ Tests generate synthetic temporary fixtures; those are not benchmark results. Wi
 ## Packaging and license
 
 Commit only source/config/tests and selected documentation. Exclude generated `static/app.js`, node_modules, caches, inbox, data, SQLite files, captures, logs, and verification artifacts. Build the frontend locally. This directory is intended under the repository's existing Apache-2.0 license; no new ownership claim is made. Dependency notices are in THIRD_PARTY_NOTICES.md.
+
+### Repository dependency gate
+
+The repository safety checker registers this isolated package's two npm manifests
+and pins their normalized-text hashes together with both requirements files.
+Dependency changes require an explicit review and updated pins/regressions; do not
+remove the closed-inventory check. Generated node_modules is not publication source.
+Run repository-wide inventory checks against a complete clean source checkout,
+without generated dependency trees. Focused synthetic contract checks are:
+
+```powershell
+python -B -m pytest -q -p no:cacheprovider tests/federation/test_repository_safety.py -k "demo_ or performance_lab"
+```
+
+Run that command from the repository root. Sparse checkouts cannot establish the
+complete repository inventory result.

@@ -52,6 +52,11 @@ def demo_dependency_tree(tmp_path, monkeypatch):
         "module nbsr.local/isp-federation-poc/adapter\ngo 1.26.5\n")
     manifest = tmp_path / "tools/demo-lab/fixturegen/go.mod"
     manifest.write_text("module nbsr.local/demo-lab/fixturegen\ngo 1.26.5\n")
+    for relative in ("tools/performance-lab/package.json", "tools/performance-lab/package-lock.json",
+                     "tools/performance-lab/requirements.txt", "tools/performance-lab/requirements-dev.txt"):
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / relative).read_bytes())
     entries = []
     for relative in sorted(module.TASK10B_DEPENDENCY_FILES):
         wire = (tmp_path / relative).read_bytes()
@@ -130,3 +135,22 @@ def test_task10b_privacy_scope_mutations_fail_closed(tmp_path: Path, monkeypatch
     monkeypatch.setattr(module, "_privacy_paths", lambda _root: [candidate])
     with pytest.raises(ValueError):
         module.privacy_scan(tmp_path)
+
+
+@pytest.mark.parametrize("relative", [
+    "tools/performance-lab/package.json", "tools/performance-lab/package-lock.json",
+    "tools/performance-lab/requirements.txt", "tools/performance-lab/requirements-dev.txt",
+])
+def test_performance_lab_dependency_changes_require_review(demo_dependency_tree, relative):
+    module, root, _ = demo_dependency_tree
+    path = root / relative
+    path.write_bytes(path.read_bytes() + b"\nchanged")
+    with pytest.raises(ValueError, match="Performance Lab dependency digest differs"):
+        module.dependency_inspection(root)
+
+
+def test_performance_lab_unregistered_manifest_is_rejected(demo_dependency_tree):
+    module, root, _ = demo_dependency_tree
+    (root / "tools/performance-lab/go.mod").write_text("module unexpected/module\n")
+    with pytest.raises(ValueError, match="inventory differs"):
+        module.dependency_inspection(root)
