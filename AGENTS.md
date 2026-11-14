@@ -43,6 +43,13 @@ cache, command effects and resource bounds below before running any check.
 
 ## Architecture and sources of truth
 
+For direction, scope, milestone or readiness decisions, start with the
+[project direction guide](docs/architecture/project-direction.md), then read the
+linked authoritative sections and current evidence for the affected area. Reuse
+context already checked in the task; routine small edits do not require rereading
+the whole architecture or roadmap. The guide does not replace frozen contracts
+or grant execution authority.
+
 - `README.md` and `CONTRIBUTING.md`: overview, setup and contribution checks.
 - `docs/architecture/NBSR_Protocol_Vision_V3.6.md`: architectural direction;
   `docs/protocol/status.md`: implementation and evidence scope. Read only relevant
@@ -146,6 +153,11 @@ resource limits or evidence interpretation, update the relevant `AGENTS.md` and
 related documentation in the same change. Verify referenced paths and commands;
 state validation limits instead of claiming unrun success. Preserve useful nested
 guidance and historical negative evidence.
+
+When a milestone or its evidence boundary changes, update the affected status
+record and the direction guide's milestone/source pointers in the same change.
+Keep historical results and approval records intact; link the scoped successor
+evidence and record remaining gates rather than promoting a fixture to readiness.
 
 Keep durable rules here. Put transient run IDs, current worktree status and test
 counts in an evidence record or task checkpoint, not routine edits to this file.
