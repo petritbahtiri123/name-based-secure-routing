@@ -429,7 +429,10 @@ For dashboard startup/shutdown resource ownership, run
 The suite includes fake-server cases and actual loopback bind/close/rebind checks;
 it never starts NBSR workloads or opens a browser. Retain the separate HTTP boundary
 test and report socket-permission failures distinctly from application failures.
-Socket closure is not proof of child-process cleanup or permission to remove locks.
+Close the HTTP listener before potentially slow coordinator cleanup, and attempt
+coordinator cleanup even if socket closure raises. The bounded fake blocked-cleanup
+regression is not a whole-process shutdown guarantee. Socket closure is not proof
+of child-process cleanup or permission to remove locks.
 
 For read-only recovery-marker changes, run
 `python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_status.py`.

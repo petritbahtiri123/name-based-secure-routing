@@ -55,10 +55,16 @@ execution policy, or extend a failed build's resource/time limits.
    do not replace owned cleanup with a process-name kill.
 
 If opening the browser or starting the dashboard expiry thread raises an error,
-the launcher attempts coordinator shutdown and closes its HTTP socket. Socket
-closure is also attempted if coordinator shutdown raises. Errors still propagate;
+the launcher closes its HTTP socket before attempting coordinator shutdown, so a
+slow coordinator does not retain the listener. Coordinator cleanup is still
+attempted if socket closure raises. Errors still propagate;
 this is not proof that a scenario's child processes were cleaned up. Preserve
 unresolved-run markers and use the reconciliation procedure below before restart.
+
+The coordinator's existing worker join waits up to 120 seconds; this is not a
+whole-process exit guarantee. A surviving non-daemon worker can keep the process
+alive. The expiry daemon is signaled to stop but is not joined. No automatic kill,
+forced lock removal, or successful-cleanup claim follows from listener closure.
 
 ## Read-only recovery triage
 

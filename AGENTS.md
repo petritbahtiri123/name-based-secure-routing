@@ -182,3 +182,5 @@ and reconcile owners before restart. See the focused status checks in area guida
 
 Dashboard lifecycle failures must attempt owned coordinator and HTTP socket cleanup;
 socket closure alone never establishes scenario cleanup or permits lock removal.
+Close the dashboard listener before potentially slow coordinator cleanup; preserve
+cleanup attempts and uncertainty even when either operation fails.

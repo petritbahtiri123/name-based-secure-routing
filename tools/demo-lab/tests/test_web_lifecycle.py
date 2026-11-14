@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from nbsr_demo_lab import web
 
 
-@pytest.mark.parametrize('failure', ['browser', 'expiry_start', 'serve', 'close', None])
+@pytest.mark.parametrize('failure', ['browser', 'expiry_start', 'serve', 'close', 'socket_close', None])
 def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failure):
     events = []
     class Server:
@@ -19,6 +19,8 @@ def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failu
                 raise KeyboardInterrupt()
         def server_close(self):
             events.append('socket_closed')
+            if failure == 'socket_close':
+                raise RuntimeError('fixture socket close failure')
     class Coordinator:
         def close(self):
             events.append('coordinator_closed')
@@ -43,7 +45,7 @@ def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failu
             web.serve(Coordinator())
     else:
         web.serve(Coordinator())
-    assert events[-2:] == ['coordinator_closed', 'socket_closed']
+    assert events[-2:] == ['socket_closed', 'coordinator_closed']
     assert events.count('socket_closed') == 1
     if failure in ('browser', 'expiry_start'):
         assert 'serve' not in events
@@ -88,3 +90,44 @@ def test_startup_failure_closes_actual_loopback_socket(monkeypatch, failure):
     finally:
         for server in servers:
             server.server_close()
+
+
+def test_listener_closed_while_coordinator_cleanup_is_blocked(monkeypatch):
+    import threading
+
+    entered = threading.Event()
+    release = threading.Event()
+    servers = []
+    errors = []
+    class Server(web.HTTPServer):
+        def serve_forever(self, **kwargs):
+            pass  # exercise real bound socket without a request loop
+    def capture(*args):
+        server = Server(*args)
+        servers.append(server)
+        return server
+    class Coordinator:
+        def close(self):
+            entered.set()
+            if not release.wait(2):
+                raise RuntimeError('test cleanup release deadline expired')
+    def run():
+        try:
+            web.serve(Coordinator())
+        except BaseException as exc:
+            errors.append(exc)
+    monkeypatch.setattr(web, 'HTTPServer', capture)
+    monkeypatch.setattr(web.webbrowser, 'open', lambda url: True)
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+    try:
+        assert entered.wait(1), 'coordinator cleanup was not reached'
+        assert thread.is_alive(), 'cleanup must still be waiting for release'
+        assert servers[0].socket.fileno() == -1
+    finally:
+        release.set()
+        thread.join(2)
+        for server in servers:
+            server.server_close()
+    assert not thread.is_alive()
+    assert errors == []

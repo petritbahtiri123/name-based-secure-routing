@@ -150,6 +150,7 @@ def serve(coordinator, *, open_browser=True):
     finally:
         stop.set()
         try:
-            coordinator.close()
-        finally:
+            # Stop accepting connections before potentially slow worker cleanup.
             server.server_close()
+        finally:
+            coordinator.close()
