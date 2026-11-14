@@ -466,3 +466,19 @@ build-time staging probe must preserve unrelated files and clean only its unique
 probe. Dependency fetch does not warm compiler outputs; retain cold-build failures
 and existing time/disk limits. Never describe uncommitted source as a published
 release or claim clean-machine/native Mac acceptance from this laptop.
+
+## Retained public-test connector evidence
+
+The purpose14 KAR and NOR/direct-delegation corpora remain test-only prerequisites,
+not runtime registration authority. Focused checks are
+`python -B -m pytest -q -p no:cacheprovider tests/federation/test_connector_transport_kar.py tests/federation/test_connector_genesis_evidence.py`.
+The genesis exporter `python -B -m scripts.extract_connector_genesis_evidence`
+compares deterministic bytes; it invokes the existing publicly known test-seed
+signing oracle even without `--write`. Pytest verifies retained public signatures
+without signing. See `docs/reviews/2026-11-14-signed-genesis-evidence-corpus.md`
+and `docs/reviews/2026-11-14-ace-canonical-name-parity.md` for scope and limits.
+Do not equate chain-only validity with the narrower KAR/registration window or
+choose a new IDNA profile based on predicate parity. The bounded native `connector_genesis` target verifies the retained chain within
+its explicit ordinary-LDH genesis subset; see the native-genesis review. Full
+semantic coverage, all-mode governance, currentness and runtime READY remain
+separate gates. Run it with the existing bounded offline Cargo supervisor/cache.

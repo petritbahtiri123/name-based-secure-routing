@@ -24,6 +24,7 @@ def test_composed_kar_checker_is_selected_and_runs_without_pythonpath():
 def test_isolated_genesis_kar_target_selected_without_live_execution():
     rust = next(c for c in command_groups("rust") if c.name == "rust-connector")
     assert rust.argv.count("connector_kar") == 1
+    assert rust.argv.count("connector_genesis") == 1
     assert "--ignored" not in rust.argv
     registry = json.loads(Path("docs/protocol/registries/connector-registration-development-v1.json").read_text())
     assert registry["runtime_authorized"] is False

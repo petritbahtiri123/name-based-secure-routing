@@ -275,9 +275,12 @@ local conformance inputs; this adds no positive registration authority or READY.
 The retained prior anchor is identity-bound; freshness applies to the current
 containing checkpoint. Local test success is not hosted CI or runtime governance.
 
-The Rust connector command also selects `connector_kar`, the isolated test-only
-genesis KAR prerequisite. It uses existing unsigned semantic recipes and retained
-signed rejection fixtures, with no key/signature creation or live execution.
-Inclusive expiry, exact key purpose and root-authorizer binding are local checks;
-there is no successful composed positive acceptance evidence, normal-roster trust
-mapping or registration authority. Local results do not establish hosted success.
+The Rust connector command selects `connector_kar` and `connector_genesis`,
+isolated test-only KAR and NOR/direct-delegation prerequisites. Retained public
+signed positives and negatives complement explicitly unsigned semantic probes;
+the native targets create no keys/signatures and perform no live execution.
+The bounded genesis chain checks supplied purpose5/6 signer context, ordinary
+LDH names, service IDs, inclusive validity and scope narrowing. ACE, updates and
+other recognized out-of-slice features remain unsupported, not authorized.
+These checks do not establish provisioning, full governance, registration
+readiness or hosted CI success. See the 2026-11-14 evidence reviews.

@@ -511,3 +511,121 @@ fn unchanged_signed_fixtures_do_not_supply_composed_positive_acceptance() {
         );
     }
 }
+
+// Public deterministic Python-oracle fixture; no runtime Authority or owner conversion.
+fn transport_fixture() -> (Vec<u8>, Vec<u8>, SuppliedTestRoot, ExpectedKey) {
+    use sha2::{Digest, Sha256};
+    let f: J = serde_json::from_str(include_str!(
+        "../fixtures/connector-kar-transport-positive.json"
+    ))
+    .unwrap();
+    assert_eq!(f["id"], "public-test-only-kar-transport-purpose14-v1");
+    assert_eq!(f["runtime_authorized"], false);
+    assert_eq!(f["live_trust_authorized"], false);
+    assert_eq!(
+        f["public_key"],
+        "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8"
+    );
+    assert_eq!(
+        f["payload_sha256"],
+        "335f1b59b11997e0355bcd357cfae0f3a8c9c0b0db8db88e8f1ba0d3d5789b69"
+    );
+    let wire = hex(f["wire"].as_str().unwrap());
+    let payload = hex(f["payload"].as_str().unwrap());
+    assert_eq!(
+        hex(f["wire_sha256"].as_str().unwrap()),
+        Sha256::digest(&wire).to_vec()
+    );
+    assert_eq!(
+        hex(f["payload_sha256"].as_str().unwrap()),
+        Sha256::digest(&payload).to_vec()
+    );
+    let key: [u8; 32] = hex(f["public_key"].as_str().unwrap()).try_into().unwrap();
+    let root = SuppliedTestRoot {
+        operator: [b'C'; 32],
+        kid: b"key".to_vec(),
+        key,
+        purpose: 1,
+        lifecycle: 2,
+        generation: 1,
+        sequence: 1,
+        not_before: 800,
+        expires: 2100,
+        revoked: false,
+    };
+    let expected = ExpectedKey {
+        operator: [b'C'; 32],
+        kid: b"transport-key".to_vec(),
+        key,
+        purpose: 14,
+        terminal_ids: vec![],
+    };
+    (wire, payload, root, expected)
+}
+
+#[test]
+fn retained_transport_kar_cross_language_positive_and_windows() {
+    let (wire, payload, mut root, expected) = transport_fixture();
+    for now in [900, 1000, 1800] {
+        let checked = verify_genesis(&wire, &payload, &root, &expected, now).unwrap();
+        assert_eq!(checked.valid_window(now, now).unwrap(), 1800);
+        assert!(checked.valid_window(899, now).is_err());
+        assert!(checked.valid_window(now, 1801).is_err());
+    }
+    root.not_before = 1000;
+    root.expires = 1700;
+    for now in [1000, 1700] {
+        let checked = verify_genesis(&wire, &payload, &root, &expected, now).unwrap();
+        assert_eq!(checked.valid_window(now, now).unwrap(), 1700);
+        assert!(checked.valid_window(999, now).is_err());
+        assert!(checked.valid_window(now, 1701).is_err());
+    }
+}
+
+#[test]
+fn retained_transport_kar_cannot_authorize_other_purposes_or_identities() {
+    let (wire, payload, root, expected) = transport_fixture();
+    for purpose in [1, 3, 12] {
+        let mut wrong = expected.clone();
+        wrong.purpose = purpose;
+        assert_eq!(
+            verify_genesis(&wire, &payload, &root, &wrong, 1000).err(),
+            Some("exact child purpose")
+        );
+    }
+    let mut wrong = expected.clone();
+    wrong.key[0] ^= 1;
+    assert!(verify_genesis(&wire, &payload, &root, &wrong, 1000).is_err());
+    let mut wrong = root.clone();
+    wrong.operator[0] ^= 1;
+    assert!(verify_genesis(&wire, &payload, &wrong, &expected, 1000).is_err());
+    let mut wrong = root.clone();
+    wrong.purpose = 14;
+    assert!(verify_genesis(&wire, &payload, &wrong, &expected, 1000).is_err());
+    for now in [899, 1801] {
+        assert!(verify_genesis(&wire, &payload, &root, &expected, now).is_err());
+    }
+}
+
+#[test]
+fn retained_transport_kar_rejects_payload_and_signature_tampering() {
+    let (wire, payload, root, expected) = transport_fixture();
+    let mut altered = wire.clone();
+    *altered.last_mut().unwrap() ^= 1;
+    assert_eq!(
+        verify_genesis(&altered, &payload, &root, &expected, 1000).err(),
+        Some("invalid signature")
+    );
+    let at = wire
+        .windows(payload.len())
+        .position(|p| p == payload)
+        .unwrap();
+    let mut changed_payload = payload.clone();
+    *changed_payload.last_mut().unwrap() ^= 1;
+    let mut changed_wire = wire;
+    changed_wire[at..at + payload.len()].copy_from_slice(&changed_payload);
+    assert_eq!(
+        verify_genesis(&changed_wire, &changed_payload, &root, &expected, 1000).err(),
+        Some("invalid signature")
+    );
+}

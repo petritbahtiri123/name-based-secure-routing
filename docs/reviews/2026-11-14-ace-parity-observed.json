@@ -1,0 +1,175 @@
+{
+  "scope": "Observed predicate-only diagnostic, not normative IDNA decision, signed admission, runtime authorization or complete name-space parity. No route behavior changed.",
+  "head": "d6376d8279763dd57daaad21ea8ca43de8a90367",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "source_sha256": {
+    "crates/nbsr-transport/src/federation.rs": "2eb4bad1ccd3319c6af9205c70c65ad865efb3a54e0aa4550fbcf876ce018d8b",
+    "nbsr/federation/ownership.py": "d04c7885220ebfcda89dcc593bdd29d6eb1cdccee6bf765fb4bc9de366915661",
+    "nbsr/federation/fields.py": "e6cf23d2e852fc67781eed61808ad1e21edb7599e000a2dbd8e35925ec6731e1"
+  },
+  "extracted_helper_sha256": "2fa74b7a8fcbb587bb356e7f86c9d41774b175dc15e3bdbf652f4d87305109e6",
+  "elapsed_seconds": 0.378,
+  "cases": [
+    {
+      "id": "ascii",
+      "name": "service.example",
+      "bytes": 15,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "valid_ace",
+      "name": "xn--bcher-kva.example",
+      "bytes": 21,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "malformed_ace",
+      "name": "xn--a.example",
+      "bytes": 13,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": true
+    },
+    {
+      "id": "misleading_label",
+      "name": "xn--invalid.example",
+      "bytes": 19,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "edition_sensitive",
+      "name": "xn--fa-hia.example",
+      "bytes": 18,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": true
+    },
+    {
+      "id": "empty_ace",
+      "name": "xn--.example",
+      "bytes": 12,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "uppercase",
+      "name": "XN--BCHER-KVA.example",
+      "bytes": 21,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "trailing_dot",
+      "name": "service.example.",
+      "bytes": 16,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "underscore",
+      "name": "bad_name.example",
+      "bytes": 16,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "leading_hyphen",
+      "name": "-bad.example",
+      "bytes": 12,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "trailing_hyphen",
+      "name": "bad-.example",
+      "bytes": 12,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "empty_label",
+      "name": "two..labels",
+      "bytes": 11,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "u_label",
+      "name": "t\u00e4st.example",
+      "bytes": 13,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "ip_shaped",
+      "name": "127.0.0.1",
+      "bytes": 9,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "label63",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example",
+      "bytes": 71,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "label64",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example",
+      "bytes": 72,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    },
+    {
+      "id": "total253",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bytes": 253,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "total254",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bytes": 254,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "total255",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "bytes": 255,
+      "python_ownership": true,
+      "python_scope": true,
+      "native_predicate": true
+    },
+    {
+      "id": "total256",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.a",
+      "bytes": 256,
+      "python_ownership": false,
+      "python_scope": false,
+      "native_predicate": false
+    }
+  ]
+}

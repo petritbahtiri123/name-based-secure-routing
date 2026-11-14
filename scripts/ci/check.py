@@ -75,7 +75,8 @@ def command_groups(profile: str) -> list[Command]:
                 Command("rust-codec", cargo + ("--test", "p2a_benchmark", "frame")),
                 Command("rust-connector", cargo + ("--test", "connector_control", "--test", "connector_registration",
                                                    "--test", "connector_loopback", "--test", "connector_signature",
-                                                   "--test", "connector_authority", "--test", "connector_kar")),
+                                                   "--test", "connector_authority", "--test", "connector_kar",
+                                                   "--test", "connector_genesis")),
                 Command("rust-doc", cargo + ("--doc",)),
                 Command("rust-clippy", ("cargo", "clippy", *cargo[2:], "--all-targets", "--", "-D", "warnings"))]
     if profile == "rust-extended":
