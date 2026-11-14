@@ -8,8 +8,8 @@ from .feed import export
 from .adapters import MAX_BYTES
 
 class PrefixBridge:
-    def __init__(self, directory, inbox, source_identity, experiment, *, capture_budget=1024*1024):
-        self.capture = CaptureSession(directory, source_identity, origin_record=True, max_session_bytes=capture_budget)
+    def __init__(self, directory, inbox, source_identity, experiment, *, capture_budget=1024*1024, origin_profile="nbsr"):
+        self.capture = CaptureSession(directory, source_identity, origin_record=True, origin_profile=origin_profile, max_session_bytes=capture_budget)
         self.identity = source_identity
         self.inbox = inbox
         self.experiment = experiment
@@ -47,8 +47,8 @@ class PrefixBridge:
 
 class FramedBridge:
     """Bind separately owned acquisition frames to the planned run and file."""
-    def __init__(self, directory, inbox, run, source):
-        self.bridge = PrefixBridge(directory, inbox, run, run)
+    def __init__(self, directory, inbox, run, source, *, origin_profile="nbsr"):
+        self.bridge = PrefixBridge(directory, inbox, run, run, origin_profile=origin_profile)
         self.run, self.source = run, source
         self.sequence = 0
         self.file_identity = None

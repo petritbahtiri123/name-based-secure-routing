@@ -17,11 +17,16 @@ class StdoutExtractor:
     not authentication or proof that a remote file has not been replaced.
     """
 
-    def __init__(self, source_identity, *, origin_record=False):
+    def __init__(self, source_identity, *, origin_record=False, origin_profile="nbsr"):
         if type(source_identity) is not str or not 1 <= len(source_identity) <= 128:
             raise ValueError('Source identity must be 1-128 characters')
         if type(origin_record) is not bool:
             raise ValueError('origin_record must be boolean')
+        if type(origin_profile) is not str or origin_profile not in ("nbsr", "direct"):
+            raise ValueError("Unknown declared origin profile")
+        if origin_profile == "direct" and not origin_record:
+            raise ValueError("Direct origin profile requires origin_record")
+        self._origin_profile = origin_profile
         self._expect_origin = origin_record
         self._origin_seen = False
         self._identity = source_identity
@@ -102,7 +107,9 @@ class StdoutExtractor:
                     kind = 'grouped'
                 elif schema == 'nbsr-origin-monotonic-v1' and self._expect_origin:
                     keys = {'origin_lo_ns', 'origin_hi_ns', 'sample_before_ns',
-                            'sample_after_ns', 'client_origin_ns', 'client_sample_ns'}
+                            'sample_after_ns'}
+                    if self._origin_profile == 'nbsr':
+                        keys |= {'client_origin_ns', 'client_sample_ns'}
                     if self._origin_seen or self._grouped or set(row) != keys | {'schema'}:
                         raise ValueError('Unexpected origin record shape or position')
                     if any(type(row[k]) is not int or not 0 <= row[k] < 2**64 for k in keys):

@@ -15,11 +15,11 @@ class CaptureSession:
     paths are eligible for the existing exporter only after this method returns.
     Do not independently watch the directory or reuse old paths after a failure.
     """
-    def __init__(self, directory, source_identity, *, origin_record=False, max_session_bytes=None):
+    def __init__(self, directory, source_identity, *, origin_record=False, origin_profile="nbsr", max_session_bytes=None):
         if max_session_bytes is not None and (type(max_session_bytes) is not int or not 1 <= max_session_bytes <= MAX_SESSION_BYTES):
             raise ValueError('Invalid capture budget')
         self._max_session_bytes = max_session_bytes
-        self._parser = StdoutExtractor(source_identity, origin_record=origin_record)
+        self._parser = StdoutExtractor(source_identity, origin_record=origin_record, origin_profile=origin_profile)
         self._directory = Path(directory)
         # Fail rather than reuse another session or follow an existing link.
         self._directory.mkdir(parents=False, exist_ok=False)
