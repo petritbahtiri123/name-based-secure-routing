@@ -132,3 +132,24 @@ def test_ticket_rejects_wrong_audience(settings):
     settings.ticket_audience = "another-gateway"
     with pytest.raises(SecurityError):
         verify_ticket(token, "GET", "/api/payment-status", "payments.internal", settings)
+
+
+@pytest.mark.parametrize("methods", ["GET", "TARGET", {"GET": True}, 7, True, ["GET", 7]])
+def test_ticket_rejects_malformed_methods_claim(settings, methods):
+    token = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api",
+        {"policy_version": "1", "allowed_methods": methods, "allowed_path_prefix": "/api", "ticket_ttl": 60},
+        settings,
+    )
+    with pytest.raises(SecurityError):
+        verify_ticket(token, "GET", "/api", "payments.internal", settings)
+
+
+@pytest.mark.parametrize("methods", [["GET"], ["POST", "GET"], ["GET", "GET"]])
+def test_ticket_preserves_valid_method_lists(settings, methods):
+    token = issue_ticket(
+        "spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api",
+        {"policy_version": "1", "allowed_methods": methods, "allowed_path_prefix": "/api", "ticket_ttl": 60},
+        settings,
+    )
+    assert verify_ticket(token, "get", "/api", "payments.internal", settings)["methods"] == methods

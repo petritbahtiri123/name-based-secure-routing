@@ -73,7 +73,10 @@ def verify_ticket(token: str, method: str, path: str, service: str, settings: Se
         raise SecurityError("Invalid routing authorization") from exc
     if not _valid_subject(claims.get("sub")):
         raise SecurityError("Invalid routing authorization")
-    if claims.get("service") != service or method.upper() not in claims.get("methods", []):
+    methods = claims.get("methods")
+    if not isinstance(methods, list) or any(not isinstance(item, str) for item in methods):
+        raise SecurityError("Invalid routing authorization")
+    if claims.get("service") != service or method.upper() not in methods:
         raise SecurityError("Invalid routing authorization")
     prefix = claims.get("path_prefix")
     if not isinstance(prefix, str) or not path.startswith(prefix):

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi.testclient import TestClient
 
@@ -115,3 +117,23 @@ def test_envoy_derives_service_only_inside_ext_authz_request():
     assert "key: x-nbsr-service" in config
     assert "key: x-nbsr-method" not in config
     assert "key: x-nbsr-path" not in config
+
+
+@pytest.mark.parametrize("methods", ["GET", "TARGET", {"GET": True}, 7, True, ["GET", 7]])
+def test_verifier_rejects_malformed_methods_with_403(methods):
+    client, settings = configured_client()
+    try:
+        ticket = issue_ticket(
+            "spiffe://nbsr.local/workload/client-allowed", "payments.internal", "GET", "/api",
+            {"policy_version": "1", "allowed_methods": methods, "allowed_path_prefix": "/api", "ticket_ttl": 60},
+            settings,
+        )
+        response = client.get(
+            "/authorize/api",
+            headers={"Authorization": f"NBSR {ticket}", "x-nbsr-service": "payments.internal"},
+        )
+        assert response.status_code == 403
+        assert response.json()["detail"] == "Invalid routing authorization"
+    finally:
+        app.dependency_overrides.pop(get_settings, None)
+        client.close()
