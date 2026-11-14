@@ -3,10 +3,10 @@
 mod codec;
 #[path = "support/connector_genesis.rs"]
 mod genesis;
-#[path = "support/connector_request_evidence.rs"]
-mod request_evidence;
 #[path = "../src/connector_kar.rs"]
 mod kar;
+#[path = "support/connector_request_evidence.rs"]
+mod request_evidence;
 #[path = "../src/connector_signature.rs"]
 mod signature;
 
