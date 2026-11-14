@@ -63,8 +63,16 @@ unresolved-run markers and use the reconciliation procedure below before restart
 
 The coordinator's existing worker join waits up to 120 seconds; this is not a
 whole-process exit guarantee. A surviving non-daemon worker can keep the process
-alive. The expiry daemon is signaled to stop but is not joined. No automatic kill,
-forced lock removal, or successful-cleanup claim follows from listener closure.
+alive. If the worker is still alive after that wait, shutdown raises a cleanup-
+uncertain error and the launcher reports failure (code 2), retaining `ui.lock`.
+That return code does not force interpreter exit while a non-daemon worker survives.
+The coordinator does not erase `active.json` on timeout; a later worker result can
+still record its actual cleanup outcome through the existing receipt path. The
+retained UI lock still requires owner reconciliation before restart.
+
+The expiry daemon is signaled to stop but is not joined. There is not yet a shared
+whole-shutdown deadline. No automatic kill, forced lock removal, or successful-
+cleanup claim follows from listener closure.
 
 ## Read-only recovery triage
 
@@ -86,7 +94,7 @@ With an already provisioned environment, these checks need no Go/Rust build or
 live scenario. Run from the repository root:
 
 ```text
-python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_web_lifecycle.py tools/demo-lab/tests/test_status.py tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
+python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_shutdown_uncertainty.py tools/demo-lab/tests/test_web_lifecycle.py tools/demo-lab/tests/test_status.py tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
 node tools/demo-lab/tests/test_ui.cjs tools/demo-lab/static/app.js
 ```
 

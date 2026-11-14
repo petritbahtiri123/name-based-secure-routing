@@ -64,7 +64,7 @@ def main():
             from nbsr_demo_lab.mac import container_worker
             return container_worker(args.scenario)
         elif args.action == 'serve':
-            from nbsr_demo_lab.coordinator import Coordinator
+            from nbsr_demo_lab.coordinator import CleanupUnconfirmed, Coordinator
             from nbsr_demo_lab.web import serve
             setup.private_path(state)
             state.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -73,10 +73,15 @@ def main():
             with lock.open('x', encoding='utf-8') as file:
                 import os
                 file.write(json.dumps({'pid': os.getpid(), 'purpose': 'demo-ui'}))
+            retain_lock = False
             try:
                 serve(Coordinator(repo, state), open_browser=not args.no_browser)
+            except CleanupUnconfirmed:
+                retain_lock = True
+                raise
             finally:
-                lock.unlink()
+                if not retain_lock:
+                    lock.unlink()
         return 0
     except (ValueError, RuntimeError, OSError, TimeoutError) as exc:
         print(f'Demo Lab stopped: {exc}', file=sys.stderr)

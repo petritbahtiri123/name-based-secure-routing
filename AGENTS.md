@@ -184,3 +184,5 @@ Dashboard lifecycle failures must attempt owned coordinator and HTTP socket clea
 socket closure alone never establishes scenario cleanup or permits lock removal.
 Close the dashboard listener before potentially slow coordinator cleanup; preserve
 cleanup attempts and uncertainty even when either operation fails.
+A worker surviving the shutdown join must report cleanup uncertainty and retain UI
+ownership for reconciliation; do not equate launcher failure with process exit.

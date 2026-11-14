@@ -16,6 +16,10 @@ SCENARIOS = {
 }
 
 
+class CleanupUnconfirmed(RuntimeError):
+    """Owned work survived the shutdown wait; retain recovery ownership."""
+
+
 class Coordinator:
     def __init__(self, repo, state):
         self.repo = Path(repo).resolve()
@@ -101,3 +105,6 @@ class Coordinator:
         self.cancel()
         if self.thread:
             self.thread.join(timeout=120)
+            if self.thread.is_alive():
+                raise CleanupUnconfirmed('Worker survived shutdown wait; cleanup is unconfirmed. '
+                                         'Retain ownership markers and reconcile before restart.')
