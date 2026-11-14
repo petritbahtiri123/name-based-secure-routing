@@ -126,28 +126,30 @@ def serve(coordinator, *, open_browser=True):
                 return self.reply(409, {'error': str(exc)})
             return self.reply(400, {'error': 'Unknown action or fields'})
 
-    server = HTTPServer(('127.0.0.1', 0), Handler)
-    url = f'http://127.0.0.1:{server.server_port}'
-    print(f'NBSR Demo Lab: {url} (loopback only; no benchmark control)', flush=True)
-    bootstrap_url = url + '/#' + session.bootstrap
-    if open_browser:
-        opened = webbrowser.open(bootstrap_url)
-        if not opened:
-            print('Browser unavailable. Restart with --no-browser to obtain a local one-use URL.', flush=True)
-    else:
-        print(f'Private one-use browser URL (do not share): {bootstrap_url}', flush=True)
-
-    def expiry():
-        while not stop.wait(1):
-            now = time.monotonic()
-            if now - session.created >= 3600 or (now - last_request[0] >= 900 and not coordinator.running):
-                server.shutdown()
-                return
     stop = threading.Event()
-    threading.Thread(target=expiry, daemon=True).start()
+    server = HTTPServer(('127.0.0.1', 0), Handler)
     try:
+        url = f'http://127.0.0.1:{server.server_port}'
+        print(f'NBSR Demo Lab: {url} (loopback only; no benchmark control)', flush=True)
+        bootstrap_url = url + '/#' + session.bootstrap
+        if open_browser:
+            opened = webbrowser.open(bootstrap_url)
+            if not opened:
+                print('Browser unavailable. Restart with --no-browser to obtain a local one-use URL.', flush=True)
+        else:
+            print(f'Private one-use browser URL (do not share): {bootstrap_url}', flush=True)
+
+        def expiry():
+            while not stop.wait(1):
+                now = time.monotonic()
+                if now - session.created >= 3600 or (now - last_request[0] >= 900 and not coordinator.running):
+                    server.shutdown()
+                    return
+        threading.Thread(target=expiry, daemon=True).start()
         server.serve_forever(poll_interval=0.25)
     finally:
         stop.set()
-        coordinator.close()
-        server.server_close()
+        try:
+            coordinator.close()
+        finally:
+            server.server_close()

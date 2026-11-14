@@ -179,3 +179,6 @@ Historical demo verification pins remain separate from current-source receipts.
 The read-only Demo Lab `status` command inventories recovery markers only;
 absence never establishes cleanup, liveness or readiness. Preserve marker contents
 and reconcile owners before restart. See the focused status checks in area guidance.
+
+Dashboard lifecycle failures must attempt owned coordinator and HTTP socket cleanup;
+socket closure alone never establishes scenario cleanup or permits lock removal.
