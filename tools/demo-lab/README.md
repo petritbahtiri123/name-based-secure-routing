@@ -21,7 +21,8 @@ image compatibility/assembly and Intel/Apple Silicon acceptance remain prerequis
 tests and fake Docker tests on Windows are not native Mac evidence.
 
 For a short setup/readiness/start/stop sequence, see the
-[operational checklist](OPERATIONS.md).
+[operational checklist](OPERATIONS.md), including the read-only `status` command
+for recovery-marker triage (not a readiness or process-liveness check).
 
 ## Prerequisites and transparent setup
 

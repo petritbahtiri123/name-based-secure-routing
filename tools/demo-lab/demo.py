@@ -12,6 +12,7 @@ sys.dont_write_bytecode = True
 def main():
     parser = argparse.ArgumentParser(description='NBSR local Demo Lab (not a benchmark controller)')
     commands = parser.add_subparsers(dest='action', required=True)
+    commands.add_parser('status', help='Read-only recovery markers; no liveness or readiness claim')
     commands.add_parser('check', help='Read-only prerequisites and source inspection')
     prepare = commands.add_parser('prepare', help='Show dependency plan; downloads are explicit')
     prepare.add_argument('--allow-downloads', action='store_true')
@@ -31,6 +32,11 @@ def main():
     state = repo / 'tools/demo-lab/.state'
     from nbsr_demo_lab import setup
     try:
+        if args.action == 'status':
+            from nbsr_demo_lab.status import inspect
+            result = inspect(repo)
+            print(json.dumps(result, indent=2))
+            return 2 if result['reconciliation_required'] else 0
         if args.action == 'check':
             result = setup.check(repo)
             print(json.dumps(result, indent=2))

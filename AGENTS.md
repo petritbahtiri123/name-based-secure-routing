@@ -175,3 +175,7 @@ other agents may need explicit loading and have different instruction precedence
 For `tools/demo-lab` and its setup/launcher wrappers, read
 [Local Demo Lab guidance](docs/agents/AREA_GUIDANCE.md#local-demo-lab).
 Historical demo verification pins remain separate from current-source receipts.
+
+The read-only Demo Lab `status` command inventories recovery markers only;
+absence never establishes cleanup, liveness or readiness. Preserve marker contents
+and reconcile owners before restart. See the focused status checks in area guidance.

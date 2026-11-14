@@ -54,13 +54,27 @@ execution policy, or extend a failed build's resource/time limits.
    remove a stale lock to force progress. There is no general CLI stop command;
    do not replace owned cleanup with a process-name kill.
 
+## Read-only recovery triage
+
+Run `python tools/demo-lab/demo.py status` (Mac: `python3`) before investigating
+an interrupted session. It reports only the presence of the dashboard lock,
+unresolved-run marker and historical-demo lock. It never reads their contents,
+contacts the dashboard, probes processes, starts work, or removes state.
+
+Exit 0 means all three markers were absent at inspection time. Exit 2 means at
+least one is PRESENT or UNKNOWN (including unsafe paths or inspection errors).
+Neither result proves liveness, cleanup, ownership, build readiness or absence of
+other workloads; the snapshot can race concurrent changes. Reconcile exact owner
+identities and retained receipts before restart. Do not delete locks based on this
+report. This command does not turn Mac's untested adapter into accepted support.
+
 ## Lightweight regression checks
 
 With an already provisioned environment, these checks need no Go/Rust build or
 live scenario. Run from the repository root:
 
 ```text
-python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
+python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_status.py tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
 node tools/demo-lab/tests/test_ui.cjs tools/demo-lab/static/app.js
 ```
 

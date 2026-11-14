@@ -424,6 +424,12 @@ trusted-local mapping limits and the unexecuted standalone staging/diagnostic pl
 
 ## Local Demo Lab
 
+For read-only recovery-marker changes, run
+`python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_status.py`.
+`demo.py status` must not read marker contents, mutate state, contact the dashboard,
+or infer process liveness/readiness. PRESENT or UNKNOWN requires owner reconciliation;
+ABSENT is only a point-in-time observation, never cleanup evidence.
+
 The Demo Lab fixture generator manifest is explicitly registered in
 `scripts/verify_wp8_repository_safety.py`: only module
 `nbsr.local/demo-lab/fixturegen` and Go `1.26.5` are accepted. Preserve the
