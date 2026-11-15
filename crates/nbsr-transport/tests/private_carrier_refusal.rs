@@ -217,6 +217,38 @@ async fn private_mutual_tls_refuses_authority_and_confirms_dedicated_cleanup() {
             );
         }
         let evidence = right.evidence(client_raw).unwrap();
+        // Real second TLS connection with the SAME credentials and endpoints:
+        // identity equality must not permit evidence replay across connections.
+        let (second_client, second_server) = tokio::join!(
+            async {
+                client
+                    .connect(remote, "gateway.fixture")
+                    .unwrap()
+                    .await
+                    .unwrap()
+            },
+            async { server.accept().await.unwrap().await.unwrap() }
+        );
+        let second = Peer {
+            control_claimed: std::sync::atomic::AtomicBool::new(false),
+            connection: second_server,
+            owner: Arc::new(()),
+        };
+        let second_evidence = second.evidence(client_raw).unwrap();
+        assert_eq!(second_evidence.raw, evidence.raw);
+        assert_eq!(
+            second.unavailable(&evidence).unwrap_err(),
+            "foreign connection evidence"
+        );
+        assert_eq!(
+            right.unavailable(&second_evidence).unwrap_err(),
+            "foreign connection evidence"
+        );
+        assert_eq!(
+            second.unavailable(&second_evidence).unwrap_err(),
+            "authority unavailable"
+        );
+        drop((second_evidence, second, second_client));
         assert!(right.evidence(server_raw).is_err());
         assert!(left.evidence(server_raw).is_ok());
         assert_eq!(
@@ -273,4 +305,29 @@ async fn private_mutual_tls_refuses_authority_and_confirms_dedicated_cleanup() {
         "transport experiment timed out after {:?}",
         started.elapsed()
     );
+}
+
+#[test]
+fn strict_extraction_rejects_parseable_nonzero_unused_key_bits() {
+    let ca = ca();
+    let (certificate, _) = leaf(&ca, "gateway.fixture", true);
+    let mut der = certificate.to_vec();
+    // Exact Ed25519 SubjectPublicKeyInfo header, including BIT STRING length.
+    // This test edits public fixture bytes; signature validity is NOT asserted.
+    let header = [
+        0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00,
+    ];
+    let matches: Vec<_> = der
+        .windows(header.len())
+        .enumerate()
+        .filter_map(|(offset, bytes)| (bytes == header).then_some(offset))
+        .collect();
+    assert_eq!(matches.len(), 1);
+    let offset = matches[0];
+    der[offset + 11] = 1;
+    der[offset + 43] &= 0xfe;
+    let (rest, parsed) = X509Certificate::from_der(&der).unwrap();
+    assert!(rest.is_empty());
+    assert_eq!(parsed.public_key().subject_public_key.unused_bits, 1);
+    assert_eq!(raw_ed25519(&der), Err("not canonical Ed25519"));
 }
