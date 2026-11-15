@@ -101,10 +101,7 @@ func TestProxyRequestTraversesResolutionAndPreSecureRouteRelay(t *testing.T) {
 	if err := connection.Close(); err != nil {
 		t.Fatal(err)
 	}
-	deadline := time.Now().Add(time.Second)
-	for runtime.ProxyUsage().ActiveConnections != 0 && time.Now().Before(deadline) {
-		time.Sleep(time.Millisecond)
-	}
+	waitRuntimeIdle(t, runtime)
 	opener.mu.Lock()
 	defer opener.mu.Unlock()
 	if len(opener.routes) != 1 || opener.routes[0].ServiceIdentity != "nbsr-demo-service-a-v1" || opener.routes[0].Intent.Port != 8080 {
@@ -293,14 +290,28 @@ func connectTestProxy(t *testing.T, runtime *Runtime) net.Conn {
 	return connection
 }
 
-func waitRuntimeIdle(t *testing.T, runtime *Runtime) {
-	t.Helper()
-	deadline := time.Now().Add(time.Second)
-	for runtime.ProxyUsage().ActiveConnections != 0 && time.Now().Before(deadline) {
+type runtimeIdleSnapshot struct{ active, flows, refs uint64 }
+
+func awaitRuntimeIdle(sample func() runtimeIdleSnapshot, deadline time.Time) (runtimeIdleSnapshot, bool) {
+	for {
+		snapshot := sample()
+		if snapshot.active == 0 && snapshot.flows == 0 && snapshot.refs == 0 {
+			return snapshot, true
+		}
+		if !time.Now().Before(deadline) {
+			return snapshot, false
+		}
 		time.Sleep(time.Millisecond)
 	}
-	if usage := runtime.ProxyUsage(); usage.ActiveConnections != 0 {
-		t.Fatalf("proxy ownership leaked: %+v", usage)
+}
+
+func waitRuntimeIdle(t *testing.T, runtime *Runtime) {
+	t.Helper()
+	snapshot, idle := awaitRuntimeIdle(func() runtimeIdleSnapshot {
+		return runtimeIdleSnapshot{uint64(runtime.ProxyUsage().ActiveConnections), uint64(runtime.FlowUsage().Entries), runtime.MappingReferences()}
+	}, time.Now().Add(time.Second))
+	if !idle {
+		t.Fatalf("runtime did not return idle (last observed): %+v", snapshot)
 	}
 }
 
