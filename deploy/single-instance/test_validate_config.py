@@ -364,3 +364,45 @@ def test_valid_text_gateway_mismatch_rejects():
     config["client"]["gateway_id"] = "gateway.other"
     with pytest.raises(ValueError):
         implementation().validate_bytes(json.dumps(config).encode())
+
+
+@pytest.mark.parametrize(
+    "path,value",
+    [
+        (("client", "identity_ref"), "ref:substituted-client"),
+        (("origin", "identity_ref"), "ref:substituted-origin"),
+        (("gateway", "trust_ref"), "ref:substituted-trust"),
+        (("gateway", "registration_policy_ref"), "ref:substituted-policy"),
+        (("origin", "services", 0, "registration_authority_ref"), "ref:substituted-authority"),
+        (("origin", "services", 0, "connector_principal"), "55" * 32),
+        (("origin", "services", 0, "operator_id"), "66" * 32),
+    ],
+)
+def test_well_formed_identity_substitution_never_verifies_authority(path, value):
+    data = sample()
+    target = data
+    for key in path[:-1]:
+        target = target[key]
+    target[path[-1]] = value
+    result = implementation().validate_bytes(json.dumps(data).encode())
+    assert result == {"status": "CONFIG_VALID_OFFLINE", "ready": False, "references_verified": False, "service_count": 1}
+
+
+@pytest.mark.parametrize(
+    "path,value",
+    [
+        (("client", "service_id"), "77" * 32),
+        (("origin", "services", 0, "service_id"), "77" * 32),
+        (("client", "gateway_id"), "other.fixture"),
+        (("origin", "services", 0, "gateway_id"), "other.fixture"),
+    ],
+)
+def test_cross_role_identity_substitution_is_rejected(path, value):
+    data = sample()
+    target = data
+    for key in path[:-1]:
+        target = target[key]
+    target[path[-1]] = value
+    validator = implementation()
+    with pytest.raises(validator.ConfigError):
+        validator.validate_bytes(json.dumps(data).encode())
