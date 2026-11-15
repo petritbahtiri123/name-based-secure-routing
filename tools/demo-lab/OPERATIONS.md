@@ -93,7 +93,11 @@ cleanup, even when that cleanup fails. Each helper gets at most one second withi
 the same remaining budget. All helper waits/inspections are attempted; survivors,
 unstarted helpers, or failed/interrupted observations retain UI ownership and
 report cleanup uncertainty. Multiple helper failures remain chained together for
-diagnosis. Normal authenticated shutdown requests retain their existing responses.
+diagnosis. The first authenticated shutdown request still receives 202 when helper
+start succeeds. Once a helper reference is retained, further shutdown requests
+receive 409 and create no new helper, including after a failed start. The one
+reference is never discarded to permit retries; reconcile ownership before a new
+session. Authentication and exact Host/Origin checks happen before this admission.
 No automatic kill, forced lock removal, or successful workload-cleanup claim follows
 from listener closure.
 

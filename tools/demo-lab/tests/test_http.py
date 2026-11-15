@@ -51,6 +51,9 @@ def test_http_session_and_cross_origin_boundary(monkeypatch):
         return answer
     try:
         assert call('GET', '/api/status')[0] == 401
+        assert call('POST', '/api/shutdown', {})[0] == 401
+        assert call('POST', '/api/shutdown', {}, Origin='https://evil.test')[0] == 403
+        assert helpers == []
         assert call('POST', '/api/start', {'scenario': 'unknown_service', 'request_id': 'one'}, Origin='https://evil.test')[0] == 403
         assert call('GET', '/api/status', Host='evil.test')[0] == 403
         status, result = call('POST', '/api/bootstrap', {'secret': url.fragment})

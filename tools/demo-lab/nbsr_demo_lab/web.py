@@ -153,6 +153,8 @@ def serve(coordinator, *, open_browser=True):
                     coordinator.cancel()
                     return self.reply(202, {'status': 'cancellation_requested'})
                 if self.path == '/api/shutdown' and not body:
+                    if shutdown_threads:
+                        return self.reply(409, {'error': 'Shutdown already attempted; reconcile ownership before retry.'})
                     coordinator.cancel()
                     helper = threading.Thread(target=self.server.shutdown, daemon=True)
                     shutdown_threads.append(helper)

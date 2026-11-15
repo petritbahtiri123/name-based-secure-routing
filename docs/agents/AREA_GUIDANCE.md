@@ -426,7 +426,10 @@ trusted-local mapping limits and the unexecuted standalone staging/diagnostic pl
 
 For HTTP shutdown-helper ownership, run
 `python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_http_shutdown_helpers.py`.
-Track each exact helper before attempting start. Attempt every helper join within
+Allow at most one retained HTTP shutdown-helper start attempt per server session;
+subsequent requests return 409 without replacing or discarding its ownership, even
+if start failed. Authentication/Origin checks precede this admission. Track the
+exact helper before attempting start. Attempt every helper join within
 the shared cleanup deadline even if expiry cleanup fails; keep UI ownership when
 any helper survives or cannot be inspected. Preserve multiple failure causes.
 The existing HTTP boundary test also checks actual shutdown-helper termination.

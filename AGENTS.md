@@ -192,3 +192,5 @@ Dashboard cleanup joins share one monotonic budget; expiry-thread survival or
 inspection failure retains UI ownership. A wait budget is not a process-exit guarantee.
 Track HTTP shutdown helpers before start and inspect all within the shared cleanup
 budget; any surviving or uninspectable helper keeps UI ownership unresolved.
+Permit at most one retained HTTP shutdown-helper attempt per server session;
+reject repeats without discarding ownership, including after a failed start.

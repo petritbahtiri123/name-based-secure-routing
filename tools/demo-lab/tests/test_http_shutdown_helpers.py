@@ -9,13 +9,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from nbsr_demo_lab import web
 
 
+@pytest.mark.parametrize('request_count', [2, 128])
 @pytest.mark.parametrize('expiry_alive', [False, True])
 @pytest.mark.parametrize('failure', [None, 'alive', 'join', 'inspect', 'start', 'interrupt'])
-def test_each_requested_http_helper_is_joined_and_uncertainty_retains_lock(tmp_path, monkeypatch, failure, expiry_alive):
+def test_shutdown_attempt_is_bounded_and_uncertainty_retains_lock(tmp_path, monkeypatch, failure, expiry_alive, request_count):
     import demo
     from nbsr_demo_lab import coordinator
 
     joined = []
+    joined_threads = []
+    created = []
+    started = []
     replies = []
     class Owner:
         def cancel(self): pass
@@ -26,7 +30,7 @@ def test_each_requested_http_helper_is_joined_and_uncertainty_retains_lock(tmp_p
         def shutdown(self): pass
         def server_close(self): pass
         def serve_forever(self, **kwargs):
-            for _ in range(2):
+            for _ in range(request_count):
                 handler = object.__new__(self.handler)
                 handler.server = self
                 handler.path = '/api/shutdown'
@@ -37,13 +41,19 @@ def test_each_requested_http_helper_is_joined_and_uncertainty_retains_lock(tmp_p
                 handler.reply = lambda status, value: replies.append(status)
                 handler.do_POST()
     class Thread:
-        def __init__(self, target, **kwargs): self.http = target.__name__ == 'shutdown'
+        def __init__(self, target, **kwargs):
+            self.http = target.__name__ == 'shutdown'
+            if self.http:
+                created.append(self)
         def start(self):
+            if self.http:
+                started.append(self)
             if self.http and failure == 'start':
                 raise RuntimeError('fixture startup failure')
         def join(self, timeout):
             if self.http:
                 joined.append(timeout)
+                joined_threads.append(self)
                 if failure in ('join', 'start'):
                     raise RuntimeError('fixture join failure')
                 if failure == 'interrupt':
@@ -59,9 +69,10 @@ def test_each_requested_http_helper_is_joined_and_uncertainty_retains_lock(tmp_p
     monkeypatch.setattr(demo, '__file__', str(tmp_path / 'tools/demo-lab/demo.py'))
     monkeypatch.setattr(sys, 'argv', ['demo.py', 'serve'])
     assert demo.main() == (2 if failure or expiry_alive else 0)
-    assert len(joined) == 2
+    assert len(created) == len(started) == len(joined) == 1
+    assert created[0] is started[0] is joined_threads[0]
     assert all(0 <= timeout <= 1 for timeout in joined)
-    assert replies == ([409, 409] if failure == 'start' else [202, 202])
+    assert replies == ([409] if failure == 'start' else [202]) + [409] * (request_count - 1)
     assert (tmp_path / 'tools/demo-lab/.state/ui.lock').exists() == bool(failure or expiry_alive)
 
 
