@@ -115,7 +115,7 @@ pub(crate) struct RuntimeAdmissionConfig {
 
 #[derive(Clone, Copy)]
 struct DemoBackendRouteConfig<'a> {
-    backend: &'a DemoBackendMap,
+    dispatch: BackendDispatch<'a>,
     admission: Option<&'a RuntimeAdmissionConfig>,
 }
 
@@ -1655,6 +1655,7 @@ pub(crate) async fn run_demo_backend_with_timeout(
 
 // Internal mode only: existing callers remain DirectDemo. No runtime enablement.
 #[allow(dead_code)]
+#[derive(Clone, Copy)]
 pub(crate) enum BackendDispatch<'a> {
     DirectDemo(&'a DemoBackendMap),
     ConnectorBacked,
@@ -1958,13 +1959,41 @@ async fn relay_demo_backend_until(
     admitted: &nbsr_transport::ActiveChannel,
     deadline: std::time::Instant,
 ) -> Result<Vec<u8>, DemoBackendError> {
-    ensure_demo_backend_binding(map, admitted)?;
+    relay_backend_dispatch_until(
+        application,
+        BackendDispatch::DirectDemo(map),
+        admitted,
+        deadline,
+    )
+    .await
+}
+
+fn ensure_backend_dispatch_binding(
+    dispatch: BackendDispatch<'_>,
+    admitted: &nbsr_transport::ActiveChannel,
+) -> Result<(), DemoBackendError> {
+    match dispatch {
+        BackendDispatch::DirectDemo(map) => ensure_demo_backend_binding(map, admitted),
+        BackendDispatch::ConnectorBacked => match unavailable_connector_capability() {
+            Err(error) => Err(error),
+            Ok(impossible) => match impossible {},
+        },
+    }
+}
+
+async fn relay_backend_dispatch_until(
+    application: &mut nbsr_transport::ApplicationStream,
+    dispatch: BackendDispatch<'_>,
+    admitted: &nbsr_transport::ActiveChannel,
+    deadline: std::time::Instant,
+) -> Result<Vec<u8>, DemoBackendError> {
+    ensure_backend_dispatch_binding(dispatch, admitted)?;
     let tokio_deadline = tokio::time::Instant::from_std(deadline);
     let request = tokio::time::timeout_at(tokio_deadline, application.receive_payload())
         .await
         .map_err(|_| DemoBackendError::TimedOut)?
         .map_err(|_| DemoBackendError::StreamFailed)?;
-    let response = run_demo_backend_until(map, admitted, &request, deadline, None).await?;
+    let response = run_backend_dispatch_until(dispatch, admitted, &request, deadline, None).await?;
     tokio::time::timeout_at(tokio_deadline, application.send_payload(&response))
         .await
         .map_err(|_| DemoBackendError::TimedOut)?
@@ -1994,7 +2023,7 @@ pub(crate) async fn run_demo_backend_connector(
         route,
         attestations,
         DemoBackendRouteConfig {
-            backend: map,
+            dispatch: BackendDispatch::DirectDemo(map),
             admission: None,
         },
         deadline,
@@ -2020,7 +2049,7 @@ async fn run_demo_backend_connector_until(
     if let Some(admission) = config.admission {
         ensure_runtime_admission_binding(admission, &admitted)?;
     }
-    ensure_demo_backend_binding(config.backend, &admitted)?;
+    ensure_backend_dispatch_binding(config.dispatch, &admitted)?;
     let accepted = route_accept_for_admitted(&admitted);
     session
         .select_stream_credit_profile(
@@ -2053,7 +2082,7 @@ async fn run_demo_backend_connector_until(
     .map_err(|_| DemoBackendError::StreamFailed)?;
     let stream_id = application.id();
     let response =
-        relay_demo_backend_until(&mut application, config.backend, &admitted, deadline).await;
+        relay_backend_dispatch_until(&mut application, config.dispatch, &admitted, deadline).await;
     let released = session
         .update(|session| session.release_stream(admitted.channel_id, stream_id))
         .map_err(|_| DemoBackendError::StreamFailed);
@@ -2145,7 +2174,7 @@ pub(crate) async fn run_demo_backend_server_operation_with_admission(
             &route,
             &attestations,
             DemoBackendRouteConfig {
-                backend: map,
+                dispatch: BackendDispatch::DirectDemo(map),
                 admission: runtime_admission,
             },
             deadline,
@@ -4090,4 +4119,32 @@ mod connector_refusal_tests {
             before
         );
     }
+}
+
+#[cfg(test)]
+pub(crate) fn supervisor_entries_for_test() -> usize {
+    DISPATCH_SUPERVISOR_ENTRIES.with(|count| count.get())
+}
+
+#[cfg(test)]
+pub(crate) async fn run_unavailable_connector_route_for_test(
+    connection: &nbsr_transport::AuthenticatedConnection,
+    control: &mut nbsr_transport::ControlStream,
+    session: ControlSession,
+    route: &nbsr_transport::CoreV02Envelope,
+    attestations: &LocalFederationAdmissionAttestations,
+) -> Result<Vec<u8>, DemoBackendError> {
+    run_demo_backend_connector_until(
+        connection,
+        control,
+        session,
+        route,
+        attestations,
+        DemoBackendRouteConfig {
+            dispatch: BackendDispatch::ConnectorBacked,
+            admission: None,
+        },
+        std::time::Instant::now() + Duration::from_secs(2),
+    )
+    .await
 }

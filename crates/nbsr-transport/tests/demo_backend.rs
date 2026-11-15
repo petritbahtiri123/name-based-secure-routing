@@ -2185,3 +2185,30 @@ fn windows_staged_cleanup_survives_a_transient_image_handle() {
         "cleanup remains bounded"
     );
 }
+
+#[tokio::test(flavor = "current_thread")]
+async fn connector_mode_refuses_through_private_route_wrapper_before_supervisor() {
+    let ConnectorSetup {
+        listener,
+        source,
+        destination,
+        mut destination_control,
+        destination_session,
+        route,
+        ..
+    } = connector_setup().await;
+    let before = interop_server::supervisor_entries_for_test();
+    let result = interop_server::run_unavailable_connector_route_for_test(
+        &destination,
+        &mut destination_control,
+        destination_session,
+        &route,
+        &federation_attestations(),
+    )
+    .await;
+    assert_eq!(result, Err(DemoBackendError::ConnectorUnavailable));
+    assert_eq!(interop_server::supervisor_entries_for_test(), before);
+    source.close().await.unwrap();
+    destination.close().await.unwrap();
+    listener.close().await.unwrap();
+}
