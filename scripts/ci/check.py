@@ -44,7 +44,8 @@ def command_groups(profile: str) -> list[Command]:
     if profile == "python-core":
         return [Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
                                        *(f"tests/{name}.py" for name in CORE_TESTS),
-                                       "deploy/single-instance/test_validate_config.py")),
+                                       "deploy/single-instance/test_validate_config.py",
+                                       "tests/security/test_adversarial_campaign.py")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",

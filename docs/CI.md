@@ -311,3 +311,10 @@ Lab pytest suite, frontend Node regressions, and locked npm typecheck/build on
 Ubuntu. It uses the package's own dependency pins; existing project jobs are unchanged.
 See [scope and limits](../tools/performance-lab/docs/ci.md). No live source collection,
 real evidence import or benchmark is selected; hosted acceptance is separate.
+
+## Offline security-result contracts
+
+The automatic Python core profile runs the seven adversarial campaign manifest,
+result-schema and result-analysis tests on Ubuntu and Windows. This selects
+`tests/security/test_adversarial_campaign.py`, not the campaign runner. It does
+not run attack scenarios, compile peers or establish live security coverage.
