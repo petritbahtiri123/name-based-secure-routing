@@ -351,3 +351,14 @@ mapping, runtime registration, reconnect, production cleanup or READY. The
 fixture has operation/endpoint bounds and the existing profile supervisor;
 its failure-path cleanup branches are not exhaustively exercised. No SPHERE,
 external endpoint, deployment credential or throughput workload is selected.
+
+## Static deployment security contracts
+
+The default Python core profile runs `tests/test_deployment_tls.py` and
+`tests/test_kind_security.py` on Ubuntu and Windows. These twelve existing cases
+read tracked Compose, Envoy, kind manifests, configuration and bootstrap/probe
+script source. They assert loopback bindings, declared mutual-TLS settings,
+trust-boundary separation, pinned images and named network-policy/probe contracts.
+They do not execute those scripts, start Docker/Kubernetes, connect to endpoints,
+or prove live TLS or network-policy enforcement. No deployment credentials,
+additional services or throughput workloads are introduced.
