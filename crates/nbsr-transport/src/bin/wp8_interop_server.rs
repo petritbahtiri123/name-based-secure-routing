@@ -4121,12 +4121,16 @@ mod connector_refusal_tests {
     }
 }
 
+// Used by the integration-test inclusion of this file, not the binary unit target.
 #[cfg(test)]
+#[allow(dead_code)]
 pub(crate) fn supervisor_entries_for_test() -> usize {
     DISPATCH_SUPERVISOR_ENTRIES.with(|count| count.get())
 }
 
+// Used by the integration-test inclusion of this file, not the binary unit target.
 #[cfg(test)]
+#[allow(dead_code)]
 pub(crate) async fn run_unavailable_connector_route_for_test(
     connection: &nbsr_transport::AuthenticatedConnection,
     control: &mut nbsr_transport::ControlStream,
