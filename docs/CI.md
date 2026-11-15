@@ -376,3 +376,16 @@ rollback/lock/concurrent-writer, symlink and independent file-verifier tests rem
 outside this addition pending their own effect/cleanup review. Those other cases
 can write temporary files, create threads and invoke Windows ACL helpers; none of
 those operations is exercised by these four selected node IDs.
+
+## Legacy-origin cache model
+
+The default Python core profile executes `tests/test_legacy_origin.py` on Ubuntu
+and Windows (32 parametrized cases). Supplied synthetic DNS snapshots, explicit
+timestamps and validator callbacks exercise normalization/bounds, cache freshness
+and grace, bounded retry scheduling, sequence/digest chaining, equivocation,
+hard-failure invalidation, tombstones and capacity refusal. These tests perform no
+DNS queries, network connections, subprocesses or file persistence. DNSSEC status
+is fixture input, not cryptographic validation; scheduling is numeric state, not
+a live retry loop. Passing this model does not establish resolver interoperability,
+authenticated discovery or production authority. Live Name Node/server end-to-end
+tests are not enabled by this addition.
