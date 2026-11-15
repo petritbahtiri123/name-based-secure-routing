@@ -6,10 +6,62 @@ use crate::{
 };
 use sha2::{Digest, Sha256};
 
+// Separately supplied fixture trust. No constructor accepts signed evidence.
+// Matches Python signer_identity's ten fields and 1..=64 inventory bound.
+pub struct SignerInventory {
+    identities: Vec<kar::SuppliedTestRoot>,
+}
+fn valid_identity(s: &kar::SuppliedTestRoot) -> bool {
+    (1..=64).contains(&s.kid.len())
+        && (1..=16).contains(&s.purpose)
+        && (1..=5).contains(&s.lifecycle)
+        && s.generation > 0
+        && s.sequence > 0
+        && s.not_before <= s.expires
+        && s.expires <= 253_402_300_799
+}
+fn same_identity(a: &kar::SuppliedTestRoot, b: &kar::SuppliedTestRoot) -> bool {
+    a.kid == b.kid
+        && a.key == b.key
+        && a.operator == b.operator
+        && a.purpose == b.purpose
+        && a.lifecycle == b.lifecycle
+        && a.generation == b.generation
+        && a.sequence == b.sequence
+        && a.not_before == b.not_before
+        && a.expires == b.expires
+        && a.revoked == b.revoked
+}
+impl SignerInventory {
+    pub fn supplied(identities: &[kar::SuppliedTestRoot]) -> Result<Self, Reject> {
+        need(
+            (1..=64).contains(&identities.len()),
+            "fixture signer inventory bounds",
+        )?;
+        need(
+            identities.iter().all(valid_identity),
+            "invalid fixture signer identity",
+        )?;
+        Ok(Self {
+            identities: identities.to_vec(),
+        })
+    }
+    fn check(&self, signer: &kar::SuppliedTestRoot) -> Result<(), Reject> {
+        need(valid_identity(signer), "invalid fixture signer identity")?;
+        need(
+            self.identities
+                .iter()
+                .any(|allowed| same_identity(allowed, signer)),
+            "signer absent from exact fixture inventory",
+        )
+    }
+}
+
 pub struct Context<'a> {
     pub policy: &'a [u8],
     pub scope: &'a [u8],
     pub inventory: &'a V,
+    pub signers: &'a SignerInventory,
     pub peer: &'a [u8; 32],
     pub key: SignedInput<'a>,
     pub chain: &'a [SignedInput<'a>],
@@ -59,6 +111,11 @@ pub fn verify(raw: &[u8], context: &Context<'_>) -> Result<CheckedFixtureBinding
         Sha256::digest(context.peer).as_slice() == codec::bytes(codec::get(q, 8)?, 32, false)?,
         "actual peer",
     )?;
+    need(context.chain.len() == 2, "bounded two-object context")?;
+    context.signers.check(context.key.signer)?;
+    for record in context.chain {
+        context.signers.check(record.signer)?;
+    }
     let expected = kar::ExpectedKey {
         operator: codec::bytes(codec::get(q, 4)?, 32, false)?
             .try_into()
@@ -133,6 +190,7 @@ mod tests {
         body: V,
         policy: Vec<u8>,
         inventory: V,
+        signers: SignerInventory,
     }
     impl Fixture {
         fn new() -> Self {
@@ -203,6 +261,27 @@ mod tests {
                 .collect(),
             );
             let policy = codec::encode(&body);
+            // Independent pinned public test configuration, not read from evidence roots.
+            let pinned_key: [u8; 32] =
+                hex("03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8")
+                    .try_into()
+                    .unwrap();
+            let allowed: Vec<_> = [(b'C', 1), (b'A', 5), (b'A', 6)]
+                .into_iter()
+                .map(|(op, purpose)| SuppliedTestRoot {
+                    operator: [op; 32],
+                    kid: b"key".to_vec(),
+                    key: pinned_key,
+                    purpose,
+                    lifecycle: 2,
+                    generation: 1,
+                    sequence: 1,
+                    not_before: 800,
+                    expires: 2100,
+                    revoked: false,
+                })
+                .collect();
+            let signers = SignerInventory::supplied(&allowed).unwrap();
             Self {
                 wires,
                 payloads,
@@ -212,6 +291,7 @@ mod tests {
                 body,
                 policy,
                 inventory,
+                signers,
             }
         }
         fn check(&self) -> Result<CheckedFixtureBinding, Reject> {
@@ -228,6 +308,7 @@ mod tests {
                     policy: &self.policy,
                     scope: &self.scope,
                     inventory: &self.inventory,
+                    signers: &self.signers,
                     peer: &self.peer,
                     key: SignedInput {
                         wire: &self.wires[0],
@@ -347,5 +428,94 @@ mod tests {
         }
         f.scope = codec::encode(&scope);
         assert!(matches!(f.check(), Err(Reject::Invalid(_))));
+    }
+    #[test]
+    fn each_signer_identity_field_is_independently_pinned() {
+        for signer in 0..3 {
+            for field in 0..10 {
+                let mut f = Fixture::new();
+                let s = &mut f.roots[signer];
+                match field {
+                    0 => s.kid = b"other".to_vec(),
+                    1 => s.key[0] ^= 1,
+                    2 => s.operator[0] ^= 1,
+                    3 => s.purpose = 2,
+                    4 => s.lifecycle = 3,
+                    5 => s.generation += 1,
+                    6 => s.sequence += 1,
+                    7 => s.not_before += 1,
+                    8 => s.expires -= 1,
+                    _ => s.revoked = true,
+                }
+                assert!(
+                    matches!(
+                        f.check(),
+                        Err(Reject::Invalid(
+                            "signer absent from exact fixture inventory"
+                        ))
+                    ),
+                    "signer {signer} field {field}"
+                );
+            }
+        }
+    }
+    #[test]
+    fn evidence_cannot_self_select_trust_or_mutate_supplied_snapshot() {
+        let mut f = Fixture::new();
+        // Expiry extension preserves signatures: metadata is not signed evidence.
+        f.roots[1].expires = 2200;
+        assert!(matches!(
+            f.check(),
+            Err(Reject::Invalid(
+                "signer absent from exact fixture inventory"
+            ))
+        ));
+        // Explicitly changing LOCAL test inventory is a separate action, not auto-trust.
+        f.signers = SignerInventory::supplied(&f.roots).unwrap();
+        assert!(f.check().is_ok());
+        f.roots[1].expires = 2300;
+        assert!(matches!(
+            f.check(),
+            Err(Reject::Invalid(
+                "signer absent from exact fixture inventory"
+            ))
+        ));
+    }
+    #[test]
+    fn signer_inventory_bounds_identity_validation_and_set_semantics() {
+        let f = Fixture::new();
+        assert!(SignerInventory::supplied(&[]).is_err());
+        assert!(SignerInventory::supplied(&vec![f.roots[0].clone(); 65]).is_err());
+        assert!(SignerInventory::supplied(&vec![f.roots[0].clone(); 64]).is_ok());
+        for field in 0..8 {
+            let mut s = f.roots[0].clone();
+            match field {
+                0 => s.kid.clear(),
+                1 => s.kid = vec![1; 65],
+                2 => s.purpose = 17,
+                3 => s.lifecycle = 0,
+                4 => s.generation = 0,
+                5 => s.sequence = 0,
+                6 => s.not_before = s.expires + 1,
+                _ => s.expires = 253_402_300_800,
+            }
+            assert!(matches!(
+                SignerInventory::supplied(&[s]),
+                Err(Reject::Invalid(_))
+            ));
+        }
+        let mut f = Fixture::new();
+        let mut allowed = f.roots.clone();
+        allowed.reverse();
+        allowed.push(allowed[0].clone());
+        f.signers = SignerInventory::supplied(&allowed).unwrap();
+        assert!(f.check().is_ok());
+        let mut extra = f.roots[0].clone();
+        extra.operator = [0; 32];
+        extra.not_before = extra.expires;
+        allowed.push(extra);
+        f.signers = SignerInventory::supplied(&allowed).unwrap();
+        assert!(f.check().is_ok());
+        // Python permits unused valid inventory members, duplicates and equal validity endpoints.
     }
 }
