@@ -424,6 +424,13 @@ trusted-local mapping limits and the unexecuted standalone staging/diagnostic pl
 
 ## Local Demo Lab
 
+For HTTP shutdown-helper ownership, run
+`python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_http_shutdown_helpers.py`.
+Track each exact helper before attempting start. Attempt every helper join within
+the shared cleanup deadline even if expiry cleanup fails; keep UI ownership when
+any helper survives or cannot be inspected. Preserve multiple failure causes.
+The existing HTTP boundary test also checks actual shutdown-helper termination.
+
 For expiry-thread ownership and shared cleanup waits, run
 `python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_expiry_cleanup.py`.
 The 120-second monotonic budget starts at dashboard cleanup entry; pass only the

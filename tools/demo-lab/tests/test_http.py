@@ -13,6 +13,14 @@ from nbsr_demo_lab import web
 
 def test_http_session_and_cross_origin_boundary(monkeypatch):
     urls = queue.Queue()
+    helpers = []
+    real_thread = threading.Thread
+    def track_thread(*args, **kwargs):
+        thread = real_thread(*args, **kwargs)
+        if getattr(kwargs.get('target'), '__name__', None) == 'shutdown':
+            helpers.append(thread)
+        return thread
+    monkeypatch.setattr(web.threading, 'Thread', track_thread)
     monkeypatch.setattr(web.webbrowser, 'open', lambda url: urls.put(url) or True)
     class Fake:
         running = False
@@ -59,3 +67,4 @@ def test_http_session_and_cross_origin_boundary(monkeypatch):
         thread.join(5)
     assert not thread.is_alive()
     assert coordinator.closed
+    assert helpers and all(not helper.is_alive() for helper in helpers)

@@ -87,9 +87,15 @@ confirmed stopped is also uncertain; do not remove its lock to retry.
 
 This bounds requested join waits, not total process lifetime or all blocking code.
 It starts at cleanup entry, not the shutdown button or initial cancellation. Socket
-closure and arbitrary coordinator code are not forcibly preempted; the HTTP shutdown
-helper thread is separate and is not joined here. No automatic kill, forced lock
-removal, or successful workload-cleanup claim follows from listener closure.
+closure and arbitrary coordinator code are not forcibly preempted. Every HTTP
+shutdown helper is retained before its start attempt and joined after expiry
+cleanup, even when that cleanup fails. Each helper gets at most one second within
+the same remaining budget. All helper waits/inspections are attempted; survivors,
+unstarted helpers, or failed/interrupted observations retain UI ownership and
+report cleanup uncertainty. Multiple helper failures remain chained together for
+diagnosis. Normal authenticated shutdown requests retain their existing responses.
+No automatic kill, forced lock removal, or successful workload-cleanup claim follows
+from listener closure.
 
 ## Read-only recovery triage
 
@@ -111,7 +117,7 @@ With an already provisioned environment, these checks need no Go/Rust build or
 live scenario. Run from the repository root:
 
 ```text
-python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_expiry_cleanup.py tools/demo-lab/tests/test_shutdown_uncertainty.py tools/demo-lab/tests/test_web_lifecycle.py tools/demo-lab/tests/test_status.py tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
+python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_http_shutdown_helpers.py tools/demo-lab/tests/test_expiry_cleanup.py tools/demo-lab/tests/test_shutdown_uncertainty.py tools/demo-lab/tests/test_web_lifecycle.py tools/demo-lab/tests/test_status.py tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
 node tools/demo-lab/tests/test_ui.cjs tools/demo-lab/static/app.js
 ```
 

@@ -35,24 +35,42 @@ def check_origin(host, origin, port):
     return host == f'127.0.0.1:{port}' and origin == f'http://127.0.0.1:{port}'
 
 
-def _join_expiry(thread, deadline):
+def _join_owned_thread(thread, deadline, label):
     if thread is None:
         return
     try:
         thread.join(timeout=min(1, max(0, deadline - time.monotonic())))
         alive = thread.is_alive()
     except (Exception, KeyboardInterrupt) as exc:
-        raise CleanupUnconfirmed('Expiry thread wait or inspection failed; cleanup is unconfirmed. '
+        raise CleanupUnconfirmed(f'{label} wait or inspection failed; cleanup is unconfirmed. '
                                  'Retain ownership markers and reconcile before restart.') from exc
     if alive:
-        raise CleanupUnconfirmed('Expiry thread survived shutdown wait; cleanup is unconfirmed. '
+        raise CleanupUnconfirmed(f'{label} survived shutdown wait; cleanup is unconfirmed. '
                                  'Retain ownership markers and reconcile before restart.')
+
+
+def _join_expiry(thread, deadline):
+    _join_owned_thread(thread, deadline, 'Expiry thread')
+
+
+def _join_shutdown_helpers(threads, deadline):
+    failures = []
+    for thread in threads:
+        try:
+            _join_owned_thread(thread, deadline, 'HTTP shutdown helper')
+        except CleanupUnconfirmed as exc:
+            failures.append(exc)
+    if failures:
+        raise CleanupUnconfirmed('HTTP shutdown helper cleanup is unconfirmed. '
+                                 'Retain ownership markers and reconcile before restart.') from ExceptionGroup(
+                                     'Owned HTTP shutdown helper failures', failures)
 
 
 def serve(coordinator, *, open_browser=True):
     session = Session()
     static = Path(__file__).resolve().parents[1] / 'static'
     last_request = [time.monotonic()]
+    shutdown_threads = []
 
     class Handler(BaseHTTPRequestHandler):
         server_version = 'NBSRDemoLab'
@@ -136,7 +154,9 @@ def serve(coordinator, *, open_browser=True):
                     return self.reply(202, {'status': 'cancellation_requested'})
                 if self.path == '/api/shutdown' and not body:
                     coordinator.cancel()
-                    threading.Thread(target=self.server.shutdown, daemon=True).start()
+                    helper = threading.Thread(target=self.server.shutdown, daemon=True)
+                    shutdown_threads.append(helper)
+                    helper.start()
                     return self.reply(202, {'status': 'stopping'})
             except (ValueError, RuntimeError) as exc:
                 return self.reply(409, {'error': str(exc)})
@@ -175,4 +195,7 @@ def serve(coordinator, *, open_browser=True):
             try:
                 coordinator.close(deadline=deadline)
             finally:
-                _join_expiry(expiry_thread, deadline)
+                try:
+                    _join_expiry(expiry_thread, deadline)
+                finally:
+                    _join_shutdown_helpers(shutdown_threads, deadline)

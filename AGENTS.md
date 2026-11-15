@@ -190,3 +190,5 @@ A failed or interrupted shutdown join/worker inspection also leaves cleanup
 unconfirmed; retain ownership and preserve the original failure for diagnosis.
 Dashboard cleanup joins share one monotonic budget; expiry-thread survival or
 inspection failure retains UI ownership. A wait budget is not a process-exit guarantee.
+Track HTTP shutdown helpers before start and inspect all within the shared cleanup
+budget; any surviving or uninspectable helper keeps UI ownership unresolved.
