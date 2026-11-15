@@ -318,3 +318,12 @@ The automatic Python core profile runs the seven adversarial campaign manifest,
 result-schema and result-analysis tests on Ubuntu and Windows. This selects
 `tests/security/test_adversarial_campaign.py`, not the campaign runner. It does
 not run attack scenarios, compile peers or establish live security coverage.
+
+## Offline Name Node adapters
+
+The Python core profile also selects the existing Name Node DNS-adapter and
+observability suites on Ubuntu and Windows: seven synthetic-route/lifetime cases
+and twelve bounded-label, privacy and observer-failure cases. They use in-memory
+fixtures and fake clocks, not live DNS, socket servers or timing measurements.
+The separate Name Node server and end-to-end route tests remain outside this
+addition and require their own effects and resource review.
