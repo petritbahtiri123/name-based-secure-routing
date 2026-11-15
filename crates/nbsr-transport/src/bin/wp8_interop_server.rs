@@ -705,6 +705,7 @@ fn spawn_backend_process(
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum DemoBackendError {
     InvalidMap,
+    ConnectorUnavailable,
     ExecutableHashMismatch,
     ServiceMismatch,
     EmptyRequest,
@@ -1652,6 +1653,15 @@ pub(crate) async fn run_demo_backend_with_timeout(
     run_demo_backend_until(map, admitted, request, deadline, None).await
 }
 
+// Internal mode only: existing callers remain DirectDemo. No runtime enablement.
+#[allow(dead_code)]
+pub(crate) enum BackendDispatch<'a> {
+    DirectDemo(&'a DemoBackendMap),
+    ConnectorBacked,
+}
+fn unavailable_connector_capability() -> Result<std::convert::Infallible, DemoBackendError> {
+    Err(DemoBackendError::ConnectorUnavailable)
+}
 async fn run_demo_backend_until(
     map: &DemoBackendMap,
     admitted: &nbsr_transport::ActiveChannel,
@@ -1659,6 +1669,29 @@ async fn run_demo_backend_until(
     deadline: std::time::Instant,
     failure: Option<DemoBackendThreadFailure>,
 ) -> Result<Vec<u8>, DemoBackendError> {
+    run_backend_dispatch_until(
+        BackendDispatch::DirectDemo(map),
+        admitted,
+        request,
+        deadline,
+        failure,
+    )
+    .await
+}
+async fn run_backend_dispatch_until(
+    dispatch: BackendDispatch<'_>,
+    admitted: &nbsr_transport::ActiveChannel,
+    request: &[u8],
+    deadline: std::time::Instant,
+    failure: Option<DemoBackendThreadFailure>,
+) -> Result<Vec<u8>, DemoBackendError> {
+    let map = match dispatch {
+        BackendDispatch::DirectDemo(map) => map,
+        BackendDispatch::ConnectorBacked => match unavailable_connector_capability() {
+            Err(error) => return Err(error),
+            Ok(impossible) => match impossible {},
+        },
+    };
     ensure_demo_backend_binding(map, admitted)?;
     if request.is_empty() {
         return Err(DemoBackendError::EmptyRequest);
@@ -1707,6 +1740,8 @@ fn start_backend_worker(
     deadline: std::time::Instant,
     failure: Option<DemoBackendThreadFailure>,
 ) -> Result<BackendWorker, DemoBackendError> {
+    #[cfg(test)]
+    DISPATCH_SUPERVISOR_ENTRIES.with(|count| count.set(count.get() + 1));
     let (cancel_send, cancel_receive) = mpsc::channel();
     let (result_send, result_receive) = mpsc::channel();
     if failure == Some(DemoBackendThreadFailure::Supervisor) {
@@ -3975,6 +4010,84 @@ mod p2a_diagnostic_outcome_tests {
                 snapshots_written: 1,
             })
             .is_ok()
+        );
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    static DISPATCH_SUPERVISOR_ENTRIES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+#[cfg(test)]
+mod connector_refusal_tests {
+    use super::*;
+    fn channel() -> nbsr_transport::ActiveChannel {
+        nbsr_transport::ActiveChannel {
+            channel_id: [1; 16],
+            route_id: [2; 16],
+            service_id: "service.example".into(),
+            route_grant_digest: [3; 32],
+            transport: "tcp".into(),
+            port: 8080,
+        }
+    }
+    #[tokio::test]
+    async fn connector_unavailable_refuses_actual_dispatch_before_supervisor() {
+        let before = DISPATCH_SUPERVISOR_ENTRIES.with(|count| count.get());
+        for request in [
+            b"GET / HTTP/1.1\r\n\r\n".to_vec(),
+            vec![b'x'; 4096],
+            vec![b'x'; 4097],
+            Vec::new(),
+        ] {
+            let result = run_backend_dispatch_until(
+                BackendDispatch::ConnectorBacked,
+                &channel(),
+                &request,
+                std::time::Instant::now() + Duration::from_secs(1),
+                None,
+            )
+            .await;
+            assert_eq!(result, Err(DemoBackendError::ConnectorUnavailable));
+        }
+        assert_eq!(
+            DISPATCH_SUPERVISOR_ENTRIES.with(|count| count.get()),
+            before
+        );
+    }
+    #[tokio::test]
+    async fn direct_demo_keeps_request_validation_before_supervisor() {
+        let before = DISPATCH_SUPERVISOR_ENTRIES.with(|count| count.get());
+        let map = DemoBackendMap {
+            service_id: "service.example".into(),
+            executable: PathBuf::from("nonexistent-refusal-fixture"),
+            executable_sha256: [0; 32],
+        };
+        assert_eq!(
+            run_demo_backend_until(
+                &map,
+                &channel(),
+                &[],
+                std::time::Instant::now() + Duration::from_secs(1),
+                None
+            )
+            .await,
+            Err(DemoBackendError::EmptyRequest)
+        );
+        assert_eq!(
+            run_demo_backend_until(
+                &map,
+                &channel(),
+                &vec![0; 4097],
+                std::time::Instant::now() + Duration::from_secs(1),
+                None
+            )
+            .await,
+            Err(DemoBackendError::RequestTooLarge)
+        );
+        assert_eq!(
+            DISPATCH_SUPERVISOR_ENTRIES.with(|count| count.get()),
+            before
         );
     }
 }
