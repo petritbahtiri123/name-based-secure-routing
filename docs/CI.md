@@ -389,3 +389,15 @@ is fixture input, not cryptographic validation; scheduling is numeric state, not
 a live retry loop. Passing this model does not establish resolver interoperability,
 authenticated discovery or production authority. Live Name Node/server end-to-end
 tests are not enabled by this addition.
+
+## In-memory NameRouteService checks
+
+The default Python core profile runs `tests/test_name_service.py` on both platforms
+(14 cases). Tests use generated ephemeral keys, inline fixture route policies and
+in-memory synthetic-address pools. They check response privacy, invalid names and
+client keys, allocation preservation, capability validation and mapping lifetime.
+A separate valid-HTTP/443-only-policy regression checks the registered-port guard
+before admission accounting, address allocation or binding signing; the invalid
+capability test remains separately named. No real resolver, listener, system route
+or network connection is started, and generated keys are not written to files.
+This does not establish live routing, authenticated operator authority or READY.

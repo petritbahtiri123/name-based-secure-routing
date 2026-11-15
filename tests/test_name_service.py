@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+import json
 
 import pytest
 
@@ -73,7 +74,7 @@ def test_invalid_session_keys_do_not_consume_synthetic_addresses(settings):
     assert response.synthetic_ipv4 == "127.80.0.1"
 
 
-def test_name_route_rejects_capability_outside_registered_ports(service):
+def test_name_route_rejects_invalid_capability(service):
     with pytest.raises(ValueError, match="route capabilities"):
         service.resolve("facebook.test", ClientSession.generate().public_key_b64, ("tcp:22",))
 
@@ -87,3 +88,24 @@ def test_route_binding_never_outlives_its_synthetic_mapping(settings):
 
     mapping = pool.lookup(response.synthetic_ipv4, now=before + timedelta(seconds=30))
     assert mapping is not None
+
+
+def test_valid_capability_outside_policy_is_rejected_before_side_effects(settings, monkeypatch):
+    registry = json.loads(settings.name_route_registry_json)
+    for route in registry["routes"]:
+        route["ports"] = [443]
+    restricted = settings.model_copy(update={"name_route_registry_json": json.dumps(registry)})
+    pool = SyntheticAddressPool("127.80.0.0/29", "fd00:6e62:7372::/125", ttl_seconds=60)
+    service = NameRouteService(pool=pool, settings=restricted)
+    calls = []
+
+    def forbidden(*args, **kwargs):
+        calls.append("side effect")
+        raise AssertionError("denied capability reached admission, allocation or signing")
+
+    monkeypatch.setattr(service._admission_limiter, "consume", forbidden)
+    monkeypatch.setattr(pool, "allocate", forbidden)
+    monkeypatch.setattr("nbsr.name_service.issue_name_binding", forbidden)
+    with pytest.raises(ValueError, match="outside the registered route policy"):
+        service.resolve("facebook.test", ClientSession.generate().public_key_b64, ("http",))
+    assert calls == []
