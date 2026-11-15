@@ -47,7 +47,11 @@ def command_groups(profile: str) -> list[Command]:
         return [Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
                                        *(f"tests/{name}.py" for name in CORE_TESTS),
                                        "deploy/single-instance/test_validate_config.py",
-                                       "tests/security/test_adversarial_campaign.py")),
+                                       "tests/security/test_adversarial_campaign.py",
+                                       "tests/test_wp6_continuity_snapshot.py::test_snapshot_encoding_is_canonical_stable_and_round_trips",
+                                       "tests/test_wp6_continuity_snapshot.py::test_decoder_rejects_unknown_missing_corrupt_unsorted_or_duplicate_state",
+                                       "tests/test_wp6_continuity_snapshot.py::test_decoder_rejects_noncanonical_partial_and_oversized_input",
+                                       "tests/test_wp6_continuity_snapshot.py::test_replica_config_requires_sorted_unique_bounded_majority")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",

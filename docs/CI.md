@@ -362,3 +362,17 @@ trust-boundary separation, pinned images and named network-policy/probe contract
 They do not execute those scripts, start Docker/Kubernetes, connect to endpoints,
 or prove live TLS or network-policy enforcement. No deployment credentials,
 additional services or throughput workloads are introduced.
+
+## Snapshot codec subset
+
+The default Python core profile selects four exact node IDs from
+`tests/test_wp6_continuity_snapshot.py` on Ubuntu and Windows (eight parametrized
+cases): canonical round-trip/digest stability; malformed, unknown, missing,
+corrupt, unsorted or duplicate state; noncanonical/partial/oversized input; and
+sorted unique bounded-majority replica configuration. These are in-memory
+prototype codec/configuration checks, not consensus or authority validation.
+The snapshot file is deliberately not selected wholesale: repository persistence,
+rollback/lock/concurrent-writer, symlink and independent file-verifier tests remain
+outside this addition pending their own effect/cleanup review. Those other cases
+can write temporary files, create threads and invoke Windows ACL helpers; none of
+those operations is exercised by these four selected node IDs.
