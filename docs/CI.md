@@ -401,3 +401,7 @@ before admission accounting, address allocation or binding signing; the invalid
 capability test remains separately named. No real resolver, listener, system route
 or network connection is started, and generated keys are not written to files.
 This does not establish live routing, authenticated operator authority or READY.
+
+### WP7 audit and privacy model subset
+
+The default Python core profile selects ten exact WP7 conformance functions (eleven parametrized cases). They exercise bounded operator-owned audit logs, sequence exhaustion, admission preflight, private-destination redaction, receipt linkage resistance, closed topology and duplicate JSON-member rejection. The connector and raw-scan operations here are deterministic in-memory models with supplied authority and time inputs, not network operations. The config-file check and subprocess-based verifier remain outside this subset. These cases do not establish live connector security, authenticated authority provenance or production readiness. A selector contract rejects broad whole-file admission and preserves the exact subset.

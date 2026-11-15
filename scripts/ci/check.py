@@ -53,6 +53,16 @@ def command_groups(profile: str) -> list[Command]:
                                        "tests/test_wp6_continuity_snapshot.py::test_snapshot_encoding_is_canonical_stable_and_round_trips",
                                        "tests/test_wp6_continuity_snapshot.py::test_decoder_rejects_unknown_missing_corrupt_unsorted_or_duplicate_state",
                                        "tests/test_wp6_continuity_snapshot.py::test_decoder_rejects_noncanonical_partial_and_oversized_input",
+                                       "tests/test_wp7_conformance.py::test_audit_logs_are_operator_owned_bounded_and_monotonic",
+                                       "tests/test_wp7_conformance.py::test_audit_sequence_exhaustion_fails_closed_before_recording",
+                                       "tests/test_wp7_conformance.py::test_safe_operator_report_and_errors_exclude_private_destination",
+                                       "tests/test_wp7_conformance.py::test_connector_receipt_cannot_be_used_as_a_private_destination_guessing_or_linkage_oracle",
+                                       "tests/test_wp7_conformance.py::test_audit_overload_has_no_fallback_log_or_unbounded_growth",
+                                       "tests/test_wp7_conformance.py::test_audit_capacity_is_preflighted_before_admission_success_or_peer_audit_mutation",
+                                       "tests/test_wp7_conformance.py::test_public_admission_cannot_bypass_full_or_missing_operator_audits",
+                                       "tests/test_wp7_conformance.py::test_closed_topology_rejects_direct_operator_edge_and_oversized_collections",
+                                       "tests/test_wp7_conformance.py::test_raw_scan_is_deterministic_reaches_service_only_through_connector_and_discovers_no_private_destination",
+                                       "tests/test_wp7_conformance.py::test_verifier_rejects_duplicate_json_members_at_every_object",
                                        "tests/test_wp6_continuity_snapshot.py::test_replica_config_requires_sorted_unique_bounded_majority")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
