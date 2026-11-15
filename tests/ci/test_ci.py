@@ -344,3 +344,38 @@ def test_loopback_worker_is_owned_and_environment_restored(monkeypatch, tmp_path
     worker = Path(calls[1][1][calls[1][1].index("-o") + 1])
     assert not worker.parent.exists()
     assert all(c[2] == 90 for c in calls)
+
+
+def test_default_rust_executes_connector_dispatch_regressions():
+    commands = {c.name: c.argv for c in command_groups("rust")}
+    cases = {
+        "rust-dispatch-boundary": ("--bin", "wp8_interop_server", "connector_refusal_tests::connector_unavailable_refuses_actual_dispatch_before_supervisor"),
+        "rust-direct-boundary": ("--bin", "wp8_interop_server", "connector_refusal_tests::direct_demo_keeps_request_validation_before_supervisor"),
+        "rust-wrapper-refusal": ("--test", "demo_backend", "connector_mode_refuses_through_private_route_wrapper_before_supervisor"),
+        "rust-wrapper-direct": ("--test", "demo_backend", "main_connector_function_relays_positive_federated_credit"),
+    }
+    for name, (kind, target, case) in cases.items():
+        assert name in commands, name
+        argv = commands[name]
+        assert argv[argv.index(kind) + 1] == target
+        assert argv[-4:] == (case, "--", "--exact", "--test-threads=1")
+        assert "--no-run" not in argv and "--ignored" not in argv
+        assert "--locked" in argv and "--offline" in argv
+
+
+def test_rust_matrix_prepares_pinned_go_for_direct_regression():
+    workflow = json.loads(Path(".github/workflows/ci.yml").read_text())
+    job = workflow["jobs"]["rust"]
+    assert set(job["strategy"]["matrix"]["os"]) == {"ubuntu-24.04", "windows-2025"}
+    steps = job["steps"]
+    setup = next((s for s in steps if s.get("uses", "").startswith("actions/setup-go@")), None)
+    assert setup is not None
+    assert setup["with"]["go-version"] == "1.26.5" and "if" not in setup
+    prep = next(s for s in steps if s.get("name") == "Prepare pinned demo backend dependencies")
+    assert prep["working-directory"] == "client/nbsr-go-client/demo" and "if" not in prep
+    assert "go mod download" in prep["run"] and "go mod verify" in prep["run"]
+    run = next(s for s in steps if s.get("name") == "Run bounded Rust profile")
+    assert steps.index(setup) < steps.index(prep) < steps.index(run)
+    assert run["env"]["GOPROXY"] == "off"
+    assert run["env"]["GOFLAGS"] == "-mod=readonly -p=2"
+    validate_workflow(workflow)

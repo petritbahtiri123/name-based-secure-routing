@@ -143,8 +143,24 @@
           "run": "cargo fetch --locked --manifest-path crates/nbsr-transport/Cargo.toml"
         },
         {
+          "uses": "actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e",
+          "with": {
+            "go-version": "1.26.5",
+            "cache": false
+          }
+        },
+        {
+          "name": "Prepare pinned demo backend dependencies",
+          "working-directory": "client/nbsr-go-client/demo",
+          "run": "go mod download\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\ngo mod verify\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }"
+        },
+        {
           "name": "Run bounded Rust profile",
-          "run": "python scripts/ci/check.py rust --timeout 600"
+          "run": "python scripts/ci/check.py rust --timeout 600",
+          "env": {
+            "GOPROXY": "off",
+            "GOFLAGS": "-mod=readonly -p=2"
+          }
         },
         {
           "name": "Verify lockfile is unchanged",

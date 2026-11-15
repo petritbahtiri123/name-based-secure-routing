@@ -77,6 +77,10 @@ def command_groups(profile: str) -> list[Command]:
                                                    "--test", "connector_loopback", "--test", "connector_signature",
                                                    "--test", "connector_authority", "--test", "connector_kar",
                                                    "--test", "connector_genesis")),
+                Command("rust-dispatch-boundary", cargo + ("--bin", "wp8_interop_server", "connector_refusal_tests::connector_unavailable_refuses_actual_dispatch_before_supervisor", "--", "--exact", "--test-threads=1")),
+                Command("rust-direct-boundary", cargo + ("--bin", "wp8_interop_server", "connector_refusal_tests::direct_demo_keeps_request_validation_before_supervisor", "--", "--exact", "--test-threads=1")),
+                Command("rust-wrapper-refusal", cargo + ("--test", "demo_backend", "connector_mode_refuses_through_private_route_wrapper_before_supervisor", "--", "--exact", "--test-threads=1")),
+                Command("rust-wrapper-direct", cargo + ("--test", "demo_backend", "main_connector_function_relays_positive_federated_credit", "--", "--exact", "--test-threads=1")),
                 Command("rust-doc", cargo + ("--doc",)),
                 Command("rust-clippy", ("cargo", "clippy", *cargo[2:], "--all-targets", "--", "-D", "warnings"))]
     if profile == "rust-extended":

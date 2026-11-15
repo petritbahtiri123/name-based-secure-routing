@@ -284,3 +284,22 @@ LDH names, service IDs, inclusive validity and scope narrowing. ACE, updates and
 other recognized out-of-slice features remain unsupported, not authorized.
 These checks do not establish provisioning, full governance, registration
 readiness or hosted CI success. See the 2026-11-14 evidence reviews.
+
+## Private connector dispatch regression coverage
+
+The default `rust` profile additionally executes four exact, single-threaded cases
+on both Ubuntu 24.04 and Windows 2025: the two `connector_refusal_tests` binary
+unit cases, `connector_mode_refuses_through_private_route_wrapper_before_supervisor`,
+and `main_connector_function_relays_positive_federated_credit` in `demo_backend`.
+These are execution gates, not just the existing all-target Clippy compilation.
+The Rust jobs prepare pinned Go 1.26.5 and verify the demo module dependencies
+before testing; the backend build then runs with `GOPROXY=off` and read-only module
+flags. Existing checks, per-command bounds and workflow permissions are retained.
+
+The cases cover unavailable connector refusal without direct fallback and an
+unchanged direct demo relay, using local fixture authority and loopback transport.
+They do not authorize a positive connector producer, real identity provisioning,
+SPHERE activity or a load benchmark. Other `demo_backend` tests remain outside
+this focused default addition; the manual extended profile is not automatic.
+Confirm the named tests actually ran in the hosted log: local results and a green
+Clippy step are not hosted execution evidence for these cases.
