@@ -252,3 +252,17 @@ is not yet verified, so this is not promised as a one-command guaranteed install
 On Mac `check` reports host prerequisites separately and keeps ready_for_build
 false: image preparation/assembly is not turnkey and native acceptance is missing.
 See container/README.md. Mac functionality remains UNKNOWN until real testing.
+
+## Automated component coverage
+
+`.github/workflows/demo-lab.yml` runs the complete Python component directory and
+the dependency-free Node UI regression command above on Ubuntu 24.04 and Windows
+2025 for branch pushes, pull requests and manual dispatch. Python 3.13.14 and Node
+24.19.0 are pinned; pytest and its dependencies use `constraints/dev.txt`. Tests
+have bounded steps and a ten-minute job limit. Existing project gates are retained.
+
+These checks exercise fixture evidence, mocked platform/container behavior, owned
+small helper processes and localhost HTTP lifecycle tests. They do not build or
+launch NBSR, access SPHERE, run benchmarks, prepare Docker images or prove native
+macOS support. Local passes and workflow-contract validation are not hosted-run
+evidence: verify both OS job logs at the exact published commit.
