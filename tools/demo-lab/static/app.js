@@ -1,5 +1,6 @@
 'use strict';
 let token = null, busy = false, connectionState = 'connecting', timer = null, lastState = null;
+let refreshSequence = 0, renderedRefreshSequence = 0;
 const connection = document.querySelector('#connection');
 const result = document.querySelector('#result');
 const command = document.querySelector('#command');
@@ -68,7 +69,7 @@ function render(state){
  if(state.blocked&&!state.running)connection.textContent='New runs blocked: cleanup needs operator reconciliation. No automatic retry.';
  else if(!busy)connection.textContent=state.running?'Run admitted. Waiting for verified evidence and cleanup.':'Private local session connected.';
 }
-async function refresh(){if(connectionState!=='connected')return;const state=await api('/api/status');if(connectionState==='connected')render(state);}
+async function refresh(){if(connectionState!=='connected')return;const sequence=++refreshSequence;const state=await api('/api/status');if(connectionState==='connected'&&sequence>renderedRefreshSequence){renderedRefreshSequence=sequence;render(state);}}
 document.querySelector('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(command.textContent);document.querySelector('#copy-status').textContent='Command copied.';}catch(_){document.querySelector('#copy-status').textContent='Clipboard unavailable. Select and copy the displayed command manually.';}};
 document.querySelector('#cancel').onclick=async()=>{if(connectionState!=='connected')return;try{await api('/api/cancel',{});connection.textContent='Cancellation requested; waiting for confirmed cleanup.';}catch(error){if(connectionState==='connected')connection.textContent=error.message;}};
 document.querySelector('#stop').onclick=async()=>{if(connectionState!=='connected')return;try{await api('/api/shutdown',{});connectionState='stopped';clearInterval(timer);disableActions();connection.textContent='Shutdown requested. Session closed; confirm owned cleanup in terminal. Last evidence remains below.';document.querySelector('#freshness').textContent='Session closed — retained evidence only.';}catch(error){if(connectionState==='connected')connection.textContent=error.message;}};

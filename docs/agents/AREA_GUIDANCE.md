@@ -499,7 +499,9 @@ regression with an existing Node installation:
 `node tools/demo-lab/tests/test_ui.cjs tools/demo-lab/static/app.js`. Do not install
 Node merely for this check. Keep expected schematic steps distinct from verified
 receipt assertions. A disconnected UI must disable actions, retain last evidence
-as historical and never automatically replay a POST.
+as historical and never automatically replay a POST. Overlapping status responses
+must not overwrite a response from a later-issued request already rendered. This
+is client request-order protection, not server-side versioning or freshness proof.
 
 For Windows setup changes, use
 `python -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_windows_setup.py`.

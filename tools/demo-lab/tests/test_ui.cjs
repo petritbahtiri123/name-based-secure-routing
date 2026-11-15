@@ -19,5 +19,26 @@ vm.createContext(context);vm.runInContext(fs.readFileSync(process.argv[2],'utf8'
  assert.match(elements.get('#result').textContent,/unknown|No verified/i);
  context.fetch=async()=>({ok:true,json:async()=>({scenarios:[],current:{status:'RUNNING'}})});
  await vm.runInContext('refresh()',context);assert.match(elements.get('#connection').textContent,/Disconnected/);
- console.log('PASS: six evidence gates, unknown scenario, failed POST, disabled actions, late-response guard');
+
+ // Real refresh/render functions with explicitly controlled response order.
+ const deferred=[];context.fetch=()=>new Promise(resolve=>deferred.push(resolve));
+ vm.runInContext("connectionState='connected'",context);
+ const older=vm.runInContext('refresh()',context),newer=vm.runInContext('refresh()',context);
+ const stateFor=label=>({platform_validation:label,running:false,blocked:false,scenarios:[],current:null});
+ deferred[1]({ok:true,json:async()=>stateFor('newer')});await newer;
+ assert.equal(elements.get('#platform').textContent,'newer');
+ deferred[0]({ok:true,json:async()=>stateFor('older')});await older;
+ assert.equal(elements.get('#platform').textContent,'newer','older response must not overwrite newer evidence');
+
+ // An earlier completion may render while a later request is pending (no starvation).
+ const first=vm.runInContext('refresh()',context),second=vm.runInContext('refresh()',context);
+ deferred[2]({ok:true,json:async()=>stateFor('first completed')});await first;
+ assert.equal(elements.get('#platform').textContent,'first completed');
+ deferred[3]({ok:true,json:async()=>stateFor('second completed')});await second;
+ assert.equal(elements.get('#platform').textContent,'second completed');
+ // A response still cannot resurrect the stopped session.
+ const late=vm.runInContext('refresh()',context);vm.runInContext("connectionState='stopped'",context);
+ deferred[4]({ok:true,json:async()=>stateFor('must not render')});await late;
+ assert.equal(elements.get('#platform').textContent,'second completed');
+ console.log('PASS: six evidence gates, unknown scenario, failed POST, disabled actions, late-response guard, ordered overlapping responses, no starvation, stopped-session guard');
 })().catch(e=>{console.error(e);process.exitCode=1});
