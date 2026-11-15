@@ -115,6 +115,81 @@ other workloads; the snapshot can race concurrent changes. Reconcile exact owner
 identities and retained receipts before restart. Do not delete locks based on this
 report. This command does not turn Mac's untested adapter into accepted support.
 
+## When Stop fails or cleanup remains unconfirmed (Windows)
+
+A `202` response accepts a shutdown request; it does not confirm process exit.
+A first helper-start failure can return `409` after scenario cancellation was
+requested. The listener may still be running. Once the helper reference is
+retained, another Stop request returns `409` without another start attempt.
+Neither response proves that owned work stopped. Do not repeatedly press Stop,
+replay its POST, launch another dashboard, or start another scenario to test it.
+
+1. Keep the launch terminal and the original error available. Record the exact
+   checkout/HEAD, time, displayed scenario/run ID and whether the UI is connected.
+   Distinguish the HTTP response from the terminal's later shutdown/cleanup error.
+   A terminal message saying `Demo Lab stopped` with cleanup uncertainty is not
+   evidence of process exit; the shell may not have returned yet. Do not wait an
+   arbitrary 120 seconds and infer success. Keep the private bootstrap URL/token
+   and raw runtime credentials out of notes intended for sharing.
+2. From a separate terminal in the same checkout, run the existing read-only
+   commands below. Capture `$LASTEXITCODE` immediately after Python, before another
+   native command can replace it; preserve both outputs.
+
+   ```powershell
+   python tools/demo-lab/demo.py status
+   $LASTEXITCODE
+   ```
+
+   PRESENT means a marker exists, not that its owner is alive; UNKNOWN is not
+   absence. If paths are inaccessible or unsafe, stop that inspection rather than
+   changing permissions or following alternate paths to force a result.
+3. Inspect only the relevant local records below when accessible. They supply
+   identifiers for reconciliation, not authority to remove a lock. Preserve the
+   files and their original contents, including failures.
+
+   | Record (repository-relative) | What it can establish |
+   | --- | --- |
+   | `tools/demo-lab/.state/ui.lock` | Recorded UI `pid` and `purpose`; no process creation time or proof that the PID still identifies the same process |
+   | `tools/demo-lab/.state/active.json` | Recorded run ID and scenario when the unresolved-run marker exists |
+   | `tools/demo-lab/.state/runs/<recorded-run-id>/receipt.json` and selected `process/` logs | Retained scenario evidence, when written; an early failure may leave no receipt |
+   | `client/nbsr-go-client/demo/test-results/nbsr-demo/runtime/active.lock` | A separate historical-demo marker requiring its own owner reconciliation |
+
+4. For the recorded UI PID only, an existing Windows observation is
+   `Get-Process -Id <recorded-ui-pid> | Select-Object Id, ProcessName, StartTime, Path`.
+   Replace the placeholder with the PID actually recorded in `ui.lock`. Compare
+   available observations with the original launch terminal and known launch
+   identity. PID reuse, missing properties, access errors, or no matching process
+   leave gaps; a generic process-name scan does not fill them. The UI PID does not
+   identify every scenario child process or prove their cleanup. If the original
+   identity cannot be established, keep ownership unresolved.
+5. If the exact run ID is known, replace the placeholder with that recorded ID
+   and capture the verifier output and exit code immediately:
+
+   ```powershell
+   python tools/demo-lab/demo.py verify --run-id <recorded-run-id>
+   $LASTEXITCODE
+   ```
+
+   Do not select an unrelated latest or historical PASS. A
+   missing/incomplete receipt is not CLEAN. A later verified PASS/CLEAN concerns
+   that scenario's recorded evidence; it does not certify the UI helper's exit or
+   authorize removing `ui.lock`. A failed/cancelled scenario can also require
+   separate inspection of its recorded cleanup outcome.
+6. Hand off the observations to the run owner/maintainer using the
+   [verified handoff template](../../docs/agents/HANDOFF.md): source identity,
+   recorded owner/run IDs, original failure, marker observations, verifier result,
+   and unresolved identity/cleanup gaps. Include selected redacted observations,
+   not a dump of private runtime directories. If the UI PID is gone but its lock
+   remains, preserve that fact rather than interpreting it as permission to reset.
+
+There is no implemented CLI `stop`, `unlock`, or `reconcile` command. This checklist
+collects evidence; it does not supply an automatic recovery or lock-removal step.
+Keep failed receipts and ownership markers until the owner has resolved the exact
+resources and authorized a separate recovery action. Do not delete locks, kill by
+process name, change network/security settings, or regenerate fixtures as a retry.
+Windows observations here do not establish clean-machine acceptance. Mac remains
+prepared but untested; these Windows commands are not a Mac recovery procedure.
+
 ## Lightweight regression checks
 
 With an already provisioned environment, these checks need no Go/Rust build or
