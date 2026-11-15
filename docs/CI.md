@@ -338,3 +338,16 @@ POSIX permission assertions run only outside Windows; the symlink rejection
 case can skip where symlink creation is unavailable. This is fixture generation
 coverage, not enrollment, deployment or connector readiness. Generated private
 material is not uploaded or cached; existing dependency-only cache rules remain.
+
+## Private carrier transport fixture
+
+The default Rust profile executes `private_carrier_refusal` serially on Ubuntu
+and Windows, rather than relying on compile-only Clippy. The two tests cover
+strict fixture peer-key extraction and a private mutual-TLS Quinn loopback with
+an empty stream, owner-bound fixture evidence and authority refusal. Ephemeral
+CA/keys remain in memory; no registration or application payload is sent.
+This is a transport primitive fixture, not authenticated operator/principal
+mapping, runtime registration, reconnect, production cleanup or READY. The
+fixture has operation/endpoint bounds and the existing profile supervisor;
+its failure-path cleanup branches are not exhaustively exercised. No SPHERE,
+external endpoint, deployment credential or throughput workload is selected.
