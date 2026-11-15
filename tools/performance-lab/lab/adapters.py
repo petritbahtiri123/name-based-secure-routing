@@ -2,7 +2,7 @@
 import json
 import math
 
-ADAPTER_VERSION = '2.1.0'
+ADAPTER_VERSION = '2.1.1'
 MAX_BYTES = 4 * 1024 * 1024
 
 
@@ -39,6 +39,16 @@ def number(value):
 
 def count(value):
     return str(value) if type(value) is int and 0 <= value < 2**64 else None
+
+
+def latency_values(values, divisor=1):
+    """Keep missing values unknown and reject contradictory reported percentiles."""
+    parsed = {q: number(values.get(q)) for q in ('p50', 'p95', 'p99')}
+    known = [value for value in parsed.values() if value is not None]
+    if known != sorted(known):
+        raise ValueError('Reported latency quantiles are unordered')
+    return {q + '_us': value if value is None or divisor == 1 else value / divisor
+            for q, value in parsed.items()}
 
 
 def gate(name, status, detail):
@@ -105,7 +115,7 @@ def normalize(obj):
                 # despite historically retained *_ns inner key names.
                 quantiles = {q:legacy.get(q+'_latency_ns') for q in ('p50','p95','p99')}
             if not isinstance(quantiles, dict): raise ValueError('Quantiles must be an object')
-            run['latency'] = {**{q+'_us':number(quantiles.get(q)) for q in ('p50','p95','p99')},
+            run['latency'] = {**latency_values(quantiles),
                 'scope':'Median of sampled steady-window quantiles; not pooled percentiles. ' + obj.get('latency_method','Sampling stride and timer boundary not recorded in this artifact.')}
             run['gates'] = [gate('Evidence level','unknown','Sanitized summary claims only; referenced raw hashes have not been verified.'),
                 gate('Ownership cleanup','pass' if row.get('owned_process_tls_and_mount_cleanup_confirmed') is True else 'unknown','Reported by summary; not independently checked by the Lab.'),
@@ -126,7 +136,7 @@ def normalize(obj):
         run.update(phase='repeat',duration_s=duration/1e9 if duration is not None else None,
             shape={k:obj[k] for k in ('streams','payload_bytes','outstanding_per_stream','model') if k in obj})
         run['counts']['completed'] = count(obj.get('completed_operations'))
-        run['latency'] = {**{q+'_us': number(obj.get(q+'_latency_ns'))/1000 if number(obj.get(q+'_latency_ns')) is not None else None for q in ('p50','p95','p99')},
+        run['latency'] = {**latency_values({q: obj.get(q+'_latency_ns') for q in ('p50','p95','p99')}, 1000),
             'scope':f"Producer repeat quantiles. Sample stride: {obj.get('latency_sample_stride','not recorded')}; count: {obj.get('latency_sample_count','not recorded')}. No pooled-window inference."}
         run['gates'] = [gate('Provenance','unknown','Standalone repeat lacks environment and role-specific binary provenance.'),
             gate('Comparison eligibility','unknown','No matched ABBA block metadata.')]
