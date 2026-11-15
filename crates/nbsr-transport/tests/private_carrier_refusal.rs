@@ -74,21 +74,33 @@ impl Peer {
     }
 }
 // Ticket retains endpoints even after timeout. No callback clears ownership.
-struct CloseTicket {
-    endpoints: Option<(Endpoint, Endpoint)>,
+struct CloseTicket<T = (Endpoint, Endpoint)> {
+    endpoints: Option<T>,
+}
+impl<T> CloseTicket<T> {
+    fn finish_observation(
+        &mut self,
+        observation: Result<(), &'static str>,
+    ) -> Result<(), &'static str> {
+        if self.endpoints.is_none() {
+            return Err("already released");
+        }
+        observation?;
+        self.endpoints.take();
+        Ok(())
+    }
 }
 impl CloseTicket {
     async fn confirm(&mut self, budget: Duration) -> Result<(), &'static str> {
         let (a, b) = self.endpoints.as_ref().ok_or("already released")?;
         a.close(VarInt::from_u32(0), b"fixture complete");
         b.close(VarInt::from_u32(0), b"fixture complete");
-        timeout(budget, async {
+        let observation = timeout(budget, async {
             tokio::join!(a.wait_idle(), b.wait_idle());
         })
         .await
-        .map_err(|_| "uncertain close")?;
-        self.endpoints.take();
-        Ok(())
+        .map_err(|_| "uncertain close");
+        self.finish_observation(observation)
     }
 }
 fn leaf(
@@ -330,4 +342,57 @@ fn strict_extraction_rejects_parseable_nonzero_unused_key_bits() {
     assert!(rest.is_empty());
     assert_eq!(parsed.public_key().subject_public_key.unused_bits, 1);
     assert_eq!(raw_ed25519(&der), Err("not canonical Ed25519"));
+}
+
+#[test]
+fn cleanup_ticket_retains_after_deadline_until_both_idle_once() {
+    use std::{
+        future::Future,
+        sync::atomic::{AtomicUsize, Ordering},
+        task::{Context, Poll, Waker},
+    };
+    struct OwnedProbe(Arc<AtomicUsize>);
+    impl Drop for OwnedProbe {
+        fn drop(&mut self) {
+            self.0.fetch_add(1, Ordering::SeqCst);
+        }
+    }
+    let releases = Arc::new(AtomicUsize::new(0));
+    let mut ticket = CloseTicket {
+        endpoints: Some(OwnedProbe(releases.clone())),
+    };
+    let (client_idle, client_wait) = tokio::sync::oneshot::channel::<()>();
+    let server_observed = Arc::new(AtomicUsize::new(0));
+    let observed = server_observed.clone();
+    let mut pair = Box::pin(async move {
+        tokio::join!(
+            async {
+                client_wait.await.unwrap();
+            },
+            async {
+                observed.store(1, Ordering::SeqCst);
+            }
+        );
+    });
+    let mut context = Context::from_waker(Waker::noop());
+    assert!(matches!(pair.as_mut().poll(&mut context), Poll::Pending));
+    assert_eq!(server_observed.load(Ordering::SeqCst), 1);
+    // Deterministically inject the deadline observation while client is pending.
+    // No wall-clock sleep or claim about Quinn's drain timer is involved.
+    assert_eq!(
+        ticket.finish_observation(Err("uncertain close")),
+        Err("uncertain close")
+    );
+    assert!(ticket.endpoints.is_some());
+    assert_eq!(releases.load(Ordering::SeqCst), 0);
+    client_idle.send(()).unwrap();
+    assert!(matches!(pair.as_mut().poll(&mut context), Poll::Ready(())));
+    // Late completion does not itself relinquish ownership.
+    assert!(ticket.endpoints.is_some());
+    assert_eq!(releases.load(Ordering::SeqCst), 0);
+    assert_eq!(ticket.finish_observation(Ok(())), Ok(()));
+    assert!(ticket.endpoints.is_none());
+    assert_eq!(releases.load(Ordering::SeqCst), 1);
+    assert_eq!(ticket.finish_observation(Ok(())), Err("already released"));
+    assert_eq!(releases.load(Ordering::SeqCst), 1);
 }
