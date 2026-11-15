@@ -23,7 +23,7 @@ def test_http_session_and_cross_origin_boundary(monkeypatch):
             self.starts += 1
             return {'run_id': 'fake'}
         def cancel(self): pass
-        def close(self): self.closed = True
+        def close(self, **kwargs): self.closed = True
     coordinator = Fake()
     thread = threading.Thread(target=web.serve, args=(coordinator,), daemon=True)
     thread.start()
@@ -33,7 +33,8 @@ def test_http_session_and_cross_origin_boundary(monkeypatch):
     def call(method, path, body=None, **overrides):
         connection = http.client.HTTPConnection('127.0.0.1', url.port, timeout=5)
         headers = {'Host': url.netloc, 'Origin': origin, 'Content-Type': 'application/json', 'X-NBSR-Action': 'demo'}
-        if token: headers['Authorization'] = 'Bearer ' + token
+        if token:
+            headers['Authorization'] = 'Bearer ' + token
         headers.update(overrides)
         connection.request(method, path, body=json.dumps(body) if body is not None else None, headers=headers)
         response = connection.getresponse()

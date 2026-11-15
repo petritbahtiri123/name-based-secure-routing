@@ -188,3 +188,5 @@ A worker surviving the shutdown join must report cleanup uncertainty and retain 
 ownership for reconciliation; do not equate launcher failure with process exit.
 A failed or interrupted shutdown join/worker inspection also leaves cleanup
 unconfirmed; retain ownership and preserve the original failure for diagnosis.
+Dashboard cleanup joins share one monotonic budget; expiry-thread survival or
+inspection failure retains UI ownership. A wait budget is not a process-exit guarantee.

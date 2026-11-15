@@ -61,7 +61,8 @@ attempted if socket closure raises. Errors still propagate;
 this is not proof that a scenario's child processes were cleaned up. Preserve
 unresolved-run markers and use the reconciliation procedure below before restart.
 
-The coordinator's existing worker join waits up to 120 seconds; this is not a
+The coordinator's worker join waits up to the remaining cleanup budget (capped at
+120 seconds); this is not a
 whole-process exit guarantee. A surviving non-daemon worker can keep the process
 alive. If the worker is still alive after that wait, shutdown raises a cleanup-
 uncertain error and the launcher reports failure (code 2), retaining `ui.lock`.
@@ -76,9 +77,19 @@ is chained for diagnosis, but its raw text is not included in the normal CLI err
 This does not handle every possible interruption point or force a worker to stop.
 Reconcile ownership even if the worker finishes after the failed observation.
 
-The expiry daemon is signaled to stop but is not joined. There is not yet a shared
-whole-shutdown deadline. No automatic kill, forced lock removal, or successful-
-cleanup claim follows from listener closure.
+On entry to the dashboard cleanup block, a single monotonic deadline is set
+120 seconds ahead. After signaling expiry stop and closing the listener, the
+coordinator receives that deadline. The expiry thread is then joined for at most
+one second, capped by the remaining budget, even when coordinator cleanup raises.
+A surviving expiry thread or failed/interrupted join/inspection reports cleanup
+uncertainty and retains UI ownership. An attempted thread start that cannot be
+confirmed stopped is also uncertain; do not remove its lock to retry.
+
+This bounds requested join waits, not total process lifetime or all blocking code.
+It starts at cleanup entry, not the shutdown button or initial cancellation. Socket
+closure and arbitrary coordinator code are not forcibly preempted; the HTTP shutdown
+helper thread is separate and is not joined here. No automatic kill, forced lock
+removal, or successful workload-cleanup claim follows from listener closure.
 
 ## Read-only recovery triage
 
@@ -100,7 +111,7 @@ With an already provisioned environment, these checks need no Go/Rust build or
 live scenario. Run from the repository root:
 
 ```text
-python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_shutdown_uncertainty.py tools/demo-lab/tests/test_web_lifecycle.py tools/demo-lab/tests/test_status.py tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
+python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_expiry_cleanup.py tools/demo-lab/tests/test_shutdown_uncertainty.py tools/demo-lab/tests/test_web_lifecycle.py tools/demo-lab/tests/test_status.py tools/demo-lab/tests/test_app.py tools/demo-lab/tests/test_windows_setup.py
 node tools/demo-lab/tests/test_ui.cjs tools/demo-lab/static/app.js
 ```
 

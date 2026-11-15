@@ -8,6 +8,8 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
+from .coordinator import CleanupUnconfirmed
+
 
 class Session:
     def __init__(self, clock=time.monotonic):
@@ -31,6 +33,20 @@ class Session:
 
 def check_origin(host, origin, port):
     return host == f'127.0.0.1:{port}' and origin == f'http://127.0.0.1:{port}'
+
+
+def _join_expiry(thread, deadline):
+    if thread is None:
+        return
+    try:
+        thread.join(timeout=min(1, max(0, deadline - time.monotonic())))
+        alive = thread.is_alive()
+    except (Exception, KeyboardInterrupt) as exc:
+        raise CleanupUnconfirmed('Expiry thread wait or inspection failed; cleanup is unconfirmed. '
+                                 'Retain ownership markers and reconcile before restart.') from exc
+    if alive:
+        raise CleanupUnconfirmed('Expiry thread survived shutdown wait; cleanup is unconfirmed. '
+                                 'Retain ownership markers and reconcile before restart.')
 
 
 def serve(coordinator, *, open_browser=True):
@@ -127,6 +143,7 @@ def serve(coordinator, *, open_browser=True):
             return self.reply(400, {'error': 'Unknown action or fields'})
 
     stop = threading.Event()
+    expiry_thread = None
     server = HTTPServer(('127.0.0.1', 0), Handler)
     try:
         url = f'http://127.0.0.1:{server.server_port}'
@@ -145,12 +162,17 @@ def serve(coordinator, *, open_browser=True):
                 if now - session.created >= 3600 or (now - last_request[0] >= 900 and not coordinator.running):
                     server.shutdown()
                     return
-        threading.Thread(target=expiry, daemon=True).start()
+        expiry_thread = threading.Thread(target=expiry, daemon=True)
+        expiry_thread.start()
         server.serve_forever(poll_interval=0.25)
     finally:
+        deadline = time.monotonic() + 120
         stop.set()
         try:
             # Stop accepting connections before potentially slow worker cleanup.
             server.server_close()
         finally:
-            coordinator.close()
+            try:
+                coordinator.close(deadline=deadline)
+            finally:
+                _join_expiry(expiry_thread, deadline)

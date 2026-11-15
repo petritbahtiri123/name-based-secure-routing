@@ -3,6 +3,7 @@ import json
 import platform
 import re
 import threading
+import time
 import uuid
 from pathlib import Path
 
@@ -101,11 +102,12 @@ class Coordinator:
     def cancel(self):
         self.cancel_event.set()
 
-    def close(self):
+    def close(self, *, deadline=None):
         self.cancel()
         if self.thread:
             try:
-                self.thread.join(timeout=120)
+                timeout = 120 if deadline is None else min(120, max(0, deadline - time.monotonic()))
+                self.thread.join(timeout=timeout)
                 alive = self.thread.is_alive()
             except (Exception, KeyboardInterrupt) as exc:
                 # An interrupted/failed observation cannot establish owned cleanup.

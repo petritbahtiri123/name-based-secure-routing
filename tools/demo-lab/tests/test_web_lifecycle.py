@@ -22,13 +22,15 @@ def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failu
             if failure == 'socket_close':
                 raise RuntimeError('fixture socket close failure')
     class Coordinator:
-        def close(self):
+        def close(self, **kwargs):
             events.append('coordinator_closed')
             if failure == 'close':
                 raise RuntimeError('fixture close failure')
     class Thread:
         def __init__(self, **kwargs):
             pass
+        def join(self, timeout): pass
+        def is_alive(self): return False
         def start(self):
             if failure == 'expiry_start':
                 raise RuntimeError('fixture expiry_start failure')
@@ -62,13 +64,15 @@ def test_startup_failure_closes_actual_loopback_socket(monkeypatch, failure):
         servers.append(server)
         return server
     class Coordinator:
-        def close(self):
+        def close(self, **kwargs):
             closed.append(True)
             if failure == 'close':
                 raise RuntimeError('fixture close failure')
     class Thread:
         def __init__(self, **kwargs):
             pass
+        def join(self, timeout): pass
+        def is_alive(self): return False
         def start(self):
             raise RuntimeError('fixture expiry_start failure')
     def browser(url):
@@ -107,7 +111,7 @@ def test_listener_closed_while_coordinator_cleanup_is_blocked(monkeypatch):
         servers.append(server)
         return server
     class Coordinator:
-        def close(self):
+        def close(self, **kwargs):
             entered.set()
             if not release.wait(2):
                 raise RuntimeError('test cleanup release deadline expired')

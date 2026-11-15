@@ -424,13 +424,21 @@ trusted-local mapping limits and the unexecuted standalone staging/diagnostic pl
 
 ## Local Demo Lab
 
+For expiry-thread ownership and shared cleanup waits, run
+`python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_expiry_cleanup.py`.
+The 120-second monotonic budget starts at dashboard cleanup entry; pass only the
+remaining budget to the worker join and cap the expiry join at one second within
+that same budget. Retain UI ownership on surviving/uninspectable expiry threads.
+Requested join bounds do not establish whole-process exit or workload cleanup.
+
 For surviving-worker shutdown behavior, run
 `python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_shutdown_uncertainty.py`.
 A join timeout, failed worker inspection, or interruption during the join must not
 report normal shutdown or remove UI ownership. Preserve
 actual worker/receipt outcomes separately from the failed shutdown attempt; do not
 kill or daemonize workers to make exit look successful. These tests shorten only
-the test join wait; the production 120-second budget is unchanged.
+the test join wait; standalone coordinator close remains capped at 120 seconds,
+and dashboard close uses the remaining shared cleanup budget.
 
 For dashboard startup/shutdown resource ownership, run
 `python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_web_lifecycle.py`.
