@@ -104,7 +104,13 @@ class Coordinator:
     def close(self):
         self.cancel()
         if self.thread:
-            self.thread.join(timeout=120)
-            if self.thread.is_alive():
+            try:
+                self.thread.join(timeout=120)
+                alive = self.thread.is_alive()
+            except (Exception, KeyboardInterrupt) as exc:
+                # An interrupted/failed observation cannot establish owned cleanup.
+                raise CleanupUnconfirmed('Shutdown wait or worker inspection failed; cleanup is unconfirmed. '
+                                         'Retain ownership markers and reconcile before restart.') from exc
+            if alive:
                 raise CleanupUnconfirmed('Worker survived shutdown wait; cleanup is unconfirmed. '
                                          'Retain ownership markers and reconcile before restart.')

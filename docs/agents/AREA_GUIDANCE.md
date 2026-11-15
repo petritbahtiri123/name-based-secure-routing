@@ -426,7 +426,8 @@ trusted-local mapping limits and the unexecuted standalone staging/diagnostic pl
 
 For surviving-worker shutdown behavior, run
 `python -B -m pytest -q -p no:cacheprovider tools/demo-lab/tests/test_shutdown_uncertainty.py`.
-A join timeout must not report normal shutdown or remove UI ownership. Preserve
+A join timeout, failed worker inspection, or interruption during the join must not
+report normal shutdown or remove UI ownership. Preserve
 actual worker/receipt outcomes separately from the failed shutdown attempt; do not
 kill or daemonize workers to make exit look successful. These tests shorten only
 the test join wait; the production 120-second budget is unchanged.

@@ -102,3 +102,50 @@ def test_cli_releases_ui_lock_for_normal_or_ordinary_startup_exit(tmp_path, monk
     monkeypatch.setattr(sys, 'argv', ['demo.py', 'serve'])
     assert demo.main() == (2 if failure else 0)
     assert not (tmp_path / 'tools/demo-lab/.state/ui.lock').exists()
+
+
+@pytest.mark.parametrize('stage', ['join', 'is_alive'])
+@pytest.mark.parametrize('error_type', [RuntimeError, OSError, KeyboardInterrupt])
+def test_failed_shutdown_observation_preserves_ui_owner(tmp_path, monkeypatch, capsys, stage, error_type):
+    import demo
+    from nbsr_demo_lab import coordinator, web
+
+    failure = error_type('fixture private error detail')
+    class BrokenWorker(Worker):
+        def join(self, timeout):
+            if stage == 'join':
+                raise failure
+            super().join(timeout)
+        def is_alive(self):
+            if stage == 'is_alive':
+                raise failure
+            return super().is_alive()
+    lab = Coordinator(tmp_path, tmp_path / 'tools/demo-lab/.state')
+    marker = lab.state / 'active.json'
+    marker.write_bytes(b'{"run_id":"retained-fixture"}')
+    lab.thread = BrokenWorker(True)
+    monkeypatch.setattr(coordinator, 'Coordinator', lambda *args: lab)
+    observed = []
+    def serve(owner, **kwargs):
+        try:
+            owner.close()
+        except BaseException as exc:
+            observed.append(exc)
+            raise
+    monkeypatch.setattr(web, 'serve', serve)
+    monkeypatch.setattr(demo, '__file__', str(tmp_path / 'tools/demo-lab/demo.py'))
+    monkeypatch.setattr(sys, 'argv', ['demo.py', 'serve'])
+    # Catch injected Ctrl+C locally so an unfixed baseline does not abort pytest.
+    try:
+        result = demo.main()
+    except BaseException as exc:
+        result = type(exc).__name__
+    assert result == 2
+    assert isinstance(observed[0], coordinator.CleanupUnconfirmed)
+    assert observed[0].__cause__ is failure
+    assert lab.cancel_event.is_set()
+    assert (lab.state / 'ui.lock').exists()
+    assert marker.read_bytes() == b'{"run_id":"retained-fixture"}'
+    stderr = capsys.readouterr().err
+    assert 'cleanup is unconfirmed' in stderr
+    assert 'private error detail' not in stderr

@@ -70,6 +70,12 @@ The coordinator does not erase `active.json` on timeout; a later worker result c
 still record its actual cleanup outcome through the existing receipt path. The
 retained UI lock still requires owner reconciliation before restart.
 
+An exception or Ctrl+C during the worker join or subsequent liveness inspection
+also reports cleanup uncertainty and retains the UI lock. The original exception
+is chained for diagnosis, but its raw text is not included in the normal CLI error.
+This does not handle every possible interruption point or force a worker to stop.
+Reconcile ownership even if the worker finishes after the failed observation.
+
 The expiry daemon is signaled to stop but is not joined. There is not yet a shared
 whole-shutdown deadline. No automatic kill, forced lock removal, or successful-
 cleanup claim follows from listener closure.

@@ -186,3 +186,5 @@ Close the dashboard listener before potentially slow coordinator cleanup; preser
 cleanup attempts and uncertainty even when either operation fails.
 A worker surviving the shutdown join must report cleanup uncertainty and retain UI
 ownership for reconciliation; do not equate launcher failure with process exit.
+A failed or interrupted shutdown join/worker inspection also leaves cleanup
+unconfirmed; retain ownership and preserve the original failure for diagnosis.
