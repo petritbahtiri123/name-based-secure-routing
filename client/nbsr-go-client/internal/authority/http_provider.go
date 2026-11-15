@@ -53,6 +53,9 @@ type HTTPProviderConfig struct {
 	RequestIDs     RequestIDSource
 	Options        HTTPProviderOptions
 	NowUnix        func() uint64
+	// Diagnostics receives lossy sanitized hints. Keep it open until all requests
+	// finish; concurrent close/send is unsupported. Delivery drops rather than waits.
+	Diagnostics chan<- TransportDiagnostic
 }
 
 // HTTPProvider transports signed ACP requests and authenticates only the
@@ -80,6 +83,7 @@ func NewHTTPProvider(config HTTPProviderConfig) (*HTTPProvider, error) {
 	if err != nil {
 		return nil, err
 	}
+	client.diagnostics = config.Diagnostics
 	nowUnix := config.NowUnix
 	if nowUnix == nil {
 		nowUnix = func() uint64 { return uint64(time.Now().Unix()) }
@@ -230,6 +234,7 @@ type boundedHTTP2Client struct {
 	retryBackoff   time.Duration
 	attemptTimeout time.Duration
 	semaphore      chan struct{}
+	diagnostics    chan<- TransportDiagnostic
 	closed         atomic.Bool
 }
 
@@ -354,6 +359,7 @@ func (client *boundedHTTP2Client) Post(ctx context.Context, path string, body []
 		if err == nil {
 			return response, nil
 		}
+		emitTransportDiagnostic(client.diagnostics, err)
 		lastErr = err
 		if ctx.Err() != nil {
 			return nil, ErrRequestAmbiguous

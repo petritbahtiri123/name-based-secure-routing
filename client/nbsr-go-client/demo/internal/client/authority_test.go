@@ -232,9 +232,15 @@ func testAuthorityClient(t *testing.T, options ...fixture.Option) (*fixture.Serv
 	if err != nil {
 		t.Fatal(err)
 	}
-	client, err := NewAuthorityClient(server)
+	diagnostics := make(chan authority.TransportDiagnostic, 1)
+	client, err := NewAuthorityClient(server, WithTransportDiagnostics(diagnostics))
 	if err != nil {
 		server.Close()
+		select {
+		case kind := <-diagnostics:
+			t.Logf("bootstrap transport error class=%d (lossy diagnostic, not root cause)", kind)
+		default:
+		}
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = client.Close(); server.Close() })

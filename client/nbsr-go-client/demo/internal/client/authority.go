@@ -12,9 +12,18 @@ import (
 )
 
 type Option func(*options)
-type options struct{ tls *tls.Config }
+type options struct {
+	tls         *tls.Config
+	diagnostics chan<- authority.TransportDiagnostic
+}
 
 func WithTLSConfig(value *tls.Config) Option { return func(o *options) { o.tls = value } }
+
+// WithTransportDiagnostics enables lossy error-class hints; delivery is nonblocking.
+// Keep ch open until all requests finish. Concurrent close/send is unsupported.
+func WithTransportDiagnostics(ch chan<- authority.TransportDiagnostic) Option {
+	return func(o *options) { o.diagnostics = ch }
+}
 
 type AuthorityClient struct {
 	manager  *authority.Manager
@@ -23,6 +32,9 @@ type AuthorityClient struct {
 }
 
 type AuthorityClientConfig struct {
+	// Diagnostics must remain open until all requests finish; concurrent close/send
+	// is unsupported. Hints are lossy and sanitized, never raw transport errors.
+	Diagnostics             chan<- authority.TransportDiagnostic
 	Endpoint                string
 	TLSConfig               *tls.Config
 	SourceOperator, Profile string
@@ -44,7 +56,7 @@ func NewAuthorityClient(server *fixture.Server, opts ...Option) (*AuthorityClien
 		tlsConfig = cfg.tls.Clone()
 	}
 	request := server.AcquireRequest()
-	return NewAuthorityClientFromConfig(AuthorityClientConfig{Endpoint: server.Endpoint(), TLSConfig: tlsConfig, SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeviceSigner: server.DeviceSigner(), Issuers: server.Issuers(), Checkpoint: server.CheckpointClaims(), NowUnix: server.NowUnix()})
+	return NewAuthorityClientFromConfig(AuthorityClientConfig{Diagnostics: cfg.diagnostics, Endpoint: server.Endpoint(), TLSConfig: tlsConfig, SourceOperator: request.Key.SourceOperator, Profile: request.Key.Profile, DeviceID: request.Key.DeviceID, DeviceGeneration: request.Key.DeviceGeneration, DeviceSigner: server.DeviceSigner(), Issuers: server.Issuers(), Checkpoint: server.CheckpointClaims(), NowUnix: server.NowUnix()})
 }
 
 func NewAuthorityClientFromConfig(config AuthorityClientConfig) (*AuthorityClient, error) {
@@ -52,7 +64,7 @@ func NewAuthorityClientFromConfig(config AuthorityClientConfig) (*AuthorityClien
 		return nil, authority.ErrInvalidAuthority
 	}
 	requestIDs := &requestIDs{}
-	provider, err := authority.NewHTTPProvider(authority.HTTPProviderConfig{Endpoint: config.Endpoint, TLSConfig: config.TLSConfig.Clone(), SourceOperator: config.SourceOperator, Profile: config.Profile, Signer: config.DeviceSigner, ResultIssuers: config.Issuers, RequestIDs: requestIDs, Options: authority.HTTPProviderOptions{MaxAttempts: 1, MaxConcurrent: 4, AttemptTimeout: 2 * time.Second}, NowUnix: func() uint64 { return config.NowUnix }})
+	provider, err := authority.NewHTTPProvider(authority.HTTPProviderConfig{Diagnostics: config.Diagnostics, Endpoint: config.Endpoint, TLSConfig: config.TLSConfig.Clone(), SourceOperator: config.SourceOperator, Profile: config.Profile, Signer: config.DeviceSigner, ResultIssuers: config.Issuers, RequestIDs: requestIDs, Options: authority.HTTPProviderOptions{MaxAttempts: 1, MaxConcurrent: 4, AttemptTimeout: 2 * time.Second}, NowUnix: func() uint64 { return config.NowUnix }})
 	if err != nil {
 		return nil, err
 	}
