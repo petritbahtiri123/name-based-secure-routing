@@ -15,7 +15,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 GO_MODULES = (
     "client/nbsr-go-client", "client/nbsr-go-client/demo", "interop/nbsr-go-peer",
-    "verifiers/federation-go", "deploy/isp-federation-poc/adapter",
+    "verifiers/federation-go", "deploy/isp-federation-poc/adapter", "tools/demo-lab/fixturegen",
 )
 CORE_TESTS = (
     "test_control_plane", "test_dependency_security", "test_destination_policy", "test_dns_stub", "test_name_node",

@@ -51,7 +51,18 @@ def test_quick_profiles_are_bounded_and_do_not_run_ignored_soak():
         commands = command_groups(profile)
         assert commands
         assert all("--ignored" not in cmd.argv for cmd in commands)
-    assert len([cmd for cmd in command_groups("go") if cmd.name.endswith("test")]) == 6
+    go_tests = [cmd for cmd in command_groups("go") if cmd.name.endswith("test")]
+    expected = {
+        ("client/nbsr-go-client", False),
+        ("client/nbsr-go-client/demo", False),
+        ("interop/nbsr-go-peer", False),
+        ("verifiers/federation-go", False),
+        ("deploy/isp-federation-poc/adapter", False),
+        ("tools/demo-lab/fixturegen", False),
+        ("interop/nbsr-go-peer", True),
+    }
+    assert len(go_tests) == len(expected)
+    assert {(cmd.cwd, "connector_development" in cmd.argv) for cmd in go_tests} == expected
     assert "--ignored" in command_groups("soak")[0].argv
 
 

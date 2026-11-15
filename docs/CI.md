@@ -13,7 +13,7 @@ without installing a YAML parser.
 | Python | Ubuntu 24.04, Windows 2025 | Explicit runtime, gateway, security, admission, connector model/authority/timer, offline config and CI tests; `pip check` |
 | Python protocol | Ubuntu 24.04 | Protocol, vectors and federation tests except independent wire-peer builds; deterministic vector regeneration; privacy check; correctness lint |
 | Rust | Ubuntu 24.04, Windows 2025 | Format, default library check, benchmark-feature library, handshake/credit/drain/config, frame codec, connector integration targets (live ignored), doc-tests, all-target Clippy |
-| Go | Ubuntu 24.04, Windows 2025 | Test and vet all five modules, plus explicit `connector_development` test/vet in the interop module |
+| Go | Ubuntu 24.04, Windows 2025 | Test and vet all six modules, plus explicit `connector_development` test/vet in the interop module |
 | Node and policy | Ubuntu 24.04 | Core/federation independent verifier tests and vectors, exporter and connector registration vectors, OPA policy tests |
 | Manual extended | Ubuntu 24.04 | All nonignored Rust integration tests, existing ignored replay-history soak, or explicitly selected isolated connector loopback |
 
@@ -327,3 +327,14 @@ and twelve bounded-label, privacy and observer-failure cases. They use in-memory
 fixtures and fake clocks, not live DNS, socket servers or timing measurements.
 The separate Name Node server and end-to-end route tests remain outside this
 addition and require their own effects and resource review.
+
+## Demo fixture generator
+
+The Go profile includes the standard-library-only `tools/demo-lab/fixturegen`
+module in test/vet and dependency-manifest checks on Ubuntu and Windows. Its
+two tests generate certificates/keys only in test-owned temporary directories,
+verify identity/expiry and non-overwrite rules, and reject unsafe output paths.
+POSIX permission assertions run only outside Windows; the symlink rejection
+case can skip where symlink creation is unavailable. This is fixture generation
+coverage, not enrollment, deployment or connector readiness. Generated private
+material is not uploaded or cached; existing dependency-only cache rules remain.
