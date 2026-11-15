@@ -195,7 +195,7 @@ def test_validator_rejects_privileged_event():
 
 def test_checked_in_workflows_have_security_contract():
     paths = sorted(Path(".github/workflows").glob("*.yml"))
-    assert len(paths) == 2
+    assert {"ci.yml", "extended.yml", "demo-lab.yml", "performance-lab.yml"} <= {path.name for path in paths}
     for path in paths:
         validate_workflow(json.loads(path.read_text(encoding="utf-8")))
 

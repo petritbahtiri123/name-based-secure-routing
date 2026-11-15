@@ -34,6 +34,12 @@ fallback. A clean Git snapshot alone is not runtime or transport validation.
 
 ## Project CI
 
+Performance Lab has a separate synthetic-only workflow; its Python dependency pins
+are isolated from the root project constraints. For coverage changes, run
+`python -B -m pytest -q -p no:cacheprovider tests/ci/test_performance_lab_ci.py`
+and `python scripts/ci/check.py validate`. See `tools/performance-lab/docs/ci.md`.
+Do not add live reader/SSH/server/benchmark commands or real data to that job.
+
 The isolated `nbsr/connector_control_model.py` is a synchronous mock-only design
 model, not a transport or authority implementation. Its focused checks are
 `python -m pytest -q -p no:cacheprovider tests/test_connector_control_model.py tests/protocol/test_states.py tests/federation/test_revocation.py`.

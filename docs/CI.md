@@ -303,3 +303,11 @@ SPHERE activity or a load benchmark. Other `demo_backend` tests remain outside
 this focused default addition; the manual extended profile is not automatic.
 Confirm the named tests actually ran in the hosted log: local results and a green
 Clippy step are not hosted execution evidence for these cases.
+
+## Performance Lab source checks
+
+The independent `.github/workflows/performance-lab.yml` job selects the Performance
+Lab pytest suite, frontend Node regressions, and locked npm typecheck/build on
+Ubuntu. It uses the package's own dependency pins; existing project jobs are unchanged.
+See [scope and limits](../tools/performance-lab/docs/ci.md). No live source collection,
+real evidence import or benchmark is selected; hosted acceptance is separate.

@@ -33,6 +33,9 @@ Source final, complete counters, and a graph do not establish whole-campaign val
 
 No causal speedup is claimed without matched, reproducible ABBA evidence. Source-relative clocks must not be aligned across hosts without evidence. Retained data must not be replayed as live updates.
 
+Automatic source checks are described in [CI coverage](docs/ci.md); they use only
+synthetic temporary inputs and do not run a benchmark or connect to SPHERE.
+
 ## Verify independently
 
 ```powershell
