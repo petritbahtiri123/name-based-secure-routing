@@ -429,8 +429,9 @@ Python core selects only the certificate-fixture filename policy from the transp
 
 ### Offline lifecycle validation subset
 
-Python core selects exactly `test_b3_cleanup_gate.py`, `test_b3_accept_window.py`
-and `test_post_close_cleanup.py` from `tests/performance`. These use synthetic dictionaries and scoped environment
+Python core selects exactly `test_b3_cleanup_gate.py`, `test_b3_accept_window.py`,
+`test_post_close_cleanup.py`, `test_session_lifecycle_closure.py` and
+`test_b3_failure_markers.py` from `tests/performance`. These use synthetic dictionaries and scoped environment
 monkeypatches to validate cleanup evidence and diagnostic accept-window bounds.
 Runner imports define launch helpers but these tests do not invoke them: no build,
 listener, SSH connection, process sampler, new credential file or live load runs.
@@ -440,3 +441,8 @@ Other performance tests remain outside this subset pending their own effect revi
 The post-close subset checks synthetic report schema, role/PID binding, enabled
 instrumentation and all eleven ownership fields as exact integer zeros. It does
 not read a real report or observe a process; live cleanup evidence is separate.
+
+The lifecycle-analysis cases derive resource scaling and retain nonzero cleanup
+as resource growth from synthetic samples. Marker-metadata cases use temporary
+files to check metadata-only capture, deterministic ordering and missing-directory
+handling; they do not read marker contents or inspect live process resources.
