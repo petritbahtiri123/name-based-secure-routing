@@ -6,6 +6,7 @@ def test_lifecycle_validation_selection_is_exact_offline_subset():
     expected = {
         "tests/performance/test_b3_cleanup_gate.py",
         "tests/performance/test_b3_accept_window.py",
+        "tests/performance/test_post_close_cleanup.py",
     }
     selected = [arg for arg in core.argv if arg.startswith("tests/performance")]
     assert len(selected) == len(expected)

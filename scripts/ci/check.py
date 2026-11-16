@@ -71,6 +71,7 @@ def command_groups(profile: str) -> list[Command]:
                                        "tests/test_documentation.py::test_protocol_package_exports_only_stable_wp1_surface",
                                        "tests/performance/test_b3_cleanup_gate.py",
                                        "tests/performance/test_b3_accept_window.py",
+                                       "tests/performance/test_post_close_cleanup.py",
                                        "tests/test_transport_fixture_inventory.py",
                                        "tests/test_wp3_rust_transport_isolation.py::test_no_certificate_or_private_key_fixture_is_committed",
                                        "tests/test_wp6_continuity_snapshot.py::test_replica_config_requires_sorted_unique_bounded_majority")),
