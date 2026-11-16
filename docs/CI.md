@@ -405,3 +405,7 @@ This does not establish live routing, authenticated operator authority or READY.
 ### WP7 audit and privacy model subset
 
 The default Python core profile selects ten exact WP7 conformance functions (eleven parametrized cases). They exercise bounded operator-owned audit logs, sequence exhaustion, admission preflight, private-destination redaction, receipt linkage resistance, closed topology and duplicate JSON-member rejection. The connector and raw-scan operations here are deterministic in-memory models with supplied authority and time inputs, not network operations. The config-file check and subprocess-based verifier remain outside this subset. These cases do not establish live connector security, authenticated authority provenance or production readiness. A selector contract rejects broad whole-file admission and preserves the exact subset.
+
+### Legacy demo client security contracts
+
+The default Python core profile runs the four contracts in `tests/test_demo.py`: signature-byte tampering, static wrapper TTL settings, and HTTPS/enterprise-CA parameters for the two demo clients. HTTP calls and the container client are mocked; the dummy identity token is test-owned temporary data. Neither the Docker-containing demo entry point nor a live service is executed. These checks protect request configuration, not actual TLS verification, network isolation or deployment readiness.
