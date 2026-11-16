@@ -429,14 +429,14 @@ Python core selects only the certificate-fixture filename policy from the transp
 
 ### Offline lifecycle validation subset
 
-Python core selects exactly `test_b3_cleanup_gate.py`, `test_b3_accept_window.py`,
+The lifecycle subset in Python core selects `test_b3_cleanup_gate.py`, `test_b3_accept_window.py`,
 `test_post_close_cleanup.py`, `test_session_lifecycle_closure.py` and
 `test_b3_failure_markers.py` from `tests/performance`. These use synthetic dictionaries and scoped environment
 monkeypatches to validate cleanup evidence and diagnostic accept-window bounds.
 Runner imports define launch helpers but these tests do not invoke them: no build,
 listener, SSH connection, process sampler, new credential file or live load runs.
 Passing the checks does not prove real process cleanup or benchmark readiness.
-Other performance tests remain outside this subset pending their own effect review.
+Other performance tests remain outside Python core unless separately documented below.
 
 The post-close subset checks synthetic report schema, role/PID binding, enabled
 instrumentation and all eleven ownership fields as exact integer zeros. It does
@@ -446,3 +446,15 @@ The lifecycle-analysis cases derive resource scaling and retain nonzero cleanup
 as resource growth from synthetic samples. Marker-metadata cases use temporary
 files to check metadata-only capture, deterministic ordering and missing-directory
 handling; they do not read marker contents or inspect live process resources.
+
+### Offline benchmark evidence quality
+
+Python core additionally selects exactly `test_physical_core_classification.py`
+and `test_wpr_trace_quality.py` from `tests/performance`. Four classification cases
+check synthetic depth-ladder records, distinct repeats, dispersion and unfavorable
+latency preservation without replacing the strict stable ceiling with a diagnostic
+peak. Six trace-header cases accept only unambiguous zero-loss fields and reject
+missing, duplicate or nonzero loss counts. These tests process in-memory inputs;
+no trace capture, process sampler, benchmark runner or real measurement is invoked.
+Passing them does not establish hardware capacity, trace observer overhead or
+benchmark readiness.
