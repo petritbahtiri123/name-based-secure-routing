@@ -425,3 +425,14 @@ The default Python core profile selects three exact functions from `tests/test_d
 ### Transport fixture index ownership
 
 Python core selects only the certificate-fixture filename policy from the transport-isolation file, plus its isolated inventory regressions. The policy uses read-only `git ls-files -z` scoped to the crate with a 10-second direct-child timeout, strict path validation and a required tracked Cargo manifest. Git failures, timeouts and malformed/empty inventories fail rather than silently pass. Untracked build output is excluded; sparse tracked names remain visible. This is an index filename policy, not a HEAD/history audit or secret-content scan. Captured output size is not independently capped. The Windows-specific Cargo metadata test and other transport tests remain excluded; no Cargo build or live TLS is added to Python CI.
+
+
+### Offline lifecycle validation subset
+
+Python core selects exactly `test_b3_cleanup_gate.py` and `test_b3_accept_window.py`
+from `tests/performance`. These use synthetic dictionaries and scoped environment
+monkeypatches to validate cleanup evidence and diagnostic accept-window bounds.
+Runner imports define launch helpers but these tests do not invoke them: no build,
+listener, SSH connection, process sampler, new credential file or live load runs.
+Passing the checks does not prove real process cleanup or benchmark readiness.
+Other performance tests remain outside this subset pending their own effect review.
