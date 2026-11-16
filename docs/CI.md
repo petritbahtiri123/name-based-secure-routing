@@ -409,3 +409,7 @@ The default Python core profile selects ten exact WP7 conformance functions (ele
 ### Legacy demo client security contracts
 
 The default Python core profile runs the four contracts in `tests/test_demo.py`: signature-byte tampering, static wrapper TTL settings, and HTTPS/enterprise-CA parameters for the two demo clients. HTTP calls and the container client are mocked; the dummy identity token is test-owned temporary data. Neither the Docker-containing demo entry point nor a live service is executed. These checks protect request configuration, not actual TLS verification, network isolation or deployment readiness.
+
+### WP4 deterministic exporter vectors
+
+The default Python core profile runs both WP4 exporter-vector tests. They independently recompute canonical context encoding and HKDF outputs from public deterministic fixture secrets, and verify the mutation artifact inventory. The generator runs only with `--check`, under a 30-second subprocess timeout: it regenerates into its own temporary directory and compares the tracked package without rewriting it. It starts no network service or descendant process. Normal completion cleans its temporary directory; a forced timeout does not guarantee removal of temporary files. These tests do not exercise a real TLS exporter or establish live channel binding.

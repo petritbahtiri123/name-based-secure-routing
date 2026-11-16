@@ -106,6 +106,7 @@ def test_generator_check_and_independent_python_vectors() -> None:
         capture_output=True,
         text=True,
         check=False,
+        timeout=30,
     )
     assert result.returncode == 0, result.stdout + result.stderr
 
