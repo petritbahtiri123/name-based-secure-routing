@@ -754,3 +754,111 @@ mod async_adapter_tests {
         assert_eq!(ticket.policy.failure, Some(Failure::Cancelled));
     }
 }
+
+// Socket-free malformed public DER fixtures; certificate signatures are not valid
+// after mutation. These tests exercise extraction, never TLS or authority.
+#[cfg(test)]
+mod strict_key_shape_tests {
+    use super::*;
+
+    fn body_and_end(der: &[u8]) -> (usize, usize) {
+        assert!(der.len() >= 2);
+        let count = (der[1] & 0x7f) as usize;
+        let (header, length) = if der[1] & 0x80 == 0 {
+            (2, count)
+        } else {
+            assert!((1..=4).contains(&count));
+            assert!(der.len() >= 2 + count);
+            let length = der[2..2 + count]
+                .iter()
+                .fold(0usize, |n, b| (n << 8) | usize::from(*b));
+            (2 + count, length)
+        };
+        let end = header.checked_add(length).unwrap();
+        assert!(end <= der.len());
+        (header, end)
+    }
+    fn sequence(body: &[u8]) -> Vec<u8> {
+        let mut out = vec![0x30];
+        if body.len() < 128 {
+            out.push(body.len() as u8);
+        } else {
+            let encoded = body.len().to_be_bytes();
+            let first = encoded.iter().position(|b| *b != 0).unwrap();
+            let bytes = &encoded[first..];
+            out.push(0x80 | bytes.len() as u8);
+            out.extend_from_slice(bytes);
+        }
+        out.extend_from_slice(body);
+        out
+    }
+    fn mutate_spki(certificate: &[u8], parameters: bool, key_len: usize) -> Vec<u8> {
+        let (outer, end) = body_and_end(certificate);
+        assert_eq!(end, certificate.len());
+        let cert_body = &certificate[outer..end];
+        let (tbs_header, tbs_end) = body_and_end(cert_body);
+        let tbs = &cert_body[tbs_header..tbs_end];
+        let header = [
+            0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00,
+        ];
+        let offsets: Vec<_> = tbs
+            .windows(header.len())
+            .enumerate()
+            .filter_map(|(i, bytes)| (bytes == header).then_some(i))
+            .collect();
+        assert_eq!(offsets.len(), 1);
+        let offset = offsets[0];
+        let mut algorithm = vec![0x06, 0x03, 0x2b, 0x65, 0x70];
+        if parameters {
+            algorithm.extend_from_slice(&[0x05, 0x00]);
+        }
+        let mut spki = sequence(&algorithm);
+        assert!(key_len < 126);
+        spki.extend_from_slice(&[0x03, (key_len + 1) as u8, 0]);
+        spki.extend((0..key_len).map(|i| tbs[offset + header.len() + i % 32]));
+        let spki = sequence(&spki);
+        let mut new_tbs = tbs[..offset].to_vec();
+        new_tbs.extend_from_slice(&spki);
+        new_tbs.extend_from_slice(&tbs[offset + 44..]);
+        let mut new_cert = sequence(&new_tbs);
+        new_cert.extend_from_slice(&cert_body[tbs_end..]);
+        sequence(&new_cert)
+    }
+
+    #[test]
+    fn explicit_null_parameters_rejected_after_successful_parse() {
+        let ca = ca();
+        let (certificate, _) = leaf(&ca, "gateway.fixture", true);
+        let der = mutate_spki(&certificate, true, 32);
+        let (rest, parsed) = X509Certificate::from_der(&der).unwrap();
+        assert!(rest.is_empty());
+        assert_eq!(
+            parsed.public_key().algorithm.algorithm.to_id_string(),
+            "1.3.101.112"
+        );
+        assert!(parsed.public_key().algorithm.parameters.is_some());
+        assert_eq!(parsed.public_key().subject_public_key.data.len(), 32);
+        assert_eq!(raw_ed25519(&der), Err("not canonical Ed25519"));
+    }
+
+    #[test]
+    fn short_and_long_keys_rejected_after_successful_parse() {
+        let ca = ca();
+        let (certificate, _) = leaf(&ca, "gateway.fixture", true);
+        // Control verifies the reconstruction leaves canonical key bytes unchanged.
+        let control = mutate_spki(&certificate, false, 32);
+        assert_eq!(raw_ed25519(&control), raw_ed25519(&certificate));
+        assert!(raw_ed25519(&control).is_ok());
+        for length in [31, 33] {
+            let der = mutate_spki(&certificate, false, length);
+            let (rest, parsed) = X509Certificate::from_der(&der).unwrap();
+            assert!(rest.is_empty());
+            let key = parsed.public_key();
+            assert_eq!(key.algorithm.algorithm.to_id_string(), "1.3.101.112");
+            assert!(key.algorithm.parameters.is_none());
+            assert_eq!(key.subject_public_key.unused_bits, 0);
+            assert_eq!(key.subject_public_key.data.len(), length);
+            assert_eq!(raw_ed25519(&der), Err("key length"));
+        }
+    }
+}
