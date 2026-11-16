@@ -413,3 +413,7 @@ The default Python core profile runs the four contracts in `tests/test_demo.py`:
 ### WP4 deterministic exporter vectors
 
 The default Python core profile runs both WP4 exporter-vector tests. They independently recompute canonical context encoding and HKDF outputs from public deterministic fixture secrets, and verify the mutation artifact inventory. The generator runs only with `--check`, under a 30-second subprocess timeout: it regenerates into its own temporary directory and compares the tracked package without rewriting it. It starts no network service or descendant process. Normal completion cleans its temporary directory; a forced timeout does not guarantee removal of temporary files. These tests do not exercise a real TLS exporter or establish live channel binding.
+
+### Offline release packaging contracts
+
+The default Python core profile selects seven release-packaging contracts: static runtime/container pins, exact constraints, explicit-ref wrappers, Git executable delegation, prohibited-path and secret-shape redaction, deterministic inventory/ZIP output, and ignore-file policy. Git execution is mocked and archive tests use only two temporary fixture files. The release builder, Docker and network operations are not invoked. These checks do not certify an actual release artifact or exhaustive detection of sensitive content.
