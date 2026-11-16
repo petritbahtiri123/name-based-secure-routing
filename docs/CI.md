@@ -417,3 +417,7 @@ The default Python core profile runs both WP4 exporter-vector tests. They indepe
 ### Offline release packaging contracts
 
 The default Python core profile selects seven release-packaging contracts: static runtime/container pins, exact constraints, explicit-ref wrappers, Git executable delegation, prohibited-path and secret-shape redaction, deterministic inventory/ZIP output, and ignore-file policy. Git execution is mocked and archive tests use only two temporary fixture files. The release builder, Docker and network operations are not invoked. These checks do not certify an actual release artifact or exhaustive detection of sensitive content.
+
+### Frozen wire documentation and stable API contracts
+
+The default Python core profile selects three exact functions from `tests/test_documentation.py`: required wire-contract scope/non-claims, frozen numeric mappings and schema-table alignment, and the stable Protocol Core public export surface. These perform static document reads and an in-process protocol import. Historical PDF/link checks and the rest of that file are not selected. String/table consistency and export membership do not establish wire implementation conformance, authenticated provenance or production readiness.

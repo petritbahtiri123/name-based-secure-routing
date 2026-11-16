@@ -66,6 +66,9 @@ def command_groups(profile: str) -> list[Command]:
                                        "tests/test_wp7_conformance.py::test_closed_topology_rejects_direct_operator_edge_and_oversized_collections",
                                        "tests/test_wp7_conformance.py::test_raw_scan_is_deterministic_reaches_service_only_through_connector_and_discovers_no_private_destination",
                                        "tests/test_wp7_conformance.py::test_verifier_rejects_duplicate_json_members_at_every_object",
+                                       "tests/test_documentation.py::test_core_v01_wire_contract_is_complete_and_non_claiming",
+                                       "tests/test_documentation.py::test_core_v01_wire_contract_contains_every_frozen_numeric_mapping",
+                                       "tests/test_documentation.py::test_protocol_package_exports_only_stable_wp1_surface",
                                        "tests/test_wp6_continuity_snapshot.py::test_replica_config_requires_sorted_unique_bounded_majority")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
