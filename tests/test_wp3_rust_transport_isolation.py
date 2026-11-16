@@ -84,13 +84,32 @@ def test_quinn_connection_operations_are_confined_to_adapter_source() -> None:
     assert ".accept_bi()" in adapter
 
 
-def test_no_certificate_or_private_key_fixture_is_committed() -> None:
+def _tracked_certificate_fixtures() -> list[str]:
+    result = subprocess.run(
+        ["git", "ls-files", "-z", "--", "crates/nbsr-transport"],
+        cwd=ROOT, check=True, capture_output=True, timeout=10,
+    )
+    data = result.stdout
+    if not data or not data.endswith(b"\0"):
+        raise ValueError("missing or unterminated index inventory")
+    names = data[:-1].decode("utf-8", errors="strict").split("\0")
+    prefix = "crates/nbsr-transport/"
+    for name in names:
+        if not name.startswith(prefix) or "\\" in name:
+            raise ValueError("index path outside crate")
+        parts = name[len(prefix):].split("/")
+        if any(part in ("", ".", "..") for part in parts):
+            raise ValueError("noncanonical index path")
+    if prefix + "Cargo.toml" not in names:
+        raise ValueError("crate marker missing from index inventory")
     forbidden_suffixes = {".cer", ".crt", ".der", ".key", ".p12", ".pem", ".pfx"}
-    committed_fixtures = [
-        path.relative_to(CRATE).as_posix() for path in CRATE.rglob("*") if path.is_file() and path.suffix.casefold() in forbidden_suffixes
-    ]
+    return sorted(name[len(prefix):] for name in names
+                  if Path(name).suffix.casefold() in forbidden_suffixes)
 
-    assert committed_fixtures == []
+
+def test_no_certificate_or_private_key_fixture_is_committed() -> None:
+    # Index-only filename policy, not a content scan or complete Git history audit.
+    assert _tracked_certificate_fixtures() == []
 
 
 def test_docs_record_observed_spike_without_authorizing_wp3_runtime() -> None:

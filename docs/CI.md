@@ -421,3 +421,7 @@ The default Python core profile selects seven release-packaging contracts: stati
 ### Frozen wire documentation and stable API contracts
 
 The default Python core profile selects three exact functions from `tests/test_documentation.py`: required wire-contract scope/non-claims, frozen numeric mappings and schema-table alignment, and the stable Protocol Core public export surface. These perform static document reads and an in-process protocol import. Historical PDF/link checks and the rest of that file are not selected. String/table consistency and export membership do not establish wire implementation conformance, authenticated provenance or production readiness.
+
+### Transport fixture index ownership
+
+Python core selects only the certificate-fixture filename policy from the transport-isolation file, plus its isolated inventory regressions. The policy uses read-only `git ls-files -z` scoped to the crate with a 10-second direct-child timeout, strict path validation and a required tracked Cargo manifest. Git failures, timeouts and malformed/empty inventories fail rather than silently pass. Untracked build output is excluded; sparse tracked names remain visible. This is an index filename policy, not a HEAD/history audit or secret-content scan. Captured output size is not independently capped. The Windows-specific Cargo metadata test and other transport tests remain excluded; no Cargo build or live TLS is added to Python CI.
