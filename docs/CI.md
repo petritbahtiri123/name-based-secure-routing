@@ -534,3 +534,15 @@ process, socket or live benchmark runs. Candidate divergence and the existing
 `DESIGN_BLOCKED` rotation gate remain explicit: passing these tests does not
 approve an architecture, implement rotation or prove cryptographic authority,
 production replay security, live cleanup or performance.
+
+### Offline evidence persistence and completion binding
+
+Python core selects exactly `test_evidence_writer.py` and
+`test_completion_evidence.py` from `tests/performance`. Eight cases use fresh
+temporary files to retain failed samples, reject writer overflow/duplicate IDs,
+rebuild synthetic completion summaries and detect prior-evidence mutation.
+Writer cases start and join their own tiny queue worker; one completion case
+launches the local Python verifier against its test-owned directory and waits
+for its exit. No existing evidence archive, network, capture or benchmark runner
+is used. Passing does not establish real evidence provenance, capacity,
+process-cleanup qualification or a completed live baseline.
