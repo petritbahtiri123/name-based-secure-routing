@@ -558,3 +558,13 @@ checksum and controller/build/placement binding; fake binary files contain only
 role-name bytes and are never executed. No sampler, native build, real evidence
 archive, network or benchmark runs. Passing does not prove a memory leak,
 allocator attribution, live cleanup, platform measurement or real provenance.
+
+### Offline bounded stdout framing
+
+Python core selects exactly `test_b5_stream.py` from `tests/performance`.
+Synthetic byte streams and fake clock/sampler objects exercise fragmented input,
+exact final/exit requirements, raw-byte preservation on rejection, duplicate JSON,
+line/count bounds, deadlines, callback failures and sampler-health checks. The
+largest byte fixture is 200,000 bytes in memory; no file, process, real sampler,
+network or workload runs. Passing does not establish real process exit, pipe
+deadline enforcement while blocked, live cleanup or producer compatibility.
