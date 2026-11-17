@@ -568,3 +568,16 @@ line/count bounds, deadlines, callback failures and sampler-health checks. The
 largest byte fixture is 200,000 bytes in memory; no file, process, real sampler,
 network or workload runs. Passing does not establish real process exit, pipe
 deadline enforcement while blocked, live cleanup or producer compatibility.
+
+### Offline capture and sampler validity
+
+Python core selects exactly `test_b1_v2_capture.py` and
+`test_resource_sample_bound.py` from `tests/performance`. Synthetic loopback
+packet dictionaries check layer separation, fragment/truncation rejection,
+flow inventory and explicit drop reconciliation. Mocked resource samples check
+bound validation, prefix preservation, health failure and role/cause retention.
+The sampler cases start short test-owned daemon threads, join with five-second
+bounds, and never call Windows sampling APIs; the outer CI job timeout remains
+containment. No packet capture, target process, network or benchmark runs.
+Passing does not establish physical Ethernet overhead, real sampling coverage,
+OS measurement correctness or live cleanup.

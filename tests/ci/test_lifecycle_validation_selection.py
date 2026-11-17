@@ -29,6 +29,8 @@ def test_lifecycle_validation_selection_is_exact_offline_subset():
         "tests/performance/test_b3_linux_analysis.py",
         "tests/performance/test_b3_v2_analysis.py",
         "tests/performance/test_b5_stream.py",
+        "tests/performance/test_b1_v2_capture.py",
+        "tests/performance/test_resource_sample_bound.py",
     }
     selected = [arg for arg in core.argv if arg.startswith("tests/performance")]
     assert len(selected) == len(expected)
