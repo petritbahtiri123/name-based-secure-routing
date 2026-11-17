@@ -546,3 +546,15 @@ launches the local Python verifier against its test-owned directory and waits
 for its exit. No existing evidence archive, network, capture or benchmark runner
 is used. Passing does not establish real evidence provenance, capacity,
 process-cleanup qualification or a completed live baseline.
+
+### Offline memory-analysis scope and provenance
+
+Python core selects exactly `test_b3_linux_analysis.py` and
+`test_b3_v2_analysis.py` from `tests/performance`. Synthetic cycles and scale
+records keep Linux private-resident metrics distinct from Windows private bytes,
+reject incompatible identity/residency/repeat/cleanup inputs and preserve
+diagnostic source-mismatch classification. Tiny temporary input trees exercise
+checksum and controller/build/placement binding; fake binary files contain only
+role-name bytes and are never executed. No sampler, native build, real evidence
+archive, network or benchmark runs. Passing does not prove a memory leak,
+allocator attribution, live cleanup, platform measurement or real provenance.

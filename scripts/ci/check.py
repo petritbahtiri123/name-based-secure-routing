@@ -91,6 +91,8 @@ def command_groups(profile: str) -> list[Command]:
                                        "tests/performance/test_session_rotation_model.py",
                                        "tests/performance/test_evidence_writer.py",
                                        "tests/performance/test_completion_evidence.py",
+                                       "tests/performance/test_b3_linux_analysis.py",
+                                       "tests/performance/test_b3_v2_analysis.py",
                                        "tests/test_transport_fixture_inventory.py",
                                        "tests/test_wp3_rust_transport_isolation.py::test_no_certificate_or_private_key_fixture_is_committed",
                                        "tests/test_wp6_continuity_snapshot.py::test_replica_config_requires_sorted_unique_bounded_majority")),
