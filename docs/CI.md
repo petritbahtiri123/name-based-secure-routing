@@ -581,3 +581,14 @@ bounds, and never call Windows sampling APIs; the outer CI job timeout remains
 containment. No packet capture, target process, network or benchmark runs.
 Passing does not establish physical Ethernet overhead, real sampling coverage,
 OS measurement correctness or live cleanup.
+
+### Local SQLite history conformance
+
+The `python-core` profile explicitly runs the SQLite local-history regression
+and canonical persistence neighbors, plus scoped lint, on both existing OS
+matrix targets. `tests/ci/test_sqlite_history_selection.py` guards this selection.
+These tests are local synthetic conformance, not production authorization,
+independent rollback protection or deployment readiness. The existing memory-only
+persistence command retains its original meaning. See
+[coverage and limits](reviews/local-sqlite-history-prototype.md) for the tested
+boundaries and standalone reproduction commands.

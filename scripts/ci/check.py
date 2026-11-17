@@ -49,7 +49,14 @@ def command_groups(profile: str) -> list[Command]:
     cargo = ("cargo", "test", "--locked", "--offline", "--manifest-path", "crates/nbsr-transport/Cargo.toml",
              "--features", "benchmark-harness", "--jobs", "2")
     if profile == "python-core":
-        return [Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
+        return [Command("inclusion-persistence-sqlite-local", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                                                               "tests/federation/test_local_history_sqlite.py",
+                                                               "tests/federation/test_inclusion_persistence.py")),
+                Command("inclusion-persistence-sqlite-lint", (py, "-m", "ruff", "check", "--no-cache",
+                                                              "scripts/local_history_sqlite.py",
+                                                              "tests/federation/test_local_history_sqlite.py",
+                                                              "tests/ci/test_sqlite_history_selection.py")),
+                Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
                                        *(f"tests/{name}.py" for name in CORE_TESTS),
                                        "deploy/single-instance/test_validate_config.py",
                                        "tests/security/test_adversarial_campaign.py",
