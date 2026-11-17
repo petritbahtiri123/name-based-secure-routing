@@ -1,0 +1,83 @@
+{
+  "name": "Manual advisory API analysis",
+  "on": {
+    "workflow_dispatch": {
+      "inputs": {
+        "scope": {
+          "description": "Selected files only; not a full-project audit",
+          "type": "choice",
+          "options": [
+            "ci",
+            "overview"
+          ],
+          "default": "ci"
+        },
+        "live": {
+          "description": "Transmit reviewed selected source to OpenAI and incur configured API cost",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "${{ github.workflow }}-${{ github.ref }}",
+    "cancel-in-progress": true
+  },
+  "jobs": {
+    "analysis": {
+      "if": "github.ref == 'refs/heads/codex/nbsr-v3-wp0-wp1'",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 5,
+      "steps": [
+        {
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "persist-credentials": false,
+            "fetch-depth": 1
+          }
+        },
+        {
+          "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+          "with": {
+            "python-version": "3.13.14"
+          }
+        },
+        {
+          "name": "Dry-run inventory",
+          "if": "!inputs.live",
+          "env": {
+            "SCOPE": "${{ inputs.scope }}"
+          },
+          "run": "python -B scripts/ci/api_analysis.py --scope \"$SCOPE\""
+        },
+        {
+          "name": "Explicit bounded API analysis",
+          "if": "inputs.live",
+          "env": {
+            "SCOPE": "${{ inputs.scope }}",
+            "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
+            "NBSR_ANALYSIS_MODEL": "${{ vars.NBSR_ANALYSIS_MODEL }}",
+            "NBSR_INPUT_RATE": "${{ vars.NBSR_INPUT_RATE }}",
+            "NBSR_OUTPUT_RATE": "${{ vars.NBSR_OUTPUT_RATE }}",
+            "NBSR_MAX_USD": "${{ vars.NBSR_MAX_USD }}"
+          },
+          "run": "python -B scripts/ci/api_analysis.py --scope \"$SCOPE\" --live"
+        },
+        {
+          "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+          "with": {
+            "name": "advisory-analysis",
+            "path": "ci-results/*.json",
+            "include-hidden-files": false,
+            "retention-days": 1,
+            "if-no-files-found": "error"
+          }
+        }
+      ]
+    }
+  }
+}
