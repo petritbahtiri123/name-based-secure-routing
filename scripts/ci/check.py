@@ -84,6 +84,8 @@ def command_groups(profile: str) -> list[Command]:
                                        "tests/performance/test_linux_native_packet_accounting.py",
                                        "tests/performance/test_native_packet_markers.py",
                                        "tests/performance/test_native_packet_phases.py",
+                                       "tests/performance/test_mixed_workload.py",
+                                       "tests/performance/test_sustained_capacity.py",
                                        "tests/test_transport_fixture_inventory.py",
                                        "tests/test_wp3_rust_transport_isolation.py::test_no_certificate_or_private_key_fixture_is_committed",
                                        "tests/test_wp6_continuity_snapshot.py::test_replica_config_requires_sorted_unique_bounded_majority")),

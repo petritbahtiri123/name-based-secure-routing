@@ -511,3 +511,14 @@ Imported runner helpers are not called, and no capture tool, mmap, real export,
 process or live network is used. The tests preserve diagnostic-only results and
 do not prove physical-wire bytes, pure timed-operation boundaries, workload
 completion, cleanup, real capture provenance or Direct/NBSR equivalence.
+
+### Offline mixed-load and sustained-capacity analysis
+
+Python core selects exactly `test_mixed_workload.py` and
+`test_sustained_capacity.py` from `tests/performance`. Synthetic in-memory records
+check matched baselines, repeat identity, admission schedules, saturation,
+progress cadence and totals, drift, resource growth and missing cooldown data.
+The fixtures distinguish valid evidence from observed stability without running
+a load sweep or waiting through the represented duration. No sampler, process,
+network, file or live benchmark is used; synthetic cleanup fields do not prove
+real cleanup, sustainable capacity, producer provenance or deployment readiness.
