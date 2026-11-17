@@ -6,6 +6,7 @@ from scripts.ci.check import command_groups
 
 def test_sqlite_history_explicit_selection_and_lint():
     commands = command_groups("python-core")
+    assert commands[0].name == "python-core"
     selected = next(item for item in commands if item.name == "inclusion-persistence-sqlite-local")
     assert selected.cwd == "."
     assert selected.argv == (

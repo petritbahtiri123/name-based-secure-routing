@@ -49,14 +49,7 @@ def command_groups(profile: str) -> list[Command]:
     cargo = ("cargo", "test", "--locked", "--offline", "--manifest-path", "crates/nbsr-transport/Cargo.toml",
              "--features", "benchmark-harness", "--jobs", "2")
     if profile == "python-core":
-        return [Command("inclusion-persistence-sqlite-local", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
-                                                               "tests/federation/test_local_history_sqlite.py",
-                                                               "tests/federation/test_inclusion_persistence.py")),
-                Command("inclusion-persistence-sqlite-lint", (py, "-m", "ruff", "check", "--no-cache",
-                                                              "scripts/local_history_sqlite.py",
-                                                              "tests/federation/test_local_history_sqlite.py",
-                                                              "tests/ci/test_sqlite_history_selection.py")),
-                Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
+        return [Command("python-core", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/ci",
                                        *(f"tests/{name}.py" for name in CORE_TESTS),
                                        "deploy/single-instance/test_validate_config.py",
                                        "tests/security/test_adversarial_campaign.py",
@@ -106,6 +99,13 @@ def command_groups(profile: str) -> list[Command]:
                                        "tests/test_transport_fixture_inventory.py",
                                        "tests/test_wp3_rust_transport_isolation.py::test_no_certificate_or_private_key_fixture_is_committed",
                                        "tests/test_wp6_continuity_snapshot.py::test_replica_config_requires_sorted_unique_bounded_majority")),
+                Command("inclusion-persistence-sqlite-local", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                                                               "tests/federation/test_local_history_sqlite.py",
+                                                               "tests/federation/test_inclusion_persistence.py")),
+                Command("inclusion-persistence-sqlite-lint", (py, "-m", "ruff", "check", "--no-cache",
+                                                              "scripts/local_history_sqlite.py",
+                                                              "tests/federation/test_local_history_sqlite.py",
+                                                              "tests/ci/test_sqlite_history_selection.py")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
