@@ -458,3 +458,16 @@ missing, duplicate or nonzero loss counts. These tests process in-memory inputs;
 no trace capture, process sampler, benchmark runner or real measurement is invoked.
 Passing them does not establish hardware capacity, trace observer overhead or
 benchmark readiness.
+
+### Offline failure records and evidence integrity
+
+Python core also selects exactly `test_failure_evidence.py` and
+`test_evidence_verifier.py` from `tests/performance`. Six synthetic failure-record
+cases preserve typed failure categories, supported/unsupported distinctions,
+terminal-record reconciliation and identity preservation in a separate
+640-attempt synthetic plan.
+No 640-client workload is run. Two verifier cases use tiny temporary JSON/gzip
+fixtures to reconcile raw records, summaries and confidence metadata and detect
+raw-evidence checksum mutation. These checks start no process, listener, capture
+or benchmark and do not inspect existing evidence directories. They do not prove
+real fail-closed behavior, capacity, evidence provenance or production readiness.
