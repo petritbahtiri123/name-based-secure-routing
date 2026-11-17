@@ -31,6 +31,42 @@ does not merge to main or change the default branch to enable it.
 
 ## Live mode is a separate decision
 
+### Windows local fallback
+
+The GitHub UI currently does not expose manual dispatch on the development-only
+workflow. A local PowerShell 7 runner avoids main/default-branch changes:
+
+```powershell
+pwsh -NoProfile -File scripts/ci/run_api_analysis.ps1 -Python C:\path\to\python.exe
+```
+
+This defaults to the same zero-API dry-run. After explicit owner approval, a
+restricted NBSR-project key may be copied directly from the provider UI and
+imported with `pwsh -NoProfile -File scripts/ci/import_api_key.ps1 -FromClipboard`.
+The importer does not print the key, refuses to overwrite an existing credential,
+and stores only Windows current-user DPAPI ciphertext at
+`%LOCALAPPDATA%\NBSR\credentials\openai-api-key.dpapi`, outside the repository.
+It clears the current clipboard, but cannot promise removal from OS clipboard
+history, synchronized clipboards or managed-memory remnants. Review those
+exposure risks before copying. No ACL or system-security settings are changed.
+
+Only an explicitly requested `-Live` run decrypts that file. Supply `-Model`,
+`-InputRate`, `-OutputRate` and `-MaxUsd` after separately approving the selected
+source transfer and spending scope. The key is passed only in the child process
+environment, never a command argument or plaintext file. Other processes running
+as the same Windows user or an administrator may still access decrypted process
+memory; DPAPI does not protect a compromised login. The runner removes its key
+reference and child environment entry, suppresses child diagnostics, and enforces
+a 90-second process-tree deadline. It neither retries nor creates credentials.
+Live mode also requires an absolute trusted Python executable path and reviewed
+`-ExpectedPythonSha256` / `-ExpectedClientSha256` pins. Pin mismatch rejects before
+decryption. Python runs with `-I` to ignore inherited Python paths and user-site
+customizations. Every exceptional path attempts bounded owned-child cleanup;
+an incomplete-cleanup warning requires manual resolution before any retry.
+
+Synthetic DPAPI roundtrip tests run on Windows in `tests/ci`; no real key is used.
+Linux checks the static runner contract and skips the Windows-only roundtrip.
+
 No key or paid call is provisioned by this change. Before an operator explicitly
 selects live mode, review **the exact selected files on the selected commit** for
 private content, approve sending them to OpenAI, and configure:
