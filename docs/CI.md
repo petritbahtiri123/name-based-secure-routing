@@ -499,3 +499,15 @@ rejection of unverified-affinity/error records, and CPU-versus-software-limited
 classification using per-role saturation. The affinity module is imported only
 for its pure mask function; no process affinity is set or queried. No sampler,
 process, listener or live workload runs, and no real bottleneck is established.
+
+### Offline packet accounting and marker boundaries
+
+Python core selects exactly `test_linux_native_packet_accounting.py`,
+`test_native_packet_markers.py` and `test_native_packet_phases.py` from
+`tests/performance`. Synthetic in-memory pcapng bytes check strict capture
+structure, endpoint and loss reconciliation, marker identity/order and phase
+window accounting. Socket helpers only encode addresses; no socket is opened.
+Imported runner helpers are not called, and no capture tool, mmap, real export,
+process or live network is used. The tests preserve diagnostic-only results and
+do not prove physical-wire bytes, pure timed-operation boundaries, workload
+completion, cleanup, real capture provenance or Direct/NBSR equivalence.
