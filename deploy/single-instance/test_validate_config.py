@@ -406,3 +406,49 @@ def test_cross_role_identity_substitution_is_rejected(path, value):
     validator = implementation()
     with pytest.raises(validator.ConfigError):
         validator.validate_bytes(json.dumps(data).encode())
+
+
+@pytest.mark.parametrize(
+    "host",
+    [
+        "10.0.0.0", "10.255.255.255", "172.16.0.0", "172.31.255.255",
+        "192.168.0.0", "192.168.255.255", "127.0.0.1", "::1",
+        "fc00::", "fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+    ],
+)
+def test_origin_private_literal_boundaries_remain_offline_only(host):
+    config = sample()
+    config["origin"]["services"][0]["target"]["host"] = host
+    validator = implementation()
+    assert validator.validate_bytes(json.dumps(config).encode()) == {
+        "status": "CONFIG_VALID_OFFLINE", "ready": False,
+        "references_verified": False, "service_count": 1,
+    }
+    assert validator.Configuration.model_validate(config).origin.services[0].target.host == host
+
+
+@pytest.mark.parametrize(
+    "host",
+    [
+        "9.255.255.255", "11.0.0.0", "172.15.255.255", "172.32.0.0",
+        "192.167.255.255", "192.169.0.0", "126.255.255.255", "128.0.0.0",
+        "fbff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", "fe00::", "::2",
+    ],
+)
+def test_origin_literals_outside_approved_networks_rejected(host):
+    config = sample()
+    config["origin"]["services"][0]["target"]["host"] = host
+    validator = implementation()
+    with pytest.raises(validator.ConfigError):
+        validator.validate_bytes(json.dumps(config).encode())
+
+
+@pytest.mark.parametrize("host", ["FD00::1", "fd00:0:0:0:0:0:0:1", "fd00::1%eth0", "[::1]", "::", "fe80::1", "ff02::1"])
+@pytest.mark.parametrize("role", ["gateway", "origin"])
+def test_noncanonical_or_unsafe_ipv6_rejected_at_both_endpoint_roles(host, role):
+    config = sample()
+    endpoint = config["gateway"]["endpoint"] if role == "gateway" else config["origin"]["services"][0]["target"]
+    endpoint["host"] = host
+    validator = implementation()
+    with pytest.raises(validator.ConfigError):
+        validator.validate_bytes(json.dumps(config).encode())
