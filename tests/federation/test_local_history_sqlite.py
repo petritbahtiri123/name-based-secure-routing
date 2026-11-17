@@ -599,3 +599,123 @@ def test_restored_history_does_not_resurrect_halted_connector_cycle(tmp_path, lo
                        for item in observations[before_loss:denied_end])
         else:
             assert all(item[3] == "IDEMPOTENT" for item in observations[before_loss:denied_end])
+
+@pytest.mark.parametrize("loss", ["permission", "freshness"])
+@pytest.mark.parametrize("fail_close", [False, True], ids=["close-confirmed", "close-injected-failure"])
+def test_authority_loss_retains_child_ownership_until_reaped(tmp_path, loss, fail_close):
+    """Real local child, synthetic authority; no origin I/O or descendants."""
+    import json
+    import subprocess
+    import sys
+    import time
+    from nbsr.connector_control_model import Binding, CompletionGrace, Model, Permission
+    from scripts.revocation_inclusion_v2 import verify_package
+
+    class ChildTransport:
+        def __init__(self):
+            self.session = object()
+            self.closed = False
+            self.fail_close = False
+            self.closes = 0
+            self.reaped = False
+            # Idle until parent closes stdin/terminates; no socket or descendant.
+            self.child = subprocess.Popen(
+                [sys.executable, "-B", "-c", "import sys; sys.stdin.buffer.read(1)"],
+                stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+
+        def reap(self):
+            deadline = time.monotonic() + 5
+            if self.child.poll() is None:
+                self.child.terminate()
+            try:
+                self.child.wait(timeout=min(2, max(0, deadline - time.monotonic())))
+            except subprocess.TimeoutExpired:
+                self.child.kill()
+                self.child.wait(timeout=max(0, deadline - time.monotonic()))
+            self.reaped = True
+            self.child.stdin.close()
+
+        def close(self):
+            self.closes += 1
+            if self.fail_close:
+                raise OSError("injected unconfirmed cleanup before termination")
+            self.reap()
+            self.closed = True  # Only after wait confirms exit, never on request.
+
+    path = tmp_path / "history.db"
+    storage, raw, first = initialize(path)
+    storage.close()
+    _, fresh_context, _ = make_fixture()
+    now = fresh_context["validation"]["now"]
+    binding = Binding("connector", "service", "gateway", "operator", "issuer", 3, "register")
+    current = {
+        "permission": Permission(binding, now + 30, now + 30, CompletionGrace("legacy-fixture", 30)),
+        "context": fresh_context,
+    }
+    transport = ChildTransport()
+    observations, errors = [], []
+    receipt = {"pid": transport.child.pid, "loss": loss, "injected_close_failure": fail_close}
+    try:
+        with LocalHistoryStorage.open(path) as reopened:
+            assert repo(reopened).load(first.digest) == first
+
+            def verify(candidate_binding, session, sampled_now):
+                try:
+                    history = repo(reopened).load(first.digest)
+                    result, unchanged = verify_package(raw, current["context"], history.state)
+                except Exception as exc:
+                    errors.append(exc)
+                    raise
+                observations.append((candidate_binding, session is transport.session, sampled_now,
+                                     result["decision"], result["reason"], unchanged == history.state))
+                return current["permission"] if result["decision"] == "IDEMPOTENT" else None
+
+            model = Model(binding, verify, lambda: now, lease=8, attempts=3, retry_delay=2)
+            attempt = model.begin(transport, binding)
+            assert attempt is not None and model.authenticate(attempt)
+            ticket = model.register(attempt)
+            assert ticket is not None and model.confirm(attempt, ticket)
+            assert model.health() == {"ready": True, "owned": 1}
+            assert transport.child.poll() is None
+            boundary = len(observations)
+            if loss == "permission":
+                current["permission"] = None
+            else:
+                current["context"] = dict(fresh_context, validation=dict(fresh_context["validation"], now=253402300800))
+            transport.fail_close = fail_close
+            assert model.renew(attempt, ticket) is None
+            assert transport.closes == 1
+            if fail_close:
+                assert transport.child.poll() is None
+                assert not transport.closed and not transport.reaped
+                assert model.health() == {"ready": False, "owned": 1}
+                receipt["retained_before_retry"] = True
+                transport.fail_close = False
+                model.stop(attempt)  # Explicit owner cleanup retry, not permission renewal.
+                assert transport.closes == 2
+            assert transport.reaped and transport.closed
+            assert transport.child.poll() is not None
+            assert model.health() == {"ready": False, "owned": 0}
+            closes = transport.closes
+            model.stop(attempt)
+            assert transport.closes == closes
+            assert repo(reopened).load(first.digest) == first
+            assert errors == []
+            assert len(observations) > boundary
+            assert all(b == binding and matched and sampled == now and unchanged
+                       for b, matched, sampled, _, _, unchanged in observations)
+            assert all(item[3] == "IDEMPOTENT" for item in observations[:boundary])
+            expected = ("IDEMPOTENT", "NONE") if loss == "permission" else ("REJECT", "ERR_AUTHORITY")
+            assert all(item[3:5] == expected for item in observations[boundary:])
+            receipt["model_owned_final"] = model.health()["owned"]
+    finally:
+        # Independent of injected close and every test assertion. Cleanup errors
+        # propagate; no receipt claims success if terminate/wait cannot complete.
+        try:
+            transport.reap()
+        finally:
+            receipt.update(returncode=transport.child.poll(), reaped=transport.reaped,
+                           transport_closed=transport.closed, close_calls=transport.closes)
+            (tmp_path / "child-cleanup-receipt.json").write_text(json.dumps(receipt), encoding="utf-8")
+    assert transport.child.returncode is not None

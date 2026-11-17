@@ -126,3 +126,29 @@ SQLite CI selection includes both cases. An earlier provisional predecessor run
 passed 181 tests, but review found the cooldown masking gap; the latest-source
 result above includes that correction. This remains synchronous mock coverage,
 not real authority provenance, active-child cancellation or Stage 3 completion.
+
+## Local child cleanup after fixture authority loss
+
+Four cases combine SQLite restore and the existing synchronous connector model
+with one real idle Python child per case (no sockets or descendants). Permission
+loss or stale fixture verification during renewal triggers close. The fixture
+marks itself closed only after terminate/wait confirms exit. A deterministic
+failure before termination leaves the child alive and mock ownership visible;
+an explicit stop retry then reaps it and releases ownership. Final cleanup is
+independent of the injected failure and all assertions.
+
+Each close/final cleanup has one five-second monotonic budget (terminate, then
+kill if the first two-second wait expires). Child stdin is owned by the parent;
+stdout/stderr are discarded and no unbounded output is accumulated. Child receipts
+record PID, return code, reap, close count and final model ownership. This validates
+local single-child lifecycle only, not process-tree cancellation, origin I/O,
+production authority, power loss or independent rollback/currentness provenance.
+
+The existing whole-file SQLite CI selection and lint include these four cases.
+Local Windows/Python3.14 validation on the coordinator-supplied lifecycle precursor:
+4 focused passed in1.43s;37 SQLite cases collected in0.84s;185 SQLite/persistence/model
+and CI-selection tests passed in6.66s; scoped Ruff passed. All four supervised
+commands exited0, with empty final Windows Jobs, reaped parents and closed handles.
+No Linux execution is claimed; hosted CI must verify the portable subprocess path.
+Promotion must verify applicability against the current development tree; this
+precursor validation is not a claim of latest-tree equality.
