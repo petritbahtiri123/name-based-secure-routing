@@ -66,3 +66,18 @@ That run used the original checkout as a fallback for sparse helper modules,
 so it is not standalone-checkout evidence. Subsequent standalone validation: 77
 passed in 3.23s with only this checkout on PYTHONPATH; scoped lint passed. Both independent review findings were closed; no new source blocker found. Hosted CI for the preceding 7595e8d
 commit is separate evidence and does not validate this patch.
+
+## Process-exit successor
+
+Two additional cases terminate a fixed child after the watermark write before
+commit, or after the canonical Repository commit returns. Reopen must preserve
+the exact predecessor/successor respectively and reject the other digest.
+Child output is one fixed marker; the child starts no descendants or sockets,
+waits are bounded and failure cleanup kills/reaps it. This is process-exit
+simulation, not power loss or independent provenance. The existing whole-file
+CI selection includes these cases without a new workflow.
+
+Local successor validation: 25 SQLite cases collected in 0.67s; the complete CI
+contract suite plus SQLite and canonical persistence neighbors passed 140 tests
+in 8.96s. Scoped Ruff and diff-check passed. This remains local evidence; hosted
+CI must be checked separately for the successor commit.

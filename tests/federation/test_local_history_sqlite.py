@@ -315,3 +315,84 @@ def assert_latches_without_sql(repository, storage):
     with pytest.raises(store.StorageUnavailable, match="uncertain commit; fresh instance required"):
         repository.load(b"X" * 32)
     assert len(storage._db.attempts) == attempts
+
+# Fixed child program: imports canonical modules from the repository cwd only;
+# opens no sockets, starts no descendants, and emits at most one fixed marker.
+_CRASH_CHILD = r"""
+import os
+import sys
+from scripts import inclusion_persistence as store
+from scripts.local_history_sqlite import LocalHistoryStorage
+from scripts.revocation_inclusion_v2 import make_fixture
+
+path, phase, expected = sys.argv[1:]
+
+class CrashAtWatermark(LocalHistoryStorage):
+    def replace(self, name, data):
+        super().replace(name, data)
+        if name == store.WATERMARK:
+            os.write(1, b"watermark-written-uncommitted")
+            os._exit(71)
+
+raw, _, _ = make_fixture()
+raw2, context2, _ = make_fixture(previous_package=raw, event_id=b"2" * 32)
+backend = (CrashAtWatermark if phase == "before" else LocalHistoryStorage).open(path)
+result, _ = store.Repository(backend, context_binding=b"C" * 32).apply(
+    raw2, context2, bytes.fromhex(expected)
+)
+assert phase == "after" and result["decision"] == "ACCEPT"
+os.write(1, b"repository-commit-returned")
+os._exit(72)
+"""
+
+
+@pytest.mark.parametrize("phase", ["before", "after"])
+def test_process_exit_at_commit_boundary_reopens_exact_state(tmp_path, phase):
+    import os
+    from pathlib import Path
+    import subprocess
+    import sys
+
+    path = tmp_path / "history.db"
+    storage, _, first = initialize(path)
+    storage.close()
+    # Exact expected successor established before the crash on a separate DB.
+    oracle, raw, oracle_first = initialize(tmp_path / "oracle.db")
+    try:
+        raw2, context2, _ = make_fixture(previous_package=raw, event_id=b"2" * 32)
+        result, second = repo(oracle).apply(raw2, context2, oracle_first.digest)
+        assert result["decision"] == "ACCEPT"
+    finally:
+        oracle.close()
+    root = Path(__file__).resolve().parents[2]
+    env = {key: value for key, value in os.environ.items() if key.upper() != "PYTHONPATH"}
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    child = subprocess.Popen(
+        [sys.executable, "-B", "-c", _CRASH_CHILD, str(path), phase, first.digest.hex()],
+        cwd=root, env=env, stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+    )
+    try:
+        try:
+            code = child.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            pytest.fail("crash worker exceeded its 10-second deadline")
+        assert code == (71 if phase == "before" else 72)
+        assert child.stdout.read(64) == (
+            b"watermark-written-uncommitted" if phase == "before" else b"repository-commit-returned"
+        )
+    finally:
+        try:
+            if child.poll() is None:
+                child.kill()
+            child.wait(timeout=5)  # Reap on assertion failure and timeout as well.
+        finally:
+            child.stdout.close()
+    assert child.poll() is not None
+    expected, refused = (first, second) if phase == "before" else (second, first)
+    with LocalHistoryStorage.open(path) as reopened:
+        with pytest.raises(store.SnapshotRejected):
+            repo(reopened).load(refused.digest)
+        assert repo(reopened).load(expected.digest) == expected
+        with reopened.exclusive():
+            assert reopened.read(store.PRIMARY) == reopened.read(store.WATERMARK) == store.encode(expected)

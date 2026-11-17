@@ -592,3 +592,13 @@ independent rollback protection or deployment readiness. The existing memory-onl
 persistence command retains its original meaning. See
 [coverage and limits](reviews/local-sqlite-history-prototype.md) for the tested
 boundaries and standalone reproduction commands.
+
+The SQLite target also contains two bounded subprocess-exit cases, before commit
+(after the watermark write) and after Repository.apply returns from commit.
+They compare reopened paired snapshots with exact fixture predecessor/successor
+expectations. The fixed child has no descendants or sockets, a 10-second wait
+budget, and kill/reap cleanup on failure (5-second cleanup wait). These are
+process-exit simulations, not power-loss, independent provenance, or live
+registration tests. Their source inclusion is automatic through the existing
+whole-file CI selection; collection and execution must still be recorded for
+the exact changed source before publication.
