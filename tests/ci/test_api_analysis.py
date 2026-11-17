@@ -62,7 +62,14 @@ def test_manual_workflow_is_read_only_and_dry_by_default():
     p = Path(".github/workflows/api-analysis.yml")
     assert p.exists()
     w = json.loads(p.read_text())
-    assert set(w["on"]) == {"workflow_dispatch"}
+    assert set(w["on"]) == {"workflow_dispatch", "push"}
+    assert w["on"]["push"]["branches"] == ["codex/nbsr-v3-wp0-wp1"]
+    steps = w["jobs"]["analysis"]["steps"]
+    live = next(s for s in steps if s.get("name") == "Explicit bounded API analysis")
+    assert live["if"] == "github.event_name == 'workflow_dispatch' && inputs.live"
+    dry = next(s for s in steps if s.get("name") == "Dry-run inventory")
+    assert dry["if"] == "github.event_name != 'workflow_dispatch' || !inputs.live"
+    assert "OPENAI_API_KEY" not in dry["env"]
     assert w["permissions"] == {"contents": "read"}
     assert w["on"]["workflow_dispatch"]["inputs"]["live"]["default"] is False
     assert w["jobs"]["analysis"]["timeout-minutes"] == 5

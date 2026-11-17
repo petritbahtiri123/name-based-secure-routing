@@ -18,6 +18,16 @@
           "default": false
         }
       }
+    },
+    "push": {
+      "branches": [
+        "codex/nbsr-v3-wp0-wp1"
+      ],
+      "paths": [
+        ".github/workflows/api-analysis.yml",
+        "scripts/ci/api_analysis.py",
+        "tests/ci/test_api_analysis.py"
+      ]
     }
   },
   "permissions": {
@@ -48,15 +58,15 @@
         },
         {
           "name": "Dry-run inventory",
-          "if": "!inputs.live",
+          "if": "github.event_name != 'workflow_dispatch' || !inputs.live",
           "env": {
-            "SCOPE": "${{ inputs.scope }}"
+            "SCOPE": "${{ inputs.scope || 'ci' }}"
           },
           "run": "python -B scripts/ci/api_analysis.py --scope \"$SCOPE\""
         },
         {
           "name": "Explicit bounded API analysis",
-          "if": "inputs.live",
+          "if": "github.event_name == 'workflow_dispatch' && inputs.live",
           "env": {
             "SCOPE": "${{ inputs.scope }}",
             "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",

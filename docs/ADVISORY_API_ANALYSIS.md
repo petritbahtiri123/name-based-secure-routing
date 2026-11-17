@@ -19,11 +19,15 @@ The default performs **zero API calls**, reads only `docs/CI.md` and
 instead selects `README.md` and `docs/protocol/status.md`. Missing, binary,
 oversized or linked files are rejected rather than silently omitted.
 
-The GitHub workflow is manual-only, development-branch-only, five minutes,
+Live GitHub execution is manual-only. A development-branch push touching this
+workflow, client or its tests runs a zero-API inventory bootstrap. It receives
+no API key and cannot enter the live step. The workflow is five minutes,
 contents:read, with SHA-pinned official actions and no persisted checkout token.
 The dry-run default does not receive an API key. GitHub may require the workflow
 file on the repository's default branch before exposing workflow_dispatch.
-This change does not merge to main or change the default branch to enable it.
+The dry-run push bootstrap attempts registration without changing main. Actual
+manual dispatch must be verified after registration, not assumed. This change
+does not merge to main or change the default branch to enable it.
 
 ## Live mode is a separate decision
 
