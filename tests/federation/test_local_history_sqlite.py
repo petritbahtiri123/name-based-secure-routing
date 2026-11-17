@@ -489,3 +489,113 @@ def test_connector_decision_requires_more_than_restored_history(tmp_path, bounda
         assert transport.closed
         assert model.health() == {"ready": False, "owned": 0}
         assert repo(reopened).load(first.digest) == first
+
+@pytest.mark.parametrize("loss", ["permission", "freshness"])
+def test_restored_history_does_not_resurrect_halted_connector_cycle(tmp_path, loss):
+    """Existing synchronous mock lifecycle only; no live restart authority."""
+    from nbsr.connector_control_model import Binding, CompletionGrace, Model, Permission
+    from scripts.revocation_inclusion_v2 import verify_package
+
+    path = tmp_path / "history.db"
+    storage, raw, first = initialize(path)
+    storage.close()
+    _, fresh_context, _ = make_fixture()
+    now = fresh_context["validation"]["now"]
+    binding = Binding("connector", "service", "gateway", "operator", "issuer", 3, "register")
+    fresh_permission = Permission(binding, now + 30, now + 30, CompletionGrace("legacy-fixture", 30))
+    current = {"permission": fresh_permission, "context": fresh_context}
+
+    class Transport:
+        def __init__(self):
+            self.session = object()
+            self.closed = False
+            self.closes = 0
+
+        def close(self):
+            self.closes += 1
+            self.closed = True
+
+    with LocalHistoryStorage.open(path) as reopened:
+        assert repo(reopened).load(first.digest) == first
+        observations = []
+        errors = []
+
+        def new_model(transport):
+            def verify(candidate_binding, session, sampled_now):
+                try:
+                    history = repo(reopened).load(first.digest)
+                    result, state = verify_package(raw, current["context"], history.state)
+                except Exception as exc:
+                    errors.append(exc)
+                    raise
+                observations.append((candidate_binding, session is transport.session, sampled_now,
+                                     result["decision"], result["reason"], state == history.state))
+                return current["permission"] if result["decision"] == "IDEMPOTENT" else None
+            return Model(binding, verify, lambda: now, lease=8, attempts=3, retry_delay=0)
+
+        first_transport = Transport()
+        model = new_model(first_transport)
+        attempt = model.begin(first_transport, binding)
+        assert attempt is not None and model.authenticate(attempt)
+        ticket = model.register(attempt)
+        assert ticket is not None and model.confirm(attempt, ticket)
+        assert model.health() == {"ready": True, "owned": 1}
+        before_loss = len(observations)
+        if loss == "permission":
+            current["permission"] = None
+        else:
+            current["context"] = dict(fresh_context, validation=dict(fresh_context["validation"], now=253402300800))
+        assert model.renew(attempt, ticket) is None
+        assert len(observations) > before_loss
+        assert first_transport.closed and first_transport.closes == 1
+        assert model.health() == {"ready": False, "owned": 0}
+        model.stop(attempt)
+        assert first_transport.closes == 1
+        assert repo(reopened).load(first.digest) == first
+
+        # A new model with the same restored history still lacks a current decision.
+        denied_transport = Transport()
+        denied = new_model(denied_transport)
+        denied_attempt = denied.begin(denied_transport, binding)
+        assert denied_attempt is not None
+        assert not denied.authenticate(denied_attempt)
+        assert denied.register(denied_attempt) is None
+        denied.stop(denied_attempt)
+        assert denied_transport.closed and denied_transport.closes == 1
+        assert denied.health() == {"ready": False, "owned": 0}
+        denied_end = len(observations)
+
+        # Restoring fixture inputs does not reset the halted original instance.
+        current.update(permission=fresh_permission, context=fresh_context)
+        retry_transport = Transport()
+        assert model.begin(retry_transport, binding) is None
+        assert retry_transport.closed and retry_transport.closes == 1
+        assert not model.confirm(attempt, ticket)
+        assert model.renew(attempt, ticket) is None
+        assert len(observations) == denied_end
+
+        # Separate positive control: a new model needs a new session and decision.
+        fresh_transport = Transport()
+        fresh_model = new_model(fresh_transport)
+        fresh_attempt = fresh_model.begin(fresh_transport, binding)
+        assert fresh_attempt is not None and fresh_model.authenticate(fresh_attempt)
+        fresh_ticket = fresh_model.register(fresh_attempt)
+        assert fresh_ticket is not None and fresh_model.confirm(fresh_attempt, fresh_ticket)
+        assert len(observations) > denied_end
+        assert fresh_transport.session is not first_transport.session
+        fresh_model.stop(fresh_attempt)
+        assert fresh_transport.closes == 1
+        assert fresh_model.health() == {"ready": False, "owned": 0}
+        assert repo(reopened).load(first.digest) == first
+
+        # All assertions stay outside the exception-swallowing verifier callback.
+        assert errors == []
+        assert all(b == binding and matched and time == now and unchanged
+                   for b, matched, time, _, _, unchanged in observations)
+        assert all(item[3] == "IDEMPOTENT" for item in observations[:before_loss])
+        assert all(item[3] == "IDEMPOTENT" for item in observations[denied_end:])
+        if loss == "freshness":
+            assert all(item[3:5] == ("REJECT", "ERR_AUTHORITY")
+                       for item in observations[before_loss:denied_end])
+        else:
+            assert all(item[3] == "IDEMPOTENT" for item in observations[before_loss:denied_end])

@@ -109,3 +109,20 @@ and errors; checks outside Model require SnapshotRejected only for the wrong
 expectation, explicit REJECT/ERR_AUTHORITY for stale evidence, and exception-free
 IDEMPOTENT verification for Permission and renewal cases. Binding, session and
 unchanged-history observations are checked outside the swallowed-exception boundary.
+
+## Restore and halted connector lifecycle
+
+Two deterministic cases extend the mock decision boundary through Permission or
+evidence-freshness loss at renewal, ownership release, idempotent stop, denial of
+a new attempt with unchanged history, and a separate positive control requiring
+a new session and decision. The original halted model cannot resume even after
+fixture inputs recover. Retry delay is zero in these cases, so cooldown cannot
+mask a missing halted latch. Assertions remain outside verifier callbacks.
+
+On source materialized from exact 78f442e84efaad6e93d2686c4671262a28578ded
+Git tree/blob identities, the SQLite, persistence, connector and CI-selection
+suites passed 181 tests in 8.27s; targeted Ruff passed. The existing whole-file
+SQLite CI selection includes both cases. An earlier provisional predecessor run
+passed 181 tests, but review found the cooldown masking gap; the latest-source
+result above includes that correction. This remains synchronous mock coverage,
+not real authority provenance, active-child cancellation or Stage 3 completion.
