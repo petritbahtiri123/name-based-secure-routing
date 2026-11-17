@@ -396,3 +396,96 @@ def test_process_exit_at_commit_boundary_reopens_exact_state(tmp_path, phase):
         assert repo(reopened).load(expected.digest) == expected
         with reopened.exclusive():
             assert reopened.read(store.PRIMARY) == reopened.read(store.WATERMARK) == store.encode(expected)
+
+@pytest.mark.parametrize("boundary", ["current", "history_only", "expired_permission", "stale_evidence", "wrong_expectation", "deny_new_use"])
+def test_connector_decision_requires_more_than_restored_history(tmp_path, boundary):
+    """Fixture association only: persisted revocation evidence never mints Permission."""
+    from dataclasses import replace
+    from nbsr.connector_control_model import Binding, CompletionGrace, Model, Permission
+    from scripts.revocation_inclusion_v2 import verify_package
+
+    path = tmp_path / "history.db"
+    storage, raw, first = initialize(path)
+    storage.close()
+    _, context, _ = make_fixture()
+    now = context["validation"]["now"]
+    binding = Binding("connector", "service", "gateway", "operator", "issuer", 3, "register")
+    # Independent mock input, NOT derived from a successful load or record signature.
+    permission = Permission(binding, now + 30, now + 30, CompletionGrace("legacy-fixture", 30))
+    expected = first.digest
+    if boundary == "history_only":
+        permission = None
+    elif boundary == "expired_permission":
+        permission = replace(permission, admission_expires=now)
+    elif boundary == "stale_evidence":
+        context = dict(context, validation=dict(context["validation"], now=253402300800))
+    elif boundary == "wrong_expectation":
+        expected = b"X" * 32
+    elif boundary == "deny_new_use":
+        permission = replace(permission, new_use=False)
+
+    class Transport:
+        session = object()
+        closed = False
+
+        def close(self):
+            self.closed = True
+
+    transport = Transport()
+    calls = []
+    outcomes = []
+    errors = []
+    with LocalHistoryStorage.open(path) as reopened:
+        restored = repo(reopened).load(first.digest)
+        assert restored == first  # Succeeds even in every denied decision case.
+
+        def verify(candidate_binding, session, sampled_now):
+            calls.append((sampled_now, candidate_binding, session is transport.session))
+            try:
+                history = repo(reopened).load(expected)
+                result, unchanged = verify_package(raw, context, history.state)
+            except Exception as exc:
+                errors.append(exc)
+                raise
+            outcomes.append((result, unchanged == history.state))
+            if result["decision"] != "IDEMPOTENT":
+                return None
+            return permission
+
+        model = Model(binding, verify, lambda: now, lease=8, attempts=3, retry_delay=2)
+        attempt = model.begin(transport, binding)
+        assert attempt is not None
+        authenticated = model.authenticate(attempt)
+        ticket = model.register(attempt) if authenticated else None
+        assert calls
+        if boundary == "current":
+            assert ticket is not None and model.confirm(attempt, ticket)
+            before = len(calls)
+            # Same persisted history, but independent current permission is withdrawn.
+            permission = replace(permission, new_use=False)
+            assert model.renew(attempt, ticket) is None
+            assert len(calls) > before
+            assert model.admit_work(attempt, deadline=now + 5) is None
+        else:
+            assert ticket is None
+            assert model.health()["ready"] is False
+        # Model deliberately converts verifier exceptions into refusal. Inspect
+        # the cause outside that exception boundary, so negatives cannot false-pass.
+        assert all(call == (now, binding, True) for call in calls)
+        if boundary == "wrong_expectation":
+            assert len(errors) == len(calls)
+            assert all(type(error) is store.SnapshotRejected for error in errors)
+            assert outcomes == []
+        else:
+            assert errors == []
+            assert len(outcomes) == len(calls)
+            assert all(unchanged for _, unchanged in outcomes)
+            if boundary == "stale_evidence":
+                assert all(result["decision"] == "REJECT" and result["reason"] == "ERR_AUTHORITY"
+                           for result, _ in outcomes)
+            else:
+                assert all(result["decision"] == "IDEMPOTENT" for result, _ in outcomes)
+        model.stop(attempt)
+        assert transport.closed
+        assert model.health() == {"ready": False, "owned": 0}
+        assert repo(reopened).load(first.digest) == first

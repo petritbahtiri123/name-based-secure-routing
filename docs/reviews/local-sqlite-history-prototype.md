@@ -81,3 +81,31 @@ Local successor validation: 25 SQLite cases collected in 0.67s; the complete CI
 contract suite plus SQLite and canonical persistence neighbors passed 140 tests
 in 8.96s. Scoped Ruff and diff-check passed. This remains local evidence; hosted
 CI must be checked separately for the successor commit.
+
+## Mock connector decision boundary (local validation)
+
+Six parameter cases compose real SQLite restore, the canonical local-v2 verifier,
+and the existing synchronous connector control model. A successful load restores
+history only. The positive case additionally supplies an independent mock Permission
+and revalidates the signed fixture at the decision callback. Negative cases cover
+no Permission, expired Permission, stale evidence, wrong expected digest and
+new_use=False. The positive case also withdraws new-use eligibility before renewal
+and checks that unchanged history cannot restore admission. History bytes remain
+unchanged in all cases; explicit stop releases the mock transport ownership.
+
+The Binding and Permission are declared synthetic inputs, NOT identity mappings
+or authorization derived from the persisted revocation record. No source-completion
+producer, Option C runtime conversion, live registration, concurrent atomic barrier,
+real clock or active-child cleanup is implemented. The existing whole-file SQLite
+CI command and lint select these cases. On isolated exact-base sources at
+81257cc47d2c9c05d45693c78d225f62196278cc, Windows Python 3.14.6 collected
+31 SQLite cases, including all six boundary cases. SQLite, canonical persistence,
+connector model and CI-selection regressions passed 179 tests in 5.79s after
+review hardening; scoped Ruff passed. Hosted CI for this successor remains pending.
+
+Independent review identified that Model's intentional verifier-exception refusal
+could hide assertion failures in negative tests. The callback now records results
+and errors; checks outside Model require SnapshotRejected only for the wrong
+expectation, explicit REJECT/ERR_AUTHORITY for stale evidence, and exception-free
+IDEMPOTENT verification for Permission and renewal cases. Binding, session and
+unchanged-history observations are checked outside the swallowed-exception boundary.
