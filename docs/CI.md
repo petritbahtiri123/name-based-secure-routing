@@ -480,3 +480,13 @@ counter reconciliation, contiguous windows, deadline phases, final-record bindin
 missing-sample null quantiles, sampling ordinals and bounded retained state.
 No producer export, process, socket, filesystem capture or live benchmark is used.
 These checks do not establish producer compatibility, cleanup or real-run validity.
+
+### Offline benchmark statistics
+
+Python core also selects exactly `test_statistics.py` from `tests/performance`.
+Thirteen synthetic in-memory cases check literal nearest-rank percentiles, the
+p99.9 sample-count threshold, equivalent comparison cells and approved scenario
+pairs, and deterministic run-level bootstrap confidence intervals. The largest
+fixture is a list of 100,000 integers, not measured operations. No file, socket,
+process or live benchmark is used; passing does not validate real sampling,
+independent-run provenance or a measured performance claim.
