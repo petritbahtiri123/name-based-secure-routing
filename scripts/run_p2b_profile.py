@@ -189,8 +189,8 @@ def run_shard(
         latencies = sorted(int(record["request_latency_ns"]) for record in records if record.get("success") is True)
         duration_ns = max(int(record.get("completed_ns", record["request_latency_ns"])) for record in records)
 
-        def percentile(value: int) -> int:
-            return latencies[max(0, (len(latencies) * value + 99) // 100 - 1)]
+        def percentile(value: int) -> int | None:
+            return latencies[max(0, (len(latencies) * value + 99) // 100 - 1)] if latencies else None
 
         return {
             "samples": samples,
@@ -199,7 +199,7 @@ def run_shard(
             "over_capacity": 0,
             "duration_ns": duration_ns,
             "throughput": len(latencies) / (duration_ns / 1e9),
-            "mean_lifecycle_ns": statistics.fmean(latencies),
+            "mean_lifecycle_ns": statistics.fmean(latencies) if latencies else None,
             "p50_ns": percentile(50),
             "p95_ns": percentile(95),
             "p99_ns": percentile(99),
@@ -246,7 +246,8 @@ def aggregate(
                 "p99_ns": statistics.median(value["p99_ns"] for value in values if value["calls"]) if calls else 0,
             }
         )
-    latency_values = {name: [shard[name] for shard in shards] for name in ("p50_ns", "p95_ns", "p99_ns")}
+    successful_shards = [shard for shard in shards if shard["completed"] > 0]
+    latency_values = {name: [shard[name] for shard in successful_shards] for name in ("p50_ns", "p95_ns", "p99_ns")}
     return {
         "schema": "nbsr-p2b-logical-profile-v1",
         "path": path,
@@ -261,11 +262,11 @@ def aggregate(
         "errors": sum(shard["errors"] for shard in shards),
         "over_capacity": sum(shard["over_capacity"] for shard in shards),
         "throughput": completed / (elapsed / 1e9),
-        "mean_lifecycle_ns": sum(shard["mean_lifecycle_ns"] * shard["completed"] for shard in shards) / completed,
-        "p50_ns": statistics.median(latency_values["p50_ns"]),
-        "p95_ns": statistics.median(latency_values["p95_ns"]),
-        "p99_ns": statistics.median(latency_values["p99_ns"]),
-        "cpu_ns_per_operation": sum(shard["resources"]["total_cpu_ns"] for shard in shards) / completed,
+        "mean_lifecycle_ns": sum(shard["mean_lifecycle_ns"] * shard["completed"] for shard in successful_shards) / completed if completed else None,
+        "p50_ns": statistics.median(latency_values["p50_ns"]) if completed else None,
+        "p95_ns": statistics.median(latency_values["p95_ns"]) if completed else None,
+        "p99_ns": statistics.median(latency_values["p99_ns"]) if completed else None,
+        "cpu_ns_per_operation": sum(shard["resources"]["total_cpu_ns"] for shard in shards) / completed if completed else None,
         "phases": phases,
         "shards": shards,
     }

@@ -21,6 +21,7 @@ CORE_TESTS = (
     "test_control_plane", "test_dependency_security", "test_destination_policy", "test_dns_stub", "test_name_node",
     "test_name_node_dns", "test_name_node_observability",
     "test_deployment_tls", "test_kind_security",
+    "test_p2a_established", "test_p2b_profile",
     "test_legacy_origin",
     "test_name_service",
     "test_demo",

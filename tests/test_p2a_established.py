@@ -73,6 +73,7 @@ class P2AEstablishedTests(unittest.TestCase):
                 "kernel_cpu_ns": 0,
                 "peak_working_set_bytes": 999,
                 "private_bytes": 999,
+                "thread_count": 999,
             },
             {
                 "role": "source",
@@ -81,6 +82,7 @@ class P2AEstablishedTests(unittest.TestCase):
                 "kernel_cpu_ns": 50,
                 "peak_working_set_bytes": 100,
                 "private_bytes": 80,
+                "thread_count": 3,
             },
             {
                 "role": "source",
@@ -89,10 +91,12 @@ class P2AEstablishedTests(unittest.TestCase):
                 "kernel_cpu_ns": 200,
                 "peak_working_set_bytes": 120,
                 "private_bytes": 90,
+                "thread_count": 4,
             },
         ]
         result = summarize_resources(samples, completed=10, measured_seconds=30)
         self.assertEqual(result["total_cpu_ns"], 450)
+        self.assertEqual(result["roles"]["source"]["peak_thread_count"], 4)
         self.assertEqual(result["roles"]["source"]["peak_working_set_bytes"], 120)
 
     def test_cell_cleanup_removes_only_matching_prior_repeat_artifacts(self):

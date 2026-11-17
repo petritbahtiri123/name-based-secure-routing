@@ -283,13 +283,14 @@ def main() -> None:
                 all_records.append(record)
                 repeat += 1
                 cv = coefficient_of_variation([r["operations_per_second"] for r in records])
+            valid_rates = [r["operations_per_second"] for r in records if r["valid"]]
             manifest = {
                 **cell,
                 "model": "one-outstanding-per-stream",
                 "warmup_seconds": args.warmup_seconds,
                 "measured_seconds": args.duration_seconds,
                 "repeat_count": len(records),
-                "throughput_cv": cv,
+                "throughput_cv": coefficient_of_variation(valid_rates) if valid_rates else None,
             }
             (manifests / f"{cell['path']}-s{cell['streams']}-p{cell['payload_bytes']}.json").write_text(
                 json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n"
@@ -300,9 +301,10 @@ def main() -> None:
             grouped.setdefault(key, []).append(record)
         cells = []
         for key, records in grouped.items():
+            valid_records = [r for r in records if r["valid"]]
 
-            def med(field: str) -> float:
-                return statistics.median(r[field] for r in records if r["valid"])
+            def med(field: str) -> float | None:
+                return statistics.median(r[field] for r in valid_records) if valid_records else None
 
             cells.append(
                 {
@@ -312,7 +314,7 @@ def main() -> None:
                     "payload_bytes": records[0]["payload_bytes"],
                     "valid_repeats": sum(r["valid"] for r in records),
                     "repeat_count": len(records),
-                    "throughput_cv": coefficient_of_variation([r["operations_per_second"] for r in records]),
+                    "throughput_cv": coefficient_of_variation([r["operations_per_second"] for r in valid_records]) if valid_records else None,
                     "median_operations_per_second": med("operations_per_second"),
                     "median_aggregate_application_gbps": med("aggregate_application_gbps"),
                     "median_p50_latency_ns": med("p50_latency_ns"),
@@ -323,7 +325,7 @@ def main() -> None:
             )
         analysis = {
             "schema": "nbsr-p2a-analysis-v1",
-            "accepted": all(r["valid"] for r in all_records),
+            "accepted": bool(all_records) and all(r["valid"] for r in all_records),
             "allocation_telemetry": "unavailable; no invasive allocator profiler built",
             "cells": cells,
         }
