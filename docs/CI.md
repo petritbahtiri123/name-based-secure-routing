@@ -471,3 +471,12 @@ fixtures to reconcile raw records, summaries and confidence metadata and detect
 raw-evidence checksum mutation. These checks start no process, listener, capture
 or benchmark and do not inspect existing evidence directories. They do not prove
 real fail-closed behavior, capacity, evidence provenance or production readiness.
+
+### Offline grouped progress accounting
+
+Python core also selects exactly `test_grouped_progress.py` from
+`tests/performance`. Synthetic in-memory records exercise cumulative and per-group
+counter reconciliation, contiguous windows, deadline phases, final-record binding,
+missing-sample null quantiles, sampling ordinals and bounded retained state.
+No producer export, process, socket, filesystem capture or live benchmark is used.
+These checks do not establish producer compatibility, cleanup or real-run validity.
