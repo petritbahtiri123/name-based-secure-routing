@@ -490,3 +490,12 @@ pairs, and deterministic run-level bootstrap confidence intervals. The largest
 fixture is a list of 100,000 integers, not measured operations. No file, socket,
 process or live benchmark is used; passing does not validate real sampling,
 independent-run provenance or a measured performance claim.
+
+### Offline CPU efficiency derivation
+
+Python core also selects exactly `test_cpu_efficiency.py` from `tests/performance`.
+Five synthetic cases check affinity-mask arithmetic, CPU-time normalization,
+rejection of unverified-affinity/error records, and CPU-versus-software-limited
+classification using per-role saturation. The affinity module is imported only
+for its pure mask function; no process affinity is set or queried. No sampler,
+process, listener or live workload runs, and no real bottleneck is established.
