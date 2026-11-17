@@ -60,7 +60,10 @@ def test_ref_failure_has_no_local_head_fallback(tmp_path, monkeypatch, ref):
     assert not (tmp_path / "snapshots").exists()
 
 
-@pytest.mark.parametrize("data", [b"a\0b", b"\xff", b"x" * 98305, b"sk-proj-" + b"a" * 40])
+@pytest.mark.parametrize(
+    "data", [b"a\0b", b"\xff", b"x" * 98305, b"sk-proj-" + b"a" * 40],
+    ids=["nul", "invalid-utf8", "oversized", "credential-like"],
+)
 def test_bad_source_rejected_before_snapshot_creation(tmp_path, monkeypatch, data):
     root = controls(tmp_path, monkeypatch)
 
@@ -146,3 +149,12 @@ def test_transport_rejects_redirect_error_or_oversize_and_closes(monkeypatch, st
     assert len([x for x in calls if x[0] == "request"]) == 1
     assert calls[-1] == ("closed",)
     assert "Authorization" not in str(calls)
+
+
+def test_bad_source_parameter_ids_are_bounded():
+    """Windows exports each node ID through a bounded environment variable."""
+    marker = next(mark for mark in test_bad_source_rejected_before_snapshot_creation.pytestmark if mark.name == "parametrize")
+    ids = marker.kwargs.get("ids")
+    assert ids is not None and len(ids) == len(marker.args[1])
+    assert len(set(ids)) == len(ids)
+    assert all(isinstance(value, str) and 0 < len(value) <= 32 for value in ids)
