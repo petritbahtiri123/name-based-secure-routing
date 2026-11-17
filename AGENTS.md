@@ -38,6 +38,11 @@ cache, command effects and resource bounds below before running any check.
   tests and the current evidence record; expand context only to resolve a specific gap.
 - Add a focused regression for behavior changes, inspect the diff, and perform one
   scoped correctness/security review. Do not repeat expensive checks without a reason.
+- Before every push, include the change's relevant tests in the applicable CI
+  workflow/profile and verify that CI selects and collects them. Add or update
+  CI wiring in the same change when needed; do not defer it to a separate CI task.
+  Record the selection/collection check and actual test results in the handoff;
+  an unexecuted check is not a pass. Preserve existing execution/resource gates.
 - Keep diagnosis, implementation, measured results and hypotheses distinct. Report
   failed checks and incomplete validation. Commit, push and merge need task authority.
 
