@@ -522,3 +522,15 @@ The fixtures distinguish valid evidence from observed stability without running
 a load sweep or waiting through the represented duration. No sampler, process,
 network, file or live benchmark is used; synthetic cleanup fields do not prove
 real cleanup, sustainable capacity, producer provenance or deployment readiness.
+
+### Offline benchmark state and replay models
+
+Python core selects exactly `test_benchmark_model.py`, `test_bounded_replay_model.py`
+and `test_session_rotation_model.py` from `tests/performance`. These deterministic
+in-memory models check scenario/admission isolation, replay counterexamples and
+session-local authority/drain transitions. The replay investigation uses 10,000
+seeded sequences (800,000 model events), not network operations. No CLI writer,
+process, socket or live benchmark runs. Candidate divergence and the existing
+`DESIGN_BLOCKED` rotation gate remain explicit: passing these tests does not
+approve an architecture, implement rotation or prove cryptographic authority,
+production replay security, live cleanup or performance.
