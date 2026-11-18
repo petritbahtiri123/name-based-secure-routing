@@ -110,7 +110,9 @@ def command_groups(profile: str) -> list[Command]:
                 Command("reader-lifecycle", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
                     "tests/performance/test_reader_settlement.py",
                     "tests/performance/test_reader_acquisition.py", "tests/performance/test_reader_binding.py",
-                    "tests/performance/test_reader_windows_owner.py", "tests/performance/test_reader_reservations.py")),
+                    "tests/performance/test_reader_windows_owner.py", "tests/performance/test_reader_reservations.py",
+                    "tests/performance/test_reader_capture_adapter.py", "tests/performance/test_reader_receipts.py",
+                    "tests/performance/test_reader_barrier.py", "tests/performance/test_reader_pipeline.py")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
