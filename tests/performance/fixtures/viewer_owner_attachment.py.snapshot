@@ -1,0 +1,41 @@
+"""Optional owner-to-viewer control-plane handoff; no workload or HTTP control.
+Call ONLY from a separately supervised control-plane owner, never inline passive
+preparation, PRE/POST timing or cleanup. Failure is not a benchmark gate.
+"""
+import json,math,os,re,time,uuid
+from pathlib import Path
+
+def publish(directory,run,trial_anchor,qualification_path,*,now=None):
+ owned_lock=False;pending=None;lock=None
+ try:
+  directory=Path(directory).resolve();q=Path(qualification_path);now=time.monotonic() if now is None else now
+  if not isinstance(run,str) or not re.fullmatch('[A-Za-z0-9_-]{1,64}',run):raise ValueError('Invalid explicit run')
+  if type(trial_anchor) not in (int,float) or not math.isfinite(trial_anchor) or not trial_anchor<=now<trial_anchor+115:raise ValueError('Fresh original trial anchor required')
+  if not q.is_absolute() or not directory.is_dir():raise ValueError('Existing viewer directory and absolute owner qualification path required')
+  value={'run':run,'trial_anchor':trial_anchor,'deadline':trial_anchor+115,'qualification_path':str(q)}
+  raw=json.dumps(value,sort_keys=True,separators=(',',':')).encode()
+  if len(raw)>16384:raise ValueError('Generated manifest too large')
+  target=directory/'active-attachment.json';lock=directory/'active-attachment.lock'
+  with lock.open('x') as f:
+   owned_lock=True
+   f.write(run)
+  if target.exists():
+   if target.stat().st_size>16384:raise ValueError('Existing attachment too large')
+   old=json.loads(target.read_bytes())
+   if old==value:return {'published':True,'idempotent':True,'run':run}
+   if old.get('run')==run or old.get('deadline',float('inf'))>now:raise ValueError('Existing active/spent same-run attachment cannot be replaced')
+  candidate=directory/('.attachment-'+uuid.uuid4().hex+'.pending')
+  with candidate.open('xb') as f:
+   pending=candidate # Only files successfully created by this call are owned.
+   f.write(raw);f.flush()
+  os.replace(pending,target);pending=None
+  return {'published':True,'idempotent':False,'run':run,'deadline':trial_anchor+115}
+ except Exception as error:
+  return {'published':False,'run':run,'error':type(error).__name__+': '+str(error),'benchmark_gate':False}
+ finally:
+  if pending is not None:
+   try:pending.unlink()
+   except OSError:pass
+  if owned_lock:
+   try:lock.unlink()
+   except OSError:pass
