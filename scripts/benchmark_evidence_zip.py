@@ -190,3 +190,68 @@ def create_verified_zip(root, archive, expected, *, maximum_archive_bytes=16 * 1
         source_bytes=sum(r["bytes"] for r in expected.values()),
         members=expected,
     )
+
+
+def restore_verified_zip(
+    archive,
+    destination,
+    expected,
+    *,
+    archive_sha256,
+    maximum_archive_bytes,
+    maximum_restore_bytes,
+):
+    """Independently restore and reread bytes; never delete original evidence.
+
+    Caller reserves archive + full restore + metadata capacity and establishes
+    quiescence. Destination must not exist. Failure retains partial restoration
+    for diagnosis; neither a partial restore nor this receipt authorizes pruning.
+    """
+    _inventory(expected)
+    total = sum(row["bytes"] for row in expected.values())
+    if (
+        type(maximum_restore_bytes) is not int
+        or not 0 <= total <= maximum_restore_bytes
+    ):
+        raise ValueError("restore budget exceeded")
+    if (
+        type(archive_sha256) is not str
+        or len(archive_sha256) != 64
+        or any(c not in "0123456789abcdef" for c in archive_sha256)
+    ):
+        raise ValueError("explicit archive digest required")
+    _, digest = _verify_zip(archive, expected, maximum_archive_bytes)
+    if digest != archive_sha256:
+        raise ValueError("archive receipt digest mismatch")
+    destination = Path(destination).absolute()
+    _plain(destination)
+    # Reopen under the same-descriptor guard, and rehash before parsing or writing.
+    with _open_regular(Path(archive)) as raw:
+        if os.fstat(raw.fileno()).st_size > maximum_archive_bytes:
+            raise ValueError("archive budget exceeded")
+        digest = hashlib.sha256()
+        while chunk := raw.read(65536):
+            digest.update(chunk)
+        if digest.hexdigest() != archive_sha256:
+            raise ValueError("archive changed before restore")
+        raw.seek(0)
+        destination.mkdir(exist_ok=False)
+        with zipfile.ZipFile(raw) as z:
+            for name, row in sorted(expected.items()):
+                target = destination / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                _plain(target)
+                with target.open("xb") as output, z.open(name) as source:
+                    _copy_checked(source, row, output)
+                    output.flush()
+                    os.fsync(output.fileno())
+        # Read the persisted files independently rather than trusting write results.
+        for name, row in sorted(expected.items()):
+            with _open_regular(destination / name) as restored:
+                _copy_checked(restored, row)
+    return dict(
+        status="RESTORED_VERIFIED_ORIGINALS_RETAINED",
+        archive_sha256=archive_sha256,
+        restored_bytes=total,
+        members=expected,
+    )
