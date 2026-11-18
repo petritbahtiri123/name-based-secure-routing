@@ -150,7 +150,7 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 		events = append(events, Event{Kind: EventAcquireCoalesced})
 		m.mu.Unlock()
 		m.notify(events)
-		return m.waitPending(ctx, existing)
+		return m.waitPending(ctx, existing, acquire.DeadlineUnix)
 	}
 	logicalBytes, err := pendingLogicalBytes(key, acquire)
 	if err == nil && (len(m.pending) >= m.limits.MaxPending || logicalBytes > m.limits.MaxPendingBytes-m.pendingBytes) {
@@ -175,7 +175,7 @@ func (m *Manager) startOrJoin(ctx context.Context, key pendingKey, acquire Acqui
 	// One bounded worker per pending provider operation; waiters only select on
 	// the shared completion channel and never create goroutines.
 	go m.runPending(call)
-	return m.waitPending(ctx, call)
+	return m.waitPending(ctx, call, acquire.DeadlineUnix)
 }
 
 func callHasRequestRecord(call *pendingCall, record *requestRecord) bool {
@@ -187,15 +187,15 @@ func callHasRequestRecord(call *pendingCall, record *requestRecord) bool {
 	return false
 }
 
-func (m *Manager) waitPending(ctx context.Context, call *pendingCall) (Reservation, error) {
+func (m *Manager) waitPending(ctx context.Context, call *pendingCall, deadline uint64) (Reservation, error) {
 	select {
 	case <-call.done:
-		return call.result.reservation, call.result.err
+		return m.pendingResultBeforeDeadline(call.result, deadline)
 	default:
 	}
 	select {
 	case <-call.done:
-		return call.result.reservation, call.result.err
+		return m.pendingResultBeforeDeadline(call.result, deadline)
 	case <-ctx.Done():
 		cancelProvider := false
 		var events []Event
@@ -203,7 +203,7 @@ func (m *Manager) waitPending(ctx context.Context, call *pendingCall) (Reservati
 		if call.finished {
 			result := call.result
 			m.mu.Unlock()
-			return result.reservation, result.err
+			return m.pendingResultBeforeDeadline(result, deadline)
 		} else {
 			call.waiters--
 			if call.waiters == 0 {
@@ -218,6 +218,22 @@ func (m *Manager) waitPending(ctx context.Context, call *pendingCall) (Reservati
 		}
 		return Reservation{}, ctx.Err()
 	}
+}
+
+// Coalescing shares provider work, not each caller's authorization deadline.
+// All completion paths must reject a result delivered after that caller expires.
+func (m *Manager) pendingResultBeforeDeadline(result pendingResult, deadline uint64) (Reservation, error) {
+	if result.err != nil {
+		return Reservation{}, result.err
+	}
+	now := m.clock.NowUnix()
+	if !validUnixTime(now) {
+		return Reservation{}, ErrInvalidAuthority
+	}
+	if now >= deadline {
+		return Reservation{}, ErrExpired
+	}
+	return result.reservation, nil
 }
 
 func (m *Manager) runPending(call *pendingCall) {
@@ -323,6 +339,10 @@ func (m *Manager) finishPendingLocked(call *pendingCall, reservation Reservation
 	call.result = pendingResult{reservation: reservation, err: err}
 	var requestEvents []Event
 	for _, record := range call.records {
+		if err == nil && m.clock.NowUnix() >= record.snapshot.ExpiresAt {
+			m.removeRequestLocked(record)
+			continue
+		}
 		if err == nil {
 			if finishErr := m.finishRequestLocked(record, reservation.grant, reservation); finishErr != nil {
 				err = finishErr

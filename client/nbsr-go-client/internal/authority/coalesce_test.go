@@ -571,7 +571,7 @@ func TestBothReadyDoneWinsOverCanceledContext(t *testing.T) {
 		call := &pendingCall{done: make(chan struct{}), result: pendingResult{reservation: Reservation{id: 1}}}
 		close(call.done)
 		cancel()
-		got, err := (&Manager{}).waitPending(ctx, call)
+		got, err := (&Manager{clock: &mutableClock{now: 1}}).waitPending(ctx, call, 2)
 		if err != nil || got.id != 1 {
 			t.Fatalf("both-ready result = %#v, %v; want completed result", got, err)
 		}

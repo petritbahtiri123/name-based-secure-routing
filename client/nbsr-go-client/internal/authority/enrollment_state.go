@@ -73,6 +73,13 @@ func verifiedEnrollmentIdentity(request EnrollmentRequestPayload, result Enrollm
 	if result.Status != EnrollmentStatusAccepted {
 		return identity.DeviceIdentity{}, ErrTerminalEnrollment
 	}
+	requestPayload, err := EncodeEnrollmentRequestPayload(request)
+	if err != nil {
+		return identity.DeviceIdentity{}, err
+	}
+	if err := ValidateEnrollmentResultBinding(result, request, requestPayload); err != nil {
+		return identity.DeviceIdentity{}, err
+	}
 	if result.DeviceIdentity == nil {
 		return identity.DeviceIdentity{}, ErrInvalidAuthority
 	}
