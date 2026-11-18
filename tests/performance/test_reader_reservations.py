@@ -99,3 +99,27 @@ def test_full_successor_envelope_includes_preparation_source_and_cleanup():
     assert result["remaining_total"] == 27985920
     assert result["projected_output"] == 170396668
     assert result["projected_task"] == 7132435738
+
+
+def test_live_fixed_grants_reserve_once_without_minting_spare():
+    book = limits.ClaimBook()
+    whole, grants = limits.live_partition_claims(book)
+    assert whole.reserved_bytes == sum(c.maximum_bytes for c in grants.values()) == 2492 * 1024
+    assert whole.maximum_bytes == 2608 * 1024
+    assert grants["completion_shared"].purpose == "live/completion"
+    assert "receiver_receipts" not in grants
+    with pytest.raises(ValueError):
+        limits.live_partition_claims(book)
+    limits.mark_unknown(grants["producer_capture"], "partial_write")
+    assert whole.reserved_bytes == 2492 * 1024
+    with pytest.raises(limits.OutputLimitError):
+        limits.charge_alias(grants["producer_capture"], 0)
+
+
+def test_every_live_grant_enforces_its_fixed_maximum():
+    for name in limits._LIVE_PARTITIONS:
+        _, grants = limits.live_partition_claims(limits.ClaimBook())
+        claim = grants[name]
+        limits.charge_alias(claim, claim.maximum_bytes)
+        with pytest.raises(limits.OutputLimitError):
+            limits.charge_alias(claim, 1)

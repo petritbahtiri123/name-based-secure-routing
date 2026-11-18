@@ -562,3 +562,36 @@ def live_receiver_claims(book):
     claims = {name: Claim(("file/live-lab/receiver-command/" + name, "normal/live", kib * _K), _MINT) for name, kib in sizes.items()}
     claims["stderr.log"] = claims["stdout.log"]
     return claims
+
+
+# Fixed, disjoint successor live grants. No unallocated headroom is minted.
+# Exclusive parent/child writer ownership and native SQLite qualification remain
+# prerequisites; these reservations alone do not establish those facts.
+_LIVE_PARTITIONS = MappingProxyType({
+    "producer_capture": 256, "producer_failure": 96, "producer_packet_aliases": 320,
+    "reader_command": 192, "completion_shared": 16, "receiver_command": 108,
+    "sqlite_database": 512, "sqlite_wal": 640, "sqlite_shm": 32,
+    "sqlite_bootstrap_journal": 128, "stored_raw_aliases": 192,
+})
+
+
+def live_partition_claims(book):
+    """Reserve all fixed maxima once, before any live writer or child starts.
+
+    Reservations survive failure and abandoned children; never refund or reissue.
+    Child local caps must be no larger than their reserved grant, and every writer
+    must have one exclusive fixed path owner. No dormant receipt writer is granted.
+    """
+    if type(book) is not ClaimBook:
+        raise TypeError("fixed parent ClaimBook required")
+    whole = book.claim("live/whole")
+    total = sum(_LIVE_PARTITIONS.values()) * _K
+    if total != 2492 * _K or total > whole.maximum_bytes:
+        raise ValueError("fixed live allocation changed")
+    charge_alias(whole, total)
+    grants = {
+        name: Claim(("live/completion" if name == "completion_shared" else "live/" + name,
+                     "normal/live", kib * _K), _MINT)
+        for name, kib in _LIVE_PARTITIONS.items()
+    }
+    return whole, grants
