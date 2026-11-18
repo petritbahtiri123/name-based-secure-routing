@@ -1,0 +1,104 @@
+{
+  "scope": "offline candidate primitives only; sources are frozen task files, not an asserted Git revision",
+  "excluded": [
+    "private host paths",
+    "credentials and certificates",
+    "SSH configurations",
+    "run evidence",
+    "management/container executors",
+    "budget and scientific gates"
+  ],
+  "sources": [
+    {
+      "source": "windows_native_management.py",
+      "source_sha256": "e89d236476db0367ea45ac56d643e23ed3cef0eab0344f2e7bbf63689c8892f5",
+      "selection": {
+        "class_name": "WindowsOwner",
+        "first_line": 57,
+        "last_line": 120
+      },
+      "destination": "reader_windows_owner.py",
+      "changes": "extract class only; local Unconfirmed type; renamed RetainedJobError import",
+      "executable_class_ast_sha256": {
+        "WindowsOwner": "7b7b40c1dee861219278b86bddf07cbb87d5d70005cdfb0522589b96887779e8"
+      },
+      "origin_group": "retained_collector/scripts/performance"
+    },
+    {
+      "source": "windows_job_backend.py",
+      "source_sha256": "dc7c955c3159c4182b98eeb717ce27a9798409542d97f6f5c248afacffd3d1af",
+      "selection": "whole stdlib-only module",
+      "destination": "reader_windows_backend.py",
+      "changes": "formatting only",
+      "executable_class_ast_sha256": {
+        "BasicLimits": "d5281663cd2a71d1fc655d7ba401c27221845545ce36d1c0e71a41bce98c4bf3",
+        "IoCounters": "0b18594bad76fcdf99257f5bef9038ff55b1406081941f02a0c669da264e6263",
+        "ExtendedLimits": "ee4edb696f0a61ee80948dc3b1ed39a692bd43d82691ca3b4d3f8ac88e3849a3",
+        "Accounting": "bdbb82df252c6a0336349787723044c5f86c559eaa94747ef61a8b9596646eac",
+        "Startup": "99e20c9372854223f5ce934aa8b9f987592ad71b8e88a8acd308ea0e028cd612",
+        "ProcessInfo": "3d79a5c5b01015cc16bb48205528d2707c5a47864f823d49545b594b111dd73f",
+        "RetainedJobError": "887d31cf838d0c12ac44acb1a40a9eab17b10ab95329a098ac861cbc440a42a4",
+        "Win32Backend": "a84f286dc6b60d390e2cd78204c2e6d166a615f89b151344f573a5f36db2d93e"
+      },
+      "origin_group": "retained_collector/scripts/performance"
+    },
+    {
+      "source": "coherent_backend.py",
+      "source_sha256": "ab866c6bb4f12672ae4c24de7b66c998fde0e17da387c15f810502c7446556b3",
+      "selection": "whole primitive module",
+      "destination": "reader_windows_drain.py",
+      "changes": "combine primitives; renamed local imports; formatting",
+      "executable_class_ast_sha256": {
+        "CoherentBackend": "6ab538ffe2fd7c8d9e0cec7294324ea6b1aaa9c3374fe2bca5e192a26f49af3c"
+      },
+      "origin_group": "frozen_campaign_cell"
+    },
+    {
+      "source": "diagnostic_backend.py",
+      "source_sha256": "a6c846e5a33ac44788002506142c59ab6fcb50069bae2e30a46a36c8b89edef4",
+      "selection": "whole primitive module",
+      "destination": "reader_windows_drain.py",
+      "changes": "combine primitives; renamed local imports; formatting",
+      "executable_class_ast_sha256": {
+        "ProcessIds": "e1e347960682b14971f342d6c918ec7d8e5cf796dc5d9aaa8fb218b31dc5a4ea",
+        "DiagnosticBackend": "7f89bedf537000ed8ee385ed5e590aa993d0bb421bc60bfedf950c1f71b702a2"
+      },
+      "origin_group": "frozen_campaign_cell"
+    },
+    {
+      "source": "draining_owner.py",
+      "source_sha256": "8a73fe894d087ed806c3ec7d3e2c61c9f46e5b49246d81cdc983bf27521a8805",
+      "selection": "whole primitive module",
+      "destination": "reader_windows_drain.py",
+      "changes": "combine primitives; renamed local imports; formatting",
+      "executable_class_ast_sha256": {
+        "DrainingOwner": "806c2f2f1bc44a2872fff8612e11e432e0cec288db40a2a7ed6530f9da59c685"
+      },
+      "origin_group": "frozen_campaign_cell"
+    },
+    {
+      "source": "output_limits.py",
+      "source_sha256": "a33d202ee9188456486ca6232581045133899c090a79fefcedd29676bec84d20",
+      "selection": "whole pure fixed-purpose ledger/writers; no host config",
+      "destination": "reader_output_limits.py",
+      "changes": "formatting only",
+      "executable_module_ast_sha256": "9d58af22ee6944f23540ae3244831851eb1d5e7d1e598fd76b0d2673f75a548b",
+      "origin_group": "frozen_campaign_root"
+    },
+    {
+      "source": "phase_budget.py",
+      "source_sha256": "53fa36de40fcb2febe87348947739f9ddd81b1c73316c113d64d432f814d96d8",
+      "selection": [
+        "project",
+        "align"
+      ],
+      "destination": "reader_phase_budget.py",
+      "changes": "extract pure arithmetic only; filesystem scan not promoted",
+      "function_ast_sha256": {
+        "project": "d813c40e517dac9846fc1a19b128375663dbfd27c87f4cd3495e41121459e39e",
+        "align": "38d9aef17de11e24492e2889aa548b62c52d85c5c109954b8992b2bee1383f2a"
+      },
+      "origin_group": "separately_sealed_continuation_chain"
+    }
+  ]
+}

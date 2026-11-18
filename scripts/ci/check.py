@@ -107,6 +107,10 @@ def command_groups(profile: str) -> list[Command]:
                                                               "scripts/local_history_sqlite.py",
                                                               "tests/federation/test_local_history_sqlite.py",
                                                               "tests/ci/test_sqlite_history_selection.py")),
+                Command("reader-lifecycle", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                    "tests/performance/test_reader_settlement.py",
+                    "tests/performance/test_reader_acquisition.py", "tests/performance/test_reader_binding.py",
+                    "tests/performance/test_reader_windows_owner.py", "tests/performance/test_reader_reservations.py")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
