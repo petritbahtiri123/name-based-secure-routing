@@ -22,6 +22,9 @@ class ObservationSlot:
         if anchor < 0 or deadline != anchor + 115:
             raise ValueError('unchanged viewer observation window')
         self._identity = identity
+        self._anchor = anchor
+        self._receiver_bound = False
+        self._receiver_installed = False
         self._previous, self._deadline = anchor, deadline
         self._lock = threading.Lock()
         self._generation = self._sequence = 0
@@ -40,6 +43,34 @@ class ObservationSlot:
         if type(now) not in (int, float) or not math.isfinite(now) or not self._previous <= now < self._deadline:
             self._fail('original deadline/clock')
         self._previous = now
+
+    def bind_receiver(self, expected_identity, *, anchor, deadline, now):
+        """One-use consistency check of independently supplied trusted values.
+
+        This does not authenticate files or solve readiness-after-start ordering.
+        A runtime caller must acquire and pin those values independently; the
+        isolated wrapper does not invoke this method as a prestart proof.
+        """
+        with self._lock:
+            self._check(now)
+            if (self._receiver_bound or self._sequence != 0 or self._pending
+                    or self._reply is not None
+                    or type(expected_identity) is not tuple
+                    or any(type(v) is not str for v in expected_identity)
+                    or expected_identity != self._identity
+                    or any(type(t) not in (int, float) or not math.isfinite(t)
+                           for t in (anchor, deadline))
+                    or anchor != self._anchor or deadline != self._deadline):
+                self._fail('receiver identity/window reused or mismatched')
+            self._receiver_bound = True
+
+    def consume_receiver_binding(self):
+        """One owner installation only, before observations become available."""
+        with self._lock:
+            if (self._failed or not self._receiver_bound or self._receiver_installed
+                    or self._sequence != 0 or self._pending or self._reply is not None):
+                self._fail('receiver binding not fresh for installation')
+            self._receiver_installed = True
 
     def request(self, *, now):
         with self._lock:

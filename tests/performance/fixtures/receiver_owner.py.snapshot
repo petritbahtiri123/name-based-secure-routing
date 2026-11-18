@@ -1,0 +1,133 @@
+class Owner:
+
+    def __init__(self, anchor, deadline):
+        require_native_qualification()
+        import math, threading
+        if type(anchor) not in (int, float) or not math.isfinite(anchor) or deadline != anchor + 175 or (not anchor <= time.monotonic() < anchor + 170):
+            raise ValueError('original receiver interval')
+        self.anchor = anchor
+        self.deadline = deadline
+        self.directory = ROOT / 'live-lab/receiver-command'
+        if self.directory.exists():
+            raise FileExistsError('spent receiver command')
+        self.claims = _claims()
+        self.owner = None
+        self.viewer_lock = threading.Lock()
+        self.viewer_revoked = False
+        self.problem = None
+        self.result = None
+        self.closed = None
+        self.stop_attempted = False
+        self.abort_attempted = False
+        self.lock = threading.Lock()
+        self.thread = threading.Thread(target=self._monitor, name='nbsr-receiver-monitor', daemon=False)
+
+    def _monitor(self):
+        require_native_qualification()
+        try:
+            import bounded
+            if pathlib.Path(bounded.__file__).resolve() != ROOT / 'cells/baseline8/bounded.py':
+                raise RuntimeError('receiver bounded origin')
+            argv = [sys.executable, '-B', str(ROOT / 'finite_receiver.py'), 'worker', str(self.directory / 'request.json')]
+            self.result = bounded.run(argv, self.directory, work=170, trial_anchor=self.anchor, receiver_observation_enabled=True)
+        except BaseException as error:
+            self.problem = error
+            self._revoke_viewer()
+
+    def start(self):
+        try:
+            return self._start()
+        except BaseException:
+            self._revoke_viewer()
+            raise
+
+    def _start(self):
+        require_native_qualification()
+        global _CURRENT
+        if _CURRENT is not None:
+            raise RuntimeError('receiver already claimed')
+        _CURRENT = self
+        self.thread.start()
+        while time.monotonic() < self.anchor + 170:
+            if self.problem is not None:
+                raise self.problem
+            if (self.directory / 'ready.json').exists():
+                ready = _read(self.directory, 'ready.json', self.claims)
+                if ready.get('deadline') != self.deadline or ready.get('port') != 8766:
+                    raise RuntimeError('receiver readiness identity')
+                if time.monotonic() >= self.anchor + 170:
+                    raise TimeoutError('receiver readiness cutoff')
+                try:
+                    from scripts.performance.receiver_post_ready import PostReady
+                    self.viewer_attachment = PostReady(ROOT, RUN, self.owner, python=sys.executable, install=self._install_viewer)
+                except Exception as error:
+                    self.viewer_error = type(error).__name__
+                    self._revoke_viewer()
+                return
+            if not self.thread.is_alive():
+                raise RuntimeError('receiver ended before ready')
+            time.sleep(0.01)
+        raise TimeoutError('receiver original startup boundary')
+
+    def _install_viewer(self, owner, slot):
+        with self.viewer_lock:
+            if self.viewer_revoked or self.abort_attempted or self.stop_attempted or self.owner is not owner:
+                slot.revoke()
+                raise ValueError('receiver lifecycle visualization revoked')
+            owner.install_observation(slot)
+
+    def _revoke_viewer(self):
+        with self.viewer_lock:
+            self.viewer_revoked = True
+            if self.owner is not None:
+                self.owner.disable_observation()
+
+    def abort(self):
+        self._revoke_viewer()
+        if not self.abort_attempted:
+            self.abort_attempted = True
+            (self.directory / 'cancel').touch(exist_ok=True)
+
+    def finish(self, *, require_final):
+        self._revoke_viewer()
+        primary = None
+        with self.lock:
+            if self.closed is not None:
+                if require_final and (not self.closed['final']):
+                    raise RuntimeError('receiver aborted')
+                return self.closed
+            if not self.stop_attempted:
+                self.stop_attempted = True
+                try:
+                    if time.monotonic() >= self.anchor + 170:
+                        raise TimeoutError('receiver stop cutoff')
+                    _publish(self.directory, 'stop.json', {'final': bool(require_final), 'deadline': self.deadline}, self.claims)
+                except BaseException as error:
+                    primary = error
+                    try:
+                        self.abort()
+                    except BaseException as abort_error:
+                        primary.add_note('Receiver abort UNKNOWN: ' + type(abort_error).__name__)
+        if self.thread.ident is not None:
+            self.thread.join(max(0, self.deadline - time.monotonic()))
+        try:
+            if self.thread.is_alive() or time.monotonic() >= self.deadline:
+                raise RuntimeError('receiver monitor/Job ownership UNKNOWN')
+            if self.problem is not None:
+                raise self.problem
+            if self.owner is None or self.owner.owned or self.owner.drain_failure or (not isinstance(self.result, dict)) or (self.result.get('status') != 'LOCAL_WORKER_COMPLETED'):
+                raise RuntimeError('receiver exact Job cleanup UNKNOWN')
+            ended = _read(self.directory, 'ended.json', self.claims)
+            if ended.get('deadline') != self.deadline or ended.get('sqlite_closed') is not True or ended.get('success') is not True or (require_final and ended.get('final') is not True):
+                raise RuntimeError('receiver SQLite/final completion UNKNOWN')
+            if time.monotonic() >= self.deadline:
+                raise TimeoutError('receiver completion cutoff')
+            if primary is not None:
+                raise primary
+            self.closed = dict(final=ended['final'], joined=True, sqlite_closed=True, feed=ended.get('feed'), port=8766)
+            return self.closed
+        except BaseException as error:
+            if primary is not None and error is not primary:
+                primary.add_note('Receiver cleanup UNKNOWN: ' + type(error).__name__)
+                raise primary
+            raise

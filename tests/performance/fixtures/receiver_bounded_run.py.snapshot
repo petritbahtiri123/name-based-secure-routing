@@ -1,0 +1,306 @@
+def _command_path(output):
+    raw = str(output)
+    out = pathlib.Path(output)
+    root = pathlib.Path(__file__).resolve().parents[2]
+    if not out.is_absolute() or '..' in out.parts or raw != str(out) or (raw != str(out.resolve())):
+        raise ValueError('canonical fixed command output required')
+    if raw == str(root / 'live-lab' / 'receiver-command'):
+        return (out, 'live-lab/receiver-command', 'file/live-lab/receiver-command/request.json')
+    if raw == str(root / 'live-lab' / 'reader-command'):
+        return (out, 'live-lab/reader-command', 'file/live-lab/reader-command/request.json')
+    if str(out.parent) != str(root / 'cells' / 'baseline8'):
+        raise ValueError('command output outside exact candidate cell')
+    relative = 'cells/baseline8/' + out.name
+    return (out, relative, purpose_for_path(relative + '/request.json'))
+
+def _anchor(value, started):
+    if type(value) not in (int, float) or not math.isfinite(value) or value > started:
+        raise ValueError('finite conservative original trial anchor required')
+    return value
+
+def _contain_retained(owner, deadline):
+    """One last owned kill/observation, never a renewed drain window or proof."""
+    errors = []
+    try:
+        owner.signal('KILL')
+    except BaseException as exc:
+        errors.append('KILL:' + type(exc).__name__)
+    try:
+        now = time.monotonic()
+        if type(now) not in (int, float) or not math.isfinite(now) or now >= deadline:
+            return errors + ['original_local_window_expired']
+        code, live = owner.observe()
+        observed = time.monotonic()
+        if type(observed) not in (int, float) or not math.isfinite(observed) or (not now <= observed < deadline):
+            return errors + ['original_local_window_expired_or_uncertain']
+        if code is not None and (not live):
+            owner.reap()
+    except BaseException as exc:
+        errors.append('observe_reap:' + type(exc).__name__)
+    return errors
+
+def run(argv, output, work=60, *, cleanup_purpose=None, trial_anchor=None, parent_end=None, reader_handoff=None, receiver_observation=None, receiver_observation_enabled=False):
+    coordinator = bool(argv and argv[0] == '@COORDINATOR@')
+    if coordinator and (pathlib.Path(__file__).parent / 'LIVE-DISABLED.json').exists():
+        raise RuntimeError('Live worker disabled before startup')
+    if type(work) not in (int, float) or not math.isfinite(work) or work <= 0:
+        raise ValueError('finite positive work window required')
+    output, relative, request_purpose = _command_path(output)
+    if reader_handoff is not None and relative != 'live-lab/reader-command':
+        raise ValueError('closure handoff is reader-only')
+    if type(receiver_observation_enabled) is not bool:
+        raise ValueError('explicit receiver observation selection required')
+    if receiver_observation_enabled and relative != 'live-lab/receiver-command':
+        raise ValueError('observation selection is receiver-only')
+    if receiver_observation is not None:
+        from scripts.performance.viewer_owner_observation import ObservationSlot
+        if relative != 'live-lab/receiver-command' or type(receiver_observation) is not ObservationSlot:
+            raise ValueError('observation slot is receiver-only')
+    book = ClaimBook()
+    live_claims = output_limits.live_reader_claims(book) if relative == 'live-lab/reader-command' else output_limits.live_receiver_claims(book) if relative == 'live-lab/receiver-command' else None
+    request_claim = live_claims['request.json'] if live_claims is not None else book.claim(request_purpose)
+    _request_arguments(argv, request_claim)
+    if cleanup_purpose is not None:
+        if work != 20:
+            raise ValueError('fixed cleanup work20 required')
+        _cleanup_binding(argv, relative, cleanup_purpose, trial_anchor)
+    elif request_claim.partition.startswith('cleanup/'):
+        raise ValueError('cleanup mode required for reserved output')
+    elif coordinator:
+        if list(argv) != ['@COORDINATOR@', 'existing-default-aliases'] or trial_anchor is None:
+            raise ValueError('exact coordinator with original trial anchor required')
+    elif relative == 'live-lab/receiver-command':
+        _receiver_arguments(argv)
+        if work != 170 or trial_anchor is None or parent_end is not None:
+            raise ValueError('fixed receiver original anchor required')
+    elif trial_anchor is not None:
+        raise ValueError('trial anchor on ordinary command')
+    history_claims = {name: live_claims[name] if live_claims is not None else book.claim(purpose_for_path(relative + '/' + name)) for name in ('job-exit-observations.json', 'job-drain.json', 'supervision.json')}
+    cleanup_allocation = 0
+    if cleanup_purpose is not None:
+        allocated = {claim.purpose: claim for claim in (request_claim, *history_claims.values())}
+        for name in ('stdout.log', 'stderr.log', 'exit.json', 'capture.json', 'evidence-unknown.json'):
+            purpose = purpose_for_path(relative + '/' + name)
+            if purpose not in allocated:
+                allocated[purpose] = book.claim(purpose)
+        cleanup_allocation = sum((claim.maximum_bytes for claim in allocated.values()))
+        if len(allocated) != 8 or cleanup_allocation != 120 * 1024 or any((claim.partition != 'cleanup/command/' + cleanup_purpose for claim in allocated.values())):
+            raise ValueError('fixed cleanup allocation changed')
+    if relative == 'live-lab/reader-command':
+        if work != 90 or cleanup_purpose is not None or trial_anchor is not None or (type(parent_end) not in (int, float)) or (not math.isfinite(parent_end)):
+            raise ValueError('fixed reader work/original parent deadline required')
+    elif parent_end is not None:
+        raise ValueError('parent deadline only for fixed live reader')
+    from activate import activate
+    activate()
+    from draining_owner import DrainingOwner as WindowsOwner
+    from diagnostic_backend import DiagnosticBackend as Win32Backend
+    from baseline_watchdog import supervise
+    groups = {'artifacts': [pathlib.Path(__file__).parent.parent], 'output': [pathlib.Path(__file__).resolve().parents[2], pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh26'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\drain-cadence-offline-20261114'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\load-step20k-prep-20261115'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh46'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh42'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh44'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh45'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh47'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh38'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh40'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh41'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh43'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh35'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh36'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh37'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh39'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh34'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh33'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh32'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh31'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh30'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh29'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh28'), pathlib.Path('C:\\Users\\bajra\\Documents\\Codex\\2026-11-07\\task\\throughput-baseline8-20261114-fresh27')]}
+    normal_output_blocked = False
+    history_blocked = False
+
+    def validate_counts(counts, increment=0):
+        nonlocal normal_output_blocked, history_blocked
+        try:
+            if any((type(counts.get(name)) is not int or counts[name] < 0 for name in ('task', 'artifacts', 'output'))):
+                raise ValueError('complete resource counts required')
+            if cleanup_purpose is None and counts['output'] >= 168 * 1024 ** 2:
+                normal_output_blocked = True
+            admission = json.loads((pathlib.Path(__file__).parent / 'LOCAL-ADMISSION.json').read_text())
+            if type(admission.get('retained_bytes')) is not int or admission['retained_bytes'] != 6739946464 or counts['task'] < 6739946464 or (counts['task'] + increment - 6739946464 >= 378 * 1024 ** 2):
+                raise RuntimeError('whole arm growth cap')
+            if counts['task'] + increment >= 7 * 1024 ** 3 or counts['artifacts'] + increment >= 7 * 1024 ** 3:
+                raise RuntimeError('whole approval workspace cap')
+            ceiling = (170 if cleanup_purpose is not None else 168) * 1024 ** 2
+            if counts['output'] + increment >= ceiling:
+                raise RuntimeError('evidence byte cap; cleanup reserve separate')
+            m = MemoryStatus()
+            m.length = ctypes.sizeof(m)
+            if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)) or min(m.available, m.page_available) < 2 * 1024 ** 3:
+                raise RuntimeError('laptop memory reserve')
+        except BaseException:
+            history_blocked = True
+            raise
+    admission_previous = time.monotonic()
+    if type(admission_previous) not in (int, float) or not math.isfinite(admission_previous):
+        raise ValueError('finite admission clock required')
+    if trial_anchor is not None:
+        _anchor(trial_anchor, admission_previous)
+
+    def initial_cutoff():
+        nonlocal admission_previous
+        now = time.monotonic()
+        if type(now) not in (int, float) or not math.isfinite(now) or now < admission_previous:
+            raise ValueError('admission clock uncertainty')
+        admission_previous = now
+        if trial_anchor is not None and now >= trial_anchor + (170 if relative == 'live-lab/receiver-command' else FINALIZATION if cleanup_purpose is not None else COORDINATOR):
+            raise TimeoutError('original window expired before admission')
+    initial_cutoff()
+    counts = resource_boundary.check(starting=True, groups=groups if cleanup_purpose is not None else None, checkpoint=initial_cutoff if trial_anchor is not None else None)
+    if cleanup_purpose is not None:
+        validate_counts(counts, cleanup_allocation)
+    initial_cutoff()
+    started = time.monotonic()
+    if type(started) not in (int, float) or not math.isfinite(started) or started < admission_previous:
+        raise ValueError('finite original start required')
+    work_deadline = started + min(work, COORDINATOR)
+    cleanup_deadline = started + WRAPPER
+    if parent_end is not None:
+        work_deadline = min(work_deadline, parent_end)
+        cleanup_deadline = min(cleanup_deadline, parent_end)
+    supervision_anchor = started
+    if trial_anchor is not None:
+        _anchor(trial_anchor, started)
+        supervision_anchor = trial_anchor
+        if cleanup_purpose is not None:
+            work_deadline = min(started + 20, trial_anchor + FINALIZATION)
+            cleanup_deadline = trial_anchor + WRAPPER
+    if relative == 'live-lab/receiver-command':
+        work_deadline = trial_anchor + 170
+        cleanup_deadline = trial_anchor + 175
+    request_value = {'argv': list(argv), 'output': str(output), 'started': started, 'work_deadline': work_deadline, 'cleanup_deadline': cleanup_deadline}
+    if parent_end is not None:
+        request_value['parent_end'] = parent_end
+    if cleanup_purpose is not None:
+        request_value['cleanup_purpose'] = cleanup_purpose
+    if coordinator or cleanup_purpose is not None or relative == 'live-lab/receiver-command':
+        request_value['trial_anchor'] = trial_anchor
+    _request_window(request_value, relative, request_claim)
+    effective_work = min(work_deadline, supervision_anchor + COORDINATOR)
+    effective_local = min(cleanup_deadline, supervision_anchor + WRAPPER)
+    if started >= effective_work:
+        raise TimeoutError('original window expired during admission')
+    initial_cutoff()
+    output.mkdir(exist_ok=False)
+    request = output / 'request.json'
+    _write_required(request, request_claim, request_value)
+    now = time.monotonic()
+    if type(now) not in (int, float) or not math.isfinite(now) or now < started:
+        raise ValueError('request clock uncertainty')
+    if now >= effective_work:
+        raise TimeoutError('original work window expired before owner')
+    owner_options = {}
+    if receiver_observation is not None or receiver_observation_enabled:
+        from scripts.performance.receiver_observed_owner import ObservedReceiverOwner
+        WindowsOwner = ObservedReceiverOwner
+        owner_options['observation'] = receiver_observation
+    owner = WindowsOwner([sys.executable, '-B', str(pathlib.Path(__file__).resolve()), 'worker', str(request.resolve())], backend=Win32Backend(), deadline=trial_anchor + 173 if relative == 'live-lab/receiver-command' else effective_work, cancel=lambda: (output / 'cancel').touch(), **owner_options)
+    if relative == 'live-lab/receiver-command':
+        import finite_receiver
+        if pathlib.Path(finite_receiver.__file__).resolve() != pathlib.Path(__file__).resolve().parents[2] / 'finite_receiver.py':
+            raise RuntimeError('receiver owner origin')
+        try:
+            finite_receiver.retain_owner(owner)
+        except BaseException:
+            if receiver_observation is not None:
+                receiver_observation.revoke()
+            raise
+    if reader_handoff is not None and hasattr(reader_handoff, 'prepare'):
+        reader_handoff.prepare(owner, request, started, effective_work)
+    previous = now
+    checkpoint_at = None
+
+    def clock():
+        nonlocal previous
+        now = time.monotonic()
+        if type(now) not in (int, float) or not math.isfinite(now) or now < previous:
+            raise ValueError('wrapper clock uncertainty')
+        previous = now
+        return now
+
+    def cutoff():
+        if clock() >= effective_work:
+            raise TimeoutError('original work deadline')
+
+    def checkpoint():
+        nonlocal checkpoint_at
+        if reader_handoff is not None:
+            if relative != 'live-lab/reader-command':
+                raise ValueError('closure handoff is reader-only')
+            cutoff()
+            reader_handoff.checkpoint(owner)
+            return
+        if not owner.owned or not owner.assigned:
+            return
+        now = clock()
+        if now >= effective_local:
+            raise TimeoutError('original local deadline')
+        cutoff()
+        if checkpoint_at is None or now - checkpoint_at >= 0.05:
+            owner.observe()
+            checkpoint_at = clock()
+
+    def guard():
+        cutoff()
+        counts = resource_boundary.check(starting=False, checkpoint=checkpoint, groups=groups)
+        remaining = cleanup_allocation - request_claim.reserved_bytes if cleanup_purpose is not None and (not owner.owned) else 0
+        validate_counts(counts, remaining)
+        cutoff()
+    problem = None
+    result = {'status': 'INVALID_PARTIAL', 'remote_cleanup': 'UNCONFIRMED'}
+    try:
+        returned = supervise(owner, started_at=supervision_anchor, guard=guard, check_cancelled=cutoff, **{'closure_check': reader_handoff.consume, 'closure_failure': reader_handoff.invalidate} if reader_handoff is not None else {}, **{'entry_profile': 'receiver'} if relative == 'live-lab/receiver-command' else {})
+        if type(returned) is not dict:
+            raise RuntimeError('supervision evidence UNKNOWN')
+        result = returned
+    except BaseException as exc:
+        if reader_handoff is not None:
+            reader_handoff.invalidate()
+        problem = exc
+    finally:
+        if owner.owned:
+            result['containment_errors'] = _contain_retained(owner, effective_local)
+            result['status'] = 'INVALID_PARTIAL'
+            if reader_handoff is not None:
+                reader_handoff.invalidate()
+            if problem is None:
+                problem = RuntimeError('retained command ownership UNKNOWN')
+    result['drain_failure'] = owner.drain_failure
+    result['owned_handles'] = owner.owned
+
+    def history_cutoff():
+        if clock() >= effective_local:
+            raise TimeoutError('original history window expired')
+    if not history_blocked and (not normal_output_blocked):
+        try:
+            history_cutoff()
+            counts = resource_boundary.check(starting=False, checkpoint=history_cutoff, groups=groups)
+            remaining = cleanup_allocation - request_claim.reserved_bytes if cleanup_purpose is not None else 0
+            validate_counts(counts, remaining)
+            history_cutoff()
+        except BaseException as exc:
+            if reader_handoff is not None:
+                reader_handoff.invalidate()
+            history_blocked = True
+            if problem is None:
+                problem = exc
+            else:
+                problem.add_note('Required history admission UNKNOWN: ' + type(exc).__name__)
+    for name, value in (('job-exit-observations.json', owner.backend.exit_observations), ('job-drain.json', owner.drain_events), ('supervision.json', result)):
+        claim = history_claims[name]
+        try:
+            if normal_output_blocked or history_blocked:
+                raise OutputLimitError(claim.purpose, 'resource_guard')
+            if clock() >= effective_local:
+                raise TimeoutError('original history window expired')
+            _write_required(output / name, claim, value)
+            if clock() >= effective_local:
+                raise TimeoutError('original history window expired')
+        except BaseException as exc:
+            if reader_handoff is not None:
+                reader_handoff.invalidate()
+            mark_unknown(claim, 'parent_history')
+            if problem is None:
+                problem = exc if isinstance(exc, (OutputLimitError, TimeoutError)) else OutputLimitError(claim.purpose, 'parent_history')
+                if problem is not exc:
+                    problem.__cause__ = exc
+            else:
+                problem.add_note('Required history UNKNOWN: ' + name + ':' + type(exc).__name__)
+    if problem is not None:
+        raise problem
+    if result['status'] != 'LOCAL_WORKER_COMPLETED' or owner.owned or owner.drain_failure:
+        if reader_handoff is not None:
+            reader_handoff.invalidate()
+        raise RuntimeError('owned command failed; retain evidence')
+    return result

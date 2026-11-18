@@ -1,0 +1,11 @@
+def retain_owner(owner):
+    import threading
+    current = _CURRENT
+    if current is None or current.thread.ident != threading.get_ident() or current.owner is not None:
+        raise RuntimeError('receiver monitor owner binding')
+    with current.viewer_lock:
+        if current.owner is not None:
+            raise RuntimeError('receiver monitor owner binding')
+        current.owner = owner
+        if current.viewer_revoked:
+            owner.disable_observation()

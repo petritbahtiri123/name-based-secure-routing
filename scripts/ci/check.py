@@ -115,7 +115,8 @@ def command_groups(profile: str) -> list[Command]:
                     "tests/performance/test_reader_barrier.py", "tests/performance/test_reader_pipeline.py",
                     "tests/performance/test_reader_watchdog_handoff.py",
                     "tests/performance/test_reader_viewer_binding.py",
-                    "tests/performance/test_viewer_owner_observation.py")),
+                    "tests/performance/test_viewer_owner_observation.py",
+                    "tests/performance/test_receiver_observed_owner.py")),
                 Command("python-dependencies", (py, "-m", "pip", "check"))]
     if profile == "python-protocol":
         return [*(Command(f"python-{directory}", (py, "-m", "pytest", "-q", "-p", "no:cacheprovider",
