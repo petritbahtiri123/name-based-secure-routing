@@ -368,3 +368,56 @@ def test_denial_snapshots_only_narrow_and_never_clear_tombstones():
         adapter.verify(raw, **(ctx | {"revision": 3}))
     with pytest.raises(FederationValidationError):
         adapter.advance_revision(4, revoked_records=frozenset({b"?" * 32}))
+
+# Stage 3 existing-contract negatives only. Supplied fixture trust is not
+# provisioning, runtime freshness, durable restart or threshold admission.
+def test_stage3_matching_signed_chain_and_request_cannot_replace_configured_inventory():
+    # A02: deleting the exact configured inventory join would accept this swap.
+    kwargs, _, _ = fixture()
+    replacement, raw, ctx = fixture(delegation={7: 1850})
+    with pytest.raises(FederationValidationError, match="inventory|dependencies"):
+        OfflineRegistrationAuthority(**kwargs).verify(raw, **ctx)
+    # Control: the independently supplied fixture inventory is the changed input.
+    receipt = OfflineRegistrationAuthority(**replacement).verify(raw, **ctx)
+    assert receipt.request_digest == sha256(raw).digest()
+
+
+@pytest.mark.parametrize("missing", [0, 1, 2])
+def test_stage3_every_used_signer_must_belong_to_pinned_inventory(missing):
+    # A03: removing signer membership validation would accept a missing signer.
+    kwargs, raw, ctx = fixture()
+    kwargs["signer_inventory"] = tuple(a for i, a in enumerate(kwargs["signer_inventory"]) if i != missing)
+    with pytest.raises(FederationValidationError, match="signer absent"):
+        OfflineRegistrationAuthority(**kwargs).verify(raw, **ctx)
+
+
+@pytest.mark.parametrize("denials", [frozenset({b"?" * 32}), frozenset({True}), {b"?" * 32}])
+def test_stage3_invalid_denial_update_preserves_current_receipt(denials):
+    # A06 local mutation boundary only: assigning revision/clearing the receipt
+    # before validating denial input would incorrectly destroy the valid receipt.
+    kwargs, raw, ctx = fixture()
+    adapter = OfflineRegistrationAuthority(**kwargs)
+    receipt = adapter.verify(raw, **ctx)
+    with pytest.raises(FederationValidationError, match="unknown denial dependency"):
+        adapter.advance_revision(2, revoked_records=denials)
+    assert adapter.validate(receipt, raw, **ctx) is receipt
+    # A valid successor still works: the rejected update did not consume revision2.
+    adapter.advance_revision(2)
+    with pytest.raises(FederationValidationError):
+        adapter.validate(receipt, raw, **(ctx | {"revision": 2}))
+
+
+def test_stage3_changed_revision_cannot_reissue_denied_dependency():
+    # A07/A16 fixture scope: advancing revisions must not clear retained denials.
+    kwargs, raw, ctx = fixture()
+    adapter = OfflineRegistrationAuthority(**kwargs)
+    receipt = adapter.verify(raw, **ctx)
+    digest = sha256(ctx["key_authorization"].expected_payload).digest()
+    adapter.advance_revision(2, revoked_records=frozenset({digest}))
+    for revision in (2, 3, 4):
+        if revision > 2:
+            adapter.advance_revision(revision)
+        with pytest.raises(FederationValidationError):
+            adapter.validate(receipt, raw, **(ctx | {"revision": revision}))
+        with pytest.raises(FederationValidationError, match="denied"):
+            adapter.verify(raw, **(ctx | {"revision": revision}))
