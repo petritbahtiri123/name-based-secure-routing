@@ -74,13 +74,15 @@ def test_failure_summary_contains_only_fixed_metadata():
 
 
 
-def _assert_proc_gone_or_zombie(stat):
+def _assert_proc_gone_or_exited(stat):
     try:
         contents = stat.read_text()
     except (FileNotFoundError, ProcessLookupError):
         # Reaping can remove procfs state before open or during the read itself.
         return
-    assert contents.rsplit(") ", 1)[1].startswith("Z ")
+    # Linux fs/proc/array.c reports X (dead) as well as Z (zombie).
+    # This checks non-liveness, not complete kernel-resource reclamation.
+    assert contents.rsplit(") ", 1)[1].startswith(("Z ", "X "))
 
 
 @pytest.mark.parametrize("error", [FileNotFoundError, ProcessLookupError])
@@ -92,21 +94,22 @@ def test_proc_disappearance_during_read_is_reaped(error):
         def read_text(self):
             raise error("process reaped during read")
 
-    _assert_proc_gone_or_zombie(DisappearingStat())
+    _assert_proc_gone_or_exited(DisappearingStat())
 
 
-@pytest.mark.parametrize("state", ["R", "S", "D", "T", "I"])
+@pytest.mark.parametrize("state", ["R", "S", "D", "T", "t", "P", "I", "W", "?", "XX", "XZ", "Zfoo"])
 def test_proc_active_state_is_not_reaped(tmp_path, state):
     stat = tmp_path / "stat"
     stat.write_text(f"123 (child ) name) {state} 1 2 3")
     with pytest.raises(AssertionError):
-        _assert_proc_gone_or_zombie(stat)
+        _assert_proc_gone_or_exited(stat)
 
 
-def test_proc_zombie_is_reaped(tmp_path):
+@pytest.mark.parametrize("state", ["Z", "X"])
+def test_proc_exited_state_is_not_live(tmp_path, state):
     stat = tmp_path / "stat"
-    stat.write_text("123 (child ) name) Z 1 2 3")
-    _assert_proc_gone_or_zombie(stat)
+    stat.write_text(f"123 (child ) name) {state} 1 2 3")
+    _assert_proc_gone_or_exited(stat)
 
 
 @pytest.mark.parametrize("error", [PermissionError, OSError])
@@ -119,14 +122,14 @@ def test_proc_unexpected_read_error_is_not_suppressed(error):
             raise error("unreadable stat")
 
     with pytest.raises(error):
-        _assert_proc_gone_or_zombie(UnreadableStat())
+        _assert_proc_gone_or_exited(UnreadableStat())
 
 
 def test_proc_malformed_stat_is_not_reaped(tmp_path):
     stat = tmp_path / "stat"
     stat.write_text("invalid")
     with pytest.raises(IndexError):
-        _assert_proc_gone_or_zombie(stat)
+        _assert_proc_gone_or_exited(stat)
 
 
 def test_timeout_is_failure_and_reaps_descendant(tmp_path):
@@ -159,8 +162,8 @@ def test_timeout_is_failure_and_reaps_descendant(tmp_path):
                 kernel.CloseHandle(handle)
     else:
         stat = Path(f"/proc/{pid}/stat")
-        # A killed orphan may remain a zombie until the runner's init reaps it.
-        _assert_proc_gone_or_zombie(stat)
+        # A killed orphan may still report Z (zombie) or X (dead) during reaping.
+        _assert_proc_gone_or_exited(stat)
 
 
 @pytest.mark.parametrize("final_cleanup_fails", [False, True])
