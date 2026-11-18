@@ -421,3 +421,31 @@ def test_stage3_changed_revision_cannot_reissue_denied_dependency():
             adapter.validate(receipt, raw, **(ctx | {"revision": revision}))
         with pytest.raises(FederationValidationError, match="denied"):
             adapter.verify(raw, **(ctx | {"revision": revision}))
+
+
+@pytest.mark.parametrize("signer_index", [0, 1, 2], ids=["key", "ownership", "delegation"])
+@pytest.mark.parametrize("field,value", [("generation", 2), ("sequence", 2), ("not_before", 850), ("expires_at", 2050)])
+def test_stage3_same_key_signer_metadata_requires_exact_pinned_identity(signer_index, field, value):
+    # Local fixture trust only. Narrowing signer_identity to kid/key would admit
+    # this substitution even though the configured signer identity did not change.
+    kwargs, raw, ctx = fixture()
+    evidence = (ctx["key_authorization"], *ctx["chain"])
+    original = evidence[signer_index]
+    changed_authority = replace(original.authority, **{field: value})
+    changed = replace(original, authority=changed_authority)
+    assert changed.message == original.message
+    assert changed.expected_payload == original.expected_payload
+    assert changed.authority.kid == original.authority.kid
+    assert changed.authority.public_key.public_bytes_raw() == original.authority.public_key.public_bytes_raw()
+    assert changed.authority.not_before <= ctx["now"] < changed.authority.expires_at
+    replaced = tuple(changed if i == signer_index else item for i, item in enumerate(evidence))
+    changed_ctx = ctx | {"key_authorization": replaced[0], "chain": replaced[1:]}
+    with pytest.raises(FederationValidationError, match="signer absent from exact fixture inventory"):
+        OfflineRegistrationAuthority(**kwargs).verify(raw, **changed_ctx)
+
+    # Positive control: changing the explicit fixture inventory, not signatures,
+    # makes the otherwise-valid evidence match. This is not runtime provisioning.
+    matched = tuple(changed_authority if i == signer_index else item for i, item in enumerate(kwargs["signer_inventory"]))
+    receipt = OfflineRegistrationAuthority(**(kwargs | {"signer_inventory": matched})).verify(raw, **changed_ctx)
+    assert receipt.request_digest == sha256(raw).digest()
+    assert receipt.admission_ceiling == 1700
