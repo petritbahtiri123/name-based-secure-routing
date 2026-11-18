@@ -295,7 +295,13 @@ def test_oversized_integer_is_redacted_cli_failure(tmp_path, capsys):
     assert "CONFIG_INVALID" in error and "9999999" not in error
 
 
-def test_reparse_parent_rejected_before_descendant_access(monkeypatch, tmp_path, capsys):
+@pytest.mark.parametrize(
+    "mode,attributes",
+    [(0o120777, 0), (0o040755, 0x400), (0o040755, 0x1000),
+     (0o040755, 0x40000), (0o040755, 0x400000)],
+    ids=["symlink", "reparse", "offline", "recall-on-open", "recall-on-data"],
+)
+def test_unsafe_parent_rejected_before_descendant_access(mode, attributes, monkeypatch, tmp_path, capsys):
     from types import SimpleNamespace
 
     validator = implementation()
@@ -307,7 +313,7 @@ def test_reparse_parent_rejected_before_descendant_access(monkeypatch, tmp_path,
     def inspect(self, *args, **kwargs):
         visited.append(self)
         if self == link:
-            return SimpleNamespace(st_mode=0o040755, st_file_attributes=0x400)
+            return SimpleNamespace(st_mode=mode, st_file_attributes=attributes)
         assert self != child, "must not traverse an untrusted reparse parent"
         return original(self, *args, **kwargs)
 
@@ -509,3 +515,4 @@ def test_network_input_rejected_before_filesystem_inspection(name, monkeypatch, 
     assert output.out == ""
     assert "CONFIG_INVALID" in output.err
     assert "secret" not in output.err
+
