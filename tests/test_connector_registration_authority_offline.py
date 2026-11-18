@@ -449,3 +449,100 @@ def test_stage3_same_key_signer_metadata_requires_exact_pinned_identity(signer_i
     receipt = OfflineRegistrationAuthority(**(kwargs | {"signer_inventory": matched})).verify(raw, **changed_ctx)
     assert receipt.request_digest == sha256(raw).digest()
     assert receipt.admission_ceiling == 1700
+
+
+@pytest.mark.parametrize("change", [None, "revision", "denial"], ids=["commit", "stale-receipt", "denied-dependency"])
+def test_signed_fixture_receipt_revalidated_through_offline_coordinator(change):
+    # Test-local projection only: neither this exporter nor OfflineDecision is a
+    # runtime authority provider, authenticated transport, or provisioning API.
+    from nbsr import connector_registration_offline as api
+
+    kwargs, raw, ctx = fixture()
+    authority = OfflineRegistrationAuthority(**kwargs)
+    revision = [ctx["revision"]]
+    issued = []
+    calls = []
+    projected = []
+
+    class Transport:
+        session = ctx["session"]
+        closed = False
+
+        def export(self, label, context):
+            return sha256(b"public synthetic exporter" + label + context).digest()
+
+        def close(self):
+            self.closed = True
+
+    transport = Transport()
+
+    def verifier(request, current, now):
+        # The integer connection ID belongs only to this fixture's exact object.
+        assert current is transport and current.session == ctx["session"]
+        assert request == raw
+        context = ctx | {"now": now, "revision": revision[0]}
+        if not issued:
+            receipt = authority.verify(request, **context)
+            issued.append(receipt)
+            calls.append(("verify", receipt))
+        else:
+            receipt = issued[0]
+            calls.append(("validate", receipt))
+            assert authority.validate(receipt, request, **context) is receipt
+        assert receipt.connection == ctx["connection"]
+        assert receipt.session == current.session and receipt.request_id == ctx["request_id"]
+        assert receipt.request_digest == sha256(request).digest()
+        # References are projected only after this exact raw request is verified.
+        decision = api.OfflineDecision(
+            request_digest=receipt.request_digest,
+            connection=current,
+            session_id=receipt.session,
+            expires_at=receipt.admission_ceiling,
+            governing_profile="explicit-signed-fixture-projection",
+            verified_record_refs=tuple(item[1] for item in dec(request)[10]),
+            revision=receipt.revision,
+        )
+        projected.append(decision)
+        return decision
+
+    gateway = api.Coordinator(
+        [api.ServiceConfig.from_request(dec(raw))], verifier, lambda: ctx["now"],
+        epoch=b"e" * 16, nonce=lambda: b"n" * 32, registration_id=lambda: b"r" * 16,
+        clock_skew_seconds=0, revision_source=lambda: revision[0],
+    )
+    challenge = gateway.request(transport, ctx["request_id"], 1, raw)
+    context = api.exporter_context(transport.session, ctx["request_id"], raw, challenge)
+    proof = enc({0: 1, 1: sha256(raw).digest(), 2: challenge[2], 3: transport.export(api.EXPORTER_LABEL, context)})
+    state = gateway.connections[id(transport)]
+    assert len(issued) == 1 and state.pending == ctx["request_id"]
+    assert gateway.handle(transport) is None
+
+    if change is not None:
+        denied = frozenset({sha256(ctx["key_authorization"].expected_payload).digest()}) if change == "denial" else frozenset()
+        authority.advance_revision(2, revoked_records=denied)
+        revision[0] = 2
+        with pytest.raises(FederationValidationError, match="receipt was not issued by this exact current verifier instance"):
+            gateway.prove(transport, ctx["request_id"], 2, proof)
+        assert state.pending is None and state.operations[ctx["request_id"]].result is None
+        assert gateway.handle(transport) is None and gateway.counts()["owned"] == 0
+        assert len(projected) == 1  # Failed revalidation cannot project a decision.
+        assert gateway.close_attempt(transport) is True
+    else:
+        accepted = gateway.prove(transport, ctx["request_id"], 2, proof)
+        receipt = issued[0]
+        assert len(projected) == 2 and projected[0] == projected[1]
+        assert projected[1].connection is transport
+        assert projected[1].session_id == receipt.session
+        assert projected[1].request_digest == receipt.request_digest
+        assert projected[1].expires_at == receipt.admission_ceiling
+        assert projected[1].revision == receipt.revision
+        assert projected[1].verified_record_refs == tuple(item[1] for item in dec(raw)[10])
+        assert accepted[1] == receipt.request_digest
+        assert accepted[5] == ctx["now"] and accepted[6] == min(ctx["now"] + dec(raw)[13], receipt.admission_ceiling)
+        assert accepted[8] == dec(raw)[11] and accepted[9] == dec(raw)[12]
+        assert gateway.eligible(transport) is True
+        assert gateway.close_owner(gateway.handle(transport)) is True
+    assert calls == [("verify", issued[0]), ("validate", issued[0])]
+    assert len(issued) == 1 and transport.closed is True
+    assert id(transport) not in gateway.connections
+    assert gateway.counts() == {"owned": 0, "eligible": 0, "pending": 0, "completed": 0}
