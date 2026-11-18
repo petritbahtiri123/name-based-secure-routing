@@ -398,7 +398,7 @@ def test_rust_matrix_prepares_pinned_go_for_direct_regression():
 def test_reader_lifecycle_contracts_run_in_core_ci_on_both_platforms():
     selected = [cmd for cmd in command_groups("python-core") if cmd.name == "reader-lifecycle"]
     assert len(selected) == 1
-    assert selected[0].argv[-10:] == (
+    assert selected[0].argv[-11:] == (
         "tests/performance/test_reader_settlement.py",
         "tests/performance/test_reader_acquisition.py",
         "tests/performance/test_reader_binding.py",
@@ -409,4 +409,5 @@ def test_reader_lifecycle_contracts_run_in_core_ci_on_both_platforms():
         "tests/performance/test_reader_barrier.py",
         "tests/performance/test_reader_pipeline.py",
         "tests/performance/test_reader_watchdog_handoff.py",
+        "tests/performance/test_reader_viewer_binding.py",
     )
