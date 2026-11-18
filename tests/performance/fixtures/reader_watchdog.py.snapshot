@@ -1,0 +1,179 @@
+if __name__ == '__main__':
+    raise RuntimeError('EXECUTION DISABLED: source-only successor, not admitted')
+if __name__ == '__main__':
+    raise RuntimeError('Offline successor adapter: launcher is not configured or authorized')
+"Opt-in Linux local process-group containment; never remote cleanup proof.\n\n\n\nThe monotonic budget includes worker startup, blocked I/O, validation and cleanup.\n\nKernel/filesystem stalls, scheduling starvation, escaped sessions and parent death\n\nremain outside a userspace watchdog's guarantee. Raw coordinator APIs are unchanged.\n\n"
+import argparse
+import json
+from plan import COORDINATOR, WRAPPER
+WRAPPER = min(WRAPPER, 120) if COORDINATOR == 120 else WRAPPER
+import math
+import os
+from pathlib import Path
+import shutil
+import signal
+import subprocess
+import sys
+import time
+from scripts.performance.process_cancellation import Cancellation, not_cancelled
+
+def supervise(owner, *, clock=time.monotonic, sleep=time.sleep, check_cancelled=not_cancelled, guard=not_cancelled, started_at=None, entry_profile=None, closure_check=None, closure_failure=None):
+    """Owner methods must be nonblocking except bounded OS process creation.
+
+
+
+    Observe without reaping. Retain the group leader until all group members are
+
+    absent, so its PID/PGID cannot be reused between observation and escalation.
+
+    Cancellation and failures latch once; repeated requests never reset deadlines.
+
+    """
+    now = clock()
+    started = now if started_at is None else started_at
+    if type(started) not in (int, float) or not math.isfinite(started) or type(now) not in (int, float) or (not math.isfinite(now)) or (started > now):
+        raise ValueError('invalid monotonic clock')
+    work_seconds, final_seconds = (COORDINATOR, WRAPPER)
+    if entry_profile is not None:
+        profiles = {'prepare': (3600, 3615), 'continuation': (4200, 4215), 'receiver': (170, 175)}
+        if type(entry_profile) is not str or entry_profile not in profiles:
+            raise ValueError('unknown fixed entry profile')
+        work_seconds, final_seconds = profiles[entry_profile]
+        root = Path(__file__).resolve().parents[2]
+        expected = (str(Path(sys.executable).resolve()), '-I', '-B', str(root / 'parent_entry_worker_v1.py'), entry_profile)
+        owner_seconds = final_seconds
+        if entry_profile == 'receiver':
+            expected = (str(Path(sys.executable).resolve()), '-B', str(root / 'cells/baseline8/bounded.py'), 'worker', str(root / 'live-lab/receiver-command/request.json'))
+            owner_seconds = 173
+        if getattr(owner, 'argv', None) != expected or type(getattr(owner, 'deadline', None)) not in (int, float) or (not math.isfinite(owner.deadline)) or (owner.deadline != started + owner_seconds):
+            raise ValueError('fixed entry owner/argv/deadline mismatch')
+    deadline, stop_at = (started + final_seconds, started + work_seconds)
+    previous = now
+    reason = None
+    errors, actions = ([], [])
+    sent = set()
+    code, group_live, reaped = (None, True, False)
+
+    def invalidate_handoff():
+        if closure_failure is not None:
+            try:
+                closure_failure()
+            except BaseException as exception:
+                if len(errors) < 16:
+                    errors.append(dict(stage='handoff_invalidation', type=type(exception).__name__[:64]))
+
+    def error(stage, exception):
+        invalidate_handoff()
+        entry = dict(stage=stage, type=type(exception).__name__[:64])
+        if entry not in errors and len(errors) < 16:
+            errors.append(entry)
+
+    def kill_once(now):
+        if 'KILL' not in sent:
+            sent.add('KILL')
+            actions.append(dict(signal='KILL', elapsed_seconds=now - started if math.isfinite(now) else None))
+            try:
+                owner.signal('KILL')
+            except Exception as exception:
+                error('KILL', exception)
+    try:
+        if now >= deadline:
+            raise TimeoutError('shared deadline expired before startup')
+        guard()
+        check_cancelled()
+        if entry_profile is not None:
+            launch_at = clock()
+            if type(launch_at) not in (int, float) or not math.isfinite(launch_at) or launch_at < now or (launch_at >= stop_at):
+                raise TimeoutError('fixed entry work cutoff before startup')
+        owner.start()
+    except Exception as exception:
+        error('start', exception)
+        reason, stop_at = ('startup', started)
+    if not owner.owned:
+        invalidate_handoff()
+        return dict(status='INVALID_PARTIAL', reason=reason or 'ownership', errors=errors, actions=actions, leader_reaped=False, group_exit_observed=False, remote_cleanup='UNCONFIRMED', local_cleanup='UNCONFIRMED', elapsed_seconds=clock() - started)
+    while True:
+        now = clock()
+        if not math.isfinite(now) or now < previous:
+            reason = reason or 'clock'
+            kill_once(now)
+            break
+        previous = now
+        if now >= deadline:
+            reason = reason or 'deadline'
+            kill_once(now)
+            break
+        if reason is None:
+            for stage, check in [('cancel', check_cancelled), ('resource', guard)]:
+                try:
+                    check()
+                except Exception as exception:
+                    error(stage, exception)
+                    reason, stop_at = (stage, min(stop_at, now))
+                    break
+        if closure_check is not None:
+            try:
+                closed = closure_check(owner)
+                if type(closed) is not bool:
+                    raise ValueError('uncertain reader closure handoff')
+                if closed:
+                    if owner.owned:
+                        raise ValueError('closure handoff retains owned handles')
+                    code, group_live, reaped = (0, False, True)
+                    check_cancelled()
+                    after = clock()
+                    if not math.isfinite(after) or after < previous or after >= deadline or (after >= started + work_seconds):
+                        raise TimeoutError('original closure handoff deadline')
+                    break
+                if not owner.owned:
+                    raise ValueError('consumed owner without closure proof')
+            except Exception as exception:
+                error('closure', exception)
+                reason, stop_at = (reason or 'closure', min(stop_at, now))
+                if not owner.owned:
+                    break
+        try:
+            code, group_live = owner.observe()
+        except Exception as exception:
+            error('observe', exception)
+            reason, stop_at = (reason or 'observation', min(stop_at, now))
+            code, group_live = (None, True)
+        observed_at = clock()
+        if not math.isfinite(observed_at) or observed_at < now or observed_at >= deadline:
+            reason = reason or ('clock' if not math.isfinite(observed_at) or observed_at < now else 'deadline')
+            kill_once(observed_at)
+            break
+        now = observed_at
+        if now >= started + work_seconds:
+            reason = reason or 'deadline'
+        if code is not None:
+            if code != 0 or group_live:
+                reason = reason or ('worker_exit' if code != 0 else 'remaining_group')
+                stop_at = min(stop_at, now)
+            if not group_live:
+                if code == 0 and reason is None and closure_check is not None:
+                    # Re-enter cancellation/guard/handoff before consuming handles.
+                    continue
+                try:
+                    owner.reap()
+                    reaped = True
+                except Exception as exception:
+                    error('reap', exception)
+                    reason = reason or 'reap'
+                break
+        if reason is not None:
+            for name, offset in [('INT', 0), ('TERM', 5), ('KILL', 10)]:
+                if name not in sent and now >= stop_at + offset:
+                    sent.add(name)
+                    actions.append(dict(signal=name, elapsed_seconds=now - started))
+                    try:
+                        owner.signal(name)
+                    except Exception as exception:
+                        error(name, exception)
+        sleep(min(0.05, max(0, deadline - clock())))
+    elapsed = clock() - started
+    if elapsed >= final_seconds:
+        reason = reason or 'deadline'
+    if reason is not None or errors or (not reaped):
+        invalidate_handoff()
+    return dict(status='LOCAL_WORKER_COMPLETED' if reason is None and reaped and (not errors) else 'INVALID_PARTIAL', reason=reason, errors=errors, actions=actions, exit_code=code, leader_reaped=reaped, group_exit_observed=not group_live, remote_cleanup='UNCONFIRMED', local_cleanup='UNCONFIRMED', elapsed_seconds=elapsed if math.isfinite(elapsed) else None)
