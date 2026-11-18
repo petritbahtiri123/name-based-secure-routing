@@ -426,13 +426,18 @@ def test_error_precedence_has_all_ranks_and_simultaneous_defects() -> None:
         assert item["expected_reason"] == min(item["defects"], key=rank.__getitem__)
 
 
+@pytest.mark.parametrize("version", ["federation-v0.1-development-v1", "federation-v0.1-development-v2"])
 @pytest.mark.parametrize("unsafe", ["../escape.json", "/absolute.json", "a\\b.json", "", ".", "manifest.json"])
-def test_manifest_rejects_unsafe_or_recursive_paths(tmp_path: Path, unsafe: str) -> None:
-    from scripts.federation_v01_vectors.package import validate_manifest
+def test_manifest_rejects_unsafe_or_recursive_paths(tmp_path: Path, unsafe: str, version: str) -> None:
+    from scripts.federation_v01_vectors.package import validate_manifest, write_package
 
-    manifest = {"format_version": 1, "package_version": "federation-v0.1-development-v1", "artifacts": [{"id": "x", "path": unsafe}]}
-    with pytest.raises(ValueError):
-        validate_manifest(manifest, tmp_path)
+    write_package(tmp_path, version=version)
+    manifest = json.loads((tmp_path / "manifest.json").read_bytes())
+    # Establish a valid control so an unrelated schema error cannot mask the guard.
+    validate_manifest(manifest, tmp_path, version=version)
+    manifest["artifacts"][0]["path"] = unsafe
+    with pytest.raises(ValueError, match=r"^unsafe (?:or duplicate )?artifact path$"):
+        validate_manifest(manifest, tmp_path, version=version)
 
 
 def test_manifest_rejects_unknown_fields_corrupt_metadata_and_dependency_cycles(tmp_path: Path) -> None:
