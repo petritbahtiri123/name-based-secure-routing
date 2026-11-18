@@ -116,6 +116,15 @@ counters and unconfirmed cleanup are not zero. A pass at one client count, host,
 fixture or topology does not establish larger capacity, WAN behavior or production
 readiness. This guide assigns no status to an active run and authorizes no run.
 
+## Deferred delivery direction
+
+The [future Linux appliance and container record](future-linux-appliance.md)
+preserves the owner's 2026-11-18 idea for minimal VM/device images and pullable
+container images for Kubernetes. It reuses the existing operator packaging stages;
+it does not change completion counts or authorize implementation or publication.
+Start with a supported standard Linux kernel. Alpine is an evaluation candidate,
+not a selected base; kernel-specific changes require measured justification.
+
 ## Navigation and maintenance
 
 - For architecture or scope decisions, read this guide and the relevant V3.6
