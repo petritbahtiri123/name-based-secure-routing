@@ -452,3 +452,60 @@ def test_noncanonical_or_unsafe_ipv6_rejected_at_both_endpoint_roles(host, role)
     validator = implementation()
     with pytest.raises(validator.ConfigError):
         validator.validate_bytes(json.dumps(config).encode())
+
+
+@pytest.mark.parametrize(
+    "mode,attributes",
+    [
+        (0o040755, 0),
+        (0o120777, 0),
+        (0o100644, 0x400),
+        (0o100644, 0x1000),
+        (0o100644, 0x40000),
+        (0o100644, 0x400000),
+    ],
+    ids=["directory", "symlink", "reparse", "offline", "recall-on-open", "recall-on-data"],
+)
+def test_unmaterialized_or_nonregular_leaf_rejected_before_open(
+    mode, attributes, monkeypatch, tmp_path, capsys
+):
+    from types import SimpleNamespace
+
+    validator = implementation()
+    path = tmp_path / "DO-NOT-PRINT.json"
+    original_lstat = Path.lstat
+    inspected = []
+
+    def inspect(self, *args, **kwargs):
+        if self == path:
+            inspected.append(self)
+            return SimpleNamespace(st_mode=mode, st_file_attributes=attributes)
+        return original_lstat(self, *args, **kwargs)
+
+    def forbidden_open(*args, **kwargs):
+        pytest.fail("opened rejected configuration input")
+
+    monkeypatch.setattr(Path, "lstat", inspect)
+    monkeypatch.setattr(Path, "open", forbidden_open)
+    assert validator.main([str(path)]) == 2
+    assert inspected == [path]
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "CONFIG_INVALID" in output.err
+    assert "DO-NOT-PRINT" not in output.err
+
+
+@pytest.mark.parametrize("name", ["//server/share/secret.json", r"\\server\share\secret.json"])
+def test_network_input_rejected_before_filesystem_inspection(name, monkeypatch, capsys):
+    validator = implementation()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("inspected or opened network configuration input")
+
+    monkeypatch.setattr(Path, "lstat", forbidden)
+    monkeypatch.setattr(Path, "open", forbidden)
+    assert validator.main([name]) == 2
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "CONFIG_INVALID" in output.err
+    assert "secret" not in output.err
