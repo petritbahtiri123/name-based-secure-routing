@@ -75,3 +75,56 @@ def test_result_mutation_then_restore_latches(tmp_path):
     with pytest.raises(ValueError):pair.verify_pair()
     path.write_bytes(original)
     with pytest.raises(ValueError):pair.verify_complete()
+
+@pytest.mark.parametrize('boundary', ['closed-fsync', 'closed-link', 'result-fsync'])
+def test_publication_io_failure_retains_charge_and_cannot_retry(tmp_path, monkeypatch, boundary):
+    from scripts.performance import reader_receipts as receipts
+
+    claim = limits.live_completion_claim(limits.ClaimBook())
+    pair = receipts.ReceiptPair(
+        tmp_path, claim,
+        dict(run='r', source='/fixture', owner='a' * 64, request_sha256='b' * 64),
+        checkpoint=lambda: None,
+    )
+    value = dict(status='LOCAL_READER_JOINED', joined=True, errors=[], identity=pair.identity)
+    if boundary == 'result-fsync':
+        pair.publish_closed('c' * 64)
+        pair.publish_settled(valid=True, settlement_sha256='d' * 64)
+    before = claim.reserved_bytes
+    operation = 'link' if boundary == 'closed-link' else 'fsync'
+
+    def fail(*args):
+        raise OSError('injected publication I/O failure')
+
+    with monkeypatch.context() as patch:
+        patch.setattr(receipts.os, operation, fail)
+        with pytest.raises(OSError, match='injected publication'):
+            if boundary == 'result-fsync':
+                pair.publish_result(value)
+            else:
+                pair.publish_closed('c' * 64)
+
+    retained = {path.name: path.read_bytes() for path in tmp_path.iterdir()}
+    name = 'acquisition-result.json' if boundary == 'result-fsync' else 'reader-closed-v2.json.pending'
+    assert retained[name]
+    assert json.loads(retained[name]) == (value if boundary == 'result-fsync' else dict(
+        schema='nbsr-reader-lifecycle-receipt-v2', state='CLOSED_UNSETTLED',
+        **pair.identity, capture_sha256='c' * 64, campaign_valid=False,
+    ))
+    multiplier = 1 if boundary == 'result-fsync' else 2
+    assert claim.reserved_bytes == before + multiplier * len(retained[name])
+    assert pair.failed and claim.failed
+    charged = claim.reserved_bytes
+    if boundary != 'result-fsync':
+        assert 'reader-closed-v2.json' not in retained
+    # Restoring the OS operation must not resurrect the failed publication.
+    for attempt in (
+        lambda: pair.publish_closed('c' * 64),
+        lambda: pair.publish_settled(valid=True, settlement_sha256='d' * 64),
+        lambda: pair.publish_result(value),
+        pair.verify_complete,
+    ):
+        with pytest.raises(ValueError, match='latched'):
+            attempt()
+    assert claim.reserved_bytes == charged
+    assert {path.name: path.read_bytes() for path in tmp_path.iterdir()} == retained
