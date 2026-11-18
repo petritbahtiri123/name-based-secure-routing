@@ -47,6 +47,113 @@ limitations; the counter amendment report remains a historical checkpoint.
 | 9 | Real identity/provisioning and pilot installation, persistent signer custody, rotation/recovery and renewed Stage 8 acceptance. | 8 plus provider decisions and machine authorization. |
 | 10 | One bounded customer pilot with exact host, service, trust, limits, abort owner and rollback approved before traffic. Finish B. | 9; operator acceptance and retained failures required. |
 
+### Acceptance evidence ledger at 294e492 (no milestone promotion)
+
+This ledger reconciles the ten stages above against repository sources pinned to
+`294e492e07fb34fe72fad19d606b59e2b949715a`. It supplements this existing plan;
+it does not replace its contracts, dependencies, approval gates or historical
+records. **Stages 1-2 remain complete only at their offline boundaries: 2/10.**
+Stage 3 remains partial. No later package or pilot acceptance follows from CI.
+All source, CI and remaining-gap observations in this pinned ledger are historical;
+see the separate integration checkpoint below for successor work.
+
+Evidence labels: **model/fixture** means supplied trust, clocks or simulated
+ownership; **runtime component** means executable library behavior without a
+complete installed package; **unverified** means the required acceptance receipt
+was not established by this reconciliation, not proof of absence everywhere.
+Paths below are repository-root-relative unless linked. The CI mapping is source
+inspection of [the runner](../../../scripts/ci/check.py) and
+[Project workflow](../../../.github/workflows/ci.yml), not a fresh collection run.
+
+| Existing stage / acceptance criteria | Concrete source and test cross-reference | CI and retained evidence | Remaining closure boundary |
+| --- | --- | --- | --- |
+| **1: control/authority contract, ownership seam, interface/vector inventory** | `nbsr/connector_registration_offline.py` and `tests/protocol/test_connector_registration_vectors.py`: deterministic exporter/Authority fixtures; Go/Rust ownership remains the approved split above. | `python-protocol` selects `tests/protocol`; `node` selects `node-connector-vectors`. [Historical CRP manifest](../../reviews/2026-10-10-connector-registration-offline.json) retains commands, failures and exit results. Its earlier 0/10 label is historical, superseded by this plan's current alignment. | **Offline contract accepted**, not a live authority or registration producer. Preserve frozen bytes and separate registry/profile approval from activation. |
+| **2: versioned one-service config, no external effects, reject ambiguity** | `deploy/single-instance/validate_config.py` returns `CONFIG_VALID_OFFLINE`, `ready=False`, `references_verified=False`; `test_validate_config.py` includes `test_valid_config_is_not_readiness`, no-effects audit and actual REQUEST text64 compatibility. | `python-core` explicitly selects that test file. [Gateway correction record](../../reviews/2026-10-10-gateway-text64-correction.json) retains the corrected historical command/exit/cleanup record and earlier failure. | **Offline implementation accepted**. Identity/reference authenticity, resolved-origin validation and runtime binding are not preflight results. |
+| **3: two exchanges on one connection; reject wrong identity/service/delegation/generation; one owner and safe removal** | `interop/nbsr-go-peer/connector/coordinator.go` and `coordinator_test.go` implement development interfaces and synthetic Authority/exporter fixtures. `tests/test_connector_control_model.py::test_c01_two_exchanges_same_session` and binding/stale-owner cases are mock checks. | `go` explicitly selects `connector_development`; `rust` selects connector registration/control targets; `python-core` selects the control model. `connector-loopback` is a separate opt-in profile, not implied by default Project success. | **Model/fixture plus bounded component evidence; runtime acceptance unverified.** Authenticated governing/currentness producer, runtime timers and actual accepted-registration ownership remain necessary; no premature READY. |
+| **4: reconnect/backoff/lease; revoke across idle/connecting/credit/active work; bounded queues; control-plane outage; confirmed cleanup or visible ownership** | `nbsr/connector_control_model.py`, `tests/test_connector_control_model.py` and Go coordinator tests exercise synthetic lifetimes/denial. `tests/federation/test_local_history_sqlite.py::test_restored_history_does_not_resurrect_halted_connector_cycle` adds Permission/freshness-loss cases using real SQLite restore with the synchronous model. | `python-core`, `go` development tests and the explicit SQLite command below. [SQLite ledger](../../reviews/local-sqlite-history-prototype.md) records lifecycle scope and 181 local tests. | **Model/fixture**, not runtime reconnect, event delivery or active-child cancellation. Require real Stage-3 owners, no ambiguous replay, exact enforcement semantics, resource saturation and authenticated freshness behavior. Authority child-process cleanup is a separately owned front, not duplicated here. |
+| **5: exact authorized flow to configured private origin; reject without origin traffic; bounded response; no repeat after disconnect** | `deploy/isp-federation-poc/origin-connector/main.go` still has `private-origin`/`8080` constants and 4096-byte limits. `main_test.go` tests wrong requests before resolution and ambiguous/out-of-subnet answers. | These files were read at the pin. No explicit origin-connector command was found in the inspected Project runner's Go module list; module-wide adapter tests must not be counted as this directory's tests. Config-v2 collection/results and integrated relay receipts are **unverified**. | The existing config-v2 Patch 1 is a **proposal with its approval gate**, not implemented by this ledger. Preserve v1, zero resolve/dial rejection, literal private dial, bounded response and no duplicate origin request. Stage closure depends on 2-4 and authenticated dispatch through the outbound registration. |
+| **6: initial enrollment/fresh authority; loopback proxy; unready on stale/revoked/missing validation; reject fixtures in pilot mode; no live state after restart** | `client/nbsr-go-client/internal/authority/runtime.go` resets readiness and validates on `StartPersisted`. `runtime_test.go` includes freshness/restart and real HTTP/2 tests, with fixture enrollment, memory floors and supplied clocks. | `go` runs the client module's `./...`; Project run below passed both OS jobs. This is **runtime-component behavior tested with fixtures**, not a verified operator composition root or provider installation. | Compose the actual client/destination/configured trust boundary after 2-5; retain explicit fixture labels. Require failed validation to keep readiness false and no restored grant/session/credit. Package-level receipt is **unverified**; Stage 9 providers remain separate. |
+| **7: cached-input preflight; authenticated readiness; bounded redacted logs; supervised kill/stall/stop; no forbidden mounts/ports/startup pulls** | `deploy/isp-federation-poc/supervisor.py` is an existing fixture-bearing PoC supervisor, not the proposed single-instance package. `deploy/single-instance/validate_config.py` supplies only offline preflight. | `python-core` covers config tests; Demo Lab component workflow success below is separate from package acceptance. No single-instance startup/kill/stall receipt or complete package test mapping was established here. | **Unverified package acceptance**, dependent on 6. Require immutable approved inputs, true readiness, bounded diagnostics and exact owned-process outcomes. Existing demo lifecycle improvements are reusable evidence, not an installed-package certificate. |
+| **8: two immutable start/request/stop cycles; negative matrix; origin isolation; idempotent uninstall; rollback without lost floors/identity; CI plus authorized smoke** | This plan's Stage-8 checklist remains the acceptance recipe. SQLite restore tests and PoC supervision are prerequisite checks, not tests of that complete recipe. | Project/Performance Lab/Demo Lab run records below are verified. **No qualifying Stage-8 two-cycle, isolation, rollback/uninstall or Docker-smoke receipt was verified.** Whole-package selection/collection mapping remains unverified. | Depends on 7. Retain each negative outcome, exact source/image/config identity, zero owned residuals or explicit uncertainty, unrelated-resource preservation and fresh authority on compatible rollback. Do not equate green CI with Finish A. |
+| **9: real persistent identity through two restarts; wrong-account/corrupt/missing refusal; single-winner initial enrollment; rotation/revocation/delegation/recovery; rerun Stage 8** | `client/nbsr-go-client/internal/identity/signer.go` explicitly labels `MemorySigner` test-only. Authority runtime tests exercise the client boundary with supplied providers; they do not establish deployed signer custody. | `go` selects the client module, but a real-provider installation/rotation/recovery receipt was not established here. Platform storage/library evidence must retain its own narrower scope. | **Unverified real-provider integration**, dependent on 8 and approved provider/installation decisions. No plaintext/ephemeral fallback or automatic regeneration; preserve floors and require machine authority for installation/ACL tests. |
+| **10: approved customer topology/limits; actual outbound delivery and interruption/revocation/stop; no duplicate request/residuals; operator restart/rollback and explicit accept/reject** | No customer-specific implementation/test/receipt is identified by the inspected material. Reuse Stage-8 acceptance only after Stage-9 provider qualification; do not substitute the PoC supervisor or fixture connector. | No pilot CI/test mapping or operator acceptance receipt verified. The three CI successes are not pilot executions. | **Unverified pilot**, dependent on 9, the final security-audit gate below and exact host/service/trust/traffic authorization. Record versions, maxima, failures, ownership and operator disposition; skipped/partial work cannot close Finish B. |
+
+#### SQLite progress is integrated, with its limits retained
+
+The [existing SQLite ledger](../../reviews/local-sqlite-history-prototype.md)
+remains the detailed coverage record; do not create a second competing history.
+`scripts/local_history_sqlite.py` consumes the canonical Repository/verifier.
+`tests/federation/test_local_history_sqlite.py` includes process-exit simulation,
+the six decision-boundary parameter cases and the two halted-lifecycle cases.
+Those last cases require a new session/decision for the positive control and keep
+the old model halted after inputs recover. Restored history alone grants nothing.
+
+`python-core` explicitly selects `inclusion-persistence-sqlite-local` (SQLite plus
+canonical persistence neighbor) and `inclusion-persistence-sqlite-lint`.
+`tests/ci/test_sqlite_history_selection.py` guards those commands and is selected
+through `tests/ci`; `python-protocol` also selects the federation directory.
+The old isolated report's missing-CI/NOT-RUN statements are historical, not the
+source state at this pin. The ledger records 181 tests in 8.27s and Ruff on sources
+materialized from `78f442e...`; that is a retained local report, not a new run here.
+The coordinator additionally verified 33-case collection and real imports; the
+raw collection/local supervisor receipt was not independently read for this
+reconciliation. Do not infer that cardinality from the number of test functions.
+
+Supplied Permission, identity, clock and expected digest remain fixtures. SQLite
+process-exit testing is not power-loss durability, production currentness,
+independent rollback protection, runtime registration or active-child cleanup.
+Recent invalid-reporting and weekly-source tooling are separate improvements;
+they do not replace package receipts or alter the stage count.
+
+#### Verified hosted run records and remaining verification
+
+GitHub run metadata at the pinned SHA reports `completed/success` for:
+
+- [Project checks 44194304389](https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/44194304389): all seven returned jobs succeeded (Python, Go and Rust on Ubuntu/Windows, plus node-policy).
+- [Performance Lab checks 44194304434](https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/44194304434): workflow success, not a measured benchmark or package acceptance.
+- [Demo Lab component checks 44194304336](https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/44194304336): workflow success, not a customer installation or two-cycle acceptance.
+
+This read-only reconciliation did not execute collection, tests, lint, builds,
+Docker or traffic. Job logs/per-test hosted counts were not inspected; workflow
+success and source selection are distinct observations. Before pushing a change,
+include its relevant tests in the applicable CI profile/workflow and verify actual
+selection/collection in that same change, recording results and failures. A source
+mapping here is not a substitute for that check.
+
+The next evidence updates belong in these existing stages: origin-target
+implementation under 5 after confirming its scope approval, explicit config-to-readiness composition under 6, and
+receipt-backed package acceptance under 8. Retain approval gates, dependencies
+and historical failures. Verify each missing receipt and current source ownership
+before advancing a criterion; this ledger authorizes neither execution nor push.
+
+#### Integration checkpoint at 72fc4c1d (2026-11-18)
+
+The table above is a retained reconciliation at `294e492`, not a claim that
+later work is absent. Comparison through
+`72fc4c1d3b3ac48716c4868379a28687fa0c6f11` found six successor commits and no
+change to this plan's base blob. The affected successors are recorded here:
+
+- Stage 2 adds eight non-materializing input tests (directory, symlink, four
+  Windows file attributes and two UNC syntaxes). Local Windows Python 3.14
+  passed 155 config tests; a temporary attribute-mask mutation was detected.
+  The existing whole-file `python-core` CI selection includes them.
+- Stage 4's [SQLite ledger](../../reviews/local-sqlite-history-prototype.md)
+  now records four real idle-child cleanup cases under fixture authority loss,
+  including visible ownership after failed cleanup and explicit stop retry.
+  Its 185-test local result is recorded on a lifecycle precursor, not asserted
+  to be latest-tree equality. This narrows the earlier child-cleanup gap but
+  does not establish process-tree cancellation or authenticated runtime authority.
+- ZIP/post-close tooling and the deferred Linux-appliance/container direction
+  are separate successor work. They do not close a delivery milestone.
+
+Hosted run metadata at the exact successor SHA confirms completed/success for
+[Project 44223201497](https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/44223201497),
+[Performance Lab 44223201474](https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/44223201474)
+and [Demo Lab 44223201488](https://github.com/petritbahtiri123/name-based-secure-routing/actions/runs/44223201488).
+These are workflow outcomes, not independently inspected per-test counts or
+package/pilot acceptance. The baseline remains **2/10; Stage 3 partial**.
+
+
 ### Explicit final security-audit gate (user approved, 2026-10-11)
 
 Once local plug-and-play is functional, complete a comprehensive security scan
