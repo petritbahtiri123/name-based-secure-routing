@@ -602,3 +602,11 @@ process-exit simulations, not power-loss, independent provenance, or live
 registration tests. Their source inclusion is automatic through the existing
 whole-file CI selection; collection and execution must still be recorded for
 the exact changed source before publication.
+
+### Checkout byte policy regression
+
+Python core selects `tests/test_checkout_byte_stability.py` on both existing
+Linux and Windows targets. The existing test reads Git attributes for seven
+hash-sensitive paths; it does not rewrite files or contact a remote. Its fourteen
+Git subprocesses remain contained by the existing profile process-tree timeout
+and hosted job limit. This checks declared checkout policy, not every file byte.

@@ -26,7 +26,7 @@ CORE_TESTS = (
     "test_name_service",
     "test_demo",
     "test_wp4_exporter_vectors",
-    "test_release_packaging",
+    "test_release_packaging", "test_checkout_byte_stability",
     "test_name_registry", "test_name_relay", "test_name_security", "test_originset",
     "test_resolution_state", "test_route_registry", "test_secure_files", "test_security",
     "test_service_tls", "test_services", "test_synthetic", "test_verifier",
