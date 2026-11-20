@@ -140,8 +140,12 @@ through a URL fragment and remains in memory; do not share its URL.
    PASS do të thotë se refuzimi i pritur u vërtetua nga testi i emërtuar.
 5. **Izolimi:** shared-IP regression kontrollon lidhjen e shërbimit për adresa
    sintetike të përbashkëta. Nuk është rezultat performance.
-6. **Verifikimi i pavarur:** kopjoni komandën nga dashboard-i dhe ekzekutojeni në
-   terminal nga repo root, p.sh. `python tools/demo-lab/demo.py verify --run-id
+6. **Rezultati në dashboard:** **Run result** shfaq përmbledhjen e ekzekutimit.
+   Hapni **Show what this run proved** për rrugën dhe hollësitë e provës, ose
+   **Other regression tests** për skenarët shtesë. Hapni **Show result JSON**
+   për statuset, gabimet dhe emrin e testit, kur aplikohet. **Verify independently
+   in a terminal** ofron komandën për rikontrollin e pavarur nga rrënja e repos,
+   p.sh. `python tools/demo-lab/demo.py verify --run-id
    demo-<32-hex>`. Verifikuesi lexon receipt-in dhe hash-et e artefakteve, pa
    dashboard, server apo rrjet. Exit code 0 kërkon PASS dhe CLEAN. Ai provon
    konsistencën lokale, jo nënshkrim/attestation nga palë e tretë.

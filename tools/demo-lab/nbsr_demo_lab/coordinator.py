@@ -86,10 +86,12 @@ class Coordinator:
             else:
                 from .runner import execute
             outcome = execute(self.repo, self.state, run_id, scenario, self.cancel_event)
+            receipt = outcome['receipt'] or {}
             with self.lock:
                 self.current = {'run_id': run_id, 'scenario': scenario, 'status': outcome['outcome'],
                                 'cleanup': outcome['cleanup'], 'scenario_outcome': outcome['scenario_outcome'],
-                                'errors': outcome['errors'],
+                                'errors': outcome['errors'], 'valid': outcome['valid'],
+                                'expected_tests': receipt.get('result', {}).get('expected_tests', []) if outcome['valid'] else [],
                                 'verify_command': f'{"python" if platform.system() == "Windows" else "python3"} tools/demo-lab/demo.py verify --run-id {run_id}'}
                 if outcome['cleanup'] == 'CLEAN':
                     (self.state / 'active.json').unlink()

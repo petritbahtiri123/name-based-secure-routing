@@ -5,17 +5,34 @@ const context={document:{querySelector(s){if(!elements.has(s))elements.set(s,ele
 vm.createContext(context);vm.runInContext(fs.readFileSync(process.argv[2],'utf8'),context);
 (async()=>{
  assert.equal(vm.runInContext('typeof journeyFor',context),'function');
+ context.item={run_id:'demo-first',scenario:'stale_authority',status:'PASS',scenario_outcome:'PASS',cleanup:'CLEAN',errors:[],valid:true,expected_tests:['TestTask6AuthorityDeniedBeforeTransportOrApplication']};
+ const showEvidence=()=>vm.runInContext('render({scenarios:[],current:item})',context);
+ showEvidence();
+ assert.match(elements.get('#evidence-summary').textContent,/rejected the stale authority before transport/i);
+ assert.equal(JSON.parse(elements.get('#evidence-json').textContent).valid,true);
+ assert.match(elements.get('#evidence-json').textContent,/TestTask6AuthorityDeniedBeforeTransportOrApplication/);
+ context.item={...context.item,valid:false,status:'INCOMPLETE',errors:['artifact hash mismatch']};
+ showEvidence();
+ assert.doesNotMatch(elements.get('#evidence-summary').textContent,/passed/i);
+ assert.equal(JSON.parse(elements.get('#evidence-json').textContent).valid,false);
+ context.item={run_id:'demo-new',scenario:'allowed_service_a',status:'RUNNING',cleanup:'PENDING'};
+ showEvidence();
+ assert.equal(elements.get('#evidence-details').hidden,true);
+ assert.equal(elements.get('#evidence-json').textContent,'');
  for(const scenario of ['allowed_service_a','unknown_service','stale_authority','digest_mismatch','expired_mapping','shared_ip_isolation']){
-  context.item={scenario,status:'PASS',scenario_outcome:'PASS',cleanup:'CLEAN',errors:[]};
+  context.item={scenario,status:'PASS',scenario_outcome:'PASS',cleanup:'CLEAN',errors:[],valid:true};
   assert.equal(vm.runInContext('journeyFor(item).verified',context),true);
   for(const state of ['RUNNING','FAIL','INCOMPLETE']){context.item.status=state;assert.equal(vm.runInContext('journeyFor(item).verified',context),false)}
   context.item.status='PASS';context.item.cleanup='UNCONFIRMED';assert.equal(vm.runInContext('journeyFor(item).verified',context),false);
  }
- context.item={scenario:'invented',status:'PASS',scenario_outcome:'PASS',cleanup:'CLEAN',errors:[]};assert.equal(vm.runInContext('journeyFor(item).verified',context),false);
- vm.runInContext("connectionState='connected';lastState={running:false,blocked:false,scenarios:[{id:'stale_authority',label:'Stale authority',kind:'REGRESSION'}],current:null};render(lastState)",context);
+ context.item={scenario:'invented',status:'PASS',scenario_outcome:'PASS',cleanup:'CLEAN',errors:[],valid:true};assert.equal(vm.runInContext('journeyFor(item).verified',context),false);
+ vm.runInContext("connectionState='connected';lastState={running:false,blocked:false,scenarios:[{id:'stale_authority',label:'Stale authority',kind:'REGRESSION'},{id:'unknown_service',label:'Unknown service',kind:'REGRESSION'}],current:null};render(lastState)",context);
+ assert.equal(elements.get('#scenarios').children.length,1);
+ assert.equal(elements.get('#other-scenarios').children[0].children[0].textContent,'Unknown service');
  const button=elements.get('#scenarios').children[0].children[2];await button.onclick();
  assert.match(elements.get('#connection').textContent,/Disconnected/);assert.equal(elements.get('#cancel').disabled,true);
  assert.ok(elements.get('#scenarios').children.every(row=>row.children[2].disabled));
+ assert.ok(elements.get('#other-scenarios').children.every(row=>row.children[2].disabled));
  assert.match(elements.get('#result').textContent,/unknown|No verified/i);
  context.fetch=async()=>({ok:true,json:async()=>({scenarios:[],current:{status:'RUNNING'}})});
  await vm.runInContext('refresh()',context);assert.match(elements.get('#connection').textContent,/Disconnected/);

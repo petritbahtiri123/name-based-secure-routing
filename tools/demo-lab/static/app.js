@@ -14,7 +14,7 @@ const descriptions = {
 };
 function journeyFor(item) {
  const spec = item && Object.hasOwn(descriptions,item.scenario) && descriptions[item.scenario];
- return {spec, verified:!!spec && item.status==='PASS' && item.scenario_outcome==='PASS' && item.cleanup==='CLEAN' && Array.isArray(item.errors) && item.errors.length===0};
+ return {spec, verified:!!spec && item.valid===true && item.status==='PASS' && item.scenario_outcome==='PASS' && item.cleanup==='CLEAN' && Array.isArray(item.errors) && item.errors.length===0};
 }
 function renderJourney(item) {
  const target=document.querySelector('#journey');target.replaceChildren();
@@ -28,7 +28,36 @@ function renderJourney(item) {
  const limit=document.createElement('p');limit.textContent=spec.limit+' This is an explanation of evidence, not an animated event trace.';
  target.append(label,steps,proof,source,limit);
 }
-function disableActions(){document.querySelectorAll('#scenarios button').forEach(b=>b.disabled=true);document.querySelector('#cancel').disabled=true;document.querySelector('#stop').disabled=true;}
+function renderEvidence(item) {
+ const summary=document.querySelector('#evidence-summary');
+ const details=document.querySelector('#evidence-details');
+ const json=document.querySelector('#evidence-json');
+ const terminal=document.querySelector('#terminal-details');
+ const {verified}=journeyFor(item);
+ const complete=item.status!=='RUNNING';
+ const label=lastState.scenarios.find(s=>s.id===item.scenario)?.label||item.scenario;
+ result.textContent=`${label} · ${item.status} · Cleanup: ${item.cleanup}`;
+ result.className=verified?'verified':'';
+ if(item.status==='RUNNING')summary.textContent='Running the scenario. The result will appear here after verification and cleanup.';
+ else if(!verified)summary.textContent='This run has no verified pass. Check the path and result details below.';
+ else {
+  const message=item.scenario==='allowed_service_a'?'Service A replied “hello from service-a through NBSR”. The destination recorded one backend request.':
+   item.scenario==='stale_authority'?'NBSR rejected the stale authority before transport. No application data was sent.':
+   item.scenario==='shared_ip_isolation'?'The isolation check passed.':'The expected rejection passed.';
+  summary.textContent=message+' The saved evidence was verified and cleanup was confirmed.';
+ }
+ document.querySelector('#path-details').hidden=false;
+ details.hidden=!complete;
+ const output=complete?JSON.stringify({run_id:item.run_id,scenario:item.scenario,valid:item.valid??null,
+  outcome:item.status,scenario_outcome:item.scenario_outcome??null,cleanup:item.cleanup,
+  errors:item.errors||[],expected_tests:item.expected_tests||[]},null,2):'';
+ if(json.textContent!==output)json.textContent=output;
+ if(!complete)details.open=false;
+ terminal.hidden=!item.verify_command;
+ command.textContent=item.verify_command||'';
+ renderJourney(item);
+}
+function disableActions(){document.querySelectorAll('#scenario-controls button').forEach(b=>b.disabled=true);document.querySelector('#cancel').disabled=true;document.querySelector('#stop').disabled=true;}
 function disconnect(){
  if(connectionState==='stopped')return;
  connectionState='disconnected';busy=false;clearInterval(timer);disableActions();
@@ -48,6 +77,7 @@ async function api(path,body){
 function render(state){
  lastState=state;document.querySelector('#platform').textContent=state.platform_validation||'';
  const list=document.querySelector('#scenarios');list.replaceChildren();
+ const others=document.querySelector('#other-scenarios');others.replaceChildren();
  for(const scenario of state.scenarios){
   const row=document.createElement('div');row.className='scenario';
   const title=document.createElement('span');title.textContent=scenario.label;
@@ -61,10 +91,11 @@ function render(state){
    catch(error){if(connectionState==='connected')connection.textContent=error.message;}
    finally{busy=false;if(connectionState==='connected'){try{await refresh()}catch(_){/* api records disconnection */}}}
   };
-  row.append(title,kind,button);list.append(row);
+  row.append(title,kind,button);
+  (['allowed_service_a','stale_authority'].includes(scenario.id)?list:others).append(row);
  }
  document.querySelector('#cancel').disabled=!state.running||connectionState!=='connected';document.querySelector('#stop').disabled=connectionState!=='connected';
- if(state.current){const item=state.current;result.textContent=`${item.run_id}\nScenario: ${item.scenario}\nOverall: ${item.status}\nObserved scenario: ${item.scenario_outcome||'pending'}\nCleanup: ${item.cleanup}\n${(item.errors||[]).join('\n')}`;result.className=journeyFor(item).verified?'verified':'';command.textContent=item.verify_command||'';document.querySelector('#copy').hidden=!item.verify_command;renderJourney(item);}
+ if(state.current)renderEvidence(state.current);
  document.querySelector('#freshness').textContent='Last server response received '+new Date().toLocaleTimeString()+'. Steps below are schematic; no per-hop progress is measured.';
  if(state.blocked&&!state.running)connection.textContent='New runs blocked: cleanup needs operator reconciliation. No automatic retry.';
  else if(!busy)connection.textContent=state.running?'Run admitted. Waiting for verified evidence and cleanup.':'Private local session connected.';
