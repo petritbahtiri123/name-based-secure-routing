@@ -47,7 +47,9 @@ execution policy, or extend a failed build's resource/time limits.
    independent verification. Service A requires the exact application payload,
    destination PASS and backend request count 1 described in the README.
 5. Use **Cancel** to request cancellation of owned work, and **Stop Demo Lab** to
-   stop the dashboard. A cancellation request is not proof of completed cleanup.
+   stop the dashboard. From the launch terminal, one **Ctrl+C** during serving
+   also starts normal shutdown. Wait for the stop confirmation before closing
+   the terminal. A cancellation request is not proof of completed cleanup.
    Closing a browser tab does not cancel a run. Preserve failed/cancelled receipts.
 6. If disconnected, timed out, or cleanup is UNCONFIRMED, reconcile the UI PID,
    owned run identities and receipts before restarting. Do not replay a POST or

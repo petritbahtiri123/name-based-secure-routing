@@ -166,6 +166,7 @@ def serve(coordinator, *, open_browser=True):
 
     stop = threading.Event()
     expiry_thread = None
+    interrupted = False
     server = HTTPServer(('127.0.0.1', 0), Handler)
     try:
         url = f'http://127.0.0.1:{server.server_port}'
@@ -186,7 +187,11 @@ def serve(coordinator, *, open_browser=True):
                     return
         expiry_thread = threading.Thread(target=expiry, daemon=True)
         expiry_thread.start()
-        server.serve_forever(poll_interval=0.25)
+        try:
+            server.serve_forever(poll_interval=0.25)
+        except KeyboardInterrupt:
+            interrupted = True
+            print('Stopping NBSR Demo Lab...', flush=True)
     finally:
         deadline = time.monotonic() + 120
         stop.set()
@@ -201,3 +206,5 @@ def serve(coordinator, *, open_browser=True):
                     _join_expiry(expiry_thread, deadline)
                 finally:
                     _join_shutdown_helpers(shutdown_threads, deadline)
+    if interrupted:
+        print('NBSR Demo Lab stopped.', flush=True)

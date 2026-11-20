@@ -8,15 +8,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from nbsr_demo_lab import web
 
 
-@pytest.mark.parametrize('failure', ['browser', 'expiry_start', 'serve', 'close', 'socket_close', None])
-def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failure):
+@pytest.mark.parametrize('failure', ['browser', 'expiry_start', 'interrupt', 'interrupt_close',
+                                    'serve', 'close', 'socket_close', None])
+def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failure, capsys):
     events = []
     class Server:
         server_port = 12345
         def serve_forever(self, **kwargs):
             events.append('serve')
-            if failure == 'serve':
+            if failure in ('interrupt', 'interrupt_close'):
                 raise KeyboardInterrupt()
+            if failure == 'serve':
+                raise RuntimeError('fixture serve failure')
         def server_close(self):
             events.append('socket_closed')
             if failure == 'socket_close':
@@ -24,7 +27,7 @@ def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failu
     class Coordinator:
         def close(self, **kwargs):
             events.append('coordinator_closed')
-            if failure == 'close':
+            if failure in ('close', 'interrupt_close'):
                 raise RuntimeError('fixture close failure')
     class Thread:
         def __init__(self, **kwargs):
@@ -41,12 +44,15 @@ def test_dashboard_releases_resources_on_startup_and_shutdown(monkeypatch, failu
     monkeypatch.setattr(web, 'HTTPServer', lambda *args: Server())
     monkeypatch.setattr(web.threading, 'Thread', Thread)
     monkeypatch.setattr(web.webbrowser, 'open', browser)
-    if failure:
-        expected = KeyboardInterrupt if failure == 'serve' else RuntimeError
-        with pytest.raises(expected):
+    if failure not in (None, 'interrupt'):
+        with pytest.raises(RuntimeError, match='fixture'):
             web.serve(Coordinator())
     else:
-        web.serve(Coordinator())
+        try:
+            web.serve(Coordinator())
+        except KeyboardInterrupt:
+            pytest.fail('Ctrl+C during serving should close without an uncaught interrupt')
+    assert ('NBSR Demo Lab stopped.' in capsys.readouterr().out) == (failure == 'interrupt')
     assert events[-2:] == ['socket_closed', 'coordinator_closed']
     assert events.count('socket_closed') == 1
     if failure in ('browser', 'expiry_start'):
