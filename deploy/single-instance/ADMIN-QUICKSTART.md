@@ -37,6 +37,16 @@ skedarit. Lexo rezultatin në terminal:
 | stdout, dalje `0` | `CONFIG_VALID_OFFLINE`, `service_count: 1`, `ready: false`, `references_verified: false` | Kaloi kontrolli i konfigurimit për një shërbim. |
 | stderr, dalje `2` | `CONFIG_INVALID` | Lexo diagnostikën e redaktuar dhe korrigjo hyrjen. |
 
+Për automatizim përdor `--json`:
+
+```powershell
+python -B deploy/single-instance/validate_config.py --json deploy/single-instance/config.example.json
+```
+
+Rezultati del në stdout edhe kur konfigurimi dështon. Në atë rast objekti
+përmban `status: CONFIG_INVALID`, `field` dhe `reason`, pa vlera hyrëse.
+Për gabime që i përkasin gjithë skedarit, `field` është `configuration`.
+
 Validatori nuk shkruan skedar log-u. Kjo paketë offline nuk ofron komandë
 statusi ose vendndodhje log-esh për një Connector live.
 

@@ -251,6 +251,7 @@ def local_input_path(name):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Check offline configuration only; no readiness or reference verification.")
+    parser.add_argument("--json", action="store_true", help="Write redacted configuration results as JSON.")
     parser.add_argument("config")
     args = parser.parse_args(argv)
     try:
@@ -258,11 +259,20 @@ def main(argv=None):
         path = local_input_path(args.config)
         with path.open("rb") as stream:
             result = validate_bytes(stream.read(MAX_CONFIG_BYTES + 1))
-    except OSError:
-        print("CONFIG_INVALID: configuration input unreadable", file=sys.stderr)
-        return 2
-    except ConfigError as error:
-        print(f"CONFIG_INVALID: {error}", file=sys.stderr)
+    except (OSError, ConfigError) as error:
+        diagnostic = "configuration input unreadable" if isinstance(error, OSError) else str(error)
+        if args.json:
+            # ConfigError already redacts input values and unknown field names.
+            field, separator, reason = diagnostic.partition(": ")
+            if not separator:
+                field, reason = "configuration", diagnostic
+            print(json.dumps({
+                "status": "CONFIG_INVALID",
+                "field": field,
+                "reason": reason.partition(";")[0],
+            }, sort_keys=True))
+        else:
+            print(f"CONFIG_INVALID: {diagnostic}", file=sys.stderr)
         return 2
     print(json.dumps(result, sort_keys=True))
     return 0
