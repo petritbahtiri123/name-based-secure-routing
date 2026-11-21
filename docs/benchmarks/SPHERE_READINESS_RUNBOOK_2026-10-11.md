@@ -4,6 +4,21 @@ Status: NOT_RUN / RESOURCES_NOT_RESERVED. This document creates no account,
 reservation, credential, signature, infrastructure or network change. No build
 or deployment was executed. It is outside the frozen publication candidate.
 
+## October 17 client/server adaptation
+
+The status above is the historical October 11 preparation checkpoint, not a
+current assertion that the operator has no allocation. For the reported two-VM
+SPHERE setup, use [the client/server operational handoff](SPHERE_CLIENT_SERVER_HANDOFF_2026-10-17.md).
+It maps client to S and server to D, distinguishes reported smoke success from
+validated logs, and retains independent endpoint containment/resource gates.
+M may be external or co-located for functional diagnostics; co-location does
+not execute the original separated M/S/D topology or establish capacity.
+This report does not mark the original procedure executed. Read the newer
+handoff before using the legacy raw coordinator commands below; they do not
+implicitly acquire aggregate supervision. Archived publication records remain
+unchanged. The later isolated KAR fixture described in AGENTS.md does not turn
+this historical runbook into runtime registration acceptance.
+
 The [SPHERE project](https://sphere-project.net/) describes a cybersecurity
 research testbed with user-configurable resources. Its
 [official documentation](https://docs.sphere-testbed.net/) is the source for
