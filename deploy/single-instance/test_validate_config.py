@@ -218,6 +218,53 @@ def test_cli_missing_input_is_redacted(tmp_path, capsys):
     assert "DO-NOT-PRINT" not in error
 
 
+def test_json_cli_valid_config(tmp_path, capsys):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps(sample()), encoding="utf-8")
+
+    assert implementation().main(["--json", str(path)]) == 0
+    output = capsys.readouterr()
+    assert json.loads(output.out) == {
+        "status": "CONFIG_VALID_OFFLINE",
+        "ready": False,
+        "references_verified": False,
+        "service_count": 1,
+    }
+    assert output.err == ""
+
+
+def test_json_cli_missing_required_field(tmp_path, capsys):
+    config = sample()
+    del config["client"]["identity_ref"]
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps(config), encoding="utf-8")
+
+    assert implementation().main(["--json", str(path)]) == 2
+    output = capsys.readouterr()
+    assert json.loads(output.out) == {
+        "status": "CONFIG_INVALID",
+        "field": "client.identity_ref",
+        "reason": "missing",
+    }
+    assert output.err == ""
+
+
+def test_json_cli_redacts_invalid_secret(tmp_path, capsys):
+    config = sample()
+    config["client"]["identity_ref"] = "DO-NOT-PRINT-SECRET"
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps(config), encoding="utf-8")
+
+    assert implementation().main(["--json", str(path)]) == 2
+    output = capsys.readouterr()
+    assert "DO-NOT-PRINT-SECRET" not in output.out + output.err
+    result = json.loads(output.out)
+    assert result["status"] == "CONFIG_INVALID"
+    assert result["field"] == "client.identity_ref"
+    assert result["reason"]
+    assert output.err == ""
+
+
 def test_diagnostic_identifies_known_field_without_value():
     config = sample()
     config["client"]["identity_ref"] = "DO-NOT-PRINT"

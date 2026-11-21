@@ -1,5 +1,8 @@
 # Single-instance offline configuration
 
+See the [NBSR Connector admin quickstart](ADMIN-QUICKSTART.md) for prerequisites,
+configuration, status output and operational limits.
+
 Run from the repository root in the provisioned Python environment:
 
 ```powershell
