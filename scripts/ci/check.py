@@ -70,6 +70,8 @@ def command_groups(profile: str) -> list[Command]:
                                        "tests/test_documentation.py::test_core_v01_wire_contract_is_complete_and_non_claiming",
                                        "tests/test_documentation.py::test_core_v01_wire_contract_contains_every_frozen_numeric_mapping",
                                        "tests/test_documentation.py::test_protocol_package_exports_only_stable_wp1_surface",
+                                       "tests/test_standards_reuse_documentation.py",
+                                       "tests/test_documentation.py::test_protocol_status_defines_required_vocabulary",
                                        "tests/performance/test_b3_cleanup_gate.py",
                                        "tests/performance/test_b3_accept_window.py",
                                        "tests/performance/test_post_close_cleanup.py",

@@ -267,6 +267,12 @@ This file separates evidence from intent. `Implemented` means verified behavior
 exists at prototype scale. It does not imply Core v0.1 conformance, production
 readiness, global federation, or independent interoperability.
 
+For the architectural comparison with HIP, SCION, NDN Trust Schemas and
+Defined-Trust, see [related architectures](related-work-comparison.md). Current
+NBSR uses existing IP routing; named-service authorization, synthetic
+addressing and edge selection do not demonstrate a new inter-domain or classic
+multi-hop routing protocol. This comparison changes no implementation status.
+
 ## Status meanings
 
 | Status | Meaning |

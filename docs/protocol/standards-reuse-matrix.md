@@ -37,9 +37,15 @@ CONNECT-IP. A local HTTP CONNECT proxy is not evidence of those protocols.
 The matrix below retains its July 28 architecture/planning classification; its
 "planned" labels are not a current completion ledger. Consult
 [implementation status](status.md) for later scoped evidence and open gates.
-The original Core v0.1 counts (17 message codes, 19 errors, six wire schemas)
-remain historical frozen-version facts, not totals for later versioned profiles.
-No registry, schema, protocol allocation or runtime authorization changes here.
+The original Core v0.1 counts (17 message codes, 19 error codes, and six frozen
+Core v0.1 wire schemas) remain historical facts, not totals for later versioned
+profiles. No frozen registry or schema change is made here, and no other
+registry, schema, protocol allocation, or runtime authorization changes.
+
+For the ICNRG comparison with HIP, SCION, NDN Trust Schemas and Defined-Trust,
+see [related architectures](related-work-comparison.md). It separates service
+admission and overlay forwarding from underlay routing and identifies
+comparative experiments that have not been run.
 
 ## Matrix
 
