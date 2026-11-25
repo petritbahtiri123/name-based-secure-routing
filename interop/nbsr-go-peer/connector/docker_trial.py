@@ -9,6 +9,7 @@ import ipaddress
 import json
 import pathlib
 import queue
+import re
 import shutil
 import subprocess
 import threading
@@ -58,6 +59,25 @@ def session_count(mode, cycles, cleanup_failure=False):
     return cycles + 1 if mode == "auto-network" else 2
 
 
+def reconcile_timed_out_create(kind, name, label, before, inspect, remove):
+    """Only reconcile an isolated trial resource with proved identity and ownership."""
+    record, = json.loads(inspect(kind, name))
+    labels = record.get("Labels") if kind == "network" else record.get("Config", {}).get("Labels")
+    expected_name = name if kind == "network" else "/" + name
+    resource_id = record.get("Id")
+    key, expected = label.split("=", 1)
+    if (
+        record.get("Name") != expected_name
+        or not isinstance(labels, dict)
+        or labels.get(key) != expected
+        or not isinstance(resource_id, str)
+        or re.fullmatch(r"[0-9a-f]{64}", resource_id) is None
+        or resource_id in before
+    ):
+        raise RuntimeError("timed-out create ownership not verified")
+    remove(kind, resource_id)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", required=True)
@@ -69,47 +89,69 @@ def main():
     args = parser.parse_args()
     automatic = args.first_stop == "auto-network"
     sessions = session_count(args.first_stop, args.cycles, args.cleanup_failure)
-    artifacts = args.artifacts.resolve(strict=True)
     repo = pathlib.Path(__file__).resolve().parents[3]
     evidence = args.evidence.resolve()
     evidence.mkdir(parents=True, exist_ok=False)
-    for binary in ("gateway-test", "connector-test"):
-        if not (artifacts / binary).is_file():
-            raise RuntimeError("prebuilt worker missing")
-    start_free = shutil.disk_usage(evidence).free
-    if start_free < 8 * 1024**3:
-        raise RuntimeError("8 GiB pre-trial disk gate")
-    started = time.monotonic()
-    prefix = "nbsr-connector-trial-" + uuid.uuid4().hex[:10]
-    label = "nbsr.connector.trial=" + prefix
-    names = [prefix + "-gateway", prefix + "-connector"]
-    network = prefix + "-net"
-    owned = []
-    created_network = False
-    processes = []
-    readers = []
-    events = queue.Queue()
-    pending = []
-    report = {"project": prefix, "synthetic_authority": True, "ready": "NOT_ESTABLISHED",
-              "commands": [], "stops": [], "status": "FAIL", "first_stop": args.first_stop,
-              "cleanup_failure_requested": args.cleanup_failure, "requested_cycles": args.cycles, "expected_sessions": sessions}
-    report["commit"] = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
-    source_paths = [*repo.glob("interop/nbsr-go-peer/connector/*.go"),
-                    *repo.glob("interop/nbsr-go-peer/connector/*.py"),
-                    repo / "crates/nbsr-transport/tests/connector_loopback.rs",
-                    repo / "crates/nbsr-transport/tests/support/connector_loopback.rs",
-                    repo / "crates/nbsr-transport/tests/support/connector_docker.rs",
-                    *[repo / f"crates/nbsr-transport/src/connector_{n}.rs"
-                      for n in ("control", "registration", "cleanup")]]
-    report["source_sha256"] = {str(p.relative_to(repo)): hashlib.sha256(p.read_bytes()).hexdigest()
-                               for p in source_paths}
-    report["binary_sha256"] = {n: hashlib.sha256((artifacts/n).read_bytes()).hexdigest()
-                               for n in ("gateway-test", "connector-test")}
-    for source in source_paths:
-        target = evidence / "source" / source.relative_to(repo)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, target)
-    log = (evidence / "redacted.log").open("w", encoding="utf-8", buffering=1)
+    preflight_stage = "initializing"
+    try:
+        preflight_stage = "resolve_artifacts"
+        artifacts = args.artifacts.resolve(strict=True)
+        preflight_stage = "verify_workers"
+        for binary in ("gateway-test", "connector-test"):
+            if not (artifacts / binary).is_file():
+                raise RuntimeError("prebuilt worker missing")
+        preflight_stage = "disk_gate"
+        start_free = shutil.disk_usage(evidence).free
+        if start_free < 8 * 1024**3:
+            raise RuntimeError("8 GiB pre-trial disk gate")
+        started = time.monotonic()
+        prefix = "nbsr-connector-trial-" + uuid.uuid4().hex[:10]
+        label = "nbsr.connector.trial=" + prefix
+        names = [prefix + "-gateway", prefix + "-connector"]
+        network = prefix + "-net"
+        owned = []
+        timed_out_creates = []
+        created_network = False
+        processes = []
+        readers = []
+        events = queue.Queue()
+        pending = []
+        report = {"project": prefix, "synthetic_authority": True, "ready": "NOT_ESTABLISHED",
+                  "commands": [], "stops": [], "status": "FAIL", "first_stop": args.first_stop,
+                  "cleanup_failure_requested": args.cleanup_failure, "requested_cycles": args.cycles, "expected_sessions": sessions}
+        preflight_stage = "read_commit"
+        report["commit"] = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+        source_paths = [*repo.glob("interop/nbsr-go-peer/connector/*.go"),
+                        *repo.glob("interop/nbsr-go-peer/connector/*.py"),
+                        repo / "crates/nbsr-transport/tests/connector_loopback.rs",
+                        repo / "crates/nbsr-transport/tests/support/connector_loopback.rs",
+                        repo / "crates/nbsr-transport/tests/support/connector_docker.rs",
+                        *[repo / f"crates/nbsr-transport/src/connector_{n}.rs"
+                          for n in ("control", "registration", "cleanup")]]
+        preflight_stage = "hash_sources"
+        report["source_sha256"] = {str(p.relative_to(repo)): hashlib.sha256(p.read_bytes()).hexdigest()
+                                   for p in source_paths}
+        preflight_stage = "hash_binaries"
+        report["binary_sha256"] = {n: hashlib.sha256((artifacts/n).read_bytes()).hexdigest()
+                                   for n in ("gateway-test", "connector-test")}
+        preflight_stage = "copy_sources"
+        for source in source_paths:
+            target = evidence / "source" / source.relative_to(repo)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+        preflight_stage = "open_log"
+        log = (evidence / "redacted.log").open("w", encoding="utf-8", buffering=1)
+
+    except Exception as error:
+        result = {"status": "FAIL", "phase": "PREFLIGHT", "stage": preflight_stage,
+                  "error_type": type(error).__name__, "synthetic_authority": True,
+                  "ready": "NOT_ESTABLISHED", "commands": [], "cleanup_errors": []}
+        # No Docker resources have been created yet; never include exception text.
+        pending_result = evidence / "result.json.pending"
+        pending_result.write_text(json.dumps(result, indent=2), encoding="utf-8")
+        pending_result.replace(evidence / "result.json")
+        print(json.dumps(result))
+        return 1
 
     def check():
         free = shutil.disk_usage(evidence).free
@@ -125,6 +167,13 @@ def main():
         except subprocess.CalledProcessError as error:
             # Control commands never carry private fixture data.
             log.write("docker control error: " + error.stderr)
+            raise
+
+    def create(kind, name, *arguments):
+        try:
+            docker(*arguments)
+        except subprocess.TimeoutExpired:
+            timed_out_creates.append((kind, name))
             raise
 
     def reader(process, role):
@@ -171,12 +220,14 @@ def main():
         existing = json.loads(docker("network", "inspect", *report["before"]["networks"]))
         occupied = existing_subnets(existing)
         selected_subnet = choose_subnet(occupied)
-        docker("network", "create", "--internal", "--subnet", str(selected_subnet), "--label", label, network)
+        create("network", network, "network", "create", "--internal", "--subnet", str(selected_subnet), "--label", label, network)
         created_network = True
         net = json.loads(docker("network", "inspect", network))[0]
-        assert net["Internal"]
+        if not (net["Internal"]):
+            raise AssertionError('Docker trial network is not internal')
         subnet = ipaddress.ip_network(net["IPAM"]["Config"][0]["Subnet"])
-        assert subnet.version == 4 and subnet.is_private
+        if not (subnet.version == 4 and subnet.is_private):
+            raise AssertionError('Docker trial subnet is not private IPv4')
         gateway_ip, connector_ip = str(subnet.network_address+2), str(subnet.network_address+3)
         address = gateway_ip + ":4444"
         base = ["create", "--pull=never", "-i", "--log-driver", "none", "--network", network,
@@ -185,7 +236,7 @@ def main():
                 "--memory", "256m", "--cpus", "2",
                 "--mount", f"type=bind,source={artifacts},target=/harness,readonly"]
         vectors = repo / "vectors/connector-registration-development-v1"
-        docker(*base, "--name", names[0], "--ip", gateway_ip,
+        create("container", names[0], *base, "--name", names[0], "--ip", gateway_ip,
                "--mount", f"type=bind,source={repo / 'crates/nbsr-transport'},target=/src/crates/nbsr-transport,readonly",
                "--mount", f"type=bind,source={vectors},target=/src/vectors/connector-registration-development-v1,readonly",
                "--env", "NBSR_CONNECTOR_DOCKER_GATEWAY="+address,
@@ -195,7 +246,7 @@ def main():
                "--entrypoint", "/harness/gateway-test", args.image,
                "--exact", "isolated_docker_connector_restart", "--ignored", "--nocapture", "--test-threads=1")
         owned.append(names[0])
-        docker(*base, "--name", names[1], "--ip", connector_ip,
+        create("container", names[1], *base, "--name", names[1], "--ip", connector_ip,
                "--env", "NBSR_CONNECTOR_LOOPBACK=1",
                "--env", "NBSR_CONNECTOR_DOCKER_AUTO=" + ("1" if automatic else "0"),
                "--env", "NBSR_CONNECTOR_DOCKER_CYCLES="+str(args.cycles),
@@ -207,8 +258,10 @@ def main():
         owned.append(names[1])
         for name in names:
             config = json.loads(docker("inspect", name))[0]
-            assert not config["HostConfig"]["PortBindings"]
-            assert config["HostConfig"]["LogConfig"]["Type"] == "none"
+            if not (not config["HostConfig"]["PortBindings"]):
+                raise AssertionError('Docker trial container published ports')
+            if not (config["HostConfig"]["LogConfig"]["Type"] == "none"):
+                raise AssertionError('Docker trial container logging was not disabled')
         gateway = attach(names[0], "gateway")
         original_gateway_start = None
         connector_id = None
@@ -232,13 +285,16 @@ def main():
             event("gateway", f"NBSR_GATEWAY_ACCEPTED attempt={attempt}")
             gs = json.loads(docker("inspect", names[0]))[0]
             cs = json.loads(docker("inspect", names[1]))[0]
-            assert gs["State"]["Running"] and cs["State"]["Running"]
+            if not (gs["State"]["Running"] and cs["State"]["Running"]):
+                raise AssertionError('Docker trial containers are not both running')
             if attempt == 1:
                 original_gateway_start = gs["State"]["StartedAt"]
                 connector_id = cs["Id"]
                 original_connector = cs
-            assert gs["State"]["StartedAt"] == original_gateway_start
-            assert cs["Id"] == connector_id
+            if not (gs["State"]["StartedAt"] == original_gateway_start):
+                raise AssertionError('Gateway restarted unexpectedly')
+            if not (cs["Id"] == connector_id):
+                raise AssertionError('Connector container identity changed')
             if automatic:
                 validate_same_process(original_connector, cs)
                 if attempt > 1:
@@ -252,14 +308,16 @@ def main():
             if mode in ("network", "auto-network"):
                 docker("network", "disconnect", network, names[1])
                 detached = json.loads(docker("network", "inspect", network))[0]["Containers"]
-                assert connector_id not in detached
+                if not (connector_id not in detached):
+                    raise AssertionError('Connector is still attached after disconnect')
                 event("gateway", f"NBSR_OWNER_RETAINED attempt={attempt}")
                 retained_observed = True
                 disconnected = json.loads(docker("inspect", names[1]))[0]
                 validate_same_process(cs, disconnected)
                 docker("network", "connect", "--ip", connector_ip, network, names[1])
                 restored = json.loads(docker("network", "inspect", network))[0]["Containers"]
-                assert restored[connector_id]["IPv4Address"].split("/")[0] == connector_ip
+                if not (restored[connector_id]["IPv4Address"].split("/")[0] == connector_ip):
+                    raise AssertionError('Connector did not recover its expected IPv4 address')
                 gateway.stdin.write(f"CHECK_RETAINED {attempt}\n")
                 gateway.stdin.flush()
                 event("gateway", f"NBSR_NETWORK_RESTORED_NO_RECONNECT attempt={attempt} window_ms=2000")
@@ -330,9 +388,11 @@ def main():
             state = json.loads(docker("inspect", names[1]))[0]["State"]
             validate_stop(state, connector.returncode, mode, graceful_marker)
             remaining = json.loads(docker("network", "inspect", network))[0]["Containers"]
-            assert connector_id not in remaining
+            if not (connector_id not in remaining):
+                raise AssertionError('Connector is still present after removal')
             gateway_state = json.loads(docker("inspect", names[0]))[0]["State"]
-            assert gateway_state["Running"] and gateway_state["StartedAt"] == original_gateway_start
+            if not (gateway_state["Running"] and gateway_state["StartedAt"] == original_gateway_start):
+                raise AssertionError('Gateway did not remain running with its original start time')
             report["stops"].append({"attempt": attempt, "connector_state": state,
                 "mode": mode, "graceful_cleanup_marker": graceful_marker,
                 "attach_exit": connector.returncode, "connector_endpoint_absent": True,
@@ -344,10 +404,13 @@ def main():
             event("gateway", f"NBSR_OWNER_RELEASED attempt={attempt}")
         event("gateway", "NBSR_DOCKER_COMPLETE")
         gateway.wait(timeout=5)
-        assert gateway.returncode == 0
+        if not (gateway.returncode == 0):
+            raise AssertionError('Gateway exit code was not zero')
         if automatic:
-            assert len(report["network_disruptions"]) == args.cycles
-            assert len(report["automatic_reconnections"]) == args.cycles
+            if not (len(report["network_disruptions"]) == args.cycles):
+                raise AssertionError('Unexpected number of network disruptions')
+            if not (len(report["automatic_reconnections"]) == args.cycles):
+                raise AssertionError('Unexpected number of automatic reconnections')
         report["status"] = "PASS"
     except Exception as error:
         # Do not serialize arbitrary exception payloads containing child stdout.
@@ -365,6 +428,23 @@ def main():
                 raise RuntimeError("cleanup budget exhausted")
             return min(maximum, remaining)
 
+        def inspect_timed_out(kind, name):
+            return subprocess.check_output(["docker", kind, "inspect", name], text=True,
+                                           timeout=cleanup_budget(3), stderr=subprocess.PIPE)
+
+        def remove_timed_out(kind, resource_id):
+            args = ["docker", kind, "rm"]
+            if kind == "container":
+                args.append("-f")
+            subprocess.run([*args, resource_id], check=True, timeout=cleanup_budget(5),
+                           stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+
+        for kind, name in reversed(timed_out_creates):
+            try:
+                reconcile_timed_out_create(kind, name, label, report["before"][kind + "s"],
+                                           inspect_timed_out, remove_timed_out)
+            except Exception:
+                cleanup_errors.append("timed-out create not confirmed clean: " + name)
         for name in reversed(owned):
             try:
                 subprocess.run(["docker", "rm", "-f", name], check=True, timeout=cleanup_budget(8),
