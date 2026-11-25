@@ -221,6 +221,14 @@ Retain failed trials and verify child reap/socket release before confirming clea
 Real TLS/exporter success does not establish signed registration authority, verified
 revocation delivery, real authority timers, application traffic or Stage 3 closure.
 
+The draft currentness vectors are offline only. Use
+`python -B -m scripts.generate_connector_currentness_vectors --check`,
+`python -B -m scripts.verify_connector_currentness_vectors --check`, and
+`tests/protocol/test_connector_currentness_vectors.py`. Reuse the explicit public
+fixture seeds only. OFFLINE_VECTOR_VALID is not a registration permit: pinned test
+cuts/clocks and a purpose-3 KAR are not real completeness or Connector governance.
+Keep existing CBOR byte-string bounds and registry/runtime flags unchanged.
+
 ## Offline signed registration fixtures
 
 `nbsr/connector_registration_authority_offline.py` verifies signed genesis fixtures
