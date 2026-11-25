@@ -434,3 +434,14 @@ def test_connector_currentness_vectors_selected_without_runtime():
                             capture_output=True, text=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "9 positive, 99 negative; OFFLINE VECTORS ONLY" in result.stdout
+
+
+def test_connector_source_coverage_vectors_selected_without_runtime():
+    command = next(c for c in command_groups("python-protocol") if c.name == "connector-source-coverage-vectors")
+    assert command.argv[1:] == ("-m", "scripts.verify_connector_source_coverage_vectors", "--check")
+    result = subprocess.run(command.argv, cwd=Path(__file__).resolve().parents[2],
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "8 positive, 84 negative; OFFLINE SUPPLIED ORACLES ONLY" in result.stdout
+    collection = next(c for c in command_groups("python-protocol") if c.name == "python-protocol")
+    assert "tests/protocol" in collection.argv

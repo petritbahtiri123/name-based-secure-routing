@@ -229,6 +229,17 @@ fixture seeds only. OFFLINE_VECTOR_VALID is not a registration permit: pinned te
 cuts/clocks and a purpose-3 KAR are not real completeness or Connector governance.
 Keep existing CBOR byte-string bounds and registry/runtime flags unchanged.
 
+The six-domain coverage contract fixtures are independently selected by
+`python -B -m scripts.verify_connector_source_coverage_vectors --check` and
+`tests/protocol/test_connector_source_coverage_vectors.py`. Regenerate/check with
+`python -B -m scripts.generate_connector_source_coverage_vectors --check` (omit
+`--check` only to rewrite the new fixture package). Their JSON and symbolic cuts
+are test formats, not authority wire proofs. Journal completeness, clock, retained
+state and inner governance verification are supplied oracles. A positive label
+checks coverage bookkeeping even with retained denials; it grants no admission.
+No real signature/threshold, source completeness, durable restart or cleanup is
+proven. Preserve the separate currentness wire fixtures and their limits.
+
 ## Offline signed registration fixtures
 
 `nbsr/connector_registration_authority_offline.py` verifies signed genesis fixtures

@@ -908,3 +908,337 @@ challenge entropy, atomic persistence, restart recovery, denial retention or
 runtime cleanup follows. Existing Docker/authority evidence remains separate.
 The source-contract, M3/M4 and real-pilot gates above remain open; no runtime or
 frozen registry/source authority is changed by these vector helpers.
+
+
+## Proposed real-source responsibility and coverage decision — 2026-11-25
+
+Status: proposal for review only. W1–W6 remain the approved draft for offline
+vectors; this section selects no deployed operator, endpoint, key or trust anchor.
+All real assignments below are **UNSELECTED / UNVERIFIED**. It does not allocate
+wire actions or signer purposes, implement a provider, or authorize activation.
+The existing artifact mapping remains the implementation inventory.
+
+### S1: recommended real trust sources and role separation
+
+Use independently authenticated commissioning for initial trust, authoritative
+issuer feeds for governing records, one scoped publisher for aggregation, and a
+separately controlled status authority for the publisher's eligibility. The
+Gateway verifies each layer independently; transport success grants no authority.
+
+| Role / real source to select | Required responsibility and evidence | Cannot authorize |
+| --- | --- | --- |
+| Commissioning custodian, accountable to the deployment's authorized operator | Authenticate the provisioning package and expected digest through a separately authenticated channel; record who approved exact roots, policies, scope, source contracts and status anchor. Identify the actual custodian and recovery authority before import. | A digest from the distribution endpoint cannot authenticate that same endpoint's trust package; commissioning cannot waive governing signatures or create missing delegation. |
+| Identity-root and ownership/delegation authorities | Supply the authentic root lineage, purpose-specific KARs, name ownership and non-widening delegation, including revocation/status histories. Bind the actual Connector peer key, operator, service and canonical Gateway ID. | A local allowlist, purpose-3 fixture, DNS/TLS identity or ACP response cannot replace the required purpose-14 transport authorization and signed governing chain. |
+| Governing controller / normal / emergency sources | Supply records, authorized rosters, policy versions and authenticated coverage cuts for every applicable authority domain; retain distinct authority modes. | One publisher or one controller cannot replace normal 3/5 or emergency 2/5 verification. |
+| Currentness publisher and distribution operator | Operate the W1 endpoint; validate source ingestion, assemble the complete scoped view and sign with the W5 dedicated publisher key under the exact PublisherGrant. Record distribution operator separately even if hosted by the publisher. | Neither endpoint TLS nor the publisher signature creates governing authority or proves unseen updates were not withheld. |
+| Publisher-status authority | Under the independently provisioned W5 anchor, maintain a separate grant/key-epoch eligibility ledger and sign request/view-bound status from that ledger. Its administration and withdrawal path must not depend on the publisher. | Status means publisher eligibility only, not complete revocation coverage, registration permission or a governance quorum. |
+| Gateway verifier / local state custodian | Independently verify the full chain, source contracts, coverage, status, time and persisted safety state before admitting new use. Retain ownership until confirmed cleanup. | A valid snapshot cannot clear durable denials, bypass uncertain persistence or replace missing source evidence. |
+
+Recommend separate administrative control for commissioning/recovery and online
+publication, and for publisher-status administration and publication. Record actual
+people/organizations, control domains, key custody and shared dependencies before
+calling that separation independent. Different key IDs or containers alone are
+insufficient. Existing governing roster independence requirements still apply;
+these operational assignments add no new quorum or frozen-purpose allocation.
+
+### S2: source coverage required for the real deployment
+
+Commissioning must enumerate the exact required domain set and the authoritative
+source for each domain. The publisher cannot choose a smaller set at refresh time.
+A source may cover several domains only when its authenticated authority and
+coverage contract explicitly cover each one. The following is a requirements
+matrix, not a claim that these feeds already exist:
+
+| Coverage domain | Required source material and boundary | Retained effect / rejection condition |
+| --- | --- | --- |
+| Root, key and governing configuration lineage | Authorized root/policy/roster succession and status for every signer and dependency used in the view, including unsigned roster members where independence is required. | Unknown lineage, revoked signer or an unapproved version blocks acceptance; no current-registry fallback for historical authority. |
+| Connector identity, ownership and delegation | Complete applicable KAR, ownership and delegation state plus withdrawals affecting the exact peer/operator/service/Gateway dependency closure. | Exact purpose and non-widening scope checks remain mandatory; unrelated records cannot revoke an owner merely by naming it. |
+| Controller revocation | Applicable controller-signed typed records and their source coverage, under the existing exact-controller authority rules. | Apply only verified typed effects; controller-only coverage is not full-model coverage. |
+| Normal revocation | Applicable records with the approved normal 3/5 authorization, roster provenance and required inclusion/consistency evidence. | Do not substitute global-trust-v1 for normal-revocation policy; preserve effective termination and retained denial markers. |
+| Emergency revocation | Applicable emergency 2/5 records and coverage under the approved emergency authority policy. | Nonterminal DENY_NEW_USE only, at most 300 seconds; no emergency termination or extension of freshness deadlines. |
+| Publisher authorization | Independent status ledger covering the exact grant, publisher key/epoch and scope, including withdrawals and approved recovery transitions. | Missing/stale/unknown status blocks a fresh acceptance. An ordinary authorized response cannot erase a retained withdrawal. |
+
+For each row, the real source contract must name the source identity and operator,
+exact accepted artifact/profile versions, authenticated epoch/revision ordering,
+cut commitment semantics, scope enumeration, and how the verifier establishes
+that no applicable accepted update through the cut is omitted. Specify initial
+history acquisition, gaps, duplicates, forks, epoch transitions and cross-domain
+dependencies. Required evidence must fit the bounded complete W3 view; oversized
+or incomplete results reject rather than truncate or silently paginate.
+
+An inclusion proof establishes inclusion of a record, not the absence of omitted
+records. A checkpoint or witness signature establishes only its specified claim;
+it is not automatically a completeness attestation. A successful poll, empty HTTP
+response or locally increasing counter cannot advance authenticated coverage.
+Sources must distinguish “no updates through this authenticated cut” from outage.
+
+Recommend an authenticated source-side acceptance journal and explicit coverage
+attestation for each domain, with independently checked ingestion/cut consistency.
+The actual attestation schema, issuer authority, commitment construction and
+verification rules remain an approval prerequisite; this section creates none.
+If a source cannot supply that evidence, the commissioning decision must explicitly
+accept and bound the W3 publisher-completeness trust assumption or leave that
+source unusable. Offline vectors do not resolve this choice. No configuration
+switch or fallback to an unverified partial view is proposed.
+
+Coverage means all applicable updates accepted by the named source through its
+cut, not immediate knowledge of every real-world event. Establish the source's
+submission/acceptance boundary and measured ingestion evidence before accepting
+the proposed 2-second lag bound. Retain future-effective records and prior denials;
+a newer unrelated cut cannot extend an older domain's lifetime. Existing work
+continues only under its independent authority/request/drain bounds, with verified
+applicable termination taking precedence and no grace reset on repeated outage.
+
+### S3: independent status withdrawal and recovery responsibility
+
+The status authority reads its own authorized grant/key eligibility ledger, not
+a boolean supplied by the publisher. Before it signs “authorized”, it must bind
+the W4 request, grant and state digest and check current eligibility. Binding a
+state digest does not certify that state's completeness. Publisher delivery may
+carry the status proof; administration and trust provenance remain independent.
+Suppression can cause loss of availability but cannot extend the W6 deadline.
+
+Before activation, approve a separate authenticated withdrawal/update path,
+including who may withdraw a grant, exact typed scope/effects, replay ordering,
+retained markers and how Gateway state persists them. Do not invent a negative
+variant of W4's authorized-only response. Define an independently authenticated
+recovery/rotation transition; a new signature or epoch alone must not resurrect
+a withdrawn grant or erase governing denials.
+
+Status-anchor compromise/expiry is handled by the independently authorized
+commissioning successor/recovery procedure, never by trusting a replacement key
+announced solely by that anchor or publisher. Record the recovery actor and its
+independent authorization evidence. If unavailable, fresh acceptance stays blocked;
+already accepted state cannot outlive its existing effective deadline. This is a
+remaining design/operational dependency, not an implemented update service.
+
+### S4: concrete evidence needed to replace UNSELECTED assignments
+
+Before any separately authorized pilot, complete one commissioning record in this
+existing decision trail with:
+
+1. Named accountable operators for each S1 role, control-domain relationships,
+   and approval of the chosen completeness trust assumption or per-domain proof.
+2. Exact public root/status/publisher fingerprints, grant and package digests,
+   validity, scope and the independent channel used to authenticate them. Keep
+   private keys, credentials and recovery secrets out of this document and chat.
+3. The real distribution/status/source endpoint identities and their transport
+   authentication policies, without deriving trust from endpoint discovery.
+4. A source contract and authenticated sample history/cut for every required
+   domain, including actual controller, normal and emergency coverage and signer
+   lineage. Record unavailable feeds as blockers, never as empty revocation sets.
+5. Approved publisher withdrawal and status-anchor recovery procedures, plus M3
+   independently anchored durable restart state and M4 trusted clock/serialized
+   runtime verification. A restored pair of mutually consistent local files alone
+   does not establish anti-rollback protection.
+6. A scoped implementation and later pilot acceptance plan: full positive chain,
+   missing-domain/stale/fork/withdrawal negatives, restart/rollback and cleanup
+   failure retention, with exact source versions and redacted evidence retained.
+
+No real assignments or authenticated source samples are established by this
+proposal. Next is selecting and reviewing those sources/contracts, then implementing
+and testing the approved boundary offline before separately authorizing a real
+pilot. The existing vectors prove only their draft fixture behavior; Stage 3 stays
+open until real registration, current authority and lifecycle evidence satisfy
+its acceptance gates. No activation, READY, commit or push follows from this text.
+
+
+## Draft real-source contracts by domain — 2026-11-25
+
+The S1–S4 direction is user-approved for further drafting. The contracts below
+are proposed acceptance requirements, not executed agreements or newly approved
+wire formats. Actual source identities, operators and proof mechanisms remain
+UNSELECTED / UNVERIFIED. C1–C6 are document labels, not allocated domain IDs.
+Preserve W1–W6 and every existing governing signature, purpose and typed effect.
+
+### Common contract required for each source
+
+Each commissioned source contract must contain the following independently
+authenticated bindings. An omitted required binding makes that source unusable
+for fresh acceptance; it is never interpreted as an empty revocation set.
+
+| Binding | Contract requirement | Still undefined for the real deployment |
+| --- | --- | --- |
+| Identity and authority | Bind source ID, domain ID, accountable operator, control domain, exact public signer keys/purposes, authority lineage and accepted artifact versions. Distinguish feed attestation authority from authority to issue governing records. | All concrete identities, keys, authorization evidence and selected versions. |
+| Scope and closure | Bind the exact commissioned scope, dependency classes, governing issuers and selection rule. Include every applicable dependency and authority mode, with no publisher-controlled narrowing. | Concrete scope inventory and independently reviewable dependency enumeration. |
+| Acceptance boundary | Define when a valid submission becomes an accepted source update, how the issuer receives an authenticated receipt, and how effective time differs from acceptance time. Include accepted future-effective updates. | Receipt schema, issuer/source responsibility and handling of delayed submissions. |
+| Ordering and cut | Define authenticated epoch/revision ordering, immutable cut commitment and covered-through time; identify exactly which accepted updates the cut covers. Same cut with different state is a conflict, not a refresh. | Cut/commitment construction, signed encoding and verification algorithm. |
+| Completeness | Supply verifiable coverage for the full scoped accepted history through the cut, including authenticated zero-update intervals. State the remaining trusted omission assumption explicitly. Inclusion or consistency alone is insufficient. | Per-domain coverage proof or explicit approval of the bounded publisher-completeness assumption. |
+| Delivery and resumption | Identify authenticated endpoint/transport policy, bounded complete-view production, gap detection and replay from retained anchors. No truncation, unsigned empty-success or automatic alternate source. | Endpoints, credentials provisioning procedure, resumption protocol and source capacity evidence. |
+| Time and availability | Supply authenticated cut times and evidence supporting W6's proposed ingestion/freshness bounds. Outage cannot advance a cut or restart an existing deadline. | Trusted source clock basis, measured lag, monitoring and accountable incident operator. |
+| Succession and recovery | Authenticate key/epoch/source changes through approved lineage, preserving retained denials and floors. Do not treat a replacement source as a pristine history. | Exact migration, compromise, withdrawal and recovery procedures and authorized actors. |
+
+Source receipt time, publisher ingestion time and Gateway observation time must
+remain separate in evidence. A source cannot claim that an accepted update is
+outside its coverage merely because downstream delivery failed. Updates not yet
+accepted by the named source remain outside that coverage claim; the submission
+boundary and its availability risk must be visible to commissioning reviewers.
+
+### C1: root, signer and governing-configuration status
+
+**Input:** authenticated trust-root succession, signer authorization/status,
+roster and policy lineage for all dependencies used by C2–C6. Include roster
+members needed for independence checks even when they did not sign this record.
+**Coverage obligation:** enumerate the exact root/configuration versions and all
+applicable withdrawals or status changes accepted through each cut. Verify each
+record under its own applicable historical authority, without current-registry
+fallback or replacing immutable pins.
+**Failure behavior:** unknown lineage, an unauthorized version or missing status
+blocks dependent fresh acceptance. A higher configuration revision does not erase
+prior denials. An authorization cycle must resolve to independently commissioned
+anchors; a source cannot bootstrap its own authority from its own status response.
+**Unresolved:** real root custodians, accepted successor profiles, source inventory,
+anchor validity/recovery and coverage attestation authorization.
+
+### C2: Connector key, ownership and delegation revocation
+
+**Input:** the actual Connector peer's purpose-14 KAR and applicable ownership,
+delegation and bilateral authorization chain under existing purpose rules.
+**Coverage obligation:** bind the exact operator, service, peer key and canonical
+Gateway ID; cover all applicable key revocations, ownership changes, delegation
+withdrawals and governing dependencies through authenticated cuts. A local
+allowlist only narrows signed authority. Reuse the approved dependency semantics;
+do not define new ownership-transfer effects in this feed contract.
+**Failure behavior:** missing chain/status rejects fresh acceptance; an unrelated
+record cannot acquire effect solely by naming an owner. Apply authenticated,
+applicable negative effects under their existing typed lifecycle rules.
+**Unresolved:** real issuer/delegation sources, registration action allocation,
+concrete dependency closure and an authenticated complete status feed for it.
+
+### C3: controller revocation
+
+**Input:** typed controller records authenticated against the exact governing
+controller and scope, together with C1/C2 provenance as applicable.
+**Coverage obligation:** include every applicable controller update accepted
+through the declared cut, including scheduled future effects and retained denials.
+Controller coverage must be separately identifiable even if transported beside
+normal and emergency records.
+**Failure behavior:** reject forged, cross-controller or out-of-scope effects;
+missing coverage blocks a new complete-view acceptance. Controller coverage never
+substitutes for C4 or C5. Already verified applicable negative effects retain their
+existing enforcement semantics despite another domain's outage.
+**Unresolved:** controller identity, source endpoint, exact coverage commitment
+and source-side evidence of accepted submissions and complete intervals.
+
+### C4: normal revocation
+
+**Input:** typed normal records meeting the approved normal 3/5 authorization,
+exact signer purposes, roster independence and governing configuration provenance;
+include required record inclusion and checkpoint/consistency evidence under the
+explicitly selected approved profile.
+**Coverage obligation:** enumerate all applicable accepted normal records, their
+original authenticated bytes and effective times, without omitting already applied
+records or future events. Keep exact event bindings and retained denial markers.
+**Failure behavior:** global-trust-v1 is not a substitute for normal-revocation
+policy. Valid inclusion of selected records cannot establish complete coverage.
+Verified applicable termination retains its precedence; cleanup failure retains
+ownership/quota until exact successful confirmation.
+**Unresolved:** real five-member roster and control domains, accepted record/proof
+profile, log/witness sources where required, and complete-interval attestation.
+No new universal witness requirement is introduced here.
+
+### C5: emergency revocation
+
+**Input:** typed emergency records with the approved emergency 2/5 authorization,
+exact scope, authorized roster and C1 provenance.
+**Coverage obligation:** cover all applicable accepted emergency events, including
+future-effective events, and preserve the information needed to distinguish expiry
+from replay or a different event. Do not infer absence from an expired latest record.
+**Failure behavior:** preserve nonterminal DENY_NEW_USE and the 300-second maximum;
+no emergency termination, implicit renewal or extension of W6 freshness. Emergency
+expiry cannot clear independent controller/normal denials. History compaction, if
+needed, requires a separately justified safe retention rule; size limits do not
+authorize eviction of safety state.
+**Unresolved:** emergency roster/source, activation and expiry evidence, coverage
+proof and authenticated recovery semantics under the existing governing policy.
+
+### C6: publisher-grant and publisher-key status
+
+**Input:** W5's independently commissioned status anchor, exact PublisherGrant,
+key epoch/scope and the status authority's independently administered ledger.
+**Coverage obligation:** cover eligibility changes and withdrawals of that grant
+and key through the status cut. Return W4's request/view-bound authorized proof
+only when current eligibility is established; publisher assertions are not ledger
+inputs sufficient to authorize themselves. C6 does not attest C1–C5 completeness.
+**Failure behavior:** unavailable, stale or unknown status blocks fresh acceptance.
+Retain verified withdrawals; a newer authorized response alone cannot erase them.
+The separately approved withdrawal path must define authenticated typed effects;
+this contract does not add a negative W4 wire message. Anchor compromise follows
+independent commissioning recovery, never self-announced replacement trust.
+**Unresolved:** status operator/key/ledger, who authorizes withdrawal and recovery,
+its delivery/typed-proof format, anchor succession and durable retained markers.
+
+### Joining the contracts and recording acceptance
+
+The commissioning package must pin the exact contract versions and required domain
+set. Those version bindings are conceptual requirements pending package schema
+approval, not new implicit W3 fields. Each W3 coverage entry must map unambiguously
+to its approved source contract; changing a source or contract requires authenticated
+context succession and invalidation of old in-flight attempts.
+
+A complete candidate view must satisfy every required domain and cross-domain
+configuration/dependency binding. Different cut times are allowed only within W6
+bounds; they do not excuse a combination that omits a dependency needed by another
+record. If consistent closure cannot be established, reject the candidate rather
+than mixing unrelated latest records. Valid applicable negative evidence must
+remain processable through its approved typed path even when positive acceptance
+is blocked; partial coverage does not create positive authority.
+
+Before any contract is accepted for a pilot, retain its authenticated sample
+history and expected results for: an empty interval, an accepted update missing
+from a view, a gap/fork, same-cut conflict, future-effective event, stale cut,
+source outage, unauthorized succession and restart with retained denials. C3–C5
+also need authorized and unauthorized mode-specific records; C6 needs withdrawal
+and rejected resurrection. Proposed cases are not test results. Independent durable
+floors (M3), trusted clock/runtime enforcement (M4), real source selection and a
+reviewed wire/proof definition remain open. Stage 3 remains open; this document
+change activates nothing and provides no READY, commit or push authority.
+
+
+### Offline six-domain coverage vectors — 2026-11-25
+
+The contract direction above is approved for offline vectors only. The retained
+package is [connector-source-coverage-draft1](../../vectors/connector-source-coverage-draft1/vectors.json),
+with a [generator](../../scripts/generate_connector_source_coverage_vectors.py),
+a [separate checker](../../scripts/verify_connector_source_coverage_vectors.py)
+and [focused tests](../../tests/protocol/test_connector_source_coverage_vectors.py).
+The generator does not call the checker to choose expected results.
+
+The 92 literal cases comprise 8 positives and 84 negatives. Positives cover a
+complete six-domain snapshot, a known empty interval for each individual domain,
+and a known empty interval across all six domains. Each domain has 14 negatives:
+missing domain, omitted record, empty response, wrong source, wrong contract,
+rollback, same-cut conflict, stale cut, unsupported future cut, boolean revision,
+lost denial, lost future event, injected failed record verification and source
+outage. Additional unit checks cover cross-domain substitution, duplicate records,
+unknown epoch/cut, malformed fields and lost retained restart markers. Rejected
+checks must leave their input and retained state unchanged.
+
+This is a bounded coverage-bookkeeping model. C1 through C6 are symbolic fixture
+labels, not wire allocations. Each domain's supplied history contains one retained
+denial and one future event; two trusted oracle cuts describe the same history
+before and after an empty interval. Commitments are symbolic strings, not hashes
+or authenticated source attestations. Injected inner-verifier results stand in
+for root/lineage, identity/delegation, controller, normal 3/5, emergency 2/5 and
+publisher-status verification respectively. These tests do not execute those
+cryptographic verifiers or prove their typed effects, emergency timing, source
+acceptance/ingestion, cross-domain governing closure, recovery or durable restart.
+The fixed clock and retained snapshot are explicit inputs, not trusted runtime
+services. No private/public key generation, signing, sockets or Docker is used.
+
+`OFFLINE_COVERAGE_VALID` means only that a view matches the supplied coverage
+oracle. It can contain retained denials and is never admission eligibility or
+READY. The earlier currentness wire/signature vectors remain separate and unchanged;
+combining two fixture suites does not establish a real authority provider.
+
+From the isolated repository root, using the provisioned Python environment:
+```text
+python -B -m scripts.generate_connector_source_coverage_vectors --check
+python -B -m scripts.verify_connector_source_coverage_vectors --check
+python -B -m pytest -q -p no:cacheprovider tests/protocol/test_connector_source_coverage_vectors.py tests/protocol/test_connector_currentness_vectors.py tests/ci/test_ci.py -k "not connector_docker_supervisor"
+```
+The generator's no-argument mode writes only the new package; `--check` compares
+without writing. CI's python-protocol profile selects the checker and collects
+its tests through tests/protocol. The local selection check runs the offline
+checker only. Hosted CI and real source coverage remain unverified; no contract
+proof format or production protocol is approved by these artifacts.
