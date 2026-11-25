@@ -177,6 +177,8 @@ def command_groups(profile: str) -> list[Command]:
                     Command(f"go-connector-{kind}", ("go", kind, "-mod=readonly", "-p=2", "-tags", "connector_development",
                                                     *(("-timeout=90s", "-parallel=2", "-count=1") if kind == "test" else ()),
                                                     "./connector"), "interop/nbsr-go-peer") for kind in ("test", "vet")] + [
+                    Command("connector-docker-supervisor", (py, "-B", "-m", "unittest", "discover",
+                        "-s", "interop/nbsr-go-peer/connector", "-p", "test_docker_trial.py")),
                     Command("go-federation-v2", ("go", "run", "-mod=readonly", "-p=2", "./cmd/verify", "--version", "federation-v0.1-development-v2", "../../vectors/federation-v0.1-development-v2"), "verifiers/federation-go")]
     if profile == "node":
         return [Command("node-connector-vectors", ("node", "scripts/verify_connector_registration_vectors.mjs")),

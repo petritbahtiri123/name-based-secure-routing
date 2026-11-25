@@ -168,3 +168,108 @@ one default live ignore. Explicit live execution passed all 19 cases, with child
 reap and UDP cleanup confirmed. This supersedes the earlier no-rerun checkpoint
 for current-source loopback evidence only; historical records remain unchanged.
 Stage 3 remains partial, with real authority/revocation and timers unproven.
+
+## Explicit isolated Docker restart fixture
+
+`docker_trial.py` runs two fixture sessions against one retained Rust Gateway
+instance and endpoint. It stops and starts the same Go Connector container;
+this is supervisor-driven process restart, not automatic coordinator reconnect.
+Both sessions use logical authority time 100 and the same exact-bound synthetic
+verifier. Only the expected fixture connection/session IDs vary. No protocol,
+production authority, READY or application traffic is enabled.
+
+Build Linux `connector-test` from this Go package with `connector_development`,
+and `gateway-test` from Rust's `connector_loopback` integration target, using
+provisioned offline caches and the AGENTS.md resource supervisor. The runtime
+script does not build and uses `--pull=never`. Supply an existing compatible image:
+
+```text
+python interop/nbsr-go-peer/connector/docker_trial.py --image <verified-local-image-id> --artifacts <absolute-worker-directory> --evidence <new-absolute-evidence-directory>
+```
+
+The opt-in Rust test is `isolated_docker_connector_restart` (ignored by default).
+Default Go/Rust loopback behavior remains unchanged. Docker mode pins one private
+IPv4 endpoint, uses an internal network without published ports, read-only binds,
+dropped capabilities and bounded containers. Generated test PKI crosses only
+private attached stdin/stdout pipes in supervisor memory; Docker logging is
+disabled. Never enable raw pipe capture or persist the private fixture line.
+
+The Go worker handles SIGTERM through coordinator cleanup and reports socket
+release. Rust retains an ineligible owner and pending cleanup ticket after remote
+close; only the supervisor's observed zero exit plus Go cleanup marker permits
+exact ticket confirmation. Those confirmations are test orchestration, not a
+real authenticated backend-completion provider. The second fresh session must
+reach generation 2 while Gateway StartedAt and Connector container ID stay fixed.
+Both stops and final Gateway socket release are checked. Work stops by 95 seconds;
+cleanup and inventory reconciliation must finish within 120 seconds.
+
+Run `TestDockerAddressOptIn` and the existing connector/CBOR neighbors after edits.
+Retain every failed trial, source/binary hashes, redacted logs and cleanup receipt.
+Stage 3 remains open; registration at real authority is not established.
+
+Add `--first-stop kill` for the abrupt-death variant. The first accepted Connector
+receives `docker kill --signal SIGKILL`; the second session still stops gracefully.
+Require exit 137, PID zero, no OOM, no Go graceful-cleanup marker and removal of
+that container's network endpoint. Gateway observes QUIC idle timeout, retains an
+ineligible owner/pending ticket, drains its connection and requires the distinct
+supervisor `CONFIRM_KILL` before releasing ownership. A process-exit observation
+is not a Go cleanup callback; local Go state after SIGKILL is unobservable.
+Restart remains supervisor-driven with a fresh session on the same Gateway.
+Keep graceful and killed evidence separate; this does not prove instantaneous
+failure detection, durable crash recovery, real authority or production readiness.
+
+`--first-stop network` disconnects only the accepted Connector from its task-owned
+Docker network, waits for Gateway QUIC timeout/retained ownership, then reconnects
+the same running process at its original IP. Container ID, PID and StartedAt must
+remain unchanged. During a two-second post-restoration observation, Gateway must
+receive no new QUIC connection and retain the same ineligible owner/pending ticket.
+This bounded observation is not proof of indefinite absence of reconnects.
+Network restoration does not authorize cleanup confirmation. The supervisor then
+explicitly stops the original process, verifies graceful cleanup and confirms the
+ticket, before restarting with a fresh session (generation 2). Distinguish restored
+Docker connectivity from restored registration; this fixture has no automatic
+reconnect loop. No Go-local ownership observation is inferred while it is running.
+
+`--first-stop auto-network` uses the separate, opt-in
+`TestDevelopmentDockerReconnectProcess` worker. After transport loss it closes
+the old coordinator/transport/socket and reports local owner_count=0, then waits
+on private supervisor stdin. The supervisor restores the network and observes a
+two-second no-new-connection window while Gateway retains its old owner/ticket.
+Only after local cleanup and Gateway connection drain does it confirm that exact
+ticket. Gateway emits the next fixture with `PreviousCleanupSession` only after
+releasing ownership. The worker checks this parent-only receipt against its old
+session and requires a distinct nonzero next session before opening any new
+socket/coordinator. Missing/wrong confirmation or failed local cleanup forbids
+replacement. This receipt is test IPC, not a new wire message or real authority.
+
+The same Connector PID/container and Gateway instance must reach generation 2 by default;
+there is no process restart between sessions. Only the final session receives
+SIGTERM. This is a bounded automatic recovery fixture with trusted
+supervisor coordination, not a production reconnect loop or runtime activation.
+Run `TestDockerReconnectGate` with the existing connector/CBOR checks; retain the
+historical explicit-restart evidence separately.
+
+Use `--first-stop auto-network --cycles 5` for five network-loss/restoration
+cycles and six accepted sessions (generations 1 through 6). Cycle counts are
+bounded to 1–5 in the supervisor and both workers; other modes require one cycle.
+Every cycle repeats the exact previous-session receipt/local-cleanup gate and the
+two-second no-new-connection observation before Gateway cleanup confirmation.
+Reports retain all `network_disruptions` and `automatic_reconnections`, not just
+the final state. Go's total worker timeout is 90 seconds; the unchanged supervisor
+stops work by 95 seconds and includes cleanup within 120 seconds. Five successes
+are not an unbounded retry, soak, capacity or durability claim.
+
+`--first-stop auto-network --cleanup-failure` runs one bounded failure/retry cycle.
+After actual transport drain and Connector local cleanup, the Gateway injects a
+synthetic failed completion callback. The exact ineligible owner must survive
+both failure and retry-pending states, each observed for two seconds without a
+new QUIC connection. A late success on the failed ticket cannot overwrite its
+result; after explicit retry, the old ticket is rejected as stale. Only successful
+confirmation of the new exact ticket releases ownership and permits the next
+private fixture/session. This tests supervisor-coordinated gating, not an actual
+backend cleanup failure or rejection of arbitrary hostile connection attempts.
+Authority remains synthetic; no production protocol or READY claim is added.
+
+The `go` CI profile runs the eight stdlib supervisor unit checks via unittest
+discovery, plus the existing tagged Go package tests/vet. Rust CI compiles the
+ignored Docker target but does not execute it; live Docker trials remain explicit.

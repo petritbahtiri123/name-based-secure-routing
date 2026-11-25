@@ -175,6 +175,28 @@ as part of documentation upkeep. Codex loading behavior is described in the
 [official AGENTS.md guide](https://developers.openai.com/codex/guides/agents-md/);
 other agents may need explicit loading and have different instruction precedence.
 
+## Isolated connector Docker fixture
+
+The connector's opt-in Docker restart fixture is documented in
+`interop/nbsr-go-peer/connector/README.md`. Only that isolated test mode permits
+an explicitly pinned private IPv4 endpoint instead of loopback. Keep Docker
+logging disabled for private fixture pipes, retain exact synthetic bindings,
+require scenario-specific cleanup evidence before confirmation, and preserve all
+existing resource guards. It does not activate runtime trust or READY.
+For `--first-stop kill`, preserve the exit-137/PID-zero/no-OOM and removed-network-
+endpoint checks. Never substitute a graceful Go cleanup marker after SIGKILL;
+Gateway must retain the exact owner/ticket until distinct supervisor confirmation.
+The `--first-stop network` variant changes only the trial Connector's attachment
+to its trial network. Require unchanged process identity through disconnect/connect;
+restored connectivity alone must not confirm cleanup or imply registration recovery.
+For `--first-stop auto-network`, both local coordinator/socket cleanup and exact
+Gateway ticket confirmation must precede the next fixture/session. The private
+prior-session receipt is synthetic test IPC only; require unchanged Connector PID
+and StartedAt across recovery and retain the default coordinator's no-reuse rule.
+Automatic fixture runs allow at most five cycles/six sessions. Preserve each
+cycle's ownership/receipt evidence and the existing 120-second cleanup-inclusive
+bound; do not silently extend runtime or infer unbounded recovery from this trial.
+
 ## Local Demo Lab
 
 For `tools/demo-lab` and its setup/launcher wrappers, read
@@ -199,3 +221,9 @@ Track HTTP shutdown helpers before start and inspect all within the shared clean
 budget; any surviving or uninspectable helper keeps UI ownership unresolved.
 Permit at most one retained HTTP shutdown-helper attempt per server session;
 reject repeats without discarding ownership, including after a failed start.
+
+The isolated Docker harness `--cleanup-failure` option requires one auto-network
+cycle. It injects a synthetic Gateway cleanup callback error, retains ownership
+through explicit retry, rejects the stale ticket and withholds the next fixture
+until exact successful confirmation. Preserve the bounded failed/retry-pending
+observations; this is not evidence of a real backend cleanup failure.

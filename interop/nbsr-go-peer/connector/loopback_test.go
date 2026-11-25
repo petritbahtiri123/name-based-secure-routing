@@ -19,6 +19,8 @@ import (
 	"nbsr.local/interop/nbsr-go-peer/internal/cbor"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -40,14 +42,35 @@ type loopPeer struct {
 	lastProof []byte
 }
 
-func loopDial(c loopConfig) (*loopPeer, error) {
-	// Parse before any socket operation. Literal IPv4 loopback only, never DNS.
-	host, _, split := net.SplitHostPort(c.Endpoint)
-	if split != nil || host != "127.0.0.1" {
-		return nil, ErrInvalid
+func loopSocketAddresses(endpoint string) (*net.UDPAddr, net.IP, error) {
+	// Default remains loopback-only. Docker tests pin one literal private IPv4.
+	host, _, split := net.SplitHostPort(endpoint)
+	ip := net.ParseIP(host)
+	local := net.IPv4(127, 0, 0, 1)
+	pin := os.Getenv("NBSR_CONNECTOR_DOCKER_ENDPOINT")
+	if split != nil || ip == nil || ip.To4() == nil || ip.String() != host {
+		return nil, nil, ErrInvalid
 	}
-	addr, err := net.ResolveUDPAddr("udp4", c.Endpoint)
+	if pin == "" {
+		if host != "127.0.0.1" {
+			return nil, nil, ErrInvalid
+		}
+	} else {
+		if endpoint != pin || !ip.IsPrivate() {
+			return nil, nil, ErrInvalid
+		}
+		local = net.IPv4zero
+	}
+	addr, err := net.ResolveUDPAddr("udp4", endpoint)
 	if err != nil || addr.Port == 0 {
+		return nil, nil, ErrInvalid
+	}
+	return addr, local, nil
+}
+
+func loopDial(c loopConfig) (*loopPeer, error) {
+	addr, local, err := loopSocketAddresses(c.Endpoint)
+	if err != nil {
 		return nil, ErrInvalid
 	}
 	ca, err := x509.ParseCertificate(c.CA)
@@ -82,7 +105,7 @@ func loopDial(c loopConfig) (*loopPeer, error) {
 		}
 		return nil
 	}
-	sock, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	sock, err := net.ListenUDP("udp4", &net.UDPAddr{IP: local})
 	if err != nil {
 		return nil, err
 	}
@@ -243,6 +266,15 @@ func TestDevelopmentLoopbackProcess(t *testing.T) {
 	if json.NewDecoder(io.LimitReader(os.Stdin, 128*1024)).Decode(&cfg) != nil {
 		t.Fatal("invalid private fixture input")
 	}
+	var stopped <-chan struct{}
+	if cfg.Case == "docker_hold" {
+		if os.Getenv("NBSR_CONNECTOR_DOCKER_ENDPOINT") == "" {
+			t.Fatal("Docker fixture requires explicit endpoint")
+		}
+		ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt)
+		defer cancel()
+		stopped = ctx.Done()
+	}
 	p, err := loopDial(cfg)
 	if cfg.Case == "untrusted" || cfg.Case == "wrong_alpn" || cfg.Case == "wrong_server_key" {
 		if err == nil {
@@ -278,7 +310,7 @@ func TestDevelopmentLoopbackProcess(t *testing.T) {
 	}
 	p.withhold = cfg.Case == "withheld_proof"
 	err = c.Begin(body)
-	positive := cfg.Case == "positive" || cfg.Case == "duplicate" || cfg.Case == "cross_session" || cfg.Case == "failed_close" || cfg.Case == "cancel_io"
+	positive := cfg.Case == "positive" || cfg.Case == "duplicate" || cfg.Case == "cross_session" || cfg.Case == "failed_close" || cfg.Case == "cancel_io" || cfg.Case == "docker_hold"
 	negative := !positive && cfg.Case != "replay" && cfg.Case != "deny_new" && cfg.Case != "terminate"
 	if negative {
 		if err == nil || c.Owner() != nil {
@@ -291,6 +323,19 @@ func TestDevelopmentLoopbackProcess(t *testing.T) {
 	}
 	if err != nil || c.Owner() == nil {
 		t.Fatal("registration failed")
+	}
+	if cfg.Case == "docker_hold" {
+		fmt.Println("NBSR_CONNECTOR_ACCEPTED synthetic_authority=true")
+		select {
+		case <-stopped:
+		case <-time.After(30 * time.Second):
+			t.Fatal("Docker stop not observed")
+		}
+		if c.Close() != nil || c.Owner() != nil || !p.closed {
+			t.Fatal("Docker confirmed cleanup required")
+		}
+		fmt.Println("NBSR_CONNECTOR_CLOSED owner_count=0")
+		return
 	}
 	before := *c.Owner()
 	if cfg.Case == "duplicate" || cfg.Case == "cross_session" {

@@ -24,6 +24,8 @@ use std::{
 };
 use tokio::time::timeout;
 const LIMIT: Duration = Duration::from_secs(5);
+#[path = "connector_docker.rs"]
+pub mod docker;
 struct ChildGuard(Child);
 impl Drop for ChildGuard {
     fn drop(&mut self) {
@@ -92,6 +94,9 @@ fn pki() -> Pki {
     }
 }
 fn endpoint(p: &Pki) -> Endpoint {
+    endpoint_at(p, "127.0.0.1:0".parse().unwrap())
+}
+fn endpoint_at(p: &Pki, address: std::net::SocketAddr) -> Endpoint {
     let provider = Arc::new(rustls::crypto::ring::default_provider());
     let mut roots = RootCertStore::empty();
     roots.add(p.ca.clone()).unwrap();
@@ -116,7 +121,7 @@ fn endpoint(p: &Pki) -> Endpoint {
     transport.max_concurrent_uni_streams(VarInt::from_u32(0));
     transport.max_idle_timeout(Some(Duration::from_secs(5).try_into().unwrap()));
     config.transport_config(Arc::new(transport));
-    let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
+    let socket = std::net::UdpSocket::bind(address).unwrap();
     let mut endpoint_config = quinn::EndpointConfig::default();
     endpoint_config.supported_versions(vec![1]);
     Endpoint::new(
@@ -148,6 +153,8 @@ impl Transport for LiveTransport {
     }
 }
 struct SyntheticAuthority {
+    connection: u64,
+    session: [u8; 16],
     template: V,
     peer: [u8; 32],
     revision: u64,
@@ -157,8 +164,8 @@ struct SyntheticAuthority {
 impl Authority for SyntheticAuthority {
     fn verify(&mut self, b: &Binding, r: &V, now: u64) -> codec::Result<Decision> {
         if b.peer != self.peer
-            || b.connection != 1
-            || b.session != [b's'; 16]
+            || b.connection != self.connection
+            || b.session != self.session
             || b.profile != "connector-registration-development-v1"
             || b.action != 24576
             || now != 100
@@ -392,6 +399,8 @@ async fn run_case(binary: &str, case: &str) {
             gateway.attach(1, [b's'; 16], peer, 100).unwrap();
             let mut transport = LiveTransport(conn.clone());
             let mut authority = SyntheticAuthority {
+                connection: 1,
+                session: [b's'; 16],
                 template: policy.clone(),
                 peer,
                 revision: 1,

@@ -13,3 +13,9 @@ mod owner;
 async fn isolated_go_rust_control_registration() {
     live::run_matrix().await;
 }
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[ignore = "explicit isolated Docker restart trial; private supervisor stdin required"]
+async fn isolated_docker_connector_restart() {
+    live::docker::run().await;
+}

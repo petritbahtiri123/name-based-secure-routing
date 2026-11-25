@@ -413,3 +413,15 @@ def test_reader_lifecycle_contracts_run_in_core_ci_on_both_platforms():
         "tests/performance/test_viewer_owner_observation.py",
         "tests/performance/test_receiver_observed_owner.py",
     )
+
+
+def test_connector_docker_supervisor_selected_without_docker_execution():
+    command = next(c for c in command_groups("go") if c.name == "connector-docker-supervisor")
+    assert command.argv[1:] == (
+        "-B", "-m", "unittest", "discover", "-s", "interop/nbsr-go-peer/connector",
+        "-p", "test_docker_trial.py",
+    )
+    result = subprocess.run(command.argv, cwd=Path(__file__).resolve().parents[2],
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Ran 8 tests" in result.stderr
