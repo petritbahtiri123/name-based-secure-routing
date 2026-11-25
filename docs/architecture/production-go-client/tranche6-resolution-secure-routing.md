@@ -6,21 +6,24 @@
 
 Tranche 6 connects ordinary application name resolution to the existing production Go authority, Transport Session (TS), Service Channel (SC), Stream Credit, and Application Stream stack. It adds the missing resolution-provenance prefix without changing any frozen NBSR wire message.
 
-The required end-to-end path is:
+The DNS compatibility path returns one shared local Synthetic IP. It does not
+carry a MappingID to a later ordinary socket connection.
+
+The approved end-to-end path for explicitly proxy-configured applications is:
 
 ```text
-configured NBSR Resolution IP
-  -> ordinary DNS query
-  -> canonical NBSR resolution
+SOCKS5 domain-name or HTTP CONNECT destination
+  -> explicit local proxy canonicalizes and resolves the requested name
   -> SHA-256 canonical-name ServiceDigest
-  -> bounded ephemeral ResolutionContext and MappingID
-  -> one shared local Synthetic IP returned to the application
-  -> ordinary application connection
+  -> bounded ephemeral ResolutionContext and MappingID selected by the proxy
   -> adapter-supplied exact FlowContext
   -> MappingID lookup and reference acquisition
   -> existing RouteIntent / AuthorityKey / verified RouteGrant
   -> existing TS / SC / Stream Credit / Application Stream
 ```
+
+The proxy's own resolution selects the MappingID for the flow; an earlier DNS
+answer alone does not supply that correlation.
 
 ## Approved decisions
 

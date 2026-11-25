@@ -240,16 +240,24 @@ binds request ID, canonical body digest, device credential generation, ACP
 authority/profile, TS proof thumbprint, and server challenge/freshness context.
 
 The ACP keys idempotency by `(device identity, credential generation, operation,
-request ID)`. During a configured finite retry horizon it stores only request
-digest, terminal result digest/bytes, expiry, and status. An exact duplicate
-returns the byte-identical signed result. A same-key/different-digest duplicate
-is a terminal conflict. Entries are capped per device and globally and expire
-no earlier than the permitted client retry horizon; saturation rejects before
-minting. After the horizon, a duplicate is `AmbiguousRequest`, never a signal to
-reuse an old response. The client uses one request ID across transport retries,
-coalesces identical acquisitions, uses finite attempts/deadline/backoff, and
-quarantines timeout-ambiguous grants. A new request ID can mint a fresh grant
-only after the prior result is known unusable or is deliberately abandoned.
+request ID)`. Before issuance it validates the finite request-validity window
+bound into the signed request through the server challenge/freshness context.
+It retains the request digest, terminal result digest/bytes, expiry, and status
+until the request can no longer be accepted. During that window an exact retry
+returns the byte-identical signed result without issuing a second grant. A
+same-key/different-digest request is a terminal conflict. Entries are capped
+per device and globally; at capacity the ACP rejects new requests before
+minting rather than evicting a still-valid entry.
+
+At or after request expiry, the ACP rejects the old request even if its record
+has already been removed. It does not treat the missing record as permission
+to issue. The client uses one request ID across transport retries, coalesces
+identical acquisitions, and uses finite attempts/deadline/backoff. If the
+client cannot determine whether the first operation succeeded, it treats the
+outcome as `AmbiguousRequest` and quarantines any timeout-ambiguous grant.
+A fresh acquisition requires a new request ID and fresh server challenge or
+freshness evidence, and can proceed only after the prior result is known
+unusable or is deliberately abandoned.
 
 Exact horizons, entry/byte caps, challenges, and schemas are profile
 configuration requiring measurement and separate protocol approval; no
@@ -327,7 +335,9 @@ checkpoint update is applied as one ordered transaction:
 A new flow atomically captures TS generation, authority generation and SC
 binding. SC admission commits only if unchanged. Credit allocation and the
 final payload-gating boundary re-read the generation and live revocation state.
-Mismatch releases/quarantines reserved state and rejects the flow. Thus an
+The validity limits above still apply at admission: an unchanged generation
+and no matching revocation do not extend expired authority. A failed check
+releases/quarantines reserved state and rejects the flow. Thus an
 update ordered before the final gate cannot be bypassed by a stale selector or
 prepared TS-B. Generation overflow is terminal and requires reenrollment/new
 profile; it never wraps. TS rotation is not implemented in this tranche.
