@@ -290,7 +290,7 @@ def test_failed_client_close_still_reaps_gateways(monkeypatch, failure):
 
 
 @pytest.mark.parametrize("index,visible", [
-    (0, "[Sherbimi OK]"), (1, "[B REFUZON]"), (2, "[B NUK ARRIHET]"),
+    (0, "[Service OK]"), (1, "[B DENIED]"), (2, "[B UNREACHABLE]"),
 ])
 def test_terminal_view_distinguishes_expected_block_from_test_failure(index, visible):
     report = json.loads((ROOT / "docs/demo/p1-cross-gateway-telemetry-example.json").read_text())
@@ -327,7 +327,7 @@ def test_terminal_failure_is_red_without_private_details(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "\x1b[31m[FAIL]" in output
     assert "[PASS]" not in output
-    assert "PAKONFIRMUAR" in output
+    assert "UNCONFIRMED" in output
     assert "secret-token" not in output and "private-origin" not in output
 
 
@@ -339,7 +339,7 @@ def test_terminal_cli_runs_all_three_live_cases():
     assert completed.returncode == 0, completed.stderr
     assert completed.stderr == ""
     assert completed.stdout.count("[PASS]") == 3
-    assert "[B REFUZON]" in completed.stdout and "[B NUK ARRIHET]" in completed.stdout
+    assert "[B DENIED]" in completed.stdout and "[B UNREACHABLE]" in completed.stdout
     assert "\x1b[" not in completed.stdout
     assert "127.0.0." not in completed.stdout
 

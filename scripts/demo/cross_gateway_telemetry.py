@@ -538,7 +538,7 @@ def paint(text: str, code: int, color: bool) -> str:
 
 
 def terminal_failure(color: bool) -> str:
-    return paint("[FAIL]", 31, color) + " Prova nuk perfundoi. Cleanup: I PAKONFIRMUAR."
+    return paint("[FAIL]", 31, color) + " Test did not complete. Cleanup: UNCONFIRMED."
 
 
 def render_terminal_case(result: dict, *, color: bool) -> str:
@@ -546,26 +546,26 @@ def render_terminal_case(result: dict, *, color: bool) -> str:
     if result["status"] != "PASS" or any(result["cleanup"].values()):
         return terminal_failure(color)
     stages = {(event["component"], event["stage"]) for event in result["trace"]}
-    titles = {"allowed": "LEJOHET", "policy_denied_b": "POLITIKA REFUZON NE B",
-              "gateway_b_unavailable": "B NUK ESHTE I DISPONUESHEM"}
+    titles = {"allowed": "ALLOWED", "policy_denied_b": "POLICY DENIED AT B",
+              "gateway_b_unavailable": "GATEWAY B UNAVAILABLE"}
     def ok(label):
         return paint(label, 32, color)
 
-    nodes = [("[Klienti]", 32), ("[A OK]", 32)]
+    nodes = [("[Client]", 32), ("[A OK]", 32)]
     if ("gateway_b", "policy_denied") in stages:
-        nodes += [("[B REFUZON]", 31), ("[Sherbimi: PA KERKESA]", 90)]
+        nodes += [("[B DENIED]", 31), ("[Service: NO REQUESTS]", 90)]
         links = [False, False, True]
-        decision = "B zbatoi politiken. Payload-i nuk arriti te sherbimi."
+        decision = "Gateway B denied access. No payload reached the service."
         phase = "gateway_b.policy_denied"
     elif ("gateway_a", "connect_failed") in stages:
-        nodes += [("[B NUK ARRIHET]", 31), ("[Sherbimi: PA KERKESA]", 90)]
+        nodes += [("[B UNREACHABLE]", 31), ("[Service: NO REQUESTS]", 90)]
         links = [False, True, None]
-        decision = "Lidhja A -> B deshtoi. Nuk pretendohet vendim nga B."
+        decision = "The A -> B connection failed. No policy decision from B was observed."
         phase = "gateway_a.connect_failed"
     elif ("client", "response_received") in stages:
-        nodes += [("[B OK]", 32), ("[Sherbimi OK]", 32)]
+        nodes += [("[B OK]", 32), ("[Service OK]", 32)]
         links = [False, False, False]
-        decision = "Sherbimi mori kerkesen; klienti verifikoi pergjigjen."
+        decision = "The service received the request; the client verified the response."
         phase = "service.request_received / client.response_received"
     else:
         return terminal_failure(color)
@@ -578,10 +578,10 @@ def render_terminal_case(result: dict, *, color: bool) -> str:
     index = SCENARIOS.index(result["scenario"]) + 1
     return "\n".join([
         "", paint(f"--- {index}/3  {titles[result['scenario']]} ---", 36, color),
-        diagram, decision, "Faza e matur: " + phase,
-        f"Sherbimi: lidhje={counts[0]} | kerkesa={counts[1]}.",
-        f"Procese gateway: {counts[2]}/{counts[3]} perfunduan. Cleanup: 0 burime te mbetura.",
-        ok("[PASS]") + " Sjellja e pritur u verifikua.",
+        diagram, decision, "Observed stage: " + phase,
+        f"Service: connections={counts[0]} | requests={counts[1]}.",
+        f"Gateway processes exited: {counts[2]}/{counts[3]}. Cleanup: 0 resources remaining.",
+        ok("[PASS]") + " Expected behavior verified.",
     ])
 
 
@@ -614,10 +614,10 @@ def main() -> int:
     restore_console = enable_windows_ansi() if color else lambda: None
     try:
         if terminal:
-            print(paint("=== NBSR P1 | DY GATEWAY LOKALE ===", 36, color))
-            print("2 procese gateway | TCP/TLS reale | trust/DNS fixture | jo prove multi-host")
-            print("Jeshile = hap i kryer. Kuqe = bllokim/refuzim. Gri = nuk u arrit.")
-            print("Refuzimi i pritur mund te jete i kuq; testi merr PASS kur sjellja eshte e sakte.", flush=True)
+            print(paint("=== NBSR P1 | TWO LOCAL GATEWAYS ===", 36, color))
+            print("2 gateway processes | real TCP/TLS | test trust and DNS | not multi-host")
+            print("Green = completed. Red = blocked or rejected. Gray = not reached.")
+            print("An expected rejection may be red. The test passes when the behavior is correct.", flush=True)
         if args.gateway:
             result = asyncio.run(gateway_worker(json.loads(sys.stdin.buffer.readline(65536))))
         elif terminal:
@@ -626,8 +626,8 @@ def main() -> int:
         else:
             result = asyncio.run(supervised_run())
         if terminal:
-            print("\nID-te jane lokale; lidhja e vezhgimeve behet vetem nga testi.")
-            print("Detajet e plota: --format json (nis nje prove te re).")
+            print("\nTrace IDs are local. Only the test harness correlates observations.")
+            print("Full details: --format json (starts a new run).")
         else:
             print(json.dumps(result, indent=2))
         return 0

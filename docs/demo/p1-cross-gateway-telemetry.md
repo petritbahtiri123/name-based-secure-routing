@@ -41,17 +41,17 @@ No package installation, Cargo build, Docker, VM, Lab or benchmark controller is
 required. From PowerShell:
 
 ```powershell
-Set-Location C:\Users\bajra\.codex\worktrees\p1-cross-gateway\NBSR
+Set-Location <NBSR-repository-root>
 python scripts/demo/cross_gateway_telemetry.py
 ```
 
 ### Readable terminal presentation
 
 ```powershell
-python scripts/demo/cross_gateway_telemetry.py --format terminal
+python scripts/demo/cross_gateway_telemetry.py --format terminal --color always
 ```
 
-The terminal view uses vertical boxed diagrams and green/red/gray ANSI colors.
+The terminal view displays English labels and uses vertical boxed diagrams and green/red/gray ANSI colors.
 Interactive consoles select this view automatically without arguments. On Windows,
 the command enables VT processing for its console output and restores the prior
 mode on exit. Boxes fit an 80-column console and remain visible without color.
