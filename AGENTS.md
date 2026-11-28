@@ -46,6 +46,35 @@ cache, command effects and resource bounds below before running any check.
 - Keep diagnosis, implementation, measured results and hypotheses distinct. Report
   failed checks and incomplete validation. Commit, push and merge need task authority.
 
+## SSH commit signing on the Windows workstation
+
+For authorized commits, use the existing NBSR signing key with per-command Git
+configuration. From the verified repository root in PowerShell:
+
+```powershell
+$signingKey = Join-Path $env:USERPROFILE '.ssh/id_ed25519_nbsr_signing'
+git -c maintenance.auto=false -c gpg.format=ssh -c "user.signingkey=$signingKey" commit -S -s -m "Describe the change"
+if ($LASTEXITCODE -ne 0) { throw 'Signed commit failed; do not push.' }
+```
+
+`-S` creates the SSH signature; `-s` adds the DCO sign-off required by
+`CONTRIBUTING.md`. A sign-off alone does not satisfy verified-signature rules.
+The key file can be used without a running SSH agent. Do not print or copy its
+private contents, generate a replacement key, or change global Git/security settings.
+
+Before pushing, verify the new commit with `git verify-commit HEAD`, using
+per-command `gpg.format=ssh` and `gpg.ssh.allowedSignersFile` pointing to a
+trusted allowed-signers file. If a temporary file is needed, create it from the
+independently checked local `.pub` key and expected signer identity, then remove
+only that task-owned file. Never derive trust from the commit being verified.
+A signature header alone is not verification. Local verification and GitHub's
+Verified status are separate checks; report a remote signature-rule bypass rather
+than calling it verified. Signing or verification failure blocks the push.
+
+Stage only explicitly authorized paths. This procedure does not authorize a
+commit or push, rewriting published commits, amend/rebase of shared history,
+force-push, or changing repository protection rules.
+
 ## Architecture and sources of truth
 
 For direction, scope, milestone or readiness decisions, start with the
