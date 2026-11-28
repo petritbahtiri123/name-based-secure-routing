@@ -1242,3 +1242,120 @@ without writing. CI's python-protocol profile selects the checker and collects
 its tests through tests/protocol. The local selection check runs the offline
 checker only. Hosted CI and real source coverage remain unverified; no contract
 proof format or production protocol is approved by these artifacts.
+
+
+## Stage 3 provider-to-registration integration proposal — 2026-11-28
+
+Status: proposed for review before implementation. This appendix connects the
+existing M1/M2, W1–W8 and C1–C6 sections; it does not replace them or approve their
+remaining runtime/deployment decisions. Inspection baseline:
+`97542f654656a1286627dc4a87ad9a3cd0dbeed2`. No runtime, wire allocation, READY,
+Stage 3 closure, real source commissioning or publication is authorized here.
+
+### Existing implementation seams and proposed ownership
+
+| Existing seam | Proposed connection | Boundary to preserve |
+| --- | --- | --- |
+| `deploy/single-instance/validate_config.py`: `trust_ref`, `registration_policy_ref`, `registration_authority_ref` | A separately reviewed provisioning consumer resolves and authenticates the references according to M1 and the source register below. | The current validator remains side-effect-free and reports `CONFIG_VALID_OFFLINE`; it must not open references or turn configuration validity into readiness. |
+| `client/nbsr-go-client/internal/authority/http_provider.go` and `restart.go` | Reuse bounded transport and fresh-start/persist-before-publication patterns where applicable to W1 and M3. | These are Go client mechanisms, not a Rust connector provider. Reuse the design and conformance cases; do not import ACP operations, purposes 15/16, client identity or a Go internal package into connector governance. |
+| W1–W8 currentness draft and its existing checker | A destination-side verifier authenticates the paired publisher/status response, all inner dependencies, source coverage and retained state. | The fixture checker is a reference for the draft, not a production verifier or permission to trust injected verdicts. The actual transport and production module placement remain implementation-review decisions. |
+| `crates/nbsr-transport/src/connector_registration.rs`: `Authority::verify`, `revision`, challenge/proof revalidation | A sealed verifier-owned view supplies an attempt-specific authority result; the registration owner rechecks it at final commit. | This module is test-only. Its publicly constructible `Decision` is not the future runtime API; no caller may manufacture a positive result. |
+| `crates/nbsr-transport/src/connector_authority.rs` and existing cleanup ownership | Reuse validated typed negative enforcement and exact cleanup-ticket ownership under the same serialized coordinator. | `registration_ready()` remains false. Normal negative enforcement under supplied trust does not establish complete positive authority or all governing modes. |
+| `interop/nbsr-go-peer/connector/coordinator.go` and the Go/Rust loopback harness | Reuse the existing request/proof/renewal and owned transport lifecycle once the destination authority boundary is approved. | Connector-side checks and TLS/exporter proof cannot replace destination authorization. Replacing `SyntheticAuthority` alone is not Stage 3 acceptance. |
+
+Proposed flow, without a new wire field or API commitment:
+
+```text
+Authenticated provisioning + commissioned C1–C6 source contracts
+    -> bounded currentness fetch (W1–W6)
+    -> independent signature / dependency / coverage / time verification
+    -> serialized recheck and durable safety-state commit (M3/M4)
+    -> immutable verified view, never a registration permit
+    -> exact registration-attempt binding and final revalidation
+    -> existing registration ownership / acceptance or rejection
+```
+
+The adapter joins the existing `Binding` fields (profile/action, connection,
+session, peer, service, canonical Gateway text ID, operator, request digest,
+dependency digest and policy) with the exact operation counter and current view.
+The counter stays in its existing operation namespace; it is not a new Binding
+or wire field. Admission must complete within the applicable authority,
+currentness, policy, challenge and request deadlines. The challenge deadline
+bounds proof completion, not the lifetime of an accepted registration. Registration
+lease and admitted-work lifetime retain their existing independent authority,
+renewal and drain rules; this appendix does not shorten or extend them. View
+validity alone does not mean eligibility: an authentic complete view can contain
+an applicable denial.
+
+Final admission must recheck context, revision, time, outstanding attempt and
+cancellation under the same serialized ownership boundary. Context succession,
+expiry or a revision change invalidates a stale completion. The network fetch
+must not hold that ownership boundary; only a bounded verified candidate reaches
+publication. Higher floors and retained events are committed before publication;
+uncertain persistence blocks new use and preserves ownership. Startup restores
+safety state, never a live permit or pending challenge. Existing M2 failure rules
+continue to distinguish invalid input, freshness loss and authenticated typed
+negative effects; already verified negative evidence remains processable while
+positive admission is blocked. No refresh may restart work grace or clear denials.
+
+### Source and evidence register: initial unfilled deployment record
+
+This register instantiates S4's tracking requirement without repeating the source
+contracts. C1–C6 remain document labels, not wire domain IDs. `UNSELECTED` means
+no accepted deployment assignment is recorded here; `UNVERIFIED` means no
+qualifying authenticated evidence is linked here. Neither means an empty history
+or proof that an external source cannot exist. Existing fixtures do not fill a row.
+
+| Record | Existing contract to satisfy | Accountable real source / custodian | Qualifying evidence reference | Current state |
+| --- | --- | --- | --- | --- |
+| Commissioning and recovery | M1, W5, S1/S4: independent package authentication and authorized succession | UNSELECTED | UNVERIFIED | Blocks trust import |
+| C1 | Root, signer and governing-configuration status | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
+| C2 | Connector key, ownership and delegation revocation | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
+| C3 | Controller revocation | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
+| C4 | Normal revocation, including the existing 3/5 requirements | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
+| C5 | Emergency revocation, including the existing 2/5 and bounded nonterminal effects | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
+| C6 | Publisher-grant/key eligibility and independent status authority | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
+| Publisher / distribution | W1, W4/W5, S1/S2: aggregation, source ingestion and completeness responsibility | UNSELECTED | UNVERIFIED | Blocks authenticated currentness |
+| M3 state custodian | Independent recovery anchor, durable floors, retained denials/events and uncertain-write reconciliation | UNSELECTED | UNVERIFIED | Blocks safe publication/restart |
+| M4 clock / coordinator | Reviewed uncertainty source, monotonic failure latch and serialized event/admission commit | UNSELECTED | UNVERIFIED | Blocks timed runtime acceptance |
+
+For each selected row, attach an immutable evidence record containing: accountable
+operator and control-domain relationships; exact scope and source-contract version;
+public signer fingerprints/roles and authorization lineage; package/grant/artifact
+digests and validity; independently authenticated provisioning provenance; and the
+applicable accepted-history/coverage-cut evidence. Record transport identity and
+policy by an operator-owned reference, not by placing private endpoints or
+credentials in this public document. C6 also requires independent withdrawal and
+recovery evidence. M3/M4 use their recovery/time evidence instead of pretending to
+be governing feeds. Keep secrets, private keys and raw credentials out of both
+this register and test logs.
+
+Each evidence record must distinguish proposed, supplied and verified material,
+name its reviewer and record the exact source revision, verification command,
+result and limitations. Source selection or passing fixture tests cannot mark a
+row accepted. Acceptance requires its existing contract's evidence and explicit
+review; changes require authenticated succession, retained history and invalidation
+of old in-flight attempts. Cross-reference shared evidence rather than copying it
+across rows; shared hosting does not establish independent control.
+
+### Smallest next deliverable and acceptance boundary
+
+Before implementation, fill/review the source assignments and choose the still-open
+completeness, M3 and M4 mechanisms identified above. Reuse the existing W7 and
+C1–C6 acceptance matrices. Their supplied-trust and symbolic coverage suites remain
+separate historical evidence; do not create another equivalent vector package.
+
+The later adapter-specific checks should cover only the missing composition:
+valid full evidence plus exact request binding; a wrong service/peer/session or
+counter; a view changed between challenge and proof; cancellation or late fetch;
+uncertain persistence before publication; fresh restart with retained denials;
+and applicable negative enforcement while refresh is unavailable. Assert that a
+failed registration attempt creates no registration or dispatch for that attempt.
+Rejected unrelated input must not invalidate an existing verified view or owner;
+a refresh transport error alone must not revoke still-valid authority. Test
+freshness expiry, uncertain-persistence blocking and authenticated typed negative
+effects separately under M2. Existing work keeps its independent bounds, with no
+ownership release without confirmed cleanup.
+Reuse existing codec/signature, registration and cleanup tests for their own
+boundaries. Test results, source evidence and later real loopback acceptance must
+be recorded separately; none is claimed by this documentation-only proposal.
