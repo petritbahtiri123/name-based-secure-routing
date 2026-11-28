@@ -287,3 +287,122 @@ def test_failed_client_close_still_reaps_gateways(monkeypatch, failure):
                     process.kill()
                 await process.wait()
     asyncio.run(check())
+
+
+@pytest.mark.parametrize("index,visible", [
+    (0, "[Sherbimi OK]"), (1, "[B REFUZON]"), (2, "[B NUK ARRIHET]"),
+])
+def test_terminal_view_distinguishes_expected_block_from_test_failure(index, visible):
+    report = json.loads((ROOT / "docs/demo/p1-cross-gateway-telemetry-example.json").read_text())
+    result = report["results"][index]
+    result["private_debug"] = "secret-token private-origin.test"
+    rendered = module.render_terminal_case(result, color=True)
+    assert visible in rendered
+    assert "\x1b[32m[PASS]" in rendered
+    assert ("\x1b[31m" in rendered) is (index != 0)
+    assert "secret-token" not in rendered and "private-origin" not in rendered
+    plain = module.render_terminal_case(result, color=False)
+    assert "\x1b[" not in plain
+    assert "[PASS]" in plain
+
+
+def test_terminal_color_auto_respects_redirection_and_no_color(monkeypatch):
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: False)
+    assert module.terminal_color_enabled("auto") is False
+    assert module.terminal_color_enabled("always") is True
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True)
+    monkeypatch.setenv("NO_COLOR", "")
+    assert module.terminal_color_enabled("auto") is False
+    assert module.terminal_color_enabled("never") is False
+
+
+def test_terminal_failure_is_red_without_private_details(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", [str(SCRIPT), "--format", "terminal", "--color", "always"])
+
+    async def failure(*args, **kwargs):
+        raise RuntimeError("secret-token private-origin.test")
+
+    monkeypatch.setattr(module, "supervised_run", failure)
+    assert module.main() == 1
+    output = capsys.readouterr().out
+    assert "\x1b[31m[FAIL]" in output
+    assert "[PASS]" not in output
+    assert "PAKONFIRMUAR" in output
+    assert "secret-token" not in output and "private-origin" not in output
+
+
+def test_terminal_cli_runs_all_three_live_cases():
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT), "--format", "terminal", "--color", "never"],
+        cwd=ROOT, capture_output=True, text=True, timeout=55,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert completed.stderr == ""
+    assert completed.stdout.count("[PASS]") == 3
+    assert "[B REFUZON]" in completed.stdout and "[B NUK ARRIHET]" in completed.stdout
+    assert "\x1b[" not in completed.stdout
+    assert "127.0.0." not in completed.stdout
+
+
+def test_explicit_json_remains_raw_even_with_color_always(monkeypatch, capsys):
+    report = json.loads((ROOT / "docs/demo/p1-cross-gateway-telemetry-example.json").read_text())
+
+    async def completed():
+        return report
+
+    monkeypatch.setattr(sys, "argv", [str(SCRIPT), "--format", "json", "--color", "always"])
+    monkeypatch.setattr(module, "supervised_run", completed)
+    assert module.main() == 0
+    output = capsys.readouterr().out
+    assert "\x1b[" not in output
+    assert json.loads(output) == report
+
+
+@pytest.mark.parametrize("interactive", [True, False])
+def test_default_view_follows_console_and_preserves_redirected_json(monkeypatch, capsys, interactive):
+    report = json.loads((ROOT / "docs/demo/p1-cross-gateway-telemetry-example.json").read_text())
+    async def completed(on_result=None):
+        if on_result:
+            for result in report["results"]:
+                on_result(result)
+        return report
+    monkeypatch.setattr(sys, "argv", [str(SCRIPT)])
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: interactive)
+    monkeypatch.setenv("NO_COLOR", "1")
+    monkeypatch.setattr(module, "supervised_run", completed)
+    assert module.main() == 0
+    output = capsys.readouterr().out
+    if interactive:
+        assert output.count("+----------------------------+") == 24
+        assert output.count("[PASS]") == 3
+    else:
+        assert json.loads(output) == report
+
+
+def test_box_diagram_fits_narrow_console_and_marks_unattempted_link():
+    report = json.loads((ROOT / "docs/demo/p1-cross-gateway-telemetry-example.json").read_text())
+    output = module.render_terminal_case(report["results"][2], color=False)
+    assert "              X\n              v" in output
+    assert "              :\n              v" in output
+    assert max(map(len, output.splitlines())) <= 80
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows console API")
+def test_windows_vt_is_enabled_and_original_mode_restored(monkeypatch):
+    import ctypes
+    from unittest.mock import Mock
+    from ctypes import wintypes
+
+    kernel = Mock()
+    kernel.GetStdHandle.return_value = 123
+    def get_mode(handle, pointer):
+        ctypes.cast(pointer, ctypes.POINTER(wintypes.DWORD)).contents.value = 1
+        return 1
+    kernel.GetConsoleMode.side_effect = get_mode
+    kernel.SetConsoleMode.return_value = 1
+    monkeypatch.setattr(ctypes, "WinDLL", lambda *args, **kwargs: kernel)
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True)
+    restore = module.enable_windows_ansi()
+    kernel.SetConsoleMode.assert_called_once_with(123, 5)
+    restore()
+    assert kernel.SetConsoleMode.call_args.args == (123, 1)

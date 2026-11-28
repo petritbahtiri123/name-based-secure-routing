@@ -215,6 +215,10 @@ wire it to either Lab, VMs or benchmark controllers, or rewrite historical demo
 evidence. Missing/failed cleanup must remain unconfirmed.
 Always attempt gateway shutdown/reaping in `finally` even when client TLS close
 fails or is cancelled; bound that close and preserve the failed trial outcome.
+`--format terminal` presents measured public results in colored boxes. Interactive
+output defaults to this view; redirected output and `--format json` remain raw
+JSON. Keep expected policy/connect rejection visually distinct from a failed
+test, and never expose private IPC diagnostics.
 
 For `tools/demo-lab` and its setup/launcher wrappers, read
 [Local Demo Lab guidance](docs/agents/AREA_GUIDANCE.md#local-demo-lab).

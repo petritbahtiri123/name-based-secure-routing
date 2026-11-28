@@ -493,34 +493,156 @@ async def run_scenario(scenario: str) -> dict:
             "cleanup": cleanup_counts, "trace": observations}
 
 
-async def run_all() -> dict:
-    return {"scope": "LIVE_LOOPBACK_PYTHON_RELAY_FIXTURE",
-            "results": [await run_scenario(scenario) for scenario in SCENARIOS]}
+def terminal_color_enabled(mode: str) -> bool:
+    return mode == "always" or (mode == "auto" and sys.stdout.isatty()
+                               and "NO_COLOR" not in os.environ and os.environ.get("TERM") != "dumb")
 
 
-async def supervised_run() -> dict:
+def enable_windows_ansi():
+    """Enable VT only on this interactive output handle; restore it on exit."""
+    if os.name != "nt" or not sys.stdout.isatty():
+        return lambda: None
+    import ctypes
+    from ctypes import wintypes
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.GetStdHandle.argtypes = [wintypes.DWORD]
+    kernel.GetStdHandle.restype = wintypes.HANDLE
+    kernel.GetConsoleMode.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+    kernel.SetConsoleMode.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+    handle = kernel.GetStdHandle(-11)
+    mode = wintypes.DWORD()
+    if kernel.GetConsoleMode(handle, ctypes.byref(mode)) and kernel.SetConsoleMode(handle, mode.value | 4):
+        return lambda: kernel.SetConsoleMode(handle, mode.value)
+    return lambda: None
+
+
+def terminal_diagram(nodes, links, color):
+    """Narrow boxed topology remains readable in an 80-column console."""
+    rows = []
+    for index, (label, code) in enumerate(nodes):
+        border = "+" + "-" * 28 + "+"
+        rows.extend(paint(line, code, color) for line in
+                    (border, "|" + label.center(28) + "|", border))
+        if index < len(links):
+            blocked = links[index]
+            code = 90 if blocked is None else (31 if blocked else 32)
+            rows.append(paint("              " + ("X" if blocked else ":" if blocked is None else "|"),
+                              code, color))
+            rows.append(paint("              v", code, color))
+    return "\n".join(rows)
+
+
+def paint(text: str, code: int, color: bool) -> str:
+    return f"\x1b[{code}m{text}\x1b[0m" if color else text
+
+
+def terminal_failure(color: bool) -> str:
+    return paint("[FAIL]", 31, color) + " Prova nuk perfundoi. Cleanup: I PAKONFIRMUAR."
+
+
+def render_terminal_case(result: dict, *, color: bool) -> str:
+    """Render only measured public fields; never print arbitrary diagnostics."""
+    if result["status"] != "PASS" or any(result["cleanup"].values()):
+        return terminal_failure(color)
+    stages = {(event["component"], event["stage"]) for event in result["trace"]}
+    titles = {"allowed": "LEJOHET", "policy_denied_b": "POLITIKA REFUZON NE B",
+              "gateway_b_unavailable": "B NUK ESHTE I DISPONUESHEM"}
+    def ok(label):
+        return paint(label, 32, color)
+
+    nodes = [("[Klienti]", 32), ("[A OK]", 32)]
+    if ("gateway_b", "policy_denied") in stages:
+        nodes += [("[B REFUZON]", 31), ("[Sherbimi: PA KERKESA]", 90)]
+        links = [False, False, True]
+        decision = "B zbatoi politiken. Payload-i nuk arriti te sherbimi."
+        phase = "gateway_b.policy_denied"
+    elif ("gateway_a", "connect_failed") in stages:
+        nodes += [("[B NUK ARRIHET]", 31), ("[Sherbimi: PA KERKESA]", 90)]
+        links = [False, True, None]
+        decision = "Lidhja A -> B deshtoi. Nuk pretendohet vendim nga B."
+        phase = "gateway_a.connect_failed"
+    elif ("client", "response_received") in stages:
+        nodes += [("[B OK]", 32), ("[Sherbimi OK]", 32)]
+        links = [False, False, False]
+        decision = "Sherbimi mori kerkesen; klienti verifikoi pergjigjen."
+        phase = "service.request_received / client.response_received"
+    else:
+        return terminal_failure(color)
+    diagram = terminal_diagram(nodes, links, color)
+    process = result["processes"]
+    counts = [result["service_connections"], result["service_requests"],
+              process["gateways_exited"], process["gateways_started"]]
+    if any(type(value) is not int or value < 0 for value in counts):
+        return terminal_failure(color)
+    index = SCENARIOS.index(result["scenario"]) + 1
+    return "\n".join([
+        "", paint(f"--- {index}/3  {titles[result['scenario']]} ---", 36, color),
+        diagram, decision, "Faza e matur: " + phase,
+        f"Sherbimi: lidhje={counts[0]} | kerkesa={counts[1]}.",
+        f"Procese gateway: {counts[2]}/{counts[3]} perfunduan. Cleanup: 0 burime te mbetura.",
+        ok("[PASS]") + " Sjellja e pritur u verifikua.",
+    ])
+
+
+async def run_all(on_result=None) -> dict:
+    results = []
+    for scenario in SCENARIOS:
+        result = await run_scenario(scenario)
+        results.append(result)
+        if on_result is not None:
+            on_result(result)
+    return {"scope": "LIVE_LOOPBACK_PYTHON_RELAY_FIXTURE", "results": results}
+
+
+async def supervised_run(on_result=None) -> dict:
     async with asyncio.timeout(SUPERVISOR_SECONDS):
-        return await run_all()
+        return await run_all() if on_result is None else await run_all(on_result)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--format", choices=("auto", "json", "terminal"), default="auto",
+                        help="Default: terminal when interactive, raw JSON when redirected.")
+    parser.add_argument("--color", choices=("auto", "always", "never"), default="auto",
+                        help="Terminal colors; JSON is never colorized.")
     parser.add_argument("--gateway", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    terminal = not args.gateway and (args.format == "terminal" or
+                                        (args.format == "auto" and sys.stdout.isatty()))
+    color = terminal_color_enabled(args.color) if terminal else False
+    restore_console = enable_windows_ansi() if color else lambda: None
     try:
+        if terminal:
+            print(paint("=== NBSR P1 | DY GATEWAY LOKALE ===", 36, color))
+            print("2 procese gateway | TCP/TLS reale | trust/DNS fixture | jo prove multi-host")
+            print("Jeshile = hap i kryer. Kuqe = bllokim/refuzim. Gri = nuk u arrit.")
+            print("Refuzimi i pritur mund te jete i kuq; testi merr PASS kur sjellja eshte e sakte.", flush=True)
         if args.gateway:
             result = asyncio.run(gateway_worker(json.loads(sys.stdin.buffer.readline(65536))))
+        elif terminal:
+            result = asyncio.run(supervised_run(
+                lambda item: print(render_terminal_case(item, color=color), flush=True)))
         else:
             result = asyncio.run(supervised_run())
-        print(json.dumps(result, indent=2))
+        if terminal:
+            print("\nID-te jane lokale; lidhja e vezhgimeve behet vetem nga testi.")
+            print("Detajet e plota: --format json (nis nje prove te re).")
+        else:
+            print(json.dumps(result, indent=2))
         return 0
     except TrialFailure as failure:
-        print(json.dumps({"status": "FAIL", "cleanup": "UNCONFIRMED", "details": failure.details}))
+        print(terminal_failure(color) if terminal else
+              json.dumps({"status": "FAIL", "cleanup": "UNCONFIRMED", "details": failure.details}))
         return 1
     except (Exception, KeyboardInterrupt):
         # Never serialize raw exceptions, private paths or captured worker diagnostics.
-        print(json.dumps({"status": "FAIL", "stage": "trial_or_cleanup", "cleanup": "UNCONFIRMED"}))
+        print(terminal_failure(color) if terminal else
+              json.dumps({"status": "FAIL", "stage": "trial_or_cleanup", "cleanup": "UNCONFIRMED"}))
         return 1
+
+    finally:
+        restore_console()
 
 
 if __name__ == "__main__":

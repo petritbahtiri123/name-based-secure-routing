@@ -45,7 +45,50 @@ Set-Location C:\Users\bajra\.codex\worktrees\p1-cross-gateway\NBSR
 python scripts/demo/cross_gateway_telemetry.py
 ```
 
-The command runs all three cases sequentially, prints only public JSON and exits
+### Readable terminal presentation
+
+```powershell
+python scripts/demo/cross_gateway_telemetry.py --format terminal
+```
+
+The terminal view uses vertical boxed diagrams and green/red/gray ANSI colors.
+Interactive consoles select this view automatically without arguments. On Windows,
+the command enables VT processing for its console output and restores the prior
+mode on exit. Boxes fit an 80-column console and remain visible without color.
+Each case appears only after its live measurements and cleanup finish. Green
+marks completed steps; red marks a rejected/failed connection or policy decision;
+gray marks an unreached component. A red **expected** policy rejection can still
+produce a green `[PASS]`: the test succeeded by enforcing the intended boundary.
+Unexpected trial/cleanup failure prints red `[FAIL]`, keeps cleanup unconfirmed
+and returns nonzero. This is a presentation of the same measured results, not an
+animation that invents stages or changes gateway behavior.
+
+Use `--color always` to explicitly enable ANSI output or `--color never` for
+plain text. Auto mode omits ANSI when redirected, when `NO_COLOR` is set, or
+when `TERM=dumb`. The diagrams use ASCII for Windows terminal compatibility.
+
+Redirected/piped output remains raw JSON. Select JSON explicitly in any console:
+
+```powershell
+python scripts/demo/cross_gateway_telemetry.py --format json
+```
+
+JSON never contains color codes, even with `--color always`. Each command starts
+a new live trial; different views from different invocations have different local
+IDs. The terminal view omits IDs/private diagnostics and shows only public stage
+labels and measured counts. The raw report retains the complete local traces.
+
+The initial terminal follow-up passed **111 focused/neighbor tests** and Ruff, including
+seven presentation checks for the three outcomes, color selection, safe failure
+output, the live terminal CLI and unchanged explicit JSON. A live colored run
+also completed all three cases with 1/0/0 service requests and clean process exits.
+
+The boxed-view/Windows-console correction then passed **25 focused tests** and
+Ruff, including live cases, interactive/redirected selection and a mocked Windows
+console mode restoration check. The user's actual console appearance has not been
+visually inspected.
+
+The command runs all three cases sequentially, prints only public results and exits
 zero only when all pass. Repeating it creates new local trace identifiers, keys and
 ephemeral ports. Do not compare those random values byte-for-byte. It uses a
 45-second supervisor cancellation deadline, a 15-second per-case operation budget
@@ -187,9 +230,10 @@ regressions pass, along with the three live cases and existing neighbors. No
 production relay, admission rule, wire field or policy was changed.
 
 The scoped re-review found no remaining important issue in that corrected path.
-The retained example below is the unchanged **pre-review** receipt; the current
-source was exercised by the live regression/CLI tests in the 104-test run.
-Current reviewed source hashes:
+The retained example below is the unchanged **pre-review** receipt; the reviewed
+source was exercised by the live regression/CLI tests in the 104-test run and
+committed as `b0cdad9f3`, before adding the terminal presentation.
+Source hashes at that reviewed boundary:
 
 | File | SHA-256 |
 | --- | --- |
