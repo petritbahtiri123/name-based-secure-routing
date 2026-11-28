@@ -104,6 +104,74 @@ actual transport termination or authenticated registration. See the consolidated
 `docs/reviews/2026-10-10-connector-stage3-code-checkpoint.md` for exact validation,
 uncommitted inventory and remaining runtime gates.
 
+## Pinned two-VM positive runner (local preparation only until authorized)
+
+`vm_pair.py` adapts the retained SPHERE `run-pair.py` and `test_overlay.py` for
+`38f485cf332480e919b38f26abe9901a800e7a80`. It reuses the current Go/Rust test
+workers, synthetic authority, registration/renewal and retained cleanup checks.
+The historical runner and binaries are not modified. This is one positive
+Connector-to-Gateway case, not the P1 two-gateway service demo or a real authority
+provider. Docker restart/network/reconnect modes are not enabled by this runner.
+
+Local checks from the repository root (no SSH, sockets, keys or worker execution):
+
+```powershell
+python -B -m unittest discover -s interop/nbsr-go-peer/connector -p test_vm_pair.py -v
+python -m ruff check --no-cache interop/nbsr-go-peer/connector/vm_pair.py interop/nbsr-go-peer/connector/vm_pair_overlay.py interop/nbsr-go-peer/connector/test_vm_pair.py
+```
+
+Local overlay preparation requires a checkout whose HEAD is the exact pinned SHA:
+
+```powershell
+python -B interop/nbsr-go-peer/connector/vm_pair.py --repo <pinned-checkout> --prepare <new-overlay-directory>
+```
+
+This writes only two source copies into the new directory. It never edits the
+checkout. For a later authorized Linux build, apply those copies to an isolated,
+fully materialized checkout at the pinned SHA. Keep the two overlay changes
+unformatted so their exact normalized hashes remain reproducible. Use the existing
+Go `connector_development` worker build and Rust `connector_loopback` target
+documented below, with the existing offline caches, two-job/disk/deadline guards.
+Do not run the tests while building. No build or VM pass is established by the
+Python checks. Keep build logs and source inventory with the resulting artifacts.
+
+Place `go-connector`, `rust-gateway` and the pinned
+`vectors/connector-registration-development-v1/request.cbor` in one artifact
+directory outside the build source tree. Then record the declared build inputs:
+
+```powershell
+python -B <runner-checkout>/interop/nbsr-go-peer/connector/vm_pair.py --repo <overlaid-build-checkout> --artifacts <artifact-directory> --record-artifacts
+python -B <runner-checkout>/interop/nbsr-go-peer/connector/vm_pair.py --repo <pinned-checkout> --artifacts <artifact-directory>
+```
+
+Recording requires exactly the two expected tracked source edits and refuses to
+overwrite a manifest. Checking validates the base, source/overlay hashes, all three
+artifact hashes and exact request fixture bytes. Transfer checks keep the validated
+manifest hashes; changed local files cannot redefine the expected remote bytes.
+The manifest is an operator
+declaration, not cryptographic proof of which sources produced a binary; it cannot
+replace retained build provenance. Old retained SPHERE binaries must not be relabelled.
+
+Only a separate, explicitly authorized invocation with `--run-vm --evidence
+<new-evidence-directory>` contacts the existing `nbsr-client`/`nbsr-server` aliases.
+It pins the historical host/eth1 identities, keeps strict SSH host-key validation,
+uses unique private staging and selects only
+`isolated_go_rust_control_registration`. Confirm topology and resource headroom
+before authorizing that invocation. It does not configure routing or other services.
+
+Work and cleanup share monotonic 95/120-second budgets. Remote workers have GNU
+timeout guards; a remote exit receipt is required before removing a started
+worker's staging. Lost SSH/receipt or failed local reap leaves cleanup unconfirmed;
+the result retains the unique staging path for later authorized reconciliation.
+Do not infer remote death from killing the local SSH process. Timeouts are failure
+limits, not evidence of successful cleanup under a disconnected host.
+
+`result.json` and `redacted.log` retain only validated public events, safe error
+classes, provenance and cleanup outcome. Private fixture stdout is forwarded in
+memory; arbitrary worker output and stderr are not persisted. This intentionally
+limits failure diagnostics. A future VM run must retain failed receipts as well as
+passes. `ready` always remains `NOT_ESTABLISHED`.
+
 ## Explicitly authorized loopback integration
 
 `loopback_test.go` and Rust `tests/connector_loopback.rs` compose the development

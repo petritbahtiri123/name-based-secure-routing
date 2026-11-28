@@ -235,6 +235,17 @@ Automatic fixture runs allow at most five cycles/six sessions. Preserve each
 cycle's ownership/receipt evidence and the existing 120-second cleanup-inclusive
 bound; do not silently extend runtime or infer unbounded recovery from this trial.
 
+## Pinned two-VM runner
+
+The pinned positive two-VM runner is `interop/nbsr-go-peer/connector/vm_pair.py`;
+local-only checks are `python -B -m unittest discover -s
+interop/nbsr-go-peer/connector -p test_vm_pair.py -v`. Its adjacent README defines
+overlay preparation and artifact provenance for base `38f485cf`. Default checking
+and `--prepare` never contact VMs; `--run-vm` requires separate task authorization.
+Preserve the historical SPHERE runner/artifacts, exact positive test selection,
+synthetic-authority label and unconfirmed cleanup after missing remote receipts.
+Local Python/mock passes do not prove compiled overlay or two-VM interoperability.
+
 ## Local Demo Lab
 
 The separate P1 two-relay fixture is documented in
