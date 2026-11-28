@@ -2,6 +2,18 @@
 
 # NBSR implementation status
 
+**P1 local cross-gateway telemetry (2026-11-28):** the separate
+[Python ISP-profile relay fixture](../demo/p1-cross-gateway-telemetry.md)
+composes two real loopback TLS listeners using unchanged `NameRelay` admission.
+Allowed / B policy denied / B unavailable produce service request counts 1/0/0
+and gateway-local trace IDs joined only by the test collector; no trace ID is
+sent to the other gateway or in application data. A and B now run in distinct
+supervised subprocesses, each generating its local trace ID; successful cleanup
+requires both reaped exits. Signing trust and DNS/ephemeral-port mapping remain
+local fixtures. The earlier single-process receipt is retained separately.
+This does not extend the frozen Core/Federation wire, historical Go/Rust demo,
+connector READY or deployment claims. See the retained source hashes and receipt.
+
 October 11 bounded follow-up: the development Rust gateway rejects zero authority
 revision receipts before registration or renewal challenges, matching the offline
 oracle. See [positive-revision evidence](../reviews/2026-10-11-connector-zero-revision.md).

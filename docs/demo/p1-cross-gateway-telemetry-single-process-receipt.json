@@ -1,0 +1,181 @@
+{
+  "scope": "LIVE_LOOPBACK_PYTHON_RELAY_FIXTURE",
+  "results": [
+    {
+      "scenario": "allowed",
+      "status": "PASS",
+      "correlation": "HARNESS_ONLY",
+      "service_connections": 1,
+      "service_requests": 1,
+      "response_verified": true,
+      "tls": [
+        "gateway_a",
+        "gateway_b"
+      ],
+      "cleanup": {
+        "listeners": 0,
+        "tasks": 0,
+        "connections": 0
+      },
+      "trace": [
+        {
+          "local_trace_id": "18cd1b2e4582430ebea5ff530e0a60ac",
+          "sequence": 1,
+          "component": "client",
+          "stage": "request_started"
+        },
+        {
+          "local_trace_id": "94258149a6f94f9b80e55d1ef429069c",
+          "sequence": 2,
+          "component": "gateway_a",
+          "stage": "admission_allowed"
+        },
+        {
+          "local_trace_id": "94258149a6f94f9b80e55d1ef429069c",
+          "sequence": 3,
+          "component": "gateway_a",
+          "stage": "connect_started"
+        },
+        {
+          "local_trace_id": "94258149a6f94f9b80e55d1ef429069c",
+          "sequence": 4,
+          "component": "gateway_a",
+          "stage": "connected"
+        },
+        {
+          "local_trace_id": "83fc17fa525247bc99adc255dfca3579",
+          "sequence": 5,
+          "component": "gateway_b",
+          "stage": "admission_allowed"
+        },
+        {
+          "local_trace_id": "83fc17fa525247bc99adc255dfca3579",
+          "sequence": 6,
+          "component": "gateway_b",
+          "stage": "connect_started"
+        },
+        {
+          "local_trace_id": "83fc17fa525247bc99adc255dfca3579",
+          "sequence": 7,
+          "component": "gateway_b",
+          "stage": "connected"
+        },
+        {
+          "local_trace_id": "4c2897062f6641b7a818716dc97aa2b9",
+          "sequence": 8,
+          "component": "service",
+          "stage": "request_received"
+        },
+        {
+          "local_trace_id": "18cd1b2e4582430ebea5ff530e0a60ac",
+          "sequence": 9,
+          "component": "client",
+          "stage": "response_received"
+        }
+      ]
+    },
+    {
+      "scenario": "policy_denied_b",
+      "status": "PASS",
+      "correlation": "HARNESS_ONLY",
+      "service_connections": 0,
+      "service_requests": 0,
+      "response_verified": false,
+      "tls": [
+        "gateway_a",
+        "gateway_b"
+      ],
+      "cleanup": {
+        "listeners": 0,
+        "tasks": 0,
+        "connections": 0
+      },
+      "trace": [
+        {
+          "local_trace_id": "53e4dc60aa144997b00e5cb1ccedbfff",
+          "sequence": 1,
+          "component": "client",
+          "stage": "request_started"
+        },
+        {
+          "local_trace_id": "2899b4c558ee4cefb816811b715d4553",
+          "sequence": 2,
+          "component": "gateway_a",
+          "stage": "admission_allowed"
+        },
+        {
+          "local_trace_id": "2899b4c558ee4cefb816811b715d4553",
+          "sequence": 3,
+          "component": "gateway_a",
+          "stage": "connect_started"
+        },
+        {
+          "local_trace_id": "2899b4c558ee4cefb816811b715d4553",
+          "sequence": 4,
+          "component": "gateway_a",
+          "stage": "connected"
+        },
+        {
+          "local_trace_id": "ff99c72bdfc7457fbd5d970a8c59381f",
+          "sequence": 5,
+          "component": "gateway_b",
+          "stage": "policy_denied"
+        },
+        {
+          "local_trace_id": "53e4dc60aa144997b00e5cb1ccedbfff",
+          "sequence": 6,
+          "component": "client",
+          "stage": "rejection_received"
+        }
+      ]
+    },
+    {
+      "scenario": "gateway_b_unavailable",
+      "status": "PASS",
+      "correlation": "HARNESS_ONLY",
+      "service_connections": 0,
+      "service_requests": 0,
+      "response_verified": false,
+      "tls": [
+        "gateway_a"
+      ],
+      "cleanup": {
+        "listeners": 0,
+        "tasks": 0,
+        "connections": 0
+      },
+      "trace": [
+        {
+          "local_trace_id": "b206462026c343e890d27950333e9ed9",
+          "sequence": 1,
+          "component": "client",
+          "stage": "request_started"
+        },
+        {
+          "local_trace_id": "5169f598aef6472bb4c14f487d9a1ac0",
+          "sequence": 2,
+          "component": "gateway_a",
+          "stage": "admission_allowed"
+        },
+        {
+          "local_trace_id": "5169f598aef6472bb4c14f487d9a1ac0",
+          "sequence": 3,
+          "component": "gateway_a",
+          "stage": "connect_started"
+        },
+        {
+          "local_trace_id": "5169f598aef6472bb4c14f487d9a1ac0",
+          "sequence": 4,
+          "component": "gateway_a",
+          "stage": "connect_failed"
+        },
+        {
+          "local_trace_id": "b206462026c343e890d27950333e9ed9",
+          "sequence": 5,
+          "component": "client",
+          "stage": "rejection_received"
+        }
+      ]
+    }
+  ]
+}

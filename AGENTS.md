@@ -199,6 +199,23 @@ bound; do not silently extend runtime or infer unbounded recovery from this tria
 
 ## Local Demo Lab
 
+The separate P1 two-relay fixture is documented in
+`docs/demo/p1-cross-gateway-telemetry.md`. Its explicit command is
+`python scripts/demo/cross_gateway_telemetry.py`; focused tests are
+`tests/demo/test_cross_gateway_telemetry.py` with `tests/test_name_relay.py`.
+It opens only task-owned ephemeral loopback listeners and creates temporary
+encrypted test-key files. Keep the 45-second cancellation deadline plus bounded
+8-second cleanup (53 seconds total), real service-side
+counts and closed public trace fields. Keep trace IDs local to each component;
+only the test collector joins observations, with no on-wire trace identifier.
+Each gateway runs in its own supervised subprocess; verify distinct identities,
+zero remaining resources and reaped exits before success. It is a live Python
+relay fixture, not a Core/Federation or production gateway claim. Do not
+wire it to either Lab, VMs or benchmark controllers, or rewrite historical demo
+evidence. Missing/failed cleanup must remain unconfirmed.
+Always attempt gateway shutdown/reaping in `finally` even when client TLS close
+fails or is cancelled; bound that close and preserve the failed trial outcome.
+
 For `tools/demo-lab` and its setup/launcher wrappers, read
 [Local Demo Lab guidance](docs/agents/AREA_GUIDANCE.md#local-demo-lab).
 Historical demo verification pins remain separate from current-source receipts.
