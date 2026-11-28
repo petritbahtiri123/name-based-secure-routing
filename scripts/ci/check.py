@@ -134,6 +134,7 @@ def command_groups(profile: str) -> list[Command]:
                 Command("connector-signature-fixtures", (py, "-m", "scripts.extract_connector_signature_fixtures", "--check")),
                 Command("connector-currentness-vectors", (py, "-m", "scripts.verify_connector_currentness_vectors", "--check")),
                 Command("connector-source-coverage-vectors", (py, "-m", "scripts.verify_connector_source_coverage_vectors", "--check")),
+                Command("acp-provider-contract-vectors", (py, "-m", "scripts.verify_acp_provider_contract_vectors", "--check")),
                 Command("connector-kar-positive", (py, "-m", "scripts.check_connector_kar_positive", "--check")),
                 Command("normal-revocation-conformance", (py, "-m", "scripts.normal_revocation_conformance", "--check")),
                 Command("revocation-inclusion-v2", (py, "-m", "scripts.revocation_inclusion_v2", "--check")),

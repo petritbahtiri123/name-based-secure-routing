@@ -102,6 +102,15 @@ or grant execution authority.
 
 ## Setup and focused checks
 
+The explicitly selected `scripts/trust_admission_offline.py` composes Option C
+with exact trust-bundle bytes for local fixtures only. Run its module without
+arguments to check retained artifacts and run
+`python -m pytest -q -p no:cacheprovider tests/federation/test_trust_admission_offline.py`
+for the adapter. `--write` regenerates only its separate public-test fixture.
+Keep historical threshold artifacts unchanged. Provenance, session authentication
+and witness/transparency obligations are simulated, never runtime authority.
+See `docs/reviews/2026-11-26-trust-admission-offline.md` for the approved limits.
+
 Run commands from the repository root using an existing provisioned environment.
 Check `pyproject.toml`, `constraints/dev.txt`, `constraints/runtime.txt` and the
 crate's `Cargo.toml`/`Cargo.lock`. Rust uses edition 2024. Verify installed tools

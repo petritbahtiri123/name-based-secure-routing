@@ -1,0 +1,160 @@
+{
+  "scope": "READ_ONLY_RECONCILIATION_OF_RETAINED_LOCAL_EVIDENCE",
+  "current_base": "e82a2fc036bad41ebddf3d2203243edf8075ae5b",
+  "evidence_root": "C:\\Users\\bajra\\Documents\\Codex\\2026-11-25\\nbsr-connector-docker",
+  "new_live_trials": false,
+  "records": [
+    {
+      "case": "docker-attempt-7",
+      "description": "SIGTERM and process restart",
+      "status": "PASS",
+      "base_commit": "71063cdd50b27ebbbcd57ce011f20f6743b815a0",
+      "identity": "base plus dirty source snapshots; not a clean-commit trial",
+      "receipt_sha256": "8d48e23e8a54b7e285d64c5f6d7a060c6aa3e4ed98c5482bda84fde3ae2e2b26",
+      "redacted_log_sha256": "37f624c9af9e777a4e2842dd358eb8a39fba1ec0f80e9b2bf4bcc5ac98544d1d",
+      "source_hashes_verified": 16,
+      "binary_sha256": {
+        "gateway-test": "87a5a28ff68606e7e36f91c64c99cef68da861cd54dfe5c9bb43ca3cf13a8848",
+        "connector-test": "b408208a43ad50187c013b653bc206eb2fd03de83751dcc766e9ae1abe6fc415"
+      },
+      "binary_hashes_verified": true,
+      "elapsed_seconds": 3.990700999973342,
+      "synthetic_authority": true,
+      "ready": "NOT_ESTABLISHED",
+      "inventories_equal": true,
+      "current_source_differences_ignoring_CRLF": [
+        "interop/nbsr-go-peer/connector/docker_trial.py",
+        "interop/nbsr-go-peer/connector/test_docker_trial.py",
+        "crates/nbsr-transport/tests/support/connector_docker.rs"
+      ]
+    },
+    {
+      "case": "sigkill-attempt-1",
+      "description": "SIGKILL and process restart",
+      "status": "PASS",
+      "base_commit": "71063cdd50b27ebbbcd57ce011f20f6743b815a0",
+      "identity": "base plus dirty source snapshots; not a clean-commit trial",
+      "receipt_sha256": "65b5af42079d21534725897785c982fefa9aa63574d60f5a98dbfc00b69fe1b5",
+      "redacted_log_sha256": "6ac1fe2ef8518f90eb04b743ed32439cafe7516864bd10c1451a05781793b0e7",
+      "source_hashes_verified": 16,
+      "binary_sha256": {
+        "gateway-test": "59dec67d55a7afc06256c21cd283d040630a97e3075ce9260043d6d0f9d17eed",
+        "connector-test": "b408208a43ad50187c013b653bc206eb2fd03de83751dcc766e9ae1abe6fc415"
+      },
+      "binary_hashes_verified": true,
+      "elapsed_seconds": 9.437052899971604,
+      "synthetic_authority": true,
+      "ready": "NOT_ESTABLISHED",
+      "inventories_equal": true,
+      "current_source_differences_ignoring_CRLF": [
+        "interop/nbsr-go-peer/connector/docker_trial.py",
+        "interop/nbsr-go-peer/connector/test_docker_trial.py",
+        "crates/nbsr-transport/tests/support/connector_docker.rs"
+      ]
+    },
+    {
+      "case": "network-attempt-1",
+      "description": "Network loss/restoration with supervised replacement",
+      "status": "PASS",
+      "base_commit": "71063cdd50b27ebbbcd57ce011f20f6743b815a0",
+      "identity": "base plus dirty source snapshots; not a clean-commit trial",
+      "receipt_sha256": "10599c54d5400ca6e1c0604289148c31aecb81bbe606f5b5e1088096b607384c",
+      "redacted_log_sha256": "601e396c00b32a371f91db07928a8aff7c478823a978c74e8e85a55344ea697f",
+      "source_hashes_verified": 16,
+      "binary_sha256": {
+        "gateway-test": "e47a5e16419931e2791617f490627d9f67548a51ce8828091a9a1dcb43d4ab35",
+        "connector-test": "b408208a43ad50187c013b653bc206eb2fd03de83751dcc766e9ae1abe6fc415"
+      },
+      "binary_hashes_verified": true,
+      "elapsed_seconds": 11.200232200091705,
+      "synthetic_authority": true,
+      "ready": "NOT_ESTABLISHED",
+      "inventories_equal": true,
+      "current_source_differences_ignoring_CRLF": [
+        "interop/nbsr-go-peer/connector/docker_trial.py",
+        "interop/nbsr-go-peer/connector/test_docker_trial.py",
+        "crates/nbsr-transport/tests/support/connector_docker.rs"
+      ]
+    },
+    {
+      "case": "auto-network-attempt-1",
+      "description": "Automatic same-process reconnect",
+      "status": "PASS",
+      "base_commit": "71063cdd50b27ebbbcd57ce011f20f6743b815a0",
+      "identity": "base plus dirty source snapshots; not a clean-commit trial",
+      "receipt_sha256": "204bb5af1986602f97ab77812e5f42a4b3c0a5814125926e2941e488ecc40aa2",
+      "redacted_log_sha256": "ece17a177ca811378efc3a5cc5b0f4db55ce7d3cd1267b101fffb4563bcd9fd7",
+      "source_hashes_verified": 17,
+      "binary_sha256": {
+        "gateway-test": "3c863766c82dc5c086de1a87c3559f3ea247cfc8bed3e40e2756557d0ceea8f6",
+        "connector-test": "764c52049a1562cb8838f1a27a751aab91a3dfd6a3a3f33aab9e52851542d0dd"
+      },
+      "binary_hashes_verified": true,
+      "elapsed_seconds": 10.671255899826065,
+      "synthetic_authority": true,
+      "ready": "NOT_ESTABLISHED",
+      "inventories_equal": true,
+      "current_source_differences_ignoring_CRLF": [
+        "interop/nbsr-go-peer/connector/docker_reconnect_test.go",
+        "interop/nbsr-go-peer/connector/docker_trial.py",
+        "interop/nbsr-go-peer/connector/test_docker_trial.py",
+        "crates/nbsr-transport/tests/support/connector_docker.rs"
+      ]
+    },
+    {
+      "case": "five-cycle-attempt-1",
+      "description": "Five disconnect/reconnect cycles",
+      "status": "PASS",
+      "base_commit": "71063cdd50b27ebbbcd57ce011f20f6743b815a0",
+      "identity": "base plus dirty source snapshots; not a clean-commit trial",
+      "receipt_sha256": "c7cc2ce4599ccadb9d14fbab0d32166786fe58f7c2a7c83383661f386890bb47",
+      "redacted_log_sha256": "2465f8cb440b7651004cc164e8617c1ffe065febdd0d6130792984ccb26916f6",
+      "source_hashes_verified": 17,
+      "binary_sha256": {
+        "gateway-test": "9fb00165e029d9b757d7c093bac625c8e7f6e28338fd41df5296816a8eee9871",
+        "connector-test": "637cbffd302a004f205a57e9c9e4190992e32dc374b8087ce262bbee28811766"
+      },
+      "binary_hashes_verified": true,
+      "elapsed_seconds": 40.89662030013278,
+      "synthetic_authority": true,
+      "ready": "NOT_ESTABLISHED",
+      "inventories_equal": true,
+      "current_source_differences_ignoring_CRLF": [
+        "interop/nbsr-go-peer/connector/docker_trial.py",
+        "interop/nbsr-go-peer/connector/test_docker_trial.py",
+        "crates/nbsr-transport/tests/support/connector_docker.rs"
+      ]
+    },
+    {
+      "case": "cleanup-failure-attempt-1",
+      "description": "Injected cleanup failure and explicit retry",
+      "status": "PASS",
+      "base_commit": "71063cdd50b27ebbbcd57ce011f20f6743b815a0",
+      "identity": "base plus dirty source snapshots; not a clean-commit trial",
+      "receipt_sha256": "fbeb9c3a087b3e6f93c1bffd6ac3279900d927559ec0d02ef7c938051257dba0",
+      "redacted_log_sha256": "e8aaf95aadfc5f23fd6cca6a157a628f37d7086a0078918b83e1d3fcab6b7006",
+      "source_hashes_verified": 17,
+      "binary_sha256": {
+        "gateway-test": "54cb7f315ec105b5cbb68de0138d8f8fb4ade3a2cf687386d69b6fe739cc65ea",
+        "connector-test": "637cbffd302a004f205a57e9c9e4190992e32dc374b8087ce262bbee28811766"
+      },
+      "binary_hashes_verified": true,
+      "elapsed_seconds": 14.721401499817148,
+      "synthetic_authority": true,
+      "ready": "NOT_ESTABLISHED",
+      "inventories_equal": true,
+      "current_source_differences_ignoring_CRLF": [
+        "interop/nbsr-go-peer/connector/docker_trial.py"
+      ]
+    }
+  ],
+  "validation": {
+    "focused_pytest": "69 passed",
+    "supervisor_unittest": "8 passed",
+    "acp_vectors": "6 positive, 22 negative; offline only",
+    "trust_admission": "PASS: offline composed fixture; no runtime authority",
+    "ruff": "PASS",
+    "initial_sparse_attempt": "52 failed, 73 passed, 1 deselected; missing sparse fixture/workflow inputs; broader CI suite not rerun",
+    "scope": "No Go/Rust build, Docker execution or VM access"
+  }
+}

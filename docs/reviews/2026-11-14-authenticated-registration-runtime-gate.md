@@ -1244,6 +1244,566 @@ checker only. Hosted CI and real source coverage remain unverified; no contract
 proof format or production protocol is approved by these artifacts.
 
 
+## Six-domain reconciliation with approved WP8 decisions - 2026-11-26
+
+This mapping refines the unresolved lists in S1-S4 and C1-C6; it does not reopen
+approved governance or promote the new currentness draft into a frozen profile.
+Read "unresolved" in those lists as the concrete deployment binding, missing
+proof specification or unproven runtime implementation identified below, not as
+absence of the underlying WP8 requirement.
+
+### Authority and precedence
+
+The detailed [approved WP8 source](../protocol/history/NBSR-WP8-F1-F119-approved-source.txt)
+is the historical authority: 318,890 bytes, SHA-256
+`6058485d07d9c827c0cb62dad325fb389b213e35801c0799414bb6338d89848e`,
+verified for this read-only reconciliation. Use the exact titled decisions below:
+the condensed F-number index is navigation only and some of its summaries do not
+match the historical numbering (for example historical F55 is rollback protection).
+The [direction register](../protocol/wp8-federation-v0.1-direction.md) defines
+precedence: later approved profile amendments govern only their explicit scope.
+Neither the historical source nor its immutable registries are edited here.
+
+| Contract | Existing decision authority to reuse | Actual remaining gap |
+| --- | --- | --- |
+| C1: roots, signers and governing configuration | Historical F9, Offline Root/Purpose-Bound Operational Keys; F15, Root-Signed Key Authorization Records; F47, Canonical Scoped Trust Bundle Contents; F48, Scope Authority Signs the Trust Bundle; F49, Automated Reconciliation; F53-F55, version/continuity/rollback; F60, Transparency-Verified Trust Bundles. Root custody, scoped signer authority and safe succession are already requirements. | Select the actual roots, scoped authority, public keys, accepted configuration lineage and applicable proof profiles; authenticate their initial provenance. Implement the existing rules at the Connector runtime boundary. Define how the currentness view proves complete relevant configuration/status coverage. |
+| C2: Connector key, ownership and delegation | Historical F15-F23 establish root-authorized keys, registry-rooted ownership, explicit narrowing delegation, acyclic chains, validity, revocation and continuity. F86 explicitly includes independently revocable Origin Connectors and dependency-directed effects. The current Development Profile signer matrix and approved Connector mapping supply exact purpose/scope constraints. | Bind the actual peer key, operator, service and Gateway to authenticated records; resolve the Connector registration action/profile allocation still named by its runtime gate. Supply the full relevant chain and coverage feed. Do not redesign ownership or delegation. |
+| C3: controller revocation | Historical F86, Typed Revocation Across All Trust-Critical Object Classes; F87, Reason-Dependent Terminal Revocation; F88, Permanent Terminal Tombstones; F93, Severity-Based Existing-Session Enforcement. The Development Profile explicitly selects target-controller 1-of-1 as an authority alternative. | Identify and authenticate the exact target controller and its live record source; compose existing typed verification with coverage and runtime enforcement. Missing source coverage is not permission to replace the full model with controller-only operation. |
+| C4: normal revocation | F86-F88 and F93 define target/dependency/enforcement behavior. The Development Profile defines normal 3-of-5; the separately approved normal-revocation revision-2 local amendment supplies the precise normal policy mapping and full-roster independence checks. F35-F44 and F60 supply applicable transparency principles. | Authenticate the real roster/control domains and governing context; approve/select live packaging and applicable log/witness evidence, then implement the runtime decoder/composition. The local amendment is not live authorization. Prove complete coverage in addition to inclusion of individual records. |
+| C5: emergency revocation | Historical F58, Immediate Revocation with Automated Emergency Key Replacement; F59, Pre-Authorized Threshold Break-Glass Recovery; F118, Risk-Based Authority and Witness Thresholds. The Development Profile and current Connector contract retain the specific emergency 2-of-5, nonterminal deny-only alternative. | Bind the actual emergency roster, source and authenticated events to the existing typed policy and timers. Establish complete coverage and recovery provenance. Do not infer that emergency signers can authorize replacement roots/keys or permanent termination from the general automation language in F58. |
+| C6: publisher grant/key status | F9/F15 already require purpose-bound authorized keys; F47/F48 define scoped trust material and its signer; F49 defines policy-controlled publication from approved signed desired state; F58/F59 and F86 cover compromise/recovery and exact-key revocation principles. These constrain the proposed publisher and status roles. | The dedicated currentness publisher/status roles, PublisherGrant and request/view-bound status receipt are a newer draft, not an existing WP8 allocation. Their exact authorization mapping, independent status source, withdrawal proof and recovery transition still require approval and implementation. F49's reconciliation controller does not automatically possess any of those signing authorities. |
+
+For C2/C3/C4/C5, consult the
+[Development Profile signer-authority matrix](../protocol/federation-v0.1-development-profile.md#signer-authority-matrix-and-cose-kid-binding)
+and its machine authority, not an inferred threshold from a similarly named
+policy. In particular, the
+[normal-revocation amendment](2026-10-11-normal-revocation-conformance.md)
+is distinct from global-trust-v1: sharing 3-of-5 does not make their signers,
+purposes, scope or evidence interchangeable. Its local conformance approval does
+not authorize a runtime source overlay or change historical Option C defaults.
+
+### Cross-domain obligations already decided
+
+- **Trust inventory and distribution:** F47 already requires roots, keys, logs,
+  witnesses, revocation references/endpoints, validity and scope in the bundle.
+  F48 decides which authority may sign for each scope. F49 already specifies
+  reconciliation, publication, distribution and guarded activation. Actual endpoint
+  addresses, operators and commissioned public keys are deployment inputs still
+  to supply; their absence is not a missing architectural decision.
+- **Continuity and restart:** historical F54 requires hash-linked continuity;
+  F55 requires the highest accepted generation/sequence/digest and revocation
+  state to survive restart, replacement, cache loss and failover. M3 is therefore
+  an implementation/evidence gap: choose and prove an allowed durable or externally
+  authenticated recovery mechanism. It is not a new decision on whether rollback
+  protection is required. Missing local state cannot imply pristine enrollment.
+- **Freshness and outage:** historical F57 and F89-F92 require bounded,
+  risk-specific freshness/outage behavior and fail-closed new authority when the
+  bound is exceeded. W6's tighter numbers are a Connector draft profile proposal,
+  not replacements for existing Federation timing values. Approve the exact
+  profile relationship and prove clock/ingestion/runtime behavior under M4.
+- **Completeness:** F42/F44 establish consistency and witnessed checkpoint roles;
+  F86 establishes typed revocation across dependencies. These do not by themselves
+  specify a proof that a Connector snapshot contains every relevant accepted
+  update through a cut. The C1-C6 source acceptance boundary, coverage commitment,
+  cross-domain closure and explicitly bounded omission-trust assumption remain
+  genuine specification gaps. Do not invent a completeness claim for witnesses.
+- **Scope of governance:** historical F48/F118 and the final profile distinction
+  permit explicitly scoped private/consortium deployments without claiming global
+  governance. Public/global institutional requirements are not a prerequisite to
+  development. That distinction does not select a new private profile here or
+  waive the current Connector's controller/normal/emergency obligations.
+
+### Narrow remaining work
+
+1. Fill the deployment bindings already required by WP8: selected scope/profile,
+   accountable operators, independently authenticated public roots/keys, exact
+   endpoints, real rosters and governing source/proof versions for C1-C6.
+2. Resolve only the new contracts: complete-currentness evidence and source cuts,
+   dedicated publisher/status authorization and withdrawal/recovery, plus exact
+   Connector action/profile and timing mappings still pending at the runtime gate.
+3. Implement and verify those bindings with existing verifiers, M3 persistence,
+   M4 clock/serialization and lifecycle cleanup; then obtain separately authorized
+   real-source pilot evidence. Fixture passes do not satisfy these runtime gates.
+
+No new global governance redesign, universal witness policy, threshold reduction
+or controller-only fallback is proposed. This reconciliation changes documentation
+only; it grants no activation, READY, commit, push or Stage 3 closure authority.
+
+
+## Remaining authority gaps: execution plan for review - 2026-11-26
+
+**Goal:** obtain authenticated, complete and current real-source registration
+with nonregressing restart state and confirmed lifecycle cleanup, under the
+existing WP8 decisions and the Connector acceptance gate.
+**Spec:** the six-domain WP8 reconciliation immediately above, C1-C6, M1-M4 and
+the existing Stage 3 acceptance requirements in this document.
+**Architecture:** scoped commissioning establishes trust; independently verified
+source evidence supplies governing state; the Gateway composes currentness,
+persistence and time checks before the serialized owner transition. Publication
+and status signatures cannot replace governing authorization.
+**Tech stack:** existing Python reference verifiers and fixtures, the development
+Rust Gateway and Go Connector; no new dependency or deployment choice is made here.
+**Execution:** after separate authorization, use the executing-plans workflow
+sequentially, one bounded task and focused review at a time. This is a proposed
+plan, not permission to execute it or a declaration that its outputs exist.
+
+### Global constraints and dependencies
+
+Preserve frozen registries, approved signer purposes and all applicable
+controller/normal 3-of-5/emergency 2-of-5 obligations. No controller-only fallback,
+implicit new signing purpose, automatic trust discovery or partial-view admission.
+Keep the historical fixtures and their limits intact. Every implementation step
+starts with a failing focused regression, then the smallest change, affected tests
+and one scoped review; add its checks to the affected CI profile. Commits/pushes
+require their own task authority. Use provisioned dependencies and existing resource
+guards; live sources, sockets/test PKI, ACL changes and pilot execution need their
+applicable action-time scope. Do not touch the original checkout or unrelated Docker
+resources. Document approval does not change runtime flags or registration_ready().
+
+Dependency order: **P1 -> P2 -> P3 -> P4 -> P5 -> P6**. P1 may record missing
+services, but P2 cannot declare real source bindings complete until they exist or
+an explicitly scoped implementation deliverable is selected. P4's storage and time
+contracts may be drafted during P2; no integration acceptance skips P3 or P4.
+
+### P1 - Populate the actual commissioning inventory
+
+**Responsible role:** deployment owner supplies assignments; implementer checks
+bindings against WP8 F15/F47/F48 and the C1-C6 contracts. Actual people remain TBD.
+**Document:** extend this existing record; do not create a competing trust policy.
+
+- [ ] For each of C1-C6, record actual scope/profile, source operator, source ID,
+  public key/fingerprint and purpose, authority chain, contract version, endpoint
+  identity, dependency set and required log/witness/roster references.
+- [ ] Mark each source as existing with retained provenance, available but not
+  authenticated, or absent and requiring implementation. Record the independent
+  commissioning channel and who can authorize source/status recovery. Keep secrets
+  out of the record; a reachable endpoint is not provenance.
+- [ ] Check that every proposed assignment is authorized for its exact scope and
+  that any claimed independence satisfies the applicable policy. Global institutions
+  are required only for the corresponding global claim; do not downgrade the
+  selected Connector profile to fit available signers.
+
+**Exit evidence:** a complete C1-C6 inventory with independently verifiable public
+provenance and explicit blocked rows. Names/URLs alone do not pass this gate.
+**If blocked:** identify the exact missing source/owner input. Existing fictional
+fixture identities must not fill the row, and repeated vectors cannot close it.
+
+### P2 - Resolve only the remaining protocol and source-contract decisions
+
+**Responsible role:** protocol owner approves new contracts; source operators
+confirm their acceptance, coverage and delivery obligations.
+**Document:** this record; any later normative amendment gets its own explicitly
+versioned proposal with pinned parents, never an in-place rewrite of old authority.
+
+- [ ] Specify each source's accepted-update boundary, authenticated cut/epoch
+  ordering, commitment construction, complete scoped coverage and cross-domain
+  dependency closure. Decide explicitly between verifiable coverage and a bounded
+  accepted omission-trust assumption; witnesses are not implicitly completeness
+  authorities. Include empty intervals, gaps, forks and source replacement.
+- [ ] Bind the dedicated publisher and status roles to authorized commissioning
+  evidence. Specify publisher withdrawal and independent status-anchor recovery,
+  including wire/schema, replay ordering and retained negative effects; W4 currently
+  has only an authorized response and must not gain an invented negative variant.
+- [ ] Resolve the still-pending Connector action/profile allocation, accepted inner
+  artifact versions and the relationship of W6 limits to existing WP8 timings.
+  Assign numerical values only through the applicable reviewed profile decision.
+
+**Exit evidence:** exact reviewed schemas, signer-authority matrix, canonical
+transcripts and accept/reject rules sufficient for two independent implementations.
+Open alternatives remain blockers, not implementation discretion. If a real source
+cannot meet the chosen contract, revise the proposal for review instead of relaxing
+verification in code.
+
+### P3 - Replace supplied coverage oracles with authenticated evidence checks
+
+**Existing boundaries to reuse:** `nbsr/federation/trust.py`, `cose.py`,
+`delegation.py`, `transparency.py`; the versioned normal-revocation/inclusion
+verifiers and the existing currentness/source-coverage fixture suites.
+**Implementation deliverable:** a separately scoped offline verifier/composition
+patch for the exact P2 contract. Name its new module/test paths in that patch's
+implementation scope after P2 fixes the interface; do not turn the present symbolic
+checker into a runtime provider by renaming its result.
+
+- [ ] Author literal positive and negative artifacts for all six domains using
+  approved public test material. Separate coverage acceptance from admission: a
+  complete view containing a denial is not permission to register.
+- [ ] Independently verify signatures, signer authorization, exact scope and
+  dependencies, source cuts/completeness and publisher status. No injected success
+  result may stand in for any claimed cryptographic acceptance path.
+- [ ] Test omitted accepted records, cross-domain substitutions, missing governance
+  evidence, unauthorized signer/roster changes, empty intervals, same-cut conflicts,
+  replay and stale evidence. Verify actual controller/normal/emergency semantics,
+  not merely mocked verdict propagation.
+
+**Exit evidence:** reproducible byte/transcript and semantic results plus affected
+CI selection. Preserve the earlier 92 symbolic cases as historical model evidence;
+new composed positives must identify exactly which real-verification boundary they
+exercise. Offline cryptographic success still does not establish deployed provenance.
+
+### P4 - Implement and prove restart and time boundaries
+
+**Reuse candidates:** `scripts/inclusion_persistence.py` and
+`tests/federation/test_inclusion_persistence.py`; existing client restart/floor
+patterns and the `TimeWindow`/observation invariants in the native authority target.
+These are starting points, not an approved complete Connector backend.
+
+- [ ] Select the deployment's independent restart anchor, namespace and authenticated
+  first-provisioning/recovery procedure. Specify write-before-publication ordering,
+  uncertain-commit behavior and compatibility with software rollback under F55.
+- [ ] Implement the bounded persistent adapter; test missing/corrupt state, rollback
+  of both local files, interruption at each publication boundary and failed cleanup.
+  Preserve denial markers, future events and visible ownership on uncertainty.
+- [ ] Select the actual clock/uncertainty source and serialized scheduling boundary;
+  test clock rollback, excessive uncertainty, suspend/resume, delayed event delivery
+  and expiry during verification. Same-cut refresh cannot extend the deadline.
+
+**Exit evidence:** independently anchored restart rejection and measured timer/
+uncertainty behavior for the selected environment. Distinguish injected exceptions,
+process crashes and power loss; claim only the durability level actually tested.
+M3/M4 remain open if evidence is still a memory backend or supplied clock.
+
+### P5 - Integrate the real provider with the development Connector path
+
+**Existing integration boundaries:**
+`crates/nbsr-transport/src/connector_authority.rs`, `connector_cleanup.rs`,
+`tests/federation/test_connected_authority_vectors.py` and
+`interop/nbsr-go-peer/connector/README.md`. Inspect their current callers before
+selecting exact production module ownership; test-only source is not promoted by
+removing a build guard or changing registration_ready() alone.
+
+- [ ] Implement the P2 provider interface with the approved bounded transport and
+  independently provisioned identities. Consume the P3 verifier and P4 storage/time
+  results in one serialized final recheck before ownership/admission changes.
+- [ ] Prove that authority revision, scope, key, request/session and deadline changes
+  between verification and acceptance reject the stale result. Keep partial-view
+  rejection separate from processing independently verified negative events.
+- [ ] Exercise real parser/verifier-to-owner integration: termination, expiry,
+  network outage, reconnect and cleanup failure. No replacement session before
+  confirmed cleanup; wrong/stale cleanup tickets must not release the old owner.
+
+**Exit evidence:** focused integration results and one scoped correctness review;
+all applicable source/authorization paths enforced without synthetic success inputs.
+Any change to pinned runtime source authority needs its separately reviewed versioned
+approval. This plan neither refreshes an old overlay nor authorizes live admission.
+
+### P6 - Separately authorized pilot and Stage 3 acceptance review
+
+**Responsible roles:** deployment owner authorizes the exact disposable pilot;
+implementer retains evidence; acceptance reviewer evaluates the existing gate.
+
+- [ ] Before execution, define exact hosts/resources, credential provisioning method,
+  scope, limits, abort criteria and cleanup ownership. Verify free-space/build guards
+  and existing resources without restarting Docker or modifying unrelated resources.
+- [ ] Demonstrate real-source Connector registration and current authority, plus
+  each applicable revocation mode, publisher withdrawal, stale/missing domains,
+  network recovery, process restart/rollback rejection and failed-cleanup retention.
+- [ ] Retain commit/dirty-source/binary identity, approved profiles, public provenance,
+  redacted commands/logs, observed results and exact cleanup counters. Keep failed
+  attempts and distinguish synthetic regressions from actual-source acceptance.
+- [ ] Review every Stage 3 obligation against retained evidence. Missing source
+  coverage, uncertain restart/time, unverified governance or unconfirmed cleanup
+  prevents closure. Track later-stage operational obligations separately; neither
+  local pilot success nor this plan claims global governance or production readiness.
+
+**Exit evidence:** an explicit acceptance decision with unresolved items listed,
+not an automatic status transition. No READY, activation, commit, push or merge is
+authorized by this plan. The immediate next deliverable is P1's concrete inventory;
+P2 can prepare proposals around remaining unknowns but cannot fabricate their answers.
+
+
+<a id="connector-source-inventory"></a>
+
+### P1 document-derived inventory: evidence and missing assignments - 2026-11-26
+
+This is P1's documentation pass, not commissioning acceptance. Reuse C1-C6 for
+contracts, the WP8 reconciliation for governing decisions and T1-G3 for verifier
+ownership; none of those tables is duplicated or replaced here. The rows below
+add only the classification of available source evidence and absent deployment
+assignments. "Not established" means not established by the checked documents,
+not proof that no such service exists outside this checkout. No endpoint was
+contacted, reference resolved or credential store opened.
+
+| Domain | Available evidence / classification | Deployment assignment still not established |
+| --- | --- | --- |
+| C1 | T1 and historical F47-F49 identify the trust package and scoped authority model. The [config README](../../deploy/single-instance/README.md) explicitly classifies repeated-byte identities and ref:* names as illustrative; no provider or secret-store binding is selected. **Documented contract; no commissioned source evidence.** | Actual scoped trust authority/root custodian, authenticated initial bundle and independent commissioning channel; accepted public key/lineage, log/witness roster and source endpoint. An inventory of authority classes in a registry is not an inventory of deployed authorities. |
+| C2 | T2-T4 identify key/ownership/delegation inputs. The [native genesis review](2026-11-14-native-signed-genesis-evidence.md) verifies a bounded retained corpus using supplied test signers, not a runtime authority. **Signed fixture evidence only.** | Real operator, Connector peer key, owner/delegator and exact service/Gateway binding; authenticated live chain/status source and current coverage. gateway.fixture and gateway.example.test in the example are not selected deployment values. |
+| C3 | The [Development Profile signer matrix](../protocol/federation-v0.1-development-profile.md#signer-authority-matrix-and-cose-kid-binding) identifies target-controller authority. The [Connector README](../../interop/nbsr-go-peer/connector/README.md) labels authority/revocation receipts synthetic. **Authority rule and synthetic integration; no real controller assignment.** | Exact controller identity/key and authorized target scope; authenticated controller revocation source, acceptance history/cut and recovery operator. Transport success in the harness supplies none of these. |
+| C4 | The [normal conformance registry](../protocol/registries/federation-v0.1-normal-revocation-conformance-v1.json) names normal-revocation-v1 and the normal-revocation group, with runtime_enabled=false and live_enabled=false. Its [review](2026-10-11-normal-revocation-conformance.md) labels membership/control domains as supplied fixtures. **Explicit local conformance policy, not deployed roster.** | Actual five-member eligible roster, independently authenticated control-domain evidence, governing configuration, live normal-record source and applicable log/witness sources. No global-trust-v1 substitution. |
+| C5 | The same Development Profile defines the emergency authority alternative; C5 and the Connector gate retain its bounded deny-only semantics. No commissioned emergency roster/feed is established by the inspected profile, registry and Connector evidence. **Documented authority rule; deployment unverified.** | Actual eligible emergency members, purpose-bound keys, authorized source/cut, operational notification and recovery assignments. The normal group or local test signers cannot silently fill this row. |
+| C6 | W4/W5 define the proposed dedicated publisher/status roles. W8 and the six-domain fixture section explicitly describe supplied trust and symbolic source cuts. **Draft role/receipt contract and offline fixtures.** | Named publisher and independently administered status authority, authenticated grant/status anchor, eligibility ledger, concrete transport identities and withdrawal/recovery authority. No existing WP8 purpose or reconciliation-controller role automatically authorizes these new signatures. |
+
+**Shared unresolved deployment bindings:** the checked record does not establish
+an actual selected pilot scope/profile, public fingerprint inventory, authenticated
+source-ID-to-endpoint mapping or accepted source-contract versions for these six
+rows. Existing approved development contracts remain the baseline; selecting an
+operational scope cannot weaken their obligations. The three logical config
+references remain placeholders until independently provisioned and authenticated:
+`trust_ref`, `registration_policy_ref` and `registration_authority_ref`. Do not
+replace them with examples or infer their contents from their names.
+
+**Minimum next input, without secrets:** the deployment owner supplies the intended
+scope and accountable role assignments; each selected authority/source owner
+supplies public identity/key fingerprints, authorized scope, endpoint identity,
+lineage/provenance and an authenticated sample cut/history. The independent
+commissioning/recovery custodian supplies the provenance channel and recovery
+assignment. Record each item against C1-C6 here only when evidenced. A source not
+yet available becomes a specifically scoped implementation requirement, not a
+fictional populated row. Whether a missing source is absent or merely undocumented
+requires owner confirmation or separately authorized inspection.
+
+**P1 result:** documentation inventory prepared; commissioning gate remains open.
+No concrete real-source row can be marked authenticated from this evidence alone.
+The remaining proof-format/coverage and publisher-status decisions stay in P2;
+M3/M4 and runtime integration stay in P4/P5 rather than being relabelled as missing
+WP8 architecture. No existing section required a substantive correction in this
+pass; all prior text is retained byte-for-byte.
+
+
+### P2 draft: real-provider boundary behind ACP/enrollment - 2026-11-26
+
+This specifies responsibilities for a future implementation, not a deployed
+provider or a new wire allocation. Reuse the WP8 mapping, C1-C6 source contracts,
+W3-W6 draft and P1 inventory above without duplicating them. Actual authorities,
+keys, endpoints and independent provisioning remain unverified P1 inputs.
+
+**Composition:** independently authenticated commissioning -> verified WP8 source
+records and coverage -> immutable scoped authority snapshot -> policy/credential
+services -> existing ACP/enrollment adapters. A separate Connector adapter may
+consume the shared verified snapshot only after its registration/profile mapping
+is approved. It must not interpret a client ACP result as Connector admission.
+The publisher transports/attests the declared view; the Gateway independently
+verifies it. Neither the enrollment service nor the reconciliation controller
+may manufacture governing authority missing from that view.
+
+#### Existing interfaces and required real implementations
+
+The interfaces in [source_operator_runtime.go](../../client/nbsr-go-client/internal/authority/source_operator_runtime.go)
+are injection boundaries, not evidence that their real implementations exist.
+
+| Existing boundary | Required real source and behavior | Connector reuse limit |
+| --- | --- | --- |
+| ACPRequestKeyResolver / RequestKeys | Resolve the exact device/kid/generation from an authenticated enrollment/credential registry, with validity, status, purpose and operator binding. Unknown or ambiguous identity rejects. Registry writes require the authorized enrollment/recovery path. | Reuse exact-key validation patterns; a client device credential does not become a Connector purpose-14 KAR or establish C2 ownership/delegation. |
+| OperatorResultSigner | Obtain the dedicated purpose-bound signer from the deployment's approved key-custody service, authorized by the accepted scoped chain. Check its current eligibility before signing; do not generate replacement keys as a request fallback. | Existing ACP/enrollment purposes 15/16 remain limited to their existing results. W5 publisher/status keys and governing record keys need their own approved authorization; no purpose reuse by analogy. |
+| SourceOperatorAuthority.CurrentAuthorityGeneration / DecideAuthority | Read a committed, internally consistent scoped snapshot and independently authorized local policy. Evaluate the exact verified request against governing evidence, dependencies, denials, time and policy; policy may narrow but cannot create authority. Return only existing ACP artifact/status types with the generation actually used for evaluation. | Reuse the decision boundary, not the client result schema. The Connector needs its separately approved inventory/session/request/peer binding and owner lifecycle. |
+| BootstrapAuthorizer | Authenticate initial provisioning through the deployment-specific channel and resolve a scoped enrollment entitlement from a durable ledger. Bind the authenticated subject, intended operator/profile and allowed enrollment operation; never derive entitlement from an unverified request field. | Reuse the separation of bootstrap authentication from wire parsing; it does not itself issue service delegation or authorize Connector registration. |
+| InitialEnrollmentService | In one serialized decision, bind the authenticated subject to the verified device request, validate the initial-only entitlement and commit the credential outcome. Existing-subject replacement is rejected under the current interface; recovery is a separately authorized operation. | Reuse request/result binding and initial enrollment transaction rules. Connector trust provisioning and registration remain distinct. |
+| IssuerResolver / EnrollmentResultIssuerResolver / ACPResultIssuerResolver | Supply validated issuer records from the commissioned root/policy lineage and current status, retaining exact purpose, scope, key and validity constraints. StaticIssuerResolver can hold an already authenticated snapshot; constructing it does not authenticate that snapshot's origin. | Reuse signer resolution checks; full Connector governing closure, threshold packaging and source completeness remain mandatory. |
+| CheckpointEvidenceVerifier | Verify the approved inner evidence bytes and their authority/currentness, independently of the outer ACP result signature. Reject injected success labels, missing domains, stale cuts and inconsistent dependencies. Produce claims only for the exact request/operator/profile and verified snapshot. | The existing client CheckpointClaims is not a six-domain Connector proof. A versioned mapping/adapter is needed; W3 evidence must not be silently serialized into existing opaque bytes and treated as approved semantics. |
+| GenerationFloorStore / EnrollmentStateStore | Implement the existing pristine-versus-lost-state distinction, durable publication and authenticated recovery contract. Preserve committed identities, retained denials and scope-specific safety state; uncertain writes fail closed. | Client enrollment storage or idempotency persistence does not supply all Connector C1-C6 floors. Reuse M3 invariants; define the exact Connector namespace and independent anchor before use. |
+| NowUnix / Clock | Supply the selected deployment clock and enforce the approved uncertainty/monotonic policy at decision and publication boundaries. A default wall-clock callback is not proof of W6 uncertainty bounds. | Apply M4; do not substitute ACP wall time for the Connector's bounded authority window. |
+
+#### Snapshot acquisition and publication contract
+
+1. Load the independently provisioned trust context and exact C1-C6 source contracts.
+   Resolve only explicitly authorized sources. Network identity is transport evidence,
+   not permission to trust new roots, roster members or status signers.
+2. Ingest original authenticated records and required proofs; perform resource,
+   canonical encoding, signature, purpose, scope, lineage, typed governance and
+   source-coverage checks. Reuse existing verifiers under their approved versions;
+   no generic single-signature fallback for threshold evidence.
+3. Construct a candidate immutable view with all relevant dependency bindings,
+   cut vector, retained denials and future events. P2's not-yet-approved coverage
+   proof/omission-trust decision remains required; an unimplemented check cannot
+   be replaced by a locally incremented revision or an empty result.
+4. Under serialized commit control, recheck the governing context, status, clock
+   and current floors. Persist the candidate safety state using M3 before publishing
+   it for decisions. A failed/uncertain commit cannot publish fresh authority or
+   release ownership. Verified negative effects follow their approved typed path
+   even when a complete positive view is unavailable.
+5. Return a decision tied to the exact installed snapshot, with a final revision
+   and expiry check before result publication or Connector ownership transition.
+   Source succession, policy change or revocation invalidates affected pending work;
+   it cannot renew expired authority or clear retained withdrawal markers.
+
+The scalar client AuthorityGeneration must identify a committed client-authority
+view under its existing rules. It is not a comparison rule for unrelated C1-C6
+counters. Define an explicit, reviewed snapshot-to-client-generation binding if
+this shared provider serves ACP, while retaining the full Connector cut vector.
+Never derive the generation from HTTP success, wall time or publication attempts.
+No concrete mapping or new serialization is allocated by this draft.
+
+#### Enrollment atomicity and authorization boundary
+
+[EnrollmentHTTPClientConfig](../../client/nbsr-go-client/internal/authority/enrollment_client.go)
+explicitly leaves deployment bootstrap authorization outside generic enrollment
+wire serialization. Select and review the authenticated provisioning channel;
+do not add an ad hoc token/header or weaken TLS to make a demo enrollment work.
+BootstrapAuthorization currently exposes only Subject, so the service must resolve
+scope/expiry/consumption in its trusted ledger, or propose an interface amendment
+if that cannot safely express the approved entitlement. Subject text alone is not
+an enrollment grant.
+
+Consuming the entitlement, assigning the initial credential and retaining its
+terminal request/result binding must have a documented atomic recovery boundary.
+Coordinate that boundary with the runtime's transactional idempotency store: a
+crash after entitlement consumption cannot mint a second credential or silently
+repeat initialization. Exact retries recover the committed outcome; conflicting
+requests reject. Uncertain outcomes remain blocked until reconciled, never repaired
+by dropping ledger entries. Backend choice and cross-store transaction strategy
+are implementation decisions still to specify, not guarantees of the current API.
+
+#### Focused acceptance requirements and remaining decisions
+
+Before claiming a real-provider implementation, demonstrate: unprovisioned/ambiguous
+key rejection; valid signature with wrong purpose rejection; unauthorized local
+policy expansion rejection; expired or replayed bootstrap rejection; conflicting
+initial enrollment and post-consumption crash recovery; outer-valid/inner-invalid
+freshness rejection; all C1-C6 missing/stale/conflicting coverage negatives; source
+revision or revocation change during evaluation; uncertain durable publication;
+clock rollback/uncertainty failure; and cleanup failure retaining the exact owner.
+These are required future tests, not results obtained by this documentation change.
+
+Existing transport, codec, key-resolution, idempotency and restart checks are reuse
+candidates. Still missing are the real source assignments, approved completeness
+proof, dedicated publisher/status authorization and withdrawal format, any needed
+client-generation/Connector mapping, provisioning transaction backend and M3/M4
+runtime evidence. Keep these as P1-P5 gates; do not invent a second set of contracts
+or change approved WP8 semantics. This draft authorizes no activation, READY,
+commit, push or Stage 3 closure.
+
+
+#### Offline provider seam vectors - 2026-11-26
+
+The approved provider direction now has a separate bounded
+[literal fixture package](../../vectors/acp-provider-contract-draft1/vectors.json),
+[checker](../../scripts/verify_acp_provider_contract_vectors.py) and
+[tests](../../tests/protocol/test_acp_provider_contract_vectors.py). These add only
+proposed provider transaction/publication seams. Existing Go enrollment signature,
+request binding and runtime idempotency tests remain in their current files; the
+currentness and six-domain coverage packages remain unchanged. No second copy of
+those protocols or verifiers is introduced. Expected outcomes/final states were
+authored independently of the checker; no generator calls it to choose expectations.
+
+The 28 literal traces contain 6 positives and 22 negatives. Positive traces cover
+initial reservation/commit, exact pending/committed retries, authenticated matching
+reconciliation after an uncertain commit, recovered replay and valid publication.
+Negatives cover denied entitlement, subject/request conflicts, uncertainty blocking,
+wrong/unverified reconciliation, commit without reservation, uncertain completion,
+credential replacement, unknown operations, failed supplied verification/storage/
+clock/signer/policy checks, changed revision/digest/policy, expiry equality and
+attempted conversion of a client ACP result into Connector registration, and
+publication while enrollment is pending or uncertain.
+
+The checker is a symbolic offline model. subject-a, request-a, credential-a and
+snapshot digests are opaque fixture labels, not serialized identities, keys or
+hash proofs. Authorization, storage confirmation, clock validity, policy narrowing
+and inner verification are injected oracle verdicts, never authenticated provider
+outputs. The model reserves one credential label and never resets uncertainty to
+pristine; matching authenticated committed evidence is its only reconciliation
+success. It does not specify a real storage recovery algorithm. Positive pending
+and replay traces mean expected bookkeeping, not new authority or admission.
+OFFLINE_PUBLICATION_VALID is likewise a fixture result, never READY.
+
+Standalone publication cases assume an already authenticated actor; pristine
+means no transaction in this trace, not permission for an unenrolled device.
+The model does not execute cryptography, real entitlement expiry/consumption,
+cross-store transactions, crashes, revocation delivery, clock uncertainty estimation,
+C1-C6 verification or the concurrent Gateway lifecycle. Those P2-P5 obligations
+remain open; existing Go tests are referenced as coverage ownership, not rerun or
+claimed as new evidence here. No sockets, Docker, key generation or filesystem
+credential/ACL operations are required by this package.
+
+Focused commands from the isolated root:
+```text
+python -B -m scripts.verify_acp_provider_contract_vectors --check
+python -B -m pytest -q -p no:cacheprovider tests/protocol/test_acp_provider_contract_vectors.py tests/protocol/test_connector_currentness_vectors.py tests/protocol/test_connector_source_coverage_vectors.py tests/ci/test_ci.py -k "not connector_docker_supervisor"
+```
+CI's python-protocol profile selects the checker and the tests through its existing
+tests/protocol collection. Literal traces pin intermediate results and final state;
+unit checks also reject truthy non-booleans and preserve consumed ownership during
+failed reconciliation. Hosted execution and real-provider acceptance are not implied.
+
+
+### Pilot selection and remaining trust choices - 2026-11-26
+
+**User-selected direction:** a pilot with external operators/partners that have
+existing authorities. **Assignment status:** the user has not identified any
+partner or authority. This is a target topology, not evidence that a suitable
+provider exists, participates in NBSR or has agreed to a pilot. No partner outreach,
+endpoint connection or activation is authorized. Keep P1's six-domain inventory;
+fill evidenced assignments there rather than creating a second inventory.
+
+#### D1 - Qualify a partner before choosing a product or endpoint
+
+Recommend a bounded first pilot with one service, one Connector and one Gateway,
+while preserving all applicable governing authority modes and independence rules.
+The number of transport participants does not set the number of governing signers.
+Do not infer independent authorities from multiple containers, keys or accounts
+under one administrative control.
+
+A candidate partner must supply public documentation or an independently
+verifiable statement identifying its operator identity, authority scope, key
+provenance/rotation, governing roster/control domains, signed record/proof formats,
+revocation distribution and coverage semantics, clock/availability commitments,
+and accountable commissioning/recovery contacts. Check those against C1-C6 and
+the approved WP8 mapping, recording supported, adapter-needed and unsupported
+requirements. A CA certificate, OIDC issuer, generic signing service, ISP status
+or HTTPS API does not by itself qualify as an NBSR governing authority.
+
+If a candidate offers a compatible authenticated source, specify a narrow adapter
+that preserves original signed records and all authority checks. If it only offers
+key custody, identity bootstrap or infrastructure, classify that limited role;
+do not relabel it as a complete authority provider. If no candidate can supply the
+required authority and evidence, the external-pilot gate stays blocked. Offline
+implementation can continue only under explicit fixture boundaries, without
+substituting the previously unselected private deployment profile.
+
+#### D2 - Recommended coverage choice: source-authenticated cuts
+
+For the external pilot, recommend independently authenticated per-domain source
+cuts and coverage attestations over the exact accepted history/scope. The
+publisher assembles and transports them; its own signature alone is insufficient
+for a new positive acceptance. Reuse W3's required_evidence_refs and existing
+artifact verification where applicable; do not silently invent an object type or
+purpose for a source attestation. P2 must specify and approve the exact encoding,
+signing authority, commitment and verification rules before implementation claims.
+
+This chooses stronger separation than trusting the publisher alone, but is not a
+cryptographic proof that an authoritative source never withheld an update. Each
+source's acceptance boundary, honesty/completeness assumption and independent
+observation/audit must be documented. Inclusion and consistency still do not prove
+absence of omissions. Unknown coverage, missing domains or mutually inconsistent
+cuts block a fresh positive view under existing W3/W6 rules.
+
+**Alternative not selected:** publisher-only completeness under an explicitly
+accepted omission-trust assumption. If a future partner cannot supply the
+recommended source evidence, return for that specific trust decision; do not
+fall back automatically or claim that a fresh signature closes the gap.
+
+#### D3 - Recommended publisher/status authorization choice
+
+Reuse W5's distinct publisher and status keys. The independently authenticated
+commissioning package authorizes the scoped PublisherGrant and pins the status
+anchor; the status service maintains an independently administered grant/key
+eligibility ledger. Actual organizations, keys and custody remain P1 assignments.
+Separate key IDs alone do not prove administrative independence, and the status
+service never replaces controller/normal/emergency governance.
+
+Require a request/view-bound authorized status receipt for each fresh acceptance.
+Choose a separately authenticated withdrawal path with retained negative markers,
+and recovery through the independently authorized commissioning successor process.
+A later authorized receipt cannot erase a withdrawal by itself. Exact withdrawal
+schema, signer authorization, ordering and recovery transitions remain P2 decisions;
+this recommendation does not add a negative variant to W4's existing draft.
+
+#### Next deliverables and approval boundary
+
+1. Identify candidate partners and obtain public capability/provenance information;
+   populate only evidenced P1 assignments. No names are invented in this record.
+2. Review D2/D3 as the recommended trust choices. Their acceptance is separate
+   from the already selected external-pilot direction and does not approve a wire
+   format, endpoint, credential or live run.
+3. Once candidate capabilities and the trust choices are settled, produce the
+   exact P2 proof/withdrawal contracts and compatibility mapping, then implement
+   the P3-P5 boundaries already planned. Do not repeat earlier lifecycle/vector
+   work without new integration risk or evidence of a defect.
+
+No current vendor, partner availability or external authority compatibility was
+researched or verified in this step. No activation, READY, commit, push or merge
+follows. The concrete external-pilot blocker is now explicit: no identified
+partner with authenticated C1-C6 capabilities, rather than missing WP8 principles.
+
+
 ## Stage 3 provider-to-registration integration proposal — 2026-11-28
 
 Status: proposed for review before implementation. This appendix connects the
@@ -1306,15 +1866,16 @@ no accepted deployment assignment is recorded here; `UNVERIFIED` means no
 qualifying authenticated evidence is linked here. Neither means an empty history
 or proof that an external source cannot exist. Existing fixtures do not fill a row.
 
+Maintain C1–C6 assignments and their accepted evidence only in the existing
+[P1 source inventory](#connector-source-inventory). The table below tracks the
+supporting roles and mechanisms; its C1–C6 row is a cross-reference, not another
+assignment/status register. When a source is accepted, append its versioned
+evidence there without erasing the original unassigned assessment.
+
 | Record | Existing contract to satisfy | Accountable real source / custodian | Qualifying evidence reference | Current state |
 | --- | --- | --- | --- | --- |
 | Commissioning and recovery | M1, W5, S1/S4: independent package authentication and authorized succession | UNSELECTED | UNVERIFIED | Blocks trust import |
-| C1 | Root, signer and governing-configuration status | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
-| C2 | Connector key, ownership and delegation revocation | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
-| C3 | Controller revocation | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
-| C4 | Normal revocation, including the existing 3/5 requirements | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
-| C5 | Emergency revocation, including the existing 2/5 and bounded nonterminal effects | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
-| C6 | Publisher-grant/key eligibility and independent status authority | UNSELECTED | UNVERIFIED | Blocks complete-view acceptance |
+| C1–C6 | Existing domain contracts and [P1 source inventory](#connector-source-inventory) | Maintained in P1 | Maintained in P1 | See the single source inventory |
 | Publisher / distribution | W1, W4/W5, S1/S2: aggregation, source ingestion and completeness responsibility | UNSELECTED | UNVERIFIED | Blocks authenticated currentness |
 | M3 state custodian | Independent recovery anchor, durable floors, retained denials/events and uncertain-write reconciliation | UNSELECTED | UNVERIFIED | Blocks safe publication/restart |
 | M4 clock / coordinator | Reviewed uncertainty source, monotonic failure latch and serialized event/admission commit | UNSELECTED | UNVERIFIED | Blocks timed runtime acceptance |
@@ -1359,3 +1920,71 @@ ownership release without confirmed cleanup.
 Reuse existing codec/signature, registration and cleanup tests for their own
 boundaries. Test results, source evidence and later real loopback acceptance must
 be recorded separately; none is claimed by this documentation-only proposal.
+
+
+## Consolidated checkout and retained lifecycle evidence — 2026-11-28
+
+This is source/evidence reconciliation, not a new live trial or Stage 3 closure.
+The continuation branch is `codex/nbsr-v3-wp0-wp1`, starting at
+`e82a2fc036bad41ebddf3d2203243edf8075ae5b`. The separate clean checkout preserves
+the dirty original checkout. Published P1, Docker harness and offline integration
+are already in that ancestry. The older admin/JSON branches add no missing runtime.
+Existing unpublished ACP provider-contract and Option C offline additions were
+copied from the preserved `publish-currentness` checkout, without changing their
+code/test/vector bytes; prior document additions and current signing/P1 guidance
+are retained. These are existing offline fixtures, not a new provider implementation.
+
+The [reconciliation receipt](2026-11-28-connector-evidence-reconciliation.json)
+records exact external evidence locations, receipt/log digests, binary hashes,
+source-snapshot checks and differences from the current base. Original artifacts,
+including unsuccessful attempts, remain in their operator-owned evidence directory.
+
+| Retained Docker case | Result | Cleanup-inclusive duration | Source identity |
+| --- | --- | --- | --- |
+| SIGTERM and process restart | PASS | 3.99 s | `71063cdd` plus `docker-attempt-7/source` |
+| SIGKILL and process restart | PASS | 9.44 s | Same base plus `sigkill-attempt-1/source` |
+| Network loss/restoration and supervised replacement | PASS | 11.20 s | Same base plus `network-attempt-1/source` |
+| Automatic reconnect in the same process | PASS | 10.67 s | Same base plus `auto-network-attempt-1/source` |
+| Five network cycles, six accepted sessions | PASS | 40.90 s | Same base plus `five-cycle-attempt-1/source` |
+| Injected cleanup failure and explicit retry | PASS | 14.72 s | Same base plus `cleanup-failure-attempt-1/source` |
+
+Full historical base: `71063cdd50b27ebbbcd57ce011f20f6743b815a0`.
+All 99 recorded source-snapshot hashes and all 12 binary entries were checked
+against retained bytes. Each receipt reports no cleanup errors and equal before/
+after resource inventories. Redacted logs remain available. Earlier Docker attempts
+1–5 failed; attempt 6 passed before the final address-policy refinement; attempt 7
+is the retained final graceful result. Their failures were not removed or relabelled.
+
+These were dirty-source trials, not clean-SHA runs. In the latest cleanup-failure
+snapshot, all 17 recorded source files match the current base after CRLF comparison
+except `docker_trial.py`; earlier snapshots differ in additional harness files.
+Neither this subset comparison nor retained PASS certifies the current build.
+The later supervisor hardening has eight passing local unit tests here, not a new
+live Docker receipt. Existing loopback regression log `loopback-final.log` reports
+one aggregate test passed; its report describes the internal 19-case matrix.
+
+### What remains for a separately authorized VM verification
+
+First select one immutable consolidated source and retain its build/fixture hashes.
+The Docker supervisor uses Docker-specific process/network observations and private
+fixture IPC; it is not a drop-in VM launcher. Review an existing VM runner's exact
+support before reusing it, rather than claiming the Docker cases already ran there.
+Then verify the supported registration/renewal, restart/kill, network/reconnect and
+cleanup-retention cases on two endpoints, retaining raw redacted logs, process
+identity, generation changes, socket release and exact cleanup ownership. A prior
+reported SPHERE registration/renewal success is not substituted for those logs or
+for this current-source matrix. No VM execution or adaptation is authorized here.
+
+Real C1–C6 authority, trusted currentness/time, independent durable rollback state
+and private-service dispatch through accepted registration remain separate gates.
+The six Docker receipts explicitly use synthetic authority and do not establish
+READY. VM success under the same fixtures would not close those gates.
+
+Consolidation checks: 69 focused pytest cases, eight supervisor unit tests, retained
+ACP vectors (6 positive / 22 negative), Option C fixture validation and scoped Ruff
+passed. The initial broader selection failed on sparse-missing fixtures/workflows
+(52 failed, 73 passed, one deselected); after targeted materialization the focused
+selection above passed. The broader CI suite was not rerun. CI command inspection
+confirms the existing python-protocol profile collects the imported protocol and
+federation tests and selects the ACP checker. No new Go/Rust build, live Docker
+trial, VM access, performance run or hosted CI execution occurred.

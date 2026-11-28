@@ -240,6 +240,13 @@ checks coverage bookkeeping even with retained denials; it grants no admission.
 No real signature/threshold, source completeness, durable restart or cleanup is
 proven. Preserve the separate currentness wire fixtures and their limits.
 
+ACP provider seam fixtures use `python -B -m scripts.verify_acp_provider_contract_vectors --check`
+and `tests/protocol/test_acp_provider_contract_vectors.py`. They model entitlement/credential
+reservation, uncertain commit reconciliation and snapshot publication only. Verdicts
+are supplied test inputs; no real cryptographic proof, durable transaction, bootstrap
+provisioning or Connector admission follows. Preserve existing Go ACP/enrollment
+checks and earlier currentness/coverage vectors rather than copying their cases.
+
 ## Offline signed registration fixtures
 
 `nbsr/connector_registration_authority_offline.py` verifies signed genesis fixtures

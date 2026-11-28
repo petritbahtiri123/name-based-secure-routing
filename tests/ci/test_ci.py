@@ -445,3 +445,13 @@ def test_connector_source_coverage_vectors_selected_without_runtime():
     assert "8 positive, 84 negative; OFFLINE SUPPLIED ORACLES ONLY" in result.stdout
     collection = next(c for c in command_groups("python-protocol") if c.name == "python-protocol")
     assert "tests/protocol" in collection.argv
+
+
+def test_acp_provider_contract_vectors_selected_offline():
+    command = next(c for c in command_groups("python-protocol") if c.name == "acp-provider-contract-vectors")
+    assert command.argv[1:] == ("-m", "scripts.verify_acp_provider_contract_vectors", "--check")
+    result = subprocess.run(command.argv, cwd=Path(__file__).resolve().parents[2],
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "6 positive, 22 negative; OFFLINE PROVIDER CONTRACT ONLY" in result.stdout
+    assert "tests/protocol" in next(c for c in command_groups("python-protocol") if c.name == "python-protocol").argv

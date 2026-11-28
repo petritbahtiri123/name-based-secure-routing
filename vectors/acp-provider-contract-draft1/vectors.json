@@ -1,0 +1,983 @@
+{
+  "profile": "acp-provider-contract-draft1",
+  "runtime_authorized": false,
+  "live_trust_authorized": false,
+  "scope": "Symbolic transaction and publication seam only. Supplied verification/clock/storage verdicts; no wire, signatures, real policy or crash durability. Positive traces include safe pending/replay outcomes, not admission.",
+  "cases": [
+    {
+      "id": "enrollment_commit",
+      "kind": "positive",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "committed"
+      ],
+      "final": {
+        "phase": "committed",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "exact_committed_retry",
+      "kind": "positive",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": true
+        },
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "committed",
+        "replay"
+      ],
+      "final": {
+        "phase": "committed",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "exact_pending_retry",
+      "kind": "positive",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "pending"
+      ],
+      "final": {
+        "phase": "pending",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "reconcile_committed",
+      "kind": "positive",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": false
+        },
+        {
+          "op": "reconcile",
+          "binding": [
+            "subject-a",
+            "request-a"
+          ],
+          "credential": "credential-a",
+          "authenticated": true,
+          "committed": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "uncertain",
+        "reconciled"
+      ],
+      "final": {
+        "phase": "committed",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "recovered_retry",
+      "kind": "positive",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": false
+        },
+        {
+          "op": "reconcile",
+          "binding": [
+            "subject-a",
+            "request-a"
+          ],
+          "credential": "credential-a",
+          "authenticated": true,
+          "committed": true
+        },
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "uncertain",
+        "reconciled",
+        "replay"
+      ],
+      "final": {
+        "phase": "committed",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "publish_valid",
+      "kind": "positive",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "OFFLINE_PUBLICATION_VALID"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "inner_verified_false",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": false,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "publication_blocked"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "stored_false",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": false,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "publication_blocked"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "clock_valid_false",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": false,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "publication_blocked"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "signer_authorized_false",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": false,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "publication_blocked"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "policy_narrows_false",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": false,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "publication_blocked"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "revision_changed",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            8,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "snapshot_changed"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "digest_changed",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "changed",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "snapshot_changed"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "policy_changed",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "changed"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "snapshot_changed"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "expiry_equal",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1001,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "expired"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "acp_cannot_register_connector",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "connector-registration"
+        }
+      ],
+      "expected": [
+        "role_mismatch"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "bootstrap_denied",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": false
+        }
+      ],
+      "expected": [
+        "unauthorized"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "subject_conflict",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "begin",
+          "subject": "other",
+          "request": "request-a",
+          "entitled": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "conflict"
+      ],
+      "final": {
+        "phase": "pending",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "request_conflict",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "other",
+          "entitled": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "conflict"
+      ],
+      "final": {
+        "phase": "pending",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "retry_while_uncertain",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": false
+        },
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "uncertain",
+        "blocked"
+      ],
+      "final": {
+        "phase": "uncertain",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "reconcile_wrong_binding",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": false
+        },
+        {
+          "op": "reconcile",
+          "binding": [
+            "other",
+            "request-a"
+          ],
+          "credential": "credential-a",
+          "authenticated": true,
+          "committed": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "uncertain",
+        "blocked"
+      ],
+      "final": {
+        "phase": "uncertain",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "reconcile_unverified",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": false
+        },
+        {
+          "op": "reconcile",
+          "binding": [
+            "subject-a",
+            "request-a"
+          ],
+          "credential": "credential-a",
+          "authenticated": false,
+          "committed": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "uncertain",
+        "blocked"
+      ],
+      "final": {
+        "phase": "uncertain",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "commit_without_reservation",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "commit",
+          "confirmed": true
+        }
+      ],
+      "expected": [
+        "blocked"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "commit_uncertain",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": false
+        }
+      ],
+      "expected": [
+        "reserved",
+        "uncertain"
+      ],
+      "final": {
+        "phase": "uncertain",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "credential_replacement",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": true
+        },
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "replacement",
+          "entitled": true
+        }
+      ],
+      "expected": [
+        "reserved",
+        "committed",
+        "conflict"
+      ],
+      "final": {
+        "phase": "committed",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "unknown_operation",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "reset"
+        }
+      ],
+      "expected": [
+        "schema"
+      ],
+      "final": {
+        "phase": "pristine",
+        "binding": null,
+        "credential": null
+      }
+    },
+    {
+      "id": "pending_blocks_publication",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "reserved",
+        "publication_blocked"
+      ],
+      "final": {
+        "phase": "pending",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    },
+    {
+      "id": "uncertain_blocks_publication",
+      "kind": "negative",
+      "events": [
+        {
+          "op": "begin",
+          "subject": "subject-a",
+          "request": "request-a",
+          "entitled": true
+        },
+        {
+          "op": "commit",
+          "confirmed": false
+        },
+        {
+          "op": "publish",
+          "inner_verified": true,
+          "stored": true,
+          "clock_valid": true,
+          "signer_authorized": true,
+          "policy_narrows": true,
+          "verified_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "current_snapshot": [
+            "context-a",
+            7,
+            "digest-a",
+            "policy-a"
+          ],
+          "now": 1000,
+          "expiry": 1001,
+          "role": "client-acp-result"
+        }
+      ],
+      "expected": [
+        "reserved",
+        "uncertain",
+        "publication_blocked"
+      ],
+      "final": {
+        "phase": "uncertain",
+        "binding": [
+          "subject-a",
+          "request-a"
+        ],
+        "credential": "credential-a"
+      }
+    }
+  ]
+}
